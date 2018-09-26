@@ -7,7 +7,6 @@
 
 module load python/2.7-anaconda
 source activate nbdkt 
-#source /usr/common/contrib/bccp/conda-activate.sh 3.6 
 
 # pre-processing 
 srun -n 1 -c 1 python /global/homes/c/chahah/projects/eMaNu/run/threepcf.py 1 0.0 1 4 'real'
