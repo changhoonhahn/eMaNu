@@ -1,9 +1,10 @@
 #!/bin/bash
 #SBATCH -p debug 
 #SBATCH -n 1
-#SBATCH -t 00:30:00 
-#SBATCH -J halo_3PCF
-#SBATCH -o _halo_3PCF.o
+#SBATCH -t 00:05:00 
+#SBATCH -J 3PCF
+#SBATCH -o _3PCF.o
+#SBATCH -C haswell
 
 #module load python/2.7-anaconda
 #source activate nbdkt 
@@ -17,11 +18,11 @@ nreal=1
 nbin=20
 nside=20
 cscratch_dir=/global/cscratch1/sd/chahah/emanu/
-mneut_dir=$cscratch_dir$mneut
-group_dir=$cscratch_dir$mneut/$nreal
+mneut_dir=$cscratch_dir$mneut"eV"
+group_dir=$cscratch_dir$mneut"eV"/$nreal
 
 srun -n 1 -c 16 /global/homes/c/chahah/projects/eMaNu/emanu/zs_3pcf/grid_multipoles_nbin20 \
-    -box 1000. -scale 1 -nside \$nside -in \$group_dir/groups.nzbin4.rspace.dat > \$mneut_dir/"3pcf.groups."\$mneut"."\$real".nzbin4.nside"\$nside".nbin"\$nbin".rspace.dat"
+    -box 1000. -scale 1 -nside $nside -in $group_dir/groups.nzbin4.rspace.dat > $mneut_dir/"3pcf.groups."$mneut"eV."$real".nzbin4.nside"$nside".nbin"$nbin".rspace.dat"
 
 #for mneut in 0.0eV; do
 #    for real in {10..100}; do 
