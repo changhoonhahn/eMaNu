@@ -13,13 +13,13 @@ def hadesHalo_pre3PCF(mneut, nreal, nzbin, zspace=False, Lbox=1000., overwrite=F
     ''' pre-process halo catalogs for 3PCF run. In addition to 
     reading in halo catalog and outputing the input format for Daniel 
     Eisenstein's code, it also appends 1.76 * N_data randoms points 
-    for computing NNN (N = D-R). 
+    with negative weights for computing NNN (N = D-R). 
     '''
     # output file 
-    if zspace: str_space = '.z'
-    else: str_space = '.r'
-    fout = ''.join([UT.hades_dir(mneut, nreal), 
-        'groups.nzbin', str(nzbin), str_space, 'space.dat']) 
+    if zspace: str_space = 'z'
+    else: str_space = 'r'
+    fout = ''.join([UT.dat_dir(), 'halos/',
+        'groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space.dat']) 
 
     if os.path.isfile(fout) and not overwrite: 
         print('--- already written to ---\n %s' % (fout))
@@ -29,15 +29,15 @@ def hadesHalo_pre3PCF(mneut, nreal, nzbin, zspace=False, Lbox=1000., overwrite=F
     halos = Dat.NeutHalos(mneut, nreal, nzbin) 
     # halo positions
     if zspace: 
-        xyz = FM.RSD(halos, LOS=[0,0,1])
+        xyz = np.array(FM.RSD(halos, LOS=[0,0,1]))
     else: 
         xyz = np.array(halos['Position'])
     x = xyz[:,0]
     y = xyz[:,1]
     z = xyz[:,2]
-    assert x.max() <= Lbox
-    assert y.max() <= Lbox
-    assert z.max() <= Lbox
+    assert np.max(x) <= Lbox
+    assert np.max(y) <= Lbox
+    assert np.max(z) <= Lbox
     # weights (all ones!) 
     w = np.ones(len(x)) 
 
@@ -53,7 +53,8 @@ def hadesHalo_pre3PCF(mneut, nreal, nzbin, zspace=False, Lbox=1000., overwrite=F
     hdr = ''.join([
         'm neutrino = ', str(mneut), ' eV, ', 
         'realization ', str(nreal), ', ', 
-        'zbin ', str(nzbin)]) 
+        'zbin ', str(nzbin), ', ',
+        str_space, '-space']) 
 
     outarr = np.array([x, y, z, w]).T
     # write to file 
