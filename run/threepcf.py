@@ -43,10 +43,11 @@ def hadesHalo_pre3PCF(mneut, nreal, nzbin, zspace=False, Lbox=1000., overwrite=F
 
     ndat = len(x) 
     nran = int(1.76 * float(ndat))
+    f_dr = float(ndat)/float(nran) 
     x = np.concatenate([x, Lbox * np.random.uniform(size=nran)]) 
     y = np.concatenate([y, Lbox * np.random.uniform(size=nran)]) 
     z = np.concatenate([z, Lbox * np.random.uniform(size=nran)]) 
-    w = np.concatenate([w, -1. * np.ones(nran)]) 
+    w = np.concatenate([w, -1. * np.repeat(f_dr, nran)]) 
     
     # header 
     hdr = ''.join([
@@ -81,7 +82,7 @@ if __name__=='__main__':
         zstr = sys.argv[5]
         if zstr == 'z': zbool = True
         elif zstr == 'real': zbool = False
-        hadesHalo_pre3PCF(mneut, nreal, nzbin, zspace=zbool, Lbox=1000.)
+        hadesHalo_pre3PCF(mneut, nreal, nzbin, zspace=zbool, Lbox=1000., overwrite=True)
     elif nthread > 1: 
         # python threepcf.py 1 mneut nreal nzbin zstr
         mneut = float(sys.argv[2])
