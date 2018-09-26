@@ -7,7 +7,6 @@ F(theta)
 '''
 import numpy as np 
 
-import bigfile as BF 
 import nbodykit.lab as NBlab
 from nbodykit.hod import Zheng07Model
 from pmesh.pm import ParticleMesh

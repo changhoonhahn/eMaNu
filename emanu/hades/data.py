@@ -9,12 +9,12 @@ import numpy as np
 import nbodykit.lab as NBlab
 from halotools.sim_manager import UserSuppliedHaloCatalog
 
-# --- local --- 
+# --- emanu --- 
 from . import readfof 
 from . import readsnap as RS
-from . import forwardmodel as FM
-from specmulator import util as UT
-
+# --- emanu --- 
+from .. import util as UT
+from .. import forwardmodel as FM
 
 
 def X_fid(nreal, nzbin, obvs='plk', Nsample=100, poles=[0], mneut=0.0, Nmesh=360, rsd=True, 

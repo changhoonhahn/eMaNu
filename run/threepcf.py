@@ -1,7 +1,7 @@
 #!/bin/python
 import os 
 import sys 
-from numpy as np 
+import numpy as np 
 import multiprocessing as MP 
 # -- eMaNu -- 
 from emanu import util as UT
