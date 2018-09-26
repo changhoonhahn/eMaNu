@@ -18,5 +18,5 @@ setup(name = 'eMaNu',
       license='GPL',
       requires = ['numpy', 'matplotlib', 'scipy'],
       provides = ['emanu'],
-      packages = ['emanu']
+      packages = ['emanu', 'emanu.hades']
       )

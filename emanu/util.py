@@ -32,3 +32,13 @@ def doc_dir():
     ''' directory for paper related stuff 
     '''
     return code_dir()+'doc/'
+
+
+def hades_dir(mneut, nreal): 
+    ''' directory of hades data 
+    '''
+    if mneut == 0.1: 
+        _dir = ''.join([dat_dir(), '0.10eV/', str(nreal), '/'])
+    else: 
+        _dir = ''.join([UT.dat_dir(), str(mneut), 'eV/', str(nreal), '/'])
+    return _dir
