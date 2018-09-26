@@ -1,10 +1,13 @@
 #!/bin/bash
 #SBATCH -p debug 
 #SBATCH -n 1
-#SBATCH -t 00:05:00 
+#SBATCH -t 00:10:00 
 #SBATCH -J 3PCF
 #SBATCH -o _3PCF.o
 #SBATCH -C haswell
+
+now=$(date +"%T") 
+echo "start time ... $now"
 
 #module load python/2.7-anaconda
 #source activate nbdkt 
@@ -22,7 +25,7 @@ mneut_dir=$cscratch_dir$mneut"eV"
 group_dir=$cscratch_dir$mneut"eV"/$nreal
 
 srun -n 1 -c 16 /global/homes/c/chahah/projects/eMaNu/emanu/zs_3pcf/grid_multipoles_nbin20 \
-    -box 1000. -scale 1 -nside $nside -in $group_dir/groups.nzbin4.rspace.dat > $mneut_dir/"3pcf.groups."$mneut"eV."$real".nzbin4.nside"$nside".nbin"$nbin".rspace.dat"
+    -box 1000. -scale 1 -nside $nside -in $group_dir/groups.nzbin4.rspace.dat > $mneut_dir/"3pcf.groups."$mneut"eV."$nreal".nzbin4.nside"$nside".nbin"$nbin".rspace.dat"
 
 #for mneut in 0.0eV; do
 #    for real in {10..100}; do 
@@ -31,3 +34,6 @@ srun -n 1 -c 16 /global/homes/c/chahah/projects/eMaNu/emanu/zs_3pcf/grid_multipo
 #                > \$dest_dir/\$mneut/"3pcf.groups."\$mneut"."\$real".nzbin4.nside"\$nside".nbin"\$nbin".zspace.dat"
 #    done 
 #done
+
+now=$(date +"%T") 
+echo "end time ... $now"
