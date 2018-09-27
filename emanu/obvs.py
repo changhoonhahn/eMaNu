@@ -90,24 +90,23 @@ def _obvs_fname(obvs, mneut, nreal, nzbin, zspace, **kwargs):
     if obvs not in ['plk', '3pcf']: 
         raise ValueError('Currently we only support Pl(k) and 3PCF') 
 
-    if mneut == 0.1: 
-        _dir = ''.join([UT.dat_dir(), '0.10eV/'])
-    else: 
-        _dir = ''.join([UT.dat_dir(), str(mneut), 'eV/'])
-    if zspace: 
-        str_space = 'z' # redhsift
-    else: 
-        str_space = 'r' # real 
+    if mneut == 0.1: str_mneut = '0.10eV'
+    else: str_mneut = str(mneut)+'eV'
+
+    if zspace: str_space = 'z' # redhsift
+    else: str_space = 'r' # real 
     
     if obvs == 'plk': 
-        f = ''.join([_dir, 'plk.groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), 
+        f = ''.join([UT.dat_dir(), 'plk.', 
+            'plk.groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), 
             '.', str_space, 'space.dat']) 
     elif obvs == '3pcf': 
         if 'nside' not in kwargs.keys():  
             raise ValueError
         if 'nbin' not in kwargs.keys():  
             raise ValueError
-        f = ''.join([_dir, '3pcf.groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), 
+        f = ''.join([UT.dat_dir(), '3pcf/', 
+            '3pcf.groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), 
             '.nside', str(kwargs['nside']), 
             '.nbin', str(kwargs['nbin']), 
             '.', str_space, 'space.dat']) 
