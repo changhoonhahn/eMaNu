@@ -2,8 +2,8 @@
 
 mneut=0.0
 # pre-processing 
-for nreal in {1..100}; do 
-    python threepcf.py 1 $mneut $nreal 4 'real'
+for nreal in {63..63}; do #{1..100}; do 
+    python threepcf.py data 1 $mneut $nreal 4 'real'
     #python threepcf.py 1 $mneut $nreal 4 'z'
 done
 
