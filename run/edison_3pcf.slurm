@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -p debug 
 #SBATCH -n 1
-#SBATCH -t 00:30:00 
+#SBATCH -t 00:10:00 
 #SBATCH -J halo_random_3PCF
 #SBATCH -o _halo_random_3PCF.o
 
@@ -11,7 +11,10 @@ mneut=0.0
 module load python/2.7-anaconda
 source activate nbdkt 
 # halo catalogs 
-srun -n 1 -c 16 python /global/homes/c/chahah/projects/eMaNu/run/threepcf.py data 16 $mneut 1 100 4 'real'
+# in serial
+srun -n 1 -c 1 python /global/homes/c/chahah/projects/eMaNu/run/threepcf.py data 1 $mneut 63 4 'real'
+# in parallel 
+#srun -n 1 -c 16 python /global/homes/c/chahah/projects/eMaNu/run/threepcf.py data 16 $mneut 1 100 4 'real'
 # randoms
 #srun -n 1 -c 1 python /global/homes/c/chahah/projects/eMaNu/run/threepcf.py randoms $mneut 4
 

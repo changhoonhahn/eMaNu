@@ -17,7 +17,8 @@ def hadesHalo_pre3PCF(mneut, nreal, nzbin, zspace=False, Lbox=1000., Nr=50, over
     if zspace: str_space = 'z'
     else: str_space = 'r'
     fout = ''.join([UT.dat_dir(), 'halos/',
-        'groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space.dat']) 
+        'groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), 
+        '.', str_space, 'space.dat']) 
 
     if os.path.isfile(fout) and not overwrite: 
         print('--- already written to ---\n %s' % (fout))
