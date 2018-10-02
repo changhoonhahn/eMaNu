@@ -9,12 +9,10 @@ from emanu import forwardmodel as FM
 from emanu.hades import data as Dat
 
 
-def hadesHalo_pre3PCF(mneut, nreal, nzbin, zspace=False, Lbox=1000., overwrite=False): 
+def hadesHalo_pre3PCF(mneut, nreal, nzbin, zspace=False, Lbox=1000., Nr=50, overwrite=False): 
     ''' pre-process halo catalogs for 3PCF run. In addition to 
     reading in halo catalog and outputing the input format for Daniel 
-    Eisenstein's code, it also appends 1.76 * N_data randoms points 
-    with negative weights for computing NNN (N = D-R). 
-    '''
+    Eisenstein's code    '''
     # output file 
     if zspace: str_space = 'z'
     else: str_space = 'r'
@@ -40,14 +38,6 @@ def hadesHalo_pre3PCF(mneut, nreal, nzbin, zspace=False, Lbox=1000., overwrite=F
     assert np.max(z) <= Lbox
     # weights (all ones!) 
     w = np.ones(len(x)) 
-
-    ndat = len(x) 
-    nran = int(1.76 * float(ndat))
-    f_dr = float(ndat)/float(nran) 
-    x = np.concatenate([x, Lbox * np.random.uniform(size=nran)]) 
-    y = np.concatenate([y, Lbox * np.random.uniform(size=nran)]) 
-    z = np.concatenate([z, Lbox * np.random.uniform(size=nran)]) 
-    w = np.concatenate([w, -1. * np.repeat(f_dr, nran)]) 
     
     # header 
     hdr = ''.join([
@@ -63,40 +53,83 @@ def hadesHalo_pre3PCF(mneut, nreal, nzbin, zspace=False, Lbox=1000., overwrite=F
     return None 
 
 
+def hadesHalo_randoms(mneut, nzbin, Lbox=1000., Nr=50, overwrite=False): 
+    ''' 50x random catalogs for the halo 3PCF run. These randoms have
+    negative weight of -1 x N_data/N_random and will be appended
+    to the data file for computing NNN (N = D - R) 
+    '''
+    for ir in range(Nr): 
+        fout = ''.join([UT.dat_dir(), 'halos/',
+            'groups.', str(mneut), 'eV.nzbin', str(nzbin), '.r', str(ir)]) 
+
+        if os.path.isfile(fout) and not overwrite: 
+            print('--- already written to ---\n %s' % (fout))
+            continue 
+        
+        try: 
+            nran = int(1.76 * float(ndat))
+        except NameError: 
+            fhalo = ''.join([UT.dat_dir(), 'halos/',
+                'groups.', str(mneut), 'eV.1.nzbin', str(nzbin), '.rspace.dat']) 
+            h = np.loadtxt(fhalo, skiprows=1)
+            ndat = h.shape[0]
+            nran = int(1.76 * float(ndat))
+        f_dr = float(ndat)/float(nran) 
+        x = Lbox * np.random.uniform(size=nran)
+        y = Lbox * np.random.uniform(size=nran)
+        z = Lbox * np.random.uniform(size=nran)
+        w = -1. * np.repeat(f_dr, nran)
+        
+        outarr = np.array([x, y, z, w]).T
+        # write to file 
+        np.savetxt(fout, outarr) 
+        print('--- random written to ---\n %s' % (fout))
+    return None 
+
+
 def _hadesHalo_pre3PCF(args):
     # wrapper for NeutHalo that works with multiprocessing 
     mneut = args[0]
     nreal = args[1] 
     nzbin = args[2] 
     zspace = args[3]
-    hadesHalo_pre3PCF(mneut, nreal, nzbin, zspace=zbool)
+    hadesHalo_pre3PCF(mneut, nreal, nzbin, zspace=zbool, overwrite=True)
     return None
 
 
 if __name__=='__main__': 
-    nthread = int(sys.argv[1])
-    if nthread == 1: 
+    run = sys.argv[1]
+    if run == 'data': 
+        nthread = int(sys.argv[2])
+        if nthread == 1: 
+            # python threepcf.py data 1 mneut nreal nzbin zstr
+            mneut = float(sys.argv[3])
+            nreal = int(sys.argv[4]) 
+            nzbin = int(sys.argv[5])
+            zstr = sys.argv[6]
+            if zstr == 'z': zbool = True
+            elif zstr == 'real': zbool = False
+            hadesHalo_pre3PCF(mneut, nreal, nzbin, zspace=zbool, Lbox=1000., overwrite=True)
+        elif nthread > 1: 
+            # python threepcf.py data 1 mneut nreal_i nreal_f nzbin zstr
+            mneut = float(sys.argv[3])
+            nreal_i = int(sys.argv[4]) 
+            nreal_f = int(sys.argv[5]) 
+            nzbin = int(sys.argv[6])
+            zstr = sys.argv[7]
+            if zstr == 'z': zbool = True
+            elif zstr == 'real': zbool = False
+            # multiprocessing 
+            args_list = [(mneut, ireal, nzbin, zbool) for ireal in np.arange(nreal_i, nreal_f+1)]
+            pewl = MP.Pool(processes=nthread)
+            pewl.map(_hadesHalo_pre3PCF, args_list)
+            pewl.close()
+            pewl.terminate()
+            pewl.join() 
+    elif run == 'randoms': 
         # python threepcf.py 1 mneut nreal nzbin zstr
         mneut = float(sys.argv[2])
-        nreal = int(sys.argv[3]) 
-        nzbin = int(sys.argv[4])
-        zstr = sys.argv[5]
-        if zstr == 'z': zbool = True
-        elif zstr == 'real': zbool = False
-        hadesHalo_pre3PCF(mneut, nreal, nzbin, zspace=zbool, Lbox=1000., overwrite=True)
-    elif nthread > 1: 
-        # python threepcf.py 1 mneut nreal nzbin zstr
-        mneut = float(sys.argv[2])
-        nreal_i = int(sys.argv[3]) 
-        nreal_f = int(sys.argv[4]) 
-        nzbin = int(sys.argv[5])
-        zstr = sys.argv[6]
-        if zstr == 'z': zbool = True
-        elif zstr == 'real': zbool = False
-        # multiprocessing 
-        args_list = [(mneut, ireal, nzbin, zbool) for ireal in np.arange(nreal_i, nreal_f+1)]
-        pewl = MP.Pool(processes=nthread)
-        pewl.map(_hadesHalo_pre3PCF, args_list)
-        pewl.close()
-        pewl.terminate()
-        pewl.join() 
+        nzbin = int(sys.argv[3])
+        hadesHalo_randoms(mneut, nzbin, Lbox=1000., overwrite=True)
+    else: 
+        raise ValueError
