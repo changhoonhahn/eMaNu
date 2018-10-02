@@ -2,28 +2,18 @@
 #SBATCH -p regular 
 #SBATCH -n 1
 #SBATCH -t 06:00:00 
-#SBATCH -J halo_nnn_3PCF
-#SBATCH -o _halo_nnn_3PCF.o
+#SBATCH -J halo_nnn_3PCF_0.6eV
+#SBATCH -o _halo_nnn_3PCF_0.6eV.o
 
 now=$(date +"%T") 
 echo "start time ... $now"
 
-mneut=0.0
+mneut=0.6
 nbin=20
 nside=20
 cscratch_dir=/global/cscratch1/sd/chahah/emanu/
 group_dir=$cscratch_dir'halos/'
 thpcf_dir=$cscratch_dir'3pcf/'
-
-# pre-processing 
-#module load python/2.7-anaconda
-#source activate nbdkt 
-# halo catalogs (in serial)
-#srun -n 1 -c 1 python /global/homes/c/chahah/projects/eMaNu/run/threepcf.py data 1 $mneut 63 4 'real'
-# halo catalogs (in parallel)
-#srun -n 1 -c 16 python /global/homes/c/chahah/projects/eMaNu/run/threepcf.py data 16 $mneut 1 100 4 'real'
-# randoms
-#srun -n 1 -c 1 python /global/homes/c/chahah/projects/eMaNu/run/threepcf.py randoms $mneut 4
 
 for nreal in {1..25}; do 
     echo "--- mneut="$mneut" eV nreal="$nreal" ---"
