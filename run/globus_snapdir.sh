@@ -8,28 +8,18 @@ nersc_dir="/global/cscratch1/sd/chahah/emanu/"
 #echo "password:" 
 #read -s pwd 
 
-#0.0eV 
 #for mneut in 0.06eV 0.10eV 0.15eV 0.6eV; do 
-#done 
-
-
-mneut=0.0eV
-for nreal in {3..100}; do 
-    dir_nersc=$nersc_dir$mneut"/"$nreal"/snapdir_004/"
+mneut=$1
+echo "--- mneut ="$mneut" ---"
+for nreal in {1..100}; do 
+    dir_nersc=$nersc_dir$mneut"/"$nreal"/snapdir_004/snap_004.0"
     #dir_cca="/mnt/ceph/users/fvillaescusa/Neutrino_simulations/Sims_Dec16_2/"$mneut"/"$nreal"/snapdir_004/"
-    dir_cca="/"$mneut"/"$nreal"/snapdir_004/"
+    dir_cca="/"$mneut"/"$nreal"/snapdir_004/snap_004.0"
 
     #if sshpass -p $pwd ssh edison '[ ! -d '$dir_nersc' ]'; then
-    #echo "transfering ... "$dir_nersc
-    #globus transfer $source_ep:$dir_cca $dest_ep:$dir_nersc --recursive
     #fi
+    echo "transfering ... "$dir_nersc
+    globus transfer $source_ep:$dir_cca $dest_ep:$dir_nersc # --recursive
+    sleep 120 
 done 
-
-
-nreal=63
-dir_nersc=$nersc_dir$mneut"/"$nreal"/groups_004/"
-dir_cca="/"$mneut"/"$nreal"/groups_004/"
-
-echo "transfering ... "$dir_nersc
-globus transfer $source_ep:$dir_cca $dest_ep:$dir_nersc --recursive
-
+#done 
