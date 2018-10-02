@@ -50,7 +50,7 @@ for nreal in {1..25}; do
         cat $rand >> $tmp  
     
         eval $cmd -in $tmp -load $mult_ddd > $out_d_r
-        rm tmp
+        rm $tmp
         echo " NNN (N = D-R) #"$i_r" finished"
     done
 done 
