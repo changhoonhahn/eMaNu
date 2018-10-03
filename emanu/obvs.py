@@ -29,12 +29,31 @@ def Plk_halo(mneut, nreal, nzbin, zspace=False, sim='hades'):
     return plk 
 
 
-def threePCF_halo(mneut, nreal, nzbin, zspace=False, nside=20, nbin=20, sim='hades'): 
-    ''' Return isotropic three point correlation function (3PCF) 
-    from Slepian & Eisenstein 
+def threePCF_halo(mneut, nreal, nzbin, zspace=False, i_dr=0, nside=20, nbin=20, sim='hades'): 
+    if isinstance(i_dr, str): # strng 
+        if i_dr != 'all': raise ValueError
+        i_drs = range(50)
+    else: 
+        i_drs = [i_dr] 
+
+    for ii, i in enumerate(i_drs): 
+        tpcf_i = _threePCF_halo_i_dr(mneut, nreal, nzbin, zspace=zspace, 
+                i_dr=i, nside=nside, nbin=nbin, sim=sim)
+        
+        if ii == 0: 
+            tpcfs = tpcf_i
+        else: 
+            for ell in tpcfs.keys():
+                if ell != 'meta': 
+                    tpcfs[ell] += tpcf_i[ell] 
+
+
+def _threePCF_halo_i_dr(mneut, nreal, nzbin, zspace=False, i_dr=0, nside=20, nbin=20, sim='hades'): 
+    ''' Return isotropic three point correlation function (3PCF) from Slepian & Eisenstein. 
+    This function reads in the i^th NNN (N = D-R) 3pcf calculation.  
     '''
     # file name 
-    f = _obvs_fname('3pcf', mneut, nreal, nzbin, zspace, nside=20, nbin=20)
+    f = _obvs_fname('3pcf', mneut, nreal, nzbin, zspace, i_dr=i_dr, nside=nside, nbin=nbin)
 
     # read in meta data 
     tpcf = {} 
@@ -109,7 +128,7 @@ def _obvs_fname(obvs, mneut, nreal, nzbin, zspace, **kwargs):
             '3pcf.groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), 
             '.nside', str(kwargs['nside']), 
             '.nbin', str(kwargs['nbin']), 
-            '.', str_space, 'space.dat']) 
+            '.', str_space, 'space.d_r', str(kwargs['i_dr']), 'dat']) 
 
     if not os.path.isfile(f): 
         raise ValueError('%s does not exist' % f) 
