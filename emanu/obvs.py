@@ -29,12 +29,49 @@ def Plk_halo(mneut, nreal, nzbin, zspace=False, sim='hades'):
     return plk 
 
 
+def cthreePCF_halo(mneut, nreal, nzbin, zspace=False, i_dr=0, nside=20, nbin=20, rmax=200., sim='hades'): 
+    ''' return compressed 3pcf following Eq. 72 of Slepian & Eisenstein (2015) 
+    '''
+    # read in 3pcf 
+    tpcf = threePCF_halo(mneut, nreal, nzbin, zspace=zspace, i_dr=i_dr, nside=nside, nbin=nbin, sim=sim)
+    ells = tpcf.keys() # list of ells
+    ells.remove('meta') 
+    
+    r1_edge = np.linspace(0., rmax, nbin+1) 
+    r1_mid = 0.5 * (r1_edge[1:] + r1_edge[:-1]) 
+    r2_edge = np.linspace(0., rmax, nbin+1) 
+    r2_mid = 0.5 * (r2_edge[1:] + r2_edge[:-1]) 
+
+    dr = r1_edge[1] - r1_edge[0]
+    dVr2 = (r2_edge[1:]**3 - r2_edge[:-1]**3)
+
+    factor = int(np.ceil(18./dr))
+    
+    ctpcf = {} 
+    ctpcf['meta'] = tpcf['meta'].copy() 
+    for ell in ells: 
+        ctpcf[ell] = np.zeros(nbin)
+        for i_r1 in range(nbin): 
+            Sr1 = (r2_mid > factor*dr) & (r2_mid < (r1_mid[i_r1] - factor*dr)) 
+            if np.sum(Sr1) > 0:  
+                zeta = tpcf[ell][i_r1, Sr1]
+                ctpcf[ell][i_r1] = (zeta * dVr2[Sr1]).sum() / dVr2[Sr1].sum() 
+    return ctpcf 
+
+
 def threePCF_halo(mneut, nreal, nzbin, zspace=False, i_dr=0, nside=20, nbin=20, sim='hades'): 
+    '''Return isotropic three point correlation function (3PCF) from Slepian & Eisenstein. 
+    More specifically this function outputs the averaged NNN (N = D-R) 3pcf measurements.
+    '''
     if isinstance(i_dr, str): # strng 
         if i_dr != 'all': raise ValueError
         i_drs = range(50)
-    else: 
+    elif isinstance(i_dr, int): 
         i_drs = [i_dr] 
+    elif isinstance(i_dr, list): 
+        i_drs = i_dr
+    else: 
+        raise ValueError
 
     for ii, i in enumerate(i_drs): 
         tpcf_i = _threePCF_halo_i_dr(mneut, nreal, nzbin, zspace=zspace, 
@@ -42,15 +79,22 @@ def threePCF_halo(mneut, nreal, nzbin, zspace=False, i_dr=0, nside=20, nbin=20, 
         
         if ii == 0: 
             tpcfs = tpcf_i
+            ells = tpcfs.keys()
+            ells.remove('meta') 
         else: 
-            for ell in tpcfs.keys():
-                if ell != 'meta': 
-                    tpcfs[ell] += tpcf_i[ell] 
+            for ell in ells:
+                tpcfs[ell] += tpcf_i[ell] 
+            # I *should* check the meta data but bleh.
+                
+    for ell in ells: 
+        tpcfs[ell] /= float(len(i_drs))
+    return tpcfs
 
 
 def _threePCF_halo_i_dr(mneut, nreal, nzbin, zspace=False, i_dr=0, nside=20, nbin=20, sim='hades'): 
     ''' Return isotropic three point correlation function (3PCF) from Slepian & Eisenstein. 
-    This function reads in the i^th NNN (N = D-R) 3pcf calculation.  
+    More specifically this function reads in the i^th NNN (N = D-R) 3pcf calculation.
+    To reduce shot-noise ~50 NNN 3pcf should be averaged. 
     '''
     # file name 
     f = _obvs_fname('3pcf', mneut, nreal, nzbin, zspace, i_dr=i_dr, nside=nside, nbin=nbin)
@@ -128,7 +172,7 @@ def _obvs_fname(obvs, mneut, nreal, nzbin, zspace, **kwargs):
             '3pcf.groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), 
             '.nside', str(kwargs['nside']), 
             '.nbin', str(kwargs['nbin']), 
-            '.', str_space, 'space.d_r', str(kwargs['i_dr']), 'dat']) 
+            '.', str_space, 'space.nnn', str(kwargs['i_dr']), '.dat']) 
 
     if not os.path.isfile(f): 
         raise ValueError('%s does not exist' % f) 
