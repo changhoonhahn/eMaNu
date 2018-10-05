@@ -54,14 +54,15 @@ def hadesHalo_pre3PCF(mneut, nreal, nzbin, zspace=False, Lbox=1000., Nr=50, over
     return None 
 
 
-def hadesHalo_randoms(mneut, nzbin, Lbox=1000., Nr=50, overwrite=False): 
+def hadesHalo_randoms(nzbin=4, Lbox=1000., Nr=50, overwrite=False): 
     ''' 50x random catalogs for the halo 3PCF run. These randoms have
-    negative weight of -1 x N_data/N_random and will be appended
-    to the data file for computing NNN (N = D - R) 
+    w = -1 and will be appended to the data file for computing NNN. The
+    3pcf code itself will scale so that the total wait of the N catalog 
+    is equal to 0. 
     '''
     for ir in range(Nr): 
         fout = ''.join([UT.dat_dir(), 'halos/',
-            'groups.', str(mneut), 'eV.nzbin', str(nzbin), '.r', str(ir)]) 
+            'groups.nzbin', str(nzbin), '.r', str(ir)]) 
 
         if os.path.isfile(fout) and not overwrite: 
             print('--- already written to ---\n %s' % (fout))
@@ -71,15 +72,14 @@ def hadesHalo_randoms(mneut, nzbin, Lbox=1000., Nr=50, overwrite=False):
             nran = int(1.76 * float(ndat))
         except NameError: 
             fhalo = ''.join([UT.dat_dir(), 'halos/',
-                'groups.', str(mneut), 'eV.1.nzbin', str(nzbin), '.rspace.dat']) 
+                'groups.0.0eV.1.nzbin', str(nzbin), '.rspace.dat']) 
             h = np.loadtxt(fhalo, skiprows=1)
             ndat = h.shape[0]
             nran = int(1.76 * float(ndat))
-        f_dr = float(ndat)/float(nran) 
         x = Lbox * np.random.uniform(size=nran)
         y = Lbox * np.random.uniform(size=nran)
         z = Lbox * np.random.uniform(size=nran)
-        w = -1. * np.repeat(f_dr, nran)
+        w = -1. * np.ones(nran) #np.repeat(f_dr, nran)
         
         outarr = np.array([x, y, z, w]).T
         # write to file 
@@ -129,8 +129,7 @@ if __name__=='__main__':
             pewl.join() 
     elif run == 'randoms': 
         # python threepcf.py 1 mneut nreal nzbin zstr
-        mneut = float(sys.argv[2])
-        nzbin = int(sys.argv[3])
-        hadesHalo_randoms(mneut, nzbin, Lbox=1000., overwrite=True)
+        nzbin = int(sys.argv[2])
+        hadesHalo_randoms(nzbin=nzbin, Lbox=1000., overwrite=True)
     else: 
         raise ValueError
