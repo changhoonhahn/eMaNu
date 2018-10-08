@@ -69,9 +69,8 @@ def Galaxies(halos, p_hod, seed=None):
     return hod 
 
 
-def RSD(cat, LOS=[0,0,1]): 
-    ''' Given catalog, redshift space distorted positions 
-    along LOS 
+def RSD(cat, LOS=[0,0,1], Lbox=1000.): 
+    ''' Given catalog, redshift space distorted positions along LOS 
 
     parameters
     ----------
@@ -80,7 +79,12 @@ def RSD(cat, LOS=[0,0,1]):
     LOS : list, 3 elements
         list that specifies the line of sight 
     '''
-    return cat['Position'] + cat['VelocityOffset'] * LOS
+    pos = np.array(cat['Position']) + np.array(cat['VelocityOffset']) * LOS
+    # import periodic boundary conditions for particles outside the box 
+    i_rsd = np.arange(3)[np.array(LOS).astype(bool)][0]
+    rsd_pos = pos[:,i_rsd] % Lbox
+    pos[:,i_rsd] = np.array(rsd_pos)
+    return pos 
 
 
 def Halos(bs, nc, seed, nstep, seed_hod, Omega_m, p_alpha, p_logMin, p_logM1, p_logM0, p_sigma_logM):

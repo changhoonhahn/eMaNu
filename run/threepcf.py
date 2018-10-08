@@ -9,7 +9,7 @@ from emanu import forwardmodel as FM
 from emanu.hades import data as Dat
 
 
-def hadesHalo_pre3PCF(mneut, nreal, nzbin, zspace=False, Lbox=1000., Nr=50, overwrite=False): 
+def hadesHalo_pre3PCF(mneut, nreal, nzbin, zspace=False, Lbox=1000., overwrite=False): 
     ''' pre-process halo catalogs for 3PCF run. In addition to 
     reading in halo catalog and outputing the input format for Daniel 
     Eisenstein's code    '''
@@ -28,7 +28,7 @@ def hadesHalo_pre3PCF(mneut, nreal, nzbin, zspace=False, Lbox=1000., Nr=50, over
     halos = Dat.NeutHalos(mneut, nreal, nzbin) 
     # halo positions
     if zspace: 
-        xyz = np.array(FM.RSD(halos, LOS=[0,0,1]))
+        xyz = np.array(FM.RSD(halos, LOS=[0,0,1], Lbox=Lbox))
     else: 
         xyz = np.array(halos['Position'])
     x = xyz[:,0]

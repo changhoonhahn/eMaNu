@@ -219,15 +219,13 @@ def _obvs_fname(obvs, mneut, nreal, nzbin, zspace, **kwargs):
     if obvs not in ['plk', '3pcf', 'rrr']: 
         raise ValueError('Currently we only support Pl(k) and 3PCF') 
 
-    if mneut == 0.1: str_mneut = '0.10eV'
-    else: str_mneut = str(mneut)+'eV'
-
     if zspace: str_space = 'z' # redhsift
     else: str_space = 'r' # real 
     
     if obvs == 'plk': 
-        f = ''.join([UT.dat_dir(), 'plk.', 
+        f = ''.join([UT.dat_dir(), 'plk/', 
             'plk.groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), 
+            '.nmesh', str(kwargs['Nmesh']), 
             '.', str_space, 'space.dat']) 
     elif obvs == '3pcf': 
         if 'nside' not in kwargs.keys():  
@@ -251,6 +249,6 @@ def _obvs_fname(obvs, mneut, nreal, nzbin, zspace, **kwargs):
             '.nbin', str(kwargs['nbin']), 
             '.', str_space, 'space.rrr.dat']) 
 
-    if not os.path.isfile(f): 
-        raise ValueError('%s does not exist' % f) 
+    #if not os.path.isfile(f): 
+    #    raise ValueError('%s does not exist' % f) 
     return f 
