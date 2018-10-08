@@ -29,11 +29,11 @@ def Plk_halo(mneut, nreal, nzbin, zspace=False, sim='hades'):
     return plk 
 
 
-def cthreePCF_halo(mneut, nreal, nzbin, zspace=False, i_dr=0, nside=20, nbin=20, rmax=200., sim='hades'): 
+def cthreePCF_halo(mneut, nreal, nzbin, zspace=False, i_dr=0, nside=20, nbin=20, rmax=200., sim='hades', rrr_norm=False): 
     ''' return compressed 3pcf following Eq. 72 of Slepian & Eisenstein (2015) 
     '''
     # read in 3pcf 
-    tpcf = threePCF_halo(mneut, nreal, nzbin, zspace=zspace, i_dr=i_dr, nside=nside, nbin=nbin, sim=sim)
+    tpcf = threePCF_halo(mneut, nreal, nzbin, zspace=zspace, i_dr=i_dr, nside=nside, nbin=nbin, sim=sim, rrr_norm=rrr_norm)
     ells = tpcf.keys() # list of ells
     ells.remove('meta') 
     
@@ -59,9 +59,13 @@ def cthreePCF_halo(mneut, nreal, nzbin, zspace=False, i_dr=0, nside=20, nbin=20,
     return ctpcf 
 
 
-def threePCF_halo(mneut, nreal, nzbin, zspace=False, i_dr=0, nside=20, nbin=20, sim='hades'): 
+def threePCF_halo(mneut, nreal, nzbin, zspace=False, i_dr=0, nside=20, nbin=20, sim='hades', rrr_norm=False): 
     '''Return isotropic three point correlation function (3PCF) from Slepian & Eisenstein. 
     More specifically this function outputs the averaged NNN (N = D-R) 3pcf measurements.
+    *** document this ***
+    *** document this ***
+    *** document this ***
+    *** document this ***
     '''
     if isinstance(i_dr, str): # strng 
         if i_dr != 'all': raise ValueError
@@ -88,6 +92,12 @@ def threePCF_halo(mneut, nreal, nzbin, zspace=False, i_dr=0, nside=20, nbin=20, 
                 
     for ell in ells: 
         tpcfs[ell] /= float(len(i_drs))
+    
+    if rrr_norm: 
+        # normalize by RRR_0
+        rrr = _threePCF_halo_rrr(mneut, nzbin, zspace=zspace, nside=nside, nbin=nbin, sim=sim)
+        for ell in ells: 
+            tpcfs[ell] /= rrr[0]
     return tpcfs
 
 
@@ -149,8 +159,64 @@ def _threePCF_halo_i_dr(mneut, nreal, nzbin, zspace=False, i_dr=0, nside=20, nbi
     return tpcf 
 
 
+def _threePCF_halo_rrr(mneut, nzbin, zspace=False, nside=20, nbin=20, sim='hades'): 
+    ''' Read in the RRR normalization from randoms 
+    '''
+    # file name 
+    f = _obvs_fname('rrr', mneut, 1, nzbin, zspace, nside=nside, nbin=nbin)
+
+    # read in meta data 
+    tpcf = {} 
+    tpcf['meta'] = {} 
+    with open(f) as fp: 
+        # save meta data
+        line = fp.readline() # box size
+        tpcf['meta']['box'] = float(line.split('=')[1])
+        line = fp.readline() # grid 
+        tpcf['meta']['Ngrid'] = int(line.split('=')[1])
+        line = fp.readline() # max radius 
+        tpcf['meta']['max_radius'] = float(line.split('=')[1])
+        line = fp.readline() # max radius in units of grid size 
+        line = fp.readline() # number of bins 
+        nbin = int(line.split('=')[1])
+        tpcf['meta']['Nbin'] = nbin
+        line = fp.readline() # orders 
+        order = int(line.split('=')[1])
+        tpcf['meta']['order'] = order 
+
+        mpoles = [np.zeros((nbin, nbin)) for oo in range(order+1)]
+
+        ii = 1 
+
+        while line: 
+            line = fp.readline() 
+            if len(line.split()) < 3: 
+                continue
+            if (line.split()[0] == 'Multipole') and (int(line.split()[2]) > 0): 
+                _ = fp.readline() # skip row 
+                for _i in range(ii):
+                    line = fp.readline() 
+                    ll = line.split()
+                    i = int(ll[0])
+                    j = int(ll[1])
+
+                    for ell in range(order+1):
+                        if ell == 0: 
+                            amp = float(ll[2])
+                            mpoles[ell][i,j] = amp 
+                            mpoles[ell][j,i] = amp 
+                        else:
+                            mpoles[ell][i,j] = amp * float(ll[ell+2])
+                            mpoles[ell][j,i] = amp * float(ll[ell+2])
+                ii += 1
+        
+        for ell, mpole in zip(range(order+1), mpoles):
+            tpcf[ell] = mpole
+    return tpcf 
+
+
 def _obvs_fname(obvs, mneut, nreal, nzbin, zspace, **kwargs): 
-    if obvs not in ['plk', '3pcf']: 
+    if obvs not in ['plk', '3pcf', 'rrr']: 
         raise ValueError('Currently we only support Pl(k) and 3PCF') 
 
     if mneut == 0.1: str_mneut = '0.10eV'
@@ -173,6 +239,17 @@ def _obvs_fname(obvs, mneut, nreal, nzbin, zspace, **kwargs):
             '.nside', str(kwargs['nside']), 
             '.nbin', str(kwargs['nbin']), 
             '.', str_space, 'space.nnn', str(kwargs['i_dr']), '.dat']) 
+    elif obvs == 'rrr': 
+        # 3pcf.groups.0.06eV.nzbin4.r0.nside20.nbin20.rspace.rrr.dat
+        if 'nside' not in kwargs.keys():  
+            raise ValueError
+        if 'nbin' not in kwargs.keys():  
+            raise ValueError
+        f = ''.join([UT.dat_dir(), '3pcf/', 
+            '3pcf.groups.', str(mneut), 'eV.nzbin', str(nzbin), '.r0', 
+            '.nside', str(kwargs['nside']), 
+            '.nbin', str(kwargs['nbin']), 
+            '.', str_space, 'space.rrr.dat']) 
 
     if not os.path.isfile(f): 
         raise ValueError('%s does not exist' % f) 
