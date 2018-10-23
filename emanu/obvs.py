@@ -224,8 +224,7 @@ def _obvs_fname(obvs, mneut, nreal, nzbin, zspace, **kwargs):
     
     if obvs == 'plk': 
         f = ''.join([UT.dat_dir(), 'plk/', 
-            'plk.groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), 
-            '.nmesh', str(kwargs['Nmesh']), 
+            'plk.groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), #'.nmesh', str(kwargs['Nmesh']), 
             '.', str_space, 'space.dat']) 
     elif obvs == '3pcf': 
         if 'nside' not in kwargs.keys():  
