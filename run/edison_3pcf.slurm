@@ -1,21 +1,21 @@
 #!/bin/bash
 #SBATCH -p regular 
 #SBATCH -n 1
-#SBATCH -t 01:30:00 
-#SBATCH -J halo_3PCF_0.0eV
-#SBATCH -o _halo_3PCF_0.0eV.o
+#SBATCH -t 15:00:00 
+#SBATCH -J halo_3PCF_0.6eV
+#SBATCH -o _halo_3PCF_0.6eV.o
 
 now=$(date +"%T") 
 echo "start time ... $now"
 
-mneut=0.0
+mneut=0.6
 nbin=20
 nside=20
 cscratch_dir=/global/cscratch1/sd/chahah/emanu/
 group_dir=$cscratch_dir'halos/'
 thpcf_dir=$cscratch_dir'3pcf/'
 
-for nreal in {1..10}; do 
+for nreal in {1..100}; do 
     echo "--- mneut="$mneut" eV nreal="$nreal" ---"
     ## DDD run (~2 mins) 
     cmd='srun -n 1 -c 16 /global/homes/c/chahah/projects/eMaNu/emanu/zs_3pcf/grid_multipoles_nbin20 -box 1000. -scale 1 -nside 20'
@@ -28,7 +28,7 @@ for nreal in {1..10}; do
     #echo " DDD finished ... "$now
     
     # NNN (~9 mins each) 
-    for i_r in {0..0}; do 
+    for i_r in {1..1}; do 
         tmp=$group_dir'd_r'$mneut'.tmp'
         rand=$group_dir'groups.nzbin4.r'$i_r
         out_nnn=$thpcf_dir"3pcf.groups."$mneut"eV."$nreal".nzbin4.nside"$nside".nbin"$nbin".rspace.nnn"$i_r".dat"
