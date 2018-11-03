@@ -20,11 +20,11 @@ def nnn_job(mneut, i_r, nreals=[1, 100]):
 
     jb = '\n'.join([ 
         '#!/bin/bash', 
-        '#SBATCH -p regular', # '#SBATCH -p debug', 
+        '#SBATCH -p regular', #'#SBATCH -p debug'
         '#SBATCH -n 1', 
-        '#SBATCH -t '+str(h)+':00:00', #'#SBATCH -t 00:01:00', 
-        '#SBATCH -J halo_3PCF_'+str(mneut)+'eV', 
-        '#SBATCH -o /global/homes/c/chahah/projects/eMaNu/run/3pcf/_halo_3PCF_'+str(mneut)+'eV.o', 
+        '#SBATCH -t '+str(h)+':00:00', #'#SBATCH -t 00:10:00'
+        '#SBATCH -J halo_3PCF_'+str(mneut)+'eV'+'_'+str(nreals[0])+'_'+str(nreals[1])+'_nnn'+str(i_r), 
+        '#SBATCH -o /global/homes/c/chahah/projects/eMaNu/run/3pcf/_halo_3PCF_'+str(mneut)+'eV'+'_'+str(nreals[0])+'_'+str(nreals[1])+'_nnn'+str(i_r),
         '', 
         'now=$(date +"%T")',
         'echo "start time ... $now"', 
@@ -56,8 +56,8 @@ def nnn_job(mneut, i_r, nreals=[1, 100]):
         '',
         '\techo "--- calculating NNN ---"', 
         '\teval $cmd -in $tmp -load $mult_ddd -balance > $out_nnn', 
-        '\trm $tmp"', 
-        '\techo " NNN (N = D-R) #"$i_r" finished"', 
+        '\trm $tmp', 
+        '\techo "NNN (N = D-R) "$i_r" finished"', 
         'done', 
         'now=$(date +"%T")',
         'echo "end time ... $now"'
@@ -72,7 +72,7 @@ def nnn_job(mneut, i_r, nreals=[1, 100]):
 def submit_job(dorr, mneut, i_r, nreals=[1,100]):
     '''
     '''
-    fjob = job_name(dorr, mneut, i_r, nreals=[1,100]) 
+    fjob = job_name(dorr, mneut, i_r, nreals=nreals) 
     if not os.path.isfile(fjob): raise ValueError
 
     subprocess.check_output(['sbatch', fjob])
@@ -87,5 +87,12 @@ def job_name(dorr, mneut, i_r, nreals=[1,100]):
 
 
 if __name__=='__main__': 
-    nnn_job(0.0, 2, nreals=[1, 1])
-    submit_job('nnn', 0.0, 2, nreals=[1, 1])
+    #nnn_job(0.15, 7, nreals=[99, 100])
+    #submit_job('nnn', 0.15, 7, nreals=[99, 100])
+
+    #nnn_job(0.06, 9, nreals=[92, 100])
+    #submit_job('nnn', 0.06, 9, nreals=[92, 100])
+    for mneut in [0.0, 0.06, 0.1, 0.15, 0.6]: 
+        for i_r in range(11,20): 
+            nnn_job(mneut, i_r, nreals=[1, 100])
+            submit_job('nnn', mneut, i_r, nreals=[1, 100])
