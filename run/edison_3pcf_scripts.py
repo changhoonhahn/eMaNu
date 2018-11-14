@@ -16,13 +16,15 @@ def nnn_job(mneut, i_r, nreals=[1, 100]):
     print('--- writing %s ---' % fjob) 
     
     # estimate the hours required 
-    h = int(np.ceil(((nreals[1] - nreals[0])+1)*9./60.))
+    mins_tot = float(nreals[1] - nreals[0]+1)*17.
+    h = str(int(mins_tot // 60.)).zfill(2)#int(np.ceil(((nreals[1] - nreals[0])+1)*9./60.))
+    m = str(int(30.*np.ceil((mins_tot % 60.)/30.))).zfill(2)
 
     jb = '\n'.join([ 
         '#!/bin/bash', 
         '#SBATCH -p regular', #'#SBATCH -p debug'
-        '#SBATCH -n 1', 
-        '#SBATCH -t '+str(h)+':00:00', #'#SBATCH -t 00:10:00'
+        '#SBATCH -N 1', 
+        '#SBATCH -t '+h+':'+m+':00', #'#SBATCH -t 00:10:00'
         '#SBATCH -J halo_3PCF_'+str(mneut)+'eV'+'_'+str(nreals[0])+'_'+str(nreals[1])+'_nnn'+str(i_r), 
         '#SBATCH -o /global/homes/c/chahah/projects/eMaNu/run/3pcf/_halo_3PCF_'+str(mneut)+'eV'+'_'+str(nreals[0])+'_'+str(nreals[1])+'_nnn'+str(i_r),
         '', 
@@ -37,7 +39,7 @@ def nnn_job(mneut, i_r, nreals=[1, 100]):
         'group_dir=$cscratch_dir"halos/"', 
         'thpcf_dir=$cscratch_dir"3pcf/"',
         '',
-        'cmd="srun -n 1 -c 16 /global/homes/c/chahah/projects/eMaNu/emanu/zs_3pcf/grid_multipoles_nbin20 -box 1000. -scale 1 -nside 20"',
+        'cmd="srun -n 1 -c 24 /global/homes/c/chahah/projects/eMaNu/emanu/zs_3pcf/grid_multipoles_nbin20 -box 1000. -scale 1 -nside 20"',
         '', 
         'for nreal in {'+str(nreals[0])+'..'+str(nreals[1])+'}; do', 
         '\techo "--- mneut="$mneut" eV nreal="$nreal" ---"',
@@ -92,7 +94,14 @@ if __name__=='__main__':
 
     #nnn_job(0.06, 9, nreals=[92, 100])
     #submit_job('nnn', 0.06, 9, nreals=[92, 100])
-    for mneut in [0.0, 0.06, 0.1, 0.15, 0.6]: 
-        for i_r in range(11,20): 
-            nnn_job(mneut, i_r, nreals=[1, 100])
-            submit_job('nnn', mneut, i_r, nreals=[1, 100])
+    #for mneut in [0.0, 0.06, 0.1, 0.15, 0.6]: 
+    #    for i_r in range(11,20): 
+    #        nnn_job(mneut, i_r, nreals=[1, 100])
+    #        submit_job('nnn', mneut, i_r, nreals=[1, 100])
+
+    # rerun 3pcf for a handful of missed realizations 
+    for i_r in [3, 4, 10, 11, 13]: 
+        nnn_job(0.0, i_r, nreals=[100, 100])
+        submit_job('nnn', 0.0, i_r, nreals=[100, 100])
+    nnn_job(0.06, 9, nreals=[91, 91])
+    submit_job('nnn', 0.06, 9, nreals=[91, 91])
