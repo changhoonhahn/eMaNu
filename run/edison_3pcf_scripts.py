@@ -89,19 +89,16 @@ def job_name(dorr, mneut, i_r, nreals=[1,100]):
 
 
 if __name__=='__main__': 
-    #nnn_job(0.15, 7, nreals=[99, 100])
-    #submit_job('nnn', 0.15, 7, nreals=[99, 100])
+    for mneut in [0.0, 0.06, 0.1, 0.15, 0.6]: 
+        for i_r in [20]: #range(11,20): 
+            nnn_job(mneut, i_r, nreals=[1, 50])
+            submit_job('nnn', mneut, i_r, nreals=[1, 50])
+            nnn_job(mneut, i_r, nreals=[51, 100])
+            submit_job('nnn', mneut, i_r, nreals=[51, 100])
 
-    #nnn_job(0.06, 9, nreals=[92, 100])
-    #submit_job('nnn', 0.06, 9, nreals=[92, 100])
-    #for mneut in [0.0, 0.06, 0.1, 0.15, 0.6]: 
-    #    for i_r in range(11,20): 
-    #        nnn_job(mneut, i_r, nreals=[1, 100])
-    #        submit_job('nnn', mneut, i_r, nreals=[1, 100])
-
-    # rerun 3pcf for a handful of missed realizations 
-    for i_r in [3, 4, 10, 11, 13]: 
-        nnn_job(0.0, i_r, nreals=[100, 100])
-        submit_job('nnn', 0.0, i_r, nreals=[100, 100])
-    nnn_job(0.06, 9, nreals=[91, 91])
-    submit_job('nnn', 0.06, 9, nreals=[91, 91])
+    # rerun 3pcf for missed realizations 
+    #for i_r in [3, 4, 10, 11, 13]: 
+    #    nnn_job(0.0, i_r, nreals=[100, 100])
+    #    submit_job('nnn', 0.0, i_r, nreals=[100, 100])
+    #nnn_job(0.06, 9, nreals=[91, 91])
+    #submit_job('nnn', 0.06, 9, nreals=[91, 91])
