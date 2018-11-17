@@ -22,7 +22,7 @@ def nnn_job(mneut, i_r, nreals=[1, 100]):
 
     jb = '\n'.join([ 
         '#!/bin/bash', 
-        '#SBATCH -p regular', #'#SBATCH -p debug'
+        '#SBATCH -q regular', #'#SBATCH -q debug'
         '#SBATCH -N 1', 
         '#SBATCH -t '+h+':'+m+':00', #'#SBATCH -t 00:10:00'
         '#SBATCH -J halo_3PCF_'+str(mneut)+'eV'+'_'+str(nreals[0])+'_'+str(nreals[1])+'_nnn'+str(i_r), 
@@ -47,7 +47,7 @@ def nnn_job(mneut, i_r, nreals=[1, 100]):
         '\tout_ddd=$thpcf_dir"3pcf.groups."$mneut"eV."$nreal".nzbin4.nside"$nside".nbin"$nbin".rspace.ddd.dat"',
         '\tmult_ddd=$thpcf_dir"3pcf.groups."$mneut"eV."$nreal".nzbin4.nside"$nside".nbin"$nbin".rspace.ddd.mult"', 
         '', 
-        '\ttmp=$group_dir"d_r"$mneut"_"$i_r".tmp"', 
+        '\ttmp=$group_dir"d_r"$mneut"_"$nreal"_r"$i_r".tmp"', 
         '\trand=$group_dir"groups.nzbin4.r"$i_r', 
         '\tout_nnn=$thpcf_dir"3pcf.groups."$mneut"eV."$nreal".nzbin4.nside"$nside".nbin"$nbin".rspace.nnn"$i_r".dat"', 
         '', 
@@ -90,11 +90,11 @@ def job_name(dorr, mneut, i_r, nreals=[1,100]):
 
 if __name__=='__main__': 
     for mneut in [0.0, 0.06, 0.1, 0.15, 0.6]: 
-        for i_r in [20]: #range(11,20): 
-            nnn_job(mneut, i_r, nreals=[1, 50])
-            submit_job('nnn', mneut, i_r, nreals=[1, 50])
-            nnn_job(mneut, i_r, nreals=[51, 100])
-            submit_job('nnn', mneut, i_r, nreals=[51, 100])
+        for i_r in [21]: #range(21,25): 
+            nnn_job(mneut, i_r, nreals=[3, 50])
+            submit_job('nnn', mneut, i_r, nreals=[3, 50])
+            nnn_job(mneut, i_r, nreals=[52, 100])
+            submit_job('nnn', mneut, i_r, nreals=[52, 100])
 
     # rerun 3pcf for missed realizations 
     #for i_r in [3, 4, 10, 11, 13]: 
