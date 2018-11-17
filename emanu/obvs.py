@@ -29,7 +29,7 @@ def Plk_halo(mneut, nreal, nzbin, zspace=False, sim='hades'):
     return plk 
 
 
-def cthreePCF_halo(mneut, nreal, nzbin, zspace=False, i_dr=0, nside=20, nbin=20, rmax=200., sim='hades', rrr_norm=False): 
+def cthreePCF_halo(mneut, nreal, nzbin, zspace=False, i_dr=0, nside=20, nbin=20, rmax=200., sim='hades', rrr_norm=False, factor=None): 
     ''' return compressed 3pcf following Eq. 72 of Slepian & Eisenstein (2015) 
     '''
     # read in 3pcf 
@@ -44,8 +44,9 @@ def cthreePCF_halo(mneut, nreal, nzbin, zspace=False, i_dr=0, nside=20, nbin=20,
 
     dr = r1_edge[1] - r1_edge[0]
     dVr2 = (r2_edge[1:]**3 - r2_edge[:-1]**3)
-
-    factor = int(np.ceil(18./dr))
+    
+    if factor is None: 
+        factor = int(np.ceil(18./dr))
     
     ctpcf = {} 
     ctpcf['meta'] = tpcf['meta'].copy() 
