@@ -90,11 +90,11 @@ def job_name(dorr, mneut, i_r, nreals=[1,100]):
 
 if __name__=='__main__': 
     for mneut in [0.0, 0.06, 0.1, 0.15, 0.6]: 
-        for i_r in [21]: #range(21,25): 
-            nnn_job(mneut, i_r, nreals=[3, 50])
-            submit_job('nnn', mneut, i_r, nreals=[3, 50])
-            nnn_job(mneut, i_r, nreals=[52, 100])
-            submit_job('nnn', mneut, i_r, nreals=[52, 100])
+        for i_r in [22]: #range(21,25): 
+            nnn_job(mneut, i_r, nreals=[2, 50])
+            submit_job('nnn', mneut, i_r, nreals=[2, 50])
+            nnn_job(mneut, i_r, nreals=[51, 100])
+            submit_job('nnn', mneut, i_r, nreals=[51, 100])
 
     # rerun 3pcf for missed realizations 
     #for i_r in [3, 4, 10, 11, 13]: 
