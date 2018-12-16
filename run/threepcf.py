@@ -9,7 +9,7 @@ from emanu import forwardmodel as FM
 from emanu.hades import data as Dat
 
 
-def hadesHalo_pre3PCF(mneut, nreal, nzbin, zspace=False, Lbox=1000., overwrite=False): 
+def hadesHalo_pre3PCF(mneut, nreal, nzbin, zspace=False, Lbox=1000., mh_min=3200., overwrite=False): 
     ''' pre-process halo catalogs for 3PCF run. In addition to 
     reading in halo catalog and outputing the input format for Daniel 
     Eisenstein's code    '''
@@ -18,14 +18,14 @@ def hadesHalo_pre3PCF(mneut, nreal, nzbin, zspace=False, Lbox=1000., overwrite=F
     else: str_space = 'r'
     fout = ''.join([UT.dat_dir(), 'halos/',
         'groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), 
-        '.', str_space, 'space.dat']) 
+        '.', str_space, 'space.mhmin', str(mh_min), '.dat']) 
 
     if os.path.isfile(fout) and not overwrite: 
         print('--- already written to ---\n %s' % (fout))
         return None 
     
     # import Neutrino halo with mneut eV, realization # nreal, at z specified by nzbin 
-    halos = Dat.NeutHalos(mneut, nreal, nzbin) 
+    halos = Dat.NeutHalos(mneut, nreal, nzbin, mh_min=mh_min, silent=True) 
     # halo positions
     if zspace: 
         xyz = np.array(FM.RSD(halos, LOS=[0,0,1], Lbox=Lbox))
