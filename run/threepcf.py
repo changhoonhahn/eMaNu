@@ -1,12 +1,71 @@
 #!/bin/python
 import os 
 import sys 
+import time 
 import numpy as np 
 import multiprocessing as MP 
+# -- nbodykit -- 
+import nbodykit.lab as NBlab
+from nbodykit.algorithms.threeptcf import SimulationBox3PCF as Sim3PCF
 # -- eMaNu -- 
 from emanu import util as UT
 from emanu import forwardmodel as FM
 from emanu.hades import data as Dat
+
+
+def hadesHalo_NNN_nbodykit(mneut, nreal, nzbin, i_r, zspace=False, Lbox=1000., nbins=20, silent=True):
+    ''' calculate 3pcf using nbodykit 
+    '''
+    # data file 
+    if zspace: str_space = 'z'
+    else: str_space = 'r'
+    fdata = ''.join([UT.dat_dir(), 'halos/', 
+        'groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space.dat']) 
+    
+    fran = ''.join([UT.dat_dir(), 'halos/', 
+        'groups.nzbin', str(nzbin), '.r', str(i_r)]) 
+
+    # read in data file  
+    if not silent: print('--- reading %s ---' % fdata) 
+    x, y, z = np.loadtxt(fdata, skiprows=1, unpack=True, usecols=[0,1,2]) 
+    Nd = len(x) 
+
+    # read in random file
+    if not silent: print('--- reading %s ---' % fran) 
+    x_r, y_r, z_r = np.loadtxt(fran, unpack=True, usecols=[0,1,2]) 
+    Nr = len(x_r) 
+    w_r = -1. * float(Nd)/float(Nr) 
+    assert np.isclose(Nd, np.abs(w_r * float(Nr)), rtol=1e-05)
+    
+    # save POS and weights to ArrayCatalog
+    pos = np.zeros((Nd+Nr, 3))
+    pos[:Nd,0] = x
+    pos[:Nd,1] = y
+    pos[:Nd,2] = z
+    pos[Nd:,0] = x_r
+    pos[Nd:,1] = y_r
+    pos[Nd:,2] = z_r
+    
+    ws = np.zeros(Nd+Nr) 
+    ws[:Nd] = 1.
+    ws[Nd:] = w_r
+
+    halo_data = {} 
+    halo_data['Position'] = pos
+    halo_data['Weight'] = ws
+    cat = NBlab.ArrayCatalog(halo_data)
+    
+    # run nbodykit 3PCF 
+    bin_edges = np.linspace(0., 200., nbins+1)  
+    if not silent: 
+        print('--- running 3pcf ---') 
+        t0 = time.time() 
+    s3pcf = Sim3PCF(cat, range(11), bin_edges, BoxSize=1000., periodic=True, weight='Weight') 
+    s3pcf.run() 
+    if not silent: 
+        print('--- 3pcf took %f mins ---' % ((time.time() - t0)/60.))
+    print s3pcf.poles.keys() 
+    return None 
 
 
 def hadesHalo_pre3PCF(mneut, nreal, nzbin, zspace=False, Lbox=1000., mh_min=3200., overwrite=False): 
@@ -131,5 +190,7 @@ if __name__=='__main__':
         # python threepcf.py 1 mneut nreal nzbin zstr
         nzbin = int(sys.argv[2])
         hadesHalo_randoms(nzbin=nzbin, Lbox=1000., overwrite=True)
+    elif run == 'nnn':
+        hadesHalo_NNN_nbodykit(0.0, 1, 4, 22, silent=False)
     else: 
         raise ValueError
