@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH -p debug 
+#SBATCH -p regular 
 #SBATCH -n 1
-#SBATCH -t 00:15:00 
-#SBATCH -J halo_pre3PCF_halo_mlim
-#SBATCH -o _halo_pre3PCF_halo_mlim.o
+#SBATCH -t 01:15:00 
+#SBATCH -J halo_pre3PCF_mlim_0.06eV
+#SBATCH -o _halo_pre3PCF_mlim_0.06eV.o
 
 now=$(date +"%T") 
 echo "start time ... $now"
@@ -18,16 +18,17 @@ thpcf_dir=$cscratch_dir'3pcf/'
 module load python/2.7-anaconda
 source activate nbdkt 
 
-for mneut in 0.0; do #0.10 0.15 0.6; do 
+for mneut in 0.15; do #0.10 0.15 0.6; do 
     echo " --- mneut = "$mneut" --- " 
-    # halo catalogs (in serial)
-    srun -n 1 -c 1 python /global/homes/c/chahah/projects/eMaNu/run/threepcf.py data 1 $mneut 1 4 'real'
+    # halo catalogs (in serial) ~1 min/realization
+    for ireal in {1..100}; do 
+        srun -n 1 -c 1 python /global/homes/c/chahah/projects/eMaNu/run/threepcf.py data 1 $mneut $ireal 4 'real'
+    done 
 #    # halo catalogs (in parallel)
 #    srun -n 1 -c 16 python /global/homes/c/chahah/projects/eMaNu/run/threepcf.py data 16 $mneut 1 100 4 'real'
-#done 
+done 
 
 # construct 50 randoms
 #srun -n 1 -c 1 python /global/homes/c/chahah/projects/eMaNu/run/threepcf.py randoms 4
-
 now=$(date +"%T") 
 echo "end time ... $now"

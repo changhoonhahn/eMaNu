@@ -14,7 +14,7 @@ from emanu.hades import data as Dat
 
 
 def hadesHalo_NNN_nbodykit(mneut, nreal, nzbin, i_r, zspace=False, Lbox=1000., nbins=20, silent=True):
-    ''' calculate 3pcf using nbodykit 
+    ''' calculate 3pcf using nbodykit (this takes a long time and doesn't work so well) 
     '''
     # data file 
     if zspace: str_space = 'z'
@@ -64,7 +64,7 @@ def hadesHalo_NNN_nbodykit(mneut, nreal, nzbin, i_r, zspace=False, Lbox=1000., n
     s3pcf.run() 
     if not silent: 
         print('--- 3pcf took %f mins ---' % ((time.time() - t0)/60.))
-    print s3pcf.poles.keys() 
+    print(s3pcf.poles.keys())
     return None 
 
 
