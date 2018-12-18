@@ -13,12 +13,13 @@ from pyspectrum import pyspectrum as pySpec
 from emanu import util as UT 
 
 
-def haloBispectrum(mneut, nreal, nzbin, Lbox=1000., zspace=False, 
+def haloBispectrum(mneut, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3200.,
         Ngrid=360, Nmax=40, Ncut=3, step=3, silent=True, overwrite=False): 
     if zspace: raise NotImplementedError
     else: str_space = 'r' 
     fhalo = ''.join([UT.dat_dir(), 'halos/', 
-        'groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space.dat']) 
+        'groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space',
+        '.mhmin', str(mh_min), '.dat']) 
 
     fbk = ''.join([UT.dat_dir(), 'bispectrum/', 
          fhalo.split('/')[-1].rsplit('.dat', 1)[0],
