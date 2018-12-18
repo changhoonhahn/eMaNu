@@ -21,7 +21,7 @@ mpl.rcParams['ytick.major.width'] = 1.5
 mpl.rcParams['legend.frameon'] = False
 
 
-def plotBk(plottype, k1, k2, k3, BorQ, nbin=20, fig=None, ax=None, cmap='viridis'): 
+def plotBk(plottype, k1, k2, k3, BorQ, cnts, nbin=20, fig=None, ax=None, norm=True, cmap='viridis'): 
     ''' 
     by default k1 >= k2 >= k3 
 
@@ -50,7 +50,7 @@ def plotBk(plottype, k1, k2, k3, BorQ, nbin=20, fig=None, ax=None, cmap='viridis
                             (k1 >= x_bins[i_x]) & (k1 < x_bins[i_x+1]) &
                             (k2 >= y_bins[i_y]) & (k2 < y_bins[i_y+1])) 
                     if np.sum(lim) > 0: 
-                        bk1k2[i_x, i_y] = np.average(BorQ[lim]) 
+                        bk1k2[i_x, i_y] = np.average(BorQ[lim], weights=cnts[lim]) 
                     else: 
                         bk1k2[i_x, i_y] = -np.inf
             cont = sub.pcolormesh(x_bins, y_bins, bk1k2.T, vmin=BorQ.min(), vmax=BorQ.max(), cmap=cmap)
@@ -85,18 +85,9 @@ def plotBk(plottype, k1, k2, k3, BorQ, nbin=20, fig=None, ax=None, cmap='viridis
 
         x_bins = np.linspace(0., 1., int(nbin)+1)
         y_bins = np.linspace(0.5, 1., int(0.5*nbin)+1)
-        BorQ_grid = np.zeros((len(x_bins)-1, len(y_bins)-1))
-        for i_x in range(len(x_bins)-1): 
-            for i_y in range(len(y_bins)-1): 
-                lim = ((k2k1 >= y_bins[i_y]) & 
-                        (k2k1 < y_bins[i_y+1]) & 
-                        (k3k1 >= x_bins[i_x]) & 
-                        (k3k1 < x_bins[i_x+1]))
-                if np.sum(lim) > 0: 
-                    BorQ_grid[i_x, i_y] = np.sum(BorQ[lim])/float(np.sum(lim))
-                else: 
-                    BorQ_grid[i_x, i_y] = -np.inf
-        BorQ_grid /= BorQ_grid.max() 
+        BorQ_grid = _BorQgrid(k3k1, k2k1, BorQ, cnts, x_bins, y_bins)
+        if norm: BorQ_grid /= BorQ_grid.max() 
+
         bplot = plt.pcolormesh(x_bins, y_bins, BorQ_grid.T, vmin=0., vmax=1., cmap=cmap)
         cbar = plt.colorbar(bplot, orientation='vertical') 
 
@@ -110,3 +101,18 @@ def plotBk(plottype, k1, k2, k3, BorQ, nbin=20, fig=None, ax=None, cmap='viridis
         return sub 
     else: 
         return fig
+
+
+def _BorQgrid(k3k1, k2k1, BorQ, cnts, x_bins, y_bins): 
+    BorQ_grid = np.zeros((len(x_bins)-1, len(y_bins)-1))
+    for i_x in range(len(x_bins)-1): 
+        for i_y in range(len(y_bins)-1): 
+            lim = ((k2k1 >= y_bins[i_y]) & 
+                    (k2k1 < y_bins[i_y+1]) & 
+                    (k3k1 >= x_bins[i_x]) & 
+                    (k3k1 < x_bins[i_x+1]))
+            if np.sum(lim) > 0: 
+                BorQ_grid[i_x, i_y] = np.average(BorQ[lim], weights=cnts[lim])
+            else: 
+                BorQ_grid[i_x, i_y] = -np.inf
+    return BorQ_grid
