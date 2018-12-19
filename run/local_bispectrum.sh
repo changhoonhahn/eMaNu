@@ -9,14 +9,12 @@ echo "start time ... $now"
 #    done 
 #done 
 
-for ireal in {1..5}; do 
+for ireal in {6..10}; do 
     for sig8 in 0.798 0.807 0.818; do 
         echo "$sig8 ... $ireal"
         python /Users/ChangHoon/projects/eMaNu/run/bispectrum.py sigma8 $sig8 $ireal 4
     done 
 done 
-
-
 
 now=$(date +"%T") 
 echo "end time ... $now"
