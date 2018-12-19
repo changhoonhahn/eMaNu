@@ -52,6 +52,37 @@ def B123_halo(mneut, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3200., Ngrid
     return i_k, j_k, l_k, b123, q123, cnts, k_f
 
 
+def B123_halo_sigma8(mneut, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3200., Ngrid=360, Nmax=40, Ncut=3, step=3, 
+        silent=True): 
+    ''' return halo bispectrum 
+    '''
+    if zspace: raise NotImplementedError # redhsift
+    else: str_space = 'r' # real 
+    # sigma 8 look up table
+    tbl_sig8 = {0.06: 0.818, 0.1: 0.807, 0.15: 0.798}  
+
+    fbk = ''.join([UT.dat_dir(), 'bispectrum/', 
+        'groups.0.0eV.sig8', str(tbl_sig8[mneut]), 
+        '.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space',
+        '.mhmin', str(mh_min),
+        '.Ngrid', str(Ngrid), 
+        '.Nmax', str(Nmax),
+        '.Ncut', str(Ncut),
+        '.step', str(step), 
+        '.pyfftw', 
+        '.dat']) 
+    if not os.path.isfile(fbk): 
+        raise ValueError("--- %s does not exist ---" % fbk) 
+    if not silent: 
+        print('--- reading in %s ---' % fbk) 
+
+    k_f = 2*np.pi/Lbox
+    
+    # read in file
+    i_k, j_k, l_k, b123, q123, cnts = np.loadtxt(fbk, unpack=True, skiprows=1, usecols=[0,1,2,3,4,5]) 
+    return i_k, j_k, l_k, b123, q123, cnts, k_f
+
+
 def cthreePCF_halo(mneut, nreal, nzbin, zspace=False, i_dr=0, nside=20, nbin=20, rmax=200., sim='hades', rrr_norm=False, factor=None): 
     ''' return compressed 3pcf following Eq. 72 of Slepian & Eisenstein (2015) 
     '''
