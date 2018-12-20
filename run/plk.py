@@ -25,7 +25,7 @@ def hadesHalo_Plk(mneut, nreal, nzbin, zspace=False, Lbox=1000., mh_min=3200., N
         'plk.', 
         'groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space',
         '.mhmin', str(mh_min), 
-        'Nmesh', str(Nmesh), 
+        '.Nmesh', str(Nmesh), 
         '.dat']) 
 
     if os.path.isfile(fplk) and not overwrite: 
@@ -62,7 +62,7 @@ def hadesHalo_Plk_sigma8(sig8, nreal, nzbin, zspace=False, Lbox=1000., mh_min=32
         'plk.', 
         'groups.0.0eV.sig8', str(sig8), '.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space',
         '.mhmin', str(mh_min),
-        'Nmesh', str(Nmesh), 
+        '.Nmesh', str(Nmesh), 
         '.dat']) 
 
     if os.path.isfile(fplk) and not overwrite: 
@@ -71,11 +71,11 @@ def hadesHalo_Plk_sigma8(sig8, nreal, nzbin, zspace=False, Lbox=1000., mh_min=32
     
     # read in Neutrino halo with 0.0eV but with sigma_8 matched to some massive eV catalog, 
     # realization # nreal, at z specified by nzbin 
-    halos = Dat.Sig8Halos(Sig8, nreal, nzbin, mh_min=mh_min, silent=True) 
+    halos = Dat.Sig8Halos(sig8, nreal, nzbin, mh_min=mh_min, silent=True) 
     # calculate P_l(k) 
     plk = FM.Observables(halos, observable='plk', rsd=zspace, dk=0.005, kmin=0.005, Nmesh=Nmesh)
     # header 
-    hdr = ''.join(['P_l(k) measurements for m neutrino = ', str(mneut), ' eV, realization ', str(nreal), ', zbin ', str(nzbin), 
+    hdr = ''.join(['P_l(k) measurements for m neutrino = 0.0 eV, sigma_8=', str(sig8), ', realization ', str(nreal), ', zbin ', str(nzbin), 
         '\n P_shotnoise ', str(plk['shotnoise']), 
         '\n cols: k, P_0, P_2, P_4']) 
 
