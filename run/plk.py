@@ -2,11 +2,12 @@
 import os 
 import sys 
 import numpy as np 
+# -- nbodykit -- 
+import nbodykit.lab as NBlab
 # -- eMaNu -- 
 from emanu import util as UT
-from emanu import obvs as Obvs
-from emanu import forwardmodel as FM
 from emanu.hades import data as Dat
+from emanu import forwardmodel as FM
 
 
 def hadesHalo_Plk(mneut, nreal, nzbin, zspace=False, Lbox=1000., mh_min=3200., Nmesh=360, overwrite=False): 
@@ -19,13 +20,11 @@ def hadesHalo_Plk(mneut, nreal, nzbin, zspace=False, Lbox=1000., mh_min=3200., N
     '''
     if zspace: raise NotImplementedError
     else: str_space = 'r' 
-    fhalo = ''.join([UT.dat_dir(), 'halos/', 
-        'groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space',
-        '.mhmin', str(mh_min), '.dat']) 
-
-    # output file 
+    # P_l(k) output file 
     fplk = ''.join([UT.dat_dir(), 'plk/', 
-        'plk.', fhalo.split('/')[-1].rsplit('.dat', 1)[0], 
+        'plk.', 
+        'groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space',
+        '.mhmin', str(mh_min), 
         'Nmesh', str(Nmesh), 
         '.dat']) 
 
@@ -34,33 +33,16 @@ def hadesHalo_Plk(mneut, nreal, nzbin, zspace=False, Lbox=1000., mh_min=3200., N
         return None 
 
     # read in Neutrino halo with mneut eV, realization # nreal, at z specified by nzbin 
-    x, y, z = np.loadtxt(fhalo, skiprows=1, unpack=True, usecols=[0,1,2]) 
-    xyz = np.zeros((3, len(x)))
-    xyz[0,:] = x
-    xyz[1,:] = y 
-    xyz[2,:] = z
-    
-    Omega_m = 0.3175
-    Omega_b = 0.049 # fixed baryon 
-    h = 0.6711
-    cosmo = NBlab.cosmology.Planck15.clone(Omega_cdm=Omega_m-Omega_b, h=h, Omega_b=Omega_b)
-    ztbl = {0: 3., 1: 2., 2: 1., 3: 0.5, 4: 0.}
-
-    halos = {}  
-    halos['Position']  = xyz/Lbox
-    cat = NBlab.ArrayCatalog(halos, BoxSize=np.array([Lbox, Lbox, Lbox])) 
-    cat = NBlab.HaloCatalog(cat, cosmo=cosmo, redshift=ztbl[nzbin], mdef='vir') 
-    
+    halos = Dat.NeutHalos(mneut, nreal, nzbin, mh_min=mh_min, silent=True) 
     # calculate P_l(k) 
-    plk = FM.Observables(cat, observable='plk', rsd=zspace, dk=0.005, kmin=0.005, Nmesh=Nmesh)
+    plk = FM.Observables(halos, observable='plk', rsd=zspace, dk=0.005, kmin=0.005, Nmesh=Nmesh)
 
     # header 
     hdr = ''.join(['P_l(k) measurements for m neutrino = ', str(mneut), ' eV, realization ', str(nreal), ', zbin ', str(nzbin), 
         '\n P_shotnoise ', str(plk['shotnoise']), 
         '\n cols: k, P_0, P_2, P_4']) 
-
     # write to file 
-    np.savetxt(fout, np.array([plk['k'], plk['p0k'], plk['p2k'], plk['p4k']]).T, header=hdr) 
+    np.savetxt(fplk, np.array([plk['k'], plk['p0k'], plk['p2k'], plk['p4k']]).T, header=hdr) 
     return None 
 
 
@@ -73,17 +55,13 @@ def hadesHalo_Plk_sigma8(sig8, nreal, nzbin, zspace=False, Lbox=1000., mh_min=32
     '''
     if zspace: raise NotImplementedError
     else: str_space = 'r' 
-
     if sig8 not in [0.822, 0.818, 0.807, 0.798]: 
         raise ValueError("sigma_8 value not available") 
-    
-    fhalo = ''.join([UT.dat_dir(), 'halos/', 
-        'groups.0.0eV.sig8', str(sig8), '.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space',
-        '.mhmin', str(mh_min), '.dat']) 
-
-    # output file 
+    # plk output file 
     fplk = ''.join([UT.dat_dir(), 'plk/', 
-        'plk.', fhalo.split('/')[-1].rsplit('.dat', 1)[0], 
+        'plk.', 
+        'groups.0.0eV.sig8', str(sig8), '.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space',
+        '.mhmin', str(mh_min),
         'Nmesh', str(Nmesh), 
         '.dat']) 
 
@@ -93,33 +71,16 @@ def hadesHalo_Plk_sigma8(sig8, nreal, nzbin, zspace=False, Lbox=1000., mh_min=32
     
     # read in Neutrino halo with 0.0eV but with sigma_8 matched to some massive eV catalog, 
     # realization # nreal, at z specified by nzbin 
-    x, y, z = np.loadtxt(fhalo, skiprows=1, unpack=True, usecols=[0,1,2]) 
-    xyz = np.zeros((3, len(x)))
-    xyz[0,:] = x
-    xyz[1,:] = y 
-    xyz[2,:] = z
-    
-    Omega_m = 0.3175
-    Omega_b = 0.049 # fixed baryon 
-    h = 0.6711
-    cosmo = NBlab.cosmology.Planck15.clone(Omega_cdm=Omega_m-Omega_b, h=h, Omega_b=Omega_b)
-    ztbl = {0: 3., 1: 2., 2: 1., 3: 0.5, 4: 0.}
-
-    halos = {}  
-    halos['Position']  = xyz/Lbox
-    cat = NBlab.ArrayCatalog(halos, BoxSize=np.array([Lbox, Lbox, Lbox])) 
-    cat = NBlab.HaloCatalog(cat, cosmo=cosmo, redshift=ztbl[nzbin], mdef='vir') 
-
+    halos = Dat.Sig8Halos(Sig8, nreal, nzbin, mh_min=mh_min, silent=True) 
     # calculate P_l(k) 
-    plk = FM.Observables(cat, observable='plk', rsd=zspace, dk=0.005, kmin=0.005, Nmesh=Nmesh)
-
+    plk = FM.Observables(halos, observable='plk', rsd=zspace, dk=0.005, kmin=0.005, Nmesh=Nmesh)
     # header 
     hdr = ''.join(['P_l(k) measurements for m neutrino = ', str(mneut), ' eV, realization ', str(nreal), ', zbin ', str(nzbin), 
         '\n P_shotnoise ', str(plk['shotnoise']), 
         '\n cols: k, P_0, P_2, P_4']) 
 
     # write to file 
-    np.savetxt(fout, np.array([plk['k'], plk['p0k'], plk['p2k'], plk['p4k']]).T, header=hdr) 
+    np.savetxt(fplk, np.array([plk['k'], plk['p0k'], plk['p2k'], plk['p4k']]).T, header=hdr) 
     return None 
 
 
@@ -147,4 +108,3 @@ if __name__=='__main__':
         hadesHalo_Plk_sigma8(sig8, nreal, nzbin, zspace=zbool, Lbox=1000., Nmesh=nmesh)
     else: 
         raise ValueError
-
