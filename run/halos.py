@@ -10,18 +10,36 @@ from emanu.hades import data as Dat
 from emanu import forwardmodel as FM
 
 
-def hadesHalo(mneut, nreal, nzbin, zspace=False, Lbox=1000., mh_min=3200., overwrite=False): 
+def hadesHalo(mneut, nreal, nzbin, mh_min=3200., overwrite=False): 
     '''  call eman.hades.data.NeutHalos in order to construct hdf5 catalog
     '''
     halos = Dat.NeutHalos(mneut, nreal, nzbin, mh_min=mh_min, silent=False, overwrite=overwrite) 
     return None 
 
 
-def hadesHalo_sigma8(sig8, nreal, nzbin, zspace=False, Lbox=1000., mh_min=3200., overwrite=False): 
+def hadesHalo_sigma8(sig8, nreal, nzbin, mh_min=3200., overwrite=False): 
     '''  call eman.hades.data.Sig8Halos in order to construct hdf5 catalog
     '''
     halos = Dat.Sig8Halos(sig8, nreal, nzbin, mh_min=mh_min, silent=False, overwrite=overwrite) 
     return None 
+
+
+def _hadesHalo(args):
+    # wrapper for hadesHalo that works with multiprocessing 
+    mneut = args[0]
+    nreal = args[1] 
+    nzbin = args[2] 
+    hadesHalo(mneut, nreal, nzbin, overwrite=False)
+    return None
+
+
+def _hadesHalo_sigma8(args):
+    # wrapper for hadesHalo_sigma8 that works with multiprocessing 
+    sig8 = args[0]
+    nreal = args[1] 
+    nzbin = args[2] 
+    hadesHalo_sigma8(sig8, nreal, nzbin, overwrite=False)
+    return None
 
 
 def hadesHalo_xyz(mneut, nreal, nzbin, zspace=False, Lbox=1000., mh_min=3200., overwrite=False): 
@@ -146,33 +164,25 @@ if __name__=='__main__':
     run = sys.argv[1]
     nthread = int(sys.argv[2])
     if nthread == 1: 
-        # python threepcf.py data 1 mneut nreal nzbin zstr
         mneut_or_sig8 = float(sys.argv[3])
         nreal = int(sys.argv[4]) 
         nzbin = int(sys.argv[5])
-        zstr = sys.argv[6]
-        if zstr == 'z': zbool = True
-        elif zstr == 'real': zbool = False
         if run == 'mneut': 
-            hadesHalo_xyz(mneut_or_sig8, nreal, nzbin, zspace=zbool, Lbox=1000., overwrite=False)
+            hadesHalo(mneut_or_sig8, nreal, nzbin, overwrite=False)
         elif run == 'sig8': 
-            hadesHalo_sigma8_xyz(mneut_or_sig8, nreal, nzbin, zspace=zbool, Lbox=1000., overwrite=False)
+            hadesHalo_sigma8(mneut_or_sig8, nreal, nzbin, overwrite=False)
     elif nthread > 1: 
-        # python threepcf.py data 1 mneut nreal_i nreal_f nzbin zstr
         mneut_or_sig8 = float(sys.argv[3])
         nreal_i = int(sys.argv[4]) 
         nreal_f = int(sys.argv[5]) 
         nzbin = int(sys.argv[6])
-        zstr = sys.argv[7]
-        if zstr == 'z': zbool = True
-        elif zstr == 'real': zbool = False
         # multiprocessing 
-        args_list = [(mneut_or_sig8, ireal, nzbin, zbool) for ireal in np.arange(nreal_i, nreal_f+1)]
+        args_list = [(mneut_or_sig8, ireal, nzbin) for ireal in np.arange(nreal_i, nreal_f+1)]
         pewl = MP.Pool(processes=nthread)
         if run == 'mneut': 
-            pewl.map(_hadesHalo_xyz, args_list)
+            pewl.map(_hadesHalo, args_list)
         elif run == 'sig8': 
-            pewl.map(_hadesHalo_sigma8_xyz, args_list)
+            pewl.map(_hadesHalo_sigma8, args_list)
         pewl.close()
         pewl.terminate()
         pewl.join() 
