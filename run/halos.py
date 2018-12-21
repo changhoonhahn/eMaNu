@@ -140,9 +140,9 @@ if __name__=='__main__':
         if zstr == 'z': zbool = True
         elif zstr == 'real': zbool = False
         if run == 'mneut': 
-            hadesHalo_xyz(mneut_or_sig8, nreal, nzbin, zspace=zbool, Lbox=1000., overwrite=True)
+            hadesHalo_xyz(mneut_or_sig8, nreal, nzbin, zspace=zbool, Lbox=1000., overwrite=False)
         elif run == 'sig8': 
-            hadesHalo_sigma8_xyz(mneut_or_sig8, nreal, nzbin, zspace=zbool, Lbox=1000., overwrite=True)
+            hadesHalo_sigma8_xyz(mneut_or_sig8, nreal, nzbin, zspace=zbool, Lbox=1000., overwrite=False)
     elif nthread > 1: 
         # python threepcf.py data 1 mneut nreal_i nreal_f nzbin zstr
         mneut_or_sig8 = float(sys.argv[3])
