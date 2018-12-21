@@ -22,7 +22,7 @@ source activate nbdkt
 #done 
 
 for sig8 in 0.822; do  #0.818 0.807 0.798
-    for ireal in {1..1}; do 
+    for ireal in {1..100}; do 
         echo " --- sigma8_c="$sig8"; nreal= "$ireal" --- " 
         srun -n 1 -c 1 python /global/homes/c/chahah/projects/eMaNu/run/halos.py sig8 1 $sig8 $ireal 4 'real'
     done 
