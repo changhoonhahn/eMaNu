@@ -67,7 +67,8 @@ def NeutHalos(mneut, nreal, nzbin, mh_min=3200., silent=True, overwrite=False):
         '.nzbin', str(nzbin),   # zbin 
         '.mhmin', str(mh_min), '.hdf5']) 
 
-    if os.path.isfile(f_halo):
+    if os.path.isfile(f_halo) and not overwrite:
+        if not silent: print('--- reading %s ---' % f_halo)
         # save to hdf5 
         f = h5py.File(f_halo, 'r') 
         f.attrs['Lbox'] = 1000. 
@@ -79,6 +80,7 @@ def NeutHalos(mneut, nreal, nzbin, mh_min=3200., silent=True, overwrite=False):
             group_data[k] = f[k].value 
         f.close() 
     else: 
+        if not silent: print('--- constructing %s ---' % f_halo)
         if mneut == 0.1: 
             dir = ''.join([UT.dat_dir(), '0.10eV/', str(nreal)])
         else: 
@@ -148,7 +150,7 @@ def Sig8Halos(sig8, nreal, nzbin, mh_min=3200., silent=True):
         '.nzbin', str(nzbin),       # zbin 
         '.mhmin', str(mh_min), '.hdf5']) 
 
-    if os.path.isfile(f_halo):
+    if os.path.isfile(f_halo) and not overwrite:
         if not silent: print("--- reading %s ---" % f_halo) 
         # save to hdf5 
         f = h5py.File(f_halo, 'r') 
