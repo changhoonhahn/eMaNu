@@ -10,6 +10,20 @@ from emanu.hades import data as Dat
 from emanu import forwardmodel as FM
 
 
+def hadesHalo(mneut, nreal, nzbin, zspace=False, Lbox=1000., mh_min=3200., overwrite=False): 
+    '''  call eman.hades.data.NeutHalos in order to construct hdf5 catalog
+    '''
+    halos = Dat.NeutHalos(mneut, nreal, nzbin, mh_min=mh_min, silent=False, overwrite=overwrite) 
+    return None 
+
+
+def hadesHalo_sigma8(sig8, nreal, nzbin, zspace=False, Lbox=1000., mh_min=3200., overwrite=False): 
+    '''  call eman.hades.data.Sig8Halos in order to construct hdf5 catalog
+    '''
+    halos = Dat.Sig8Halos(sig8, nreal, nzbin, mh_min=mh_min, silent=False, overwrite=overwrite) 
+    return None 
+
+
 def hadesHalo_xyz(mneut, nreal, nzbin, zspace=False, Lbox=1000., mh_min=3200., overwrite=False): 
     ''' output x,y,z positions of the HADES halo catalog given
     mneut, realization #, and redshift bin #
