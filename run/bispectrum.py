@@ -27,7 +27,7 @@ def haloBispectrum(mneut, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3200.,
 
     # 'groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space', '.mhmin', str(mh_min), '.dat']) 
     fbk = ''.join([UT.dat_dir(), 'bispectrum/', 
-        fhalo.split('/')[-1].rsplit('.dat', 1)[0],
+        fhalo.split('/')[-1].rsplit('.hdf5', 1)[0],
         '.', str_space, 'space',
         '.Ngrid', str(Ngrid), 
         '.Nmax', str(Nmax),
@@ -77,7 +77,7 @@ def haloBispectrum_sigma8(sig8, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3
     # 'groups.0.0eV.sig8', str(sig8), '.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space', '.mhmin', str(mh_min), '.dat']) 
 
     fbk = ''.join([UT.dat_dir(), 'bispectrum/', 
-         fhalo.split('/')[-1].rsplit('.dat', 1)[0],
+         fhalo.split('/')[-1].rsplit('.hdf5', 1)[0],
         '.', str_space, 'space',
         '.Ngrid', str(Ngrid), 
         '.Nmax', str(Nmax),
