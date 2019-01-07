@@ -146,7 +146,7 @@ def Sig8Halos(sig8, nreal, nzbin, mh_min=3200., silent=True, overwrite=False):
     f_halo = ''.join([UT.dat_dir(), 'halos/'
         'groups.', 
         '0.0eV.sig8_', str(sig8),   # 0.0eV, sigma8
-        str(nreal),                 # realization #
+        '.', str(nreal),                 # realization #
         '.nzbin', str(nzbin),       # zbin 
         '.mhmin', str(mh_min), '.hdf5']) 
 
