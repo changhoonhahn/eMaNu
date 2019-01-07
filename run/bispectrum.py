@@ -6,6 +6,7 @@ calculate bispectrum
 '''
 import os 
 import sys 
+import h5py
 import numpy as np 
 # -- pyspectrum -- 
 from pyspectrum import pyspectrum as pySpec
@@ -18,11 +19,16 @@ def haloBispectrum(mneut, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3200.,
     if zspace: raise NotImplementedError
     else: str_space = 'r' 
     fhalo = ''.join([UT.dat_dir(), 'halos/', 
-        'groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space',
-        '.mhmin', str(mh_min), '.dat']) 
+        'groups.', 
+        str(mneut), 'eV.',      # mnu eV
+        str(nreal),             # realization #
+        '.nzbin', str(nzbin),   # zbin 
+        '.mhmin', str(mh_min), '.hdf5']) 
 
+    # 'groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space', '.mhmin', str(mh_min), '.dat']) 
     fbk = ''.join([UT.dat_dir(), 'bispectrum/', 
-         fhalo.split('/')[-1].rsplit('.dat', 1)[0],
+        fhalo.split('/')[-1].rsplit('.dat', 1)[0],
+        '.', str_space, 'space',
         '.Ngrid', str(Ngrid), 
         '.Nmax', str(Nmax),
         '.Ncut', str(Ncut),
@@ -33,12 +39,14 @@ def haloBispectrum(mneut, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3200.,
         # read in data file  
         if not silent: print('--- calculating %s ---' % fbk) 
         if not silent: print('--- reading %s ---' % fhalo) 
-        x, y, z = np.loadtxt(fhalo, skiprows=1, unpack=True, usecols=[0,1,2]) 
-        xyz = np.zeros((3, len(x)))
-        
-        xyz[0,:] = x
-        xyz[1,:] = y 
-        xyz[2,:] = z
+        #x, y, z = np.loadtxt(fhalo, skiprows=1, unpack=True, usecols=[0,1,2]) 
+        #xyz = np.zeros((3, len(x)))
+        #xyz[0,:] = x
+        #xyz[1,:] = y 
+        #xyz[2,:] = z
+
+        f = h5py.File(fhalo, 'r') 
+        xyz = f['Position'].value.T
         
         delta = pySpec.FFTperiodic(xyz, fft='fortran', Lbox=Lbox, Ngrid=Ngrid, silent=silent) 
         delta_fft = pySpec.reflect_delta(delta, Ngrid=Ngrid) 
@@ -61,11 +69,16 @@ def haloBispectrum_sigma8(sig8, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3
     if zspace: raise NotImplementedError
     else: str_space = 'r' 
     fhalo = ''.join([UT.dat_dir(), 'halos/', 
-        'groups.0.0eV.sig8', str(sig8), '.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space',
-        '.mhmin', str(mh_min), '.dat']) 
+        'groups.', 
+        '0.0eV.sig8_', str(sig8),   # 0.0eV, sigma8
+        '.', str(nreal),                 # realization #
+        '.nzbin', str(nzbin),       # zbin 
+        '.mhmin', str(mh_min), '.hdf5']) 
+    # 'groups.0.0eV.sig8', str(sig8), '.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space', '.mhmin', str(mh_min), '.dat']) 
 
     fbk = ''.join([UT.dat_dir(), 'bispectrum/', 
          fhalo.split('/')[-1].rsplit('.dat', 1)[0],
+        '.', str_space, 'space',
         '.Ngrid', str(Ngrid), 
         '.Nmax', str(Nmax),
         '.Ncut', str(Ncut),
@@ -76,12 +89,14 @@ def haloBispectrum_sigma8(sig8, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3
         # read in data file  
         if not silent: print('--- calculating %s ---' % fbk) 
         if not silent: print('--- reading %s ---' % fhalo) 
-        x, y, z = np.loadtxt(fhalo, skiprows=1, unpack=True, usecols=[0,1,2]) 
-        xyz = np.zeros((3, len(x)))
+        #x, y, z = np.loadtxt(fhalo, skiprows=1, unpack=True, usecols=[0,1,2]) 
+        #xyz = np.zeros((3, len(x)))
+        #xyz[0,:] = x
+        #xyz[1,:] = y 
+        #xyz[2,:] = z
         
-        xyz[0,:] = x
-        xyz[1,:] = y 
-        xyz[2,:] = z
+        f = h5py.File(fhalo, 'r') 
+        xyz = f['Position'].value.T
         
         delta = pySpec.FFTperiodic(xyz, fft='fortran', Lbox=Lbox, Ngrid=Ngrid, silent=silent) 
         delta_fft = pySpec.reflect_delta(delta, Ngrid=Ngrid) 
