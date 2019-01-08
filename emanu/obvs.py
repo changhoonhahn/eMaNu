@@ -34,8 +34,8 @@ def B123_halo(mneut, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3200., Ngrid
     if zspace: raise NotImplementedError # redhsift
     else: str_space = 'r' # real 
     fbk = ''.join([UT.dat_dir(), 'bispectrum/', 
-        'groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space',
-        '.mhmin', str(mh_min),
+        'groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), '.mhmin', str(mh_min),
+        '.', str_space, 'space',
         '.Ngrid', str(Ngrid), 
         '.Nmax', str(Nmax),
         '.Ncut', str(Ncut),
@@ -63,9 +63,8 @@ def B123_halo_sigma8(sig8, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3200.,
     # sigma 8 look up table
 
     fbk = ''.join([UT.dat_dir(), 'bispectrum/', 
-        'groups.0.0eV.sig8', str(sig8), 
-        '.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space',
-        '.mhmin', str(mh_min),
+        'groups.0.0eV.sig8_', str(sig8), '.', str(nreal), '.nzbin', str(nzbin), '.mhmin', str(mh_min),
+        '.', str_space, 'space',
         '.Ngrid', str(Ngrid), 
         '.Nmax', str(Nmax),
         '.Ncut', str(Ncut),
