@@ -2,7 +2,7 @@
 now=$(date +"%T") 
 echo "start time ... $now"
 
-for ireal in {28..50}; do 
+for ireal in {51..60}; do 
     for mneut in 0.0 0.06 0.1 0.15; do 
         now=$(date +"%T") 
         echo "$mneut ... $ireal ... $now"
