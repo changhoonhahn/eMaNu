@@ -48,10 +48,12 @@ def haloBispectrum(mneut, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3200.,
         f = h5py.File(fhalo, 'r') 
         xyz = f['Position'].value.T
         
+        if not silent: print('FFTing the halo field') 
         delta = pySpec.FFTperiodic(xyz, fft='fortran', Lbox=Lbox, Ngrid=Ngrid, silent=silent) 
         delta_fft = pySpec.reflect_delta(delta, Ngrid=Ngrid) 
         
         # calculate bispectrum 
+        if not silent: print('calculating the halo bispectrum') 
         i_k, j_k, l_k, b123, q123, cnts = pySpec.Bk123_periodic(
                 delta_fft, Nmax=Nmax, Ncut=Ncut, step=step, fft_method='pyfftw', nthreads=1, silent=silent) 
 
@@ -121,10 +123,10 @@ if __name__=="__main__":
         nreal = int(sys.argv[3]) 
         nzbin = int(sys.argv[4]) 
         haloBispectrum(mneut, nreal, nzbin, Lbox=1000., zspace=False, 
-                Ngrid=360, Nmax=40, Ncut=3, step=3, silent=True, overwrite=False)
+                Ngrid=360, Nmax=40, Ncut=3, step=3, silent=False, overwrite=False)
     elif run == 'sigma8': 
         sig8 = float(sys.argv[2]) 
         nreal = int(sys.argv[3]) 
         nzbin = int(sys.argv[4]) 
         haloBispectrum_sigma8(sig8, nreal, nzbin, Lbox=1000., zspace=False, 
-                Ngrid=360, Nmax=40, Ncut=3, step=3, silent=True, overwrite=False)
+                Ngrid=360, Nmax=40, Ncut=3, step=3, silent=False, overwrite=False)
