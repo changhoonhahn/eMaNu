@@ -31,7 +31,7 @@ def Plk_halo(mneut, nreal, nzbin, zspace=False, sim='hades'):
 def B123_halo(mneut, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3200., Ngrid=360, Nmax=40, Ncut=3, step=3): 
     ''' return halo bispectrum 
     '''
-    if zspace: raise NotImplementedError # redhsift
+    if zspace: str_space = 'z' # redshift space 
     else: str_space = 'r' # real 
     fbk = ''.join([UT.dat_dir(), 'bispectrum/', 
         'groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), '.mhmin', str(mh_min),
@@ -52,13 +52,12 @@ def B123_halo(mneut, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3200., Ngrid
     return i_k, j_k, l_k, b123, q123, cnts, k_f
 
 
-def B123_halo_sigma8(sig8, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3200., Ngrid=360, Nmax=40, Ncut=3, step=3, 
-        silent=True): 
+def B123_halo_sigma8(sig8, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3200., Ngrid=360, Nmax=40, Ncut=3, step=3, silent=True): 
     ''' return halo bispectrum 
     '''
     if sig8 not in [0.822, 0.818, 0.807, 0.798]: 
         raise ValueError("sigma_8 = %f is not available" % sig8) 
-    if zspace: raise NotImplementedError # redhsift
+    if zspace: str_space = 'z' # redhsift
     else: str_space = 'r' # real 
     # sigma 8 look up table
 

@@ -30,24 +30,26 @@ mpl.rcParams['ytick.major.width'] = 1.5
 mpl.rcParams['legend.frameon'] = False
 
 
-def compare_dB123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50): 
+def compare_dB123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=False): 
     ''' Make various bispectrum plots as a function of m_nu 
     '''
+    str_rsd = ''
+    if zspace: str_rsd = '_rsd'
     mnus = [0.06, 0.1, 0.15]
     sig8s = [0.822, 0.818, 0.807, 0.798]
     kmin, kmax = krange 
 
-    _, _, _, B123_fid, _, _ = readB123(0.0, nreals, 4, BorQ='B')
+    _, _, _, B123_fid, _, _ = readB123(0.0, nreals, 4, BorQ='B', zspace=zspace)
 
     B123s, cnts = [], [] 
     for mnu in mnus: 
-        _i, _j, _l, _B123, _cnts, kf = readB123(mnu, nreals, 4, BorQ='B')
+        _i, _j, _l, _B123, _cnts, kf = readB123(mnu, nreals, 4, BorQ='B', zspace=zspace)
         B123s.append(_B123) 
         cnts.append(_cnts)
 
     B123_s8s, cnt_s8s = [], [] 
     for sig8 in sig8s: 
-        _i, _j, _l, _B123, _cnts, kf = readB123_sigma8(sig8, nreals, 4, BorQ='B')
+        _i, _j, _l, _B123, _cnts, kf = readB123_sigma8(sig8, nreals, 4, BorQ='B', zspace=zspace)
         B123_s8s.append(_B123) 
         cnt_s8s.append(_cnts)
         
@@ -99,7 +101,7 @@ def compare_dB123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50):
         cbar_ax = fig.add_axes([0.95, 0.15, 0.0125, 0.7])
         cbar = fig.colorbar(bplot, cax=cbar_ax)
         cbar.set_label('$\Delta B = B(k_1, k_2, k_3) - B^\mathrm{(fid)}$', rotation=90, fontsize=20)
-        fig.savefig(''.join([UT.doc_dir(), 'figs/halodB123_shape.pdf']), bbox_inches='tight') 
+        fig.savefig(''.join([UT.doc_dir(), 'figs/halodB123_shape', str_rsd, '.pdf']), bbox_inches='tight') 
 
     elif typ == 'amp':
         fig = plt.figure(figsize=(25,8))
@@ -156,7 +158,7 @@ def compare_dB123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50):
         bkgd.set_xlabel(r'$k_1 \le k_2 \le k_3$ triangle indices', labelpad=10, fontsize=25) 
         bkgd.set_ylabel('$B(k_1, k_2, k_3)$', fontsize=25) 
         fig.subplots_adjust(hspace=0.15)
-        fig.savefig(''.join([UT.doc_dir(), 'figs/halodB123_amp.pdf']), bbox_inches='tight') 
+        fig.savefig(''.join([UT.doc_dir(), 'figs/halodB123_amp', str_rsd, '.pdf']), bbox_inches='tight') 
         
         ii = 0 
         fig = plt.figure(figsize=(18,6))
@@ -195,7 +197,7 @@ def compare_dB123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50):
         sub.set_xlim([0, np.sum(klim)])
         sub.set_yscale('log') 
         sub.set_ylim([1e6, 5e8]) 
-        fig.savefig(''.join([UT.doc_dir(), 'figs/halodB123_amp_comp.pdf']), bbox_inches='tight') 
+        fig.savefig(''.join([UT.doc_dir(), 'figs/halodB123_amp_comp', str_rsd, '.pdf']), bbox_inches='tight') 
 
     elif typ == 'relative':
         fig = plt.figure(figsize=(18,6))
@@ -244,26 +246,28 @@ def compare_dB123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50):
         bkgd.set_xlabel(r'$k_1 \le k_2 \le k_3$ triangle indices', labelpad=10, fontsize=25) 
         bkgd.set_ylabel('$(B(k_1, k_2, k_3) - B^\mathrm{(fid)})/B^\mathrm{(fid)}$', labelpad=15, fontsize=25) 
         fig.subplots_adjust(hspace=0.15)
-        fig.savefig(''.join([UT.doc_dir(), 'figs/halodB123_relative.pdf']), bbox_inches='tight') 
+        fig.savefig(''.join([UT.doc_dir(), 'figs/halodB123_relative', str_rsd, '.pdf']), bbox_inches='tight') 
     return None 
 
 
-def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50): 
+def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=False): 
     ''' Make various bispectrum plots as a function of m_nu 
     '''
+    str_rsd = ''
+    if zspace: str_rsd = '_rsd'
     mnus = [0.0, 0.06, 0.1, 0.15]
-    sig8s = [0.822, 0.818, 0.807]#, 0.798]
+    sig8s = [0.822, 0.818, 0.807, 0.798]
     kmin, kmax = krange 
 
     B123s, cnts = [], [] 
     for mnu in mnus: 
-        _i, _j, _l, _B123, _cnts, kf = readB123(mnu, nreals, 4, BorQ='B')
+        _i, _j, _l, _B123, _cnts, kf = readB123(mnu, nreals, 4, BorQ='B', zspace=zspace)
         B123s.append(_B123) 
         cnts.append(_cnts)
 
     B123_s8s, cnt_s8s = [], [] 
     for sig8 in sig8s: 
-        _i, _j, _l, _B123, _cnts, kf = readB123_sigma8(sig8, nreals, 4, BorQ='B')
+        _i, _j, _l, _B123, _cnts, kf = readB123_sigma8(sig8, nreals, 4, BorQ='B', zspace=zspace)
         B123_s8s.append(_B123) 
         cnt_s8s.append(_cnts)
         
@@ -316,7 +320,7 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50):
         #cbar_ax = fig.add_axes([0.95, 0.125, 0.0125, 0.35])
         #cbar = fig.colorbar(dbplot, cax=cbar_ax)
         #cbar.set_label('$B(k_1, k_2, k_3) - B^\mathrm{(fid)}$', rotation=90, fontsize=20)
-        fig.savefig(''.join([UT.doc_dir(), 'figs/haloB123_shape.pdf']), bbox_inches='tight') 
+        fig.savefig(''.join([UT.doc_dir(), 'figs/haloB123_shape', str_rsd, '.pdf']), bbox_inches='tight') 
 
     elif typ == 'amp':
         fig = plt.figure(figsize=(25,8))
@@ -375,10 +379,14 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50):
                     for i in i_usort: 
                         _b123.append(b123[(i_k == i) & (j_k == j) & (l_k == l)])
             #sub2.scatter(range(np.sum(klim)), _b123, s=5, c='C'+str(ii), label='$\sigma_8=$'+str(sig8)) 
-            sub2.plot(range(np.sum(klim)), _b123, c='C'+str(ii), label='$\sigma_8=$'+str(sig8)) 
+            #sub2.plot(range(np.sum(klim)), _b123, c='C'+str(ii), label='$\sigma_8=$'+str(sig8)) 
             # inset axes....
-            #axins2.scatter(range(np.sum(klim)), _b123, s=5, c='C'+str(ii)) 
-            axins2.plot(range(np.sum(klim)), _b123, c='C'+str(ii)) 
+            if ii < 10: 
+                sub2.plot(range(np.sum(klim)), _b123, c='C'+str(ii), label='$\sigma_8=$'+str(sig8)) 
+                axins2.plot(range(np.sum(klim)), _b123, c='C'+str(ii)) 
+            else: 
+                sub2.plot(range(np.sum(klim)), _b123, c='C9', label='$\sigma_8=$'+str(sig8)) 
+                axins2.plot(range(np.sum(klim)), _b123, c='C9') 
             ii += 2 
         sub2.legend(loc='upper right', markerscale=4, handletextpad=0.25, fontsize=20) 
         sub2.set_xlim([0, np.sum(klim)])
@@ -397,17 +405,17 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50):
         bkgd.set_xlabel(r'$k_1 \le k_2 \le k_3$ triangle indices', labelpad=10, fontsize=25) 
         bkgd.set_ylabel('$B(k_1, k_2, k_3)$', fontsize=25) 
         fig.subplots_adjust(hspace=0.15)
-        fig.savefig(''.join([UT.doc_dir(), 'figs/haloB123_amp.pdf']), bbox_inches='tight') 
+        fig.savefig(''.join([UT.doc_dir(), 'figs/haloB123_amp', str_rsd, '.pdf']), bbox_inches='tight') 
     return None 
 
 
-def readB123(mneut, i, nzbin, BorQ='B'):
+def readB123(mneut, i, nzbin, BorQ='B', zspace=False):
     ''' read in bispectrum of massive neutrino halo catalogs
     using the function Obvs.B123_halo
     '''
     bk_kwargs = {
             'Lbox': 1000., 
-            'zspace': False, 
+            'zspace': zspace, 
             'mh_min': 3200., 
             'Ngrid': 360, 
             'Nmax': 40, 
@@ -439,13 +447,13 @@ def readB123(mneut, i, nzbin, BorQ='B'):
         return i_k, j_k, l_k, Q123, cnts, k_f 
 
 
-def readB123_sigma8(sig8, i, nzbin, BorQ='B'):
+def readB123_sigma8(sig8, i, nzbin, BorQ='B', zspace=False):
     ''' read in bispectrum of sigma8 varied m_nu = 0 halo catalogs
     using the function Obvs.B123_halo_sigma8
     '''
     bk_kwargs = {
             'Lbox': 1000., 
-            'zspace': False, 
+            'zspace': zspace, 
             'mh_min': 3200., 
             'Ngrid': 360, 
             'Nmax': 40, 
@@ -480,6 +488,10 @@ def readB123_sigma8(sig8, i, nzbin, BorQ='B'):
 if __name__=="__main__": 
     #compare_B123('shape', nreals=range(1,71), krange=[0.03, 0.5], nbin=31)
     #compare_dB123('shape', nreals=range(1,71), krange=[0.03, 0.5], nbin=31)
-    #compare_B123('amp', nreals=range(1,71), krange=[0.03, 0.5], nbin=25)
-    compare_dB123('amp', nreals=range(1,71), krange=[0.03, 0.5], nbin=25)
+    #compare_B123('amp', nreals=range(1,71), krange=[0.03, 0.5], zspace=False)
+    #compare_dB123('amp', nreals=range(1,71), krange=[0.03, 0.5], zspace=False)
     #compare_dB123('relative', nreals=range(1,71), krange=[0.03, 0.5], nbin=25)
+    
+    compare_B123('amp', nreals=range(1,2), krange=[0.03, 0.5], zspace=True)
+    compare_dB123('amp', nreals=range(1,2), krange=[0.03, 0.5], zspace=True)
+    compare_dB123('relative', nreals=range(1,2), krange=[0.03, 0.5], zspace=True)
