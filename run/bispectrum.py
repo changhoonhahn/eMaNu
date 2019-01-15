@@ -14,9 +14,9 @@ from pyspectrum import pyspectrum as pySpec
 from emanu import util as UT 
 
 
-def haloBispectrum(mneut, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3200.,
+def haloBispectrum(mneut, nreal, nzbin, zspace=False, mh_min=3200.,
         Ngrid=360, Nmax=40, Ncut=3, step=3, silent=True, overwrite=False): 
-    if zspace: 'z' 
+    if zspace: str_space = 'z' 
     else: str_space = 'r' 
     fhalo = ''.join([UT.dat_dir(), 'halos/', 
         'groups.', 
@@ -38,14 +38,15 @@ def haloBispectrum(mneut, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3200.,
         # read in data file  
         if not silent: print('--- calculating %s ---' % fbk) 
         if not silent: print('--- reading %s ---' % fhalo) 
-
         f = h5py.File(fhalo, 'r') 
+        Lbox = f.attrs['Lbox']
         xyz = f['Position'].value.T
         
         if zspace: # impose redshift space distortions on the z-axis 
             v_offset = f['VelocityOffset'].value.T
-            xyz += (f['VelocityOffset'].value * [0, 0, 1]).T 
-        
+            xyz += (f['VelocityOffset'].value * [0, 0, 1]).T + Lbox
+            xyz = (xyz % Lbox) 
+
         if not silent: print('FFTing the halo field') 
         delta = pySpec.FFTperiodic(xyz, fft='fortran', Lbox=Lbox, Ngrid=Ngrid, silent=silent) 
         delta_fft = pySpec.reflect_delta(delta, Ngrid=Ngrid) 
@@ -64,7 +65,7 @@ def haloBispectrum(mneut, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3200.,
     return None 
 
 
-def haloBispectrum_sigma8(sig8, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3200.,
+def haloBispectrum_sigma8(sig8, nreal, nzbin, zspace=False, mh_min=3200.,
         Ngrid=360, Nmax=40, Ncut=3, step=3, silent=True, overwrite=False): 
     if zspace: str_space = 'z'  
     else: str_space = 'r' 
@@ -89,11 +90,13 @@ def haloBispectrum_sigma8(sig8, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3
         if not silent: print('--- calculating %s ---' % fbk) 
         if not silent: print('--- reading %s ---' % fhalo) 
         f = h5py.File(fhalo, 'r') 
+        Lbox = f.attrs['Lbox']
         xyz = f['Position'].value.T
         
         if zspace: # impose redshift space distortions on the z-axis 
             v_offset = f['VelocityOffset'].value.T
-            xyz += (f['VelocityOffset'].value * [0, 0, 1]).T 
+            xyz += (f['VelocityOffset'].value * [0, 0, 1]).T + Lbox
+            xyz = (xyz % Lbox) 
         
         delta = pySpec.FFTperiodic(xyz, fft='fortran', Lbox=Lbox, Ngrid=Ngrid, silent=silent) 
         delta_fft = pySpec.reflect_delta(delta, Ngrid=Ngrid) 
@@ -121,8 +124,8 @@ if __name__=="__main__":
     elif rsd == 'z': zspace = True
 
     if run == 'mneut': 
-        haloBispectrum(mnu_or_sig8, nreal, nzbin, Lbox=1000., zspace=zspace, 
+        haloBispectrum(mnu_or_sig8, nreal, nzbin, zspace=zspace, 
                 Ngrid=360, Nmax=40, Ncut=3, step=3, silent=False, overwrite=False)
     elif run == 'sigma8': 
-        haloBispectrum_sigma8(mnu_or_sig8, nreal, nzbin, Lbox=1000., zspace=zspace, 
+        haloBispectrum_sigma8(mnu_or_sig8, nreal, nzbin, zspace=zspace, 
                 Ngrid=360, Nmax=40, Ncut=3, step=3, silent=False, overwrite=False)
