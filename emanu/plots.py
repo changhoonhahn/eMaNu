@@ -105,14 +105,35 @@ def plotBk(plottype, k1, k2, k3, BorQ, cnts, nbin=20, fig=None, ax=None, norm=Tr
 
 def _BorQgrid(k3k1, k2k1, BorQ, cnts, x_bins, y_bins): 
     BorQ_grid = np.zeros((len(x_bins)-1, len(y_bins)-1))
-    for i_x in range(len(x_bins)-1): 
-        for i_y in range(len(y_bins)-1): 
-            lim = ((k2k1 >= y_bins[i_y]) & 
-                    (k2k1 < y_bins[i_y+1]) & 
-                    (k3k1 >= x_bins[i_x]) & 
-                    (k3k1 < x_bins[i_x+1]))
+    for i_y in range(len(y_bins)-1): 
+        for i_x in range(len(x_bins)-1): 
+            if (i_x == (len(x_bins)-1) - (len(y_bins)-1-i_y)):
+                if (i_y == len(y_bins)-2): 
+                    lim = ((k2k1 >= y_bins[i_y]) & 
+                            (k2k1 <= y_bins[i_y+1]) & 
+                            (k3k1 >= x_bins[i_x]) & 
+                            (k3k1 <= x_bins[i_x+1]))
+                else: 
+                    lim = ((k2k1 >= y_bins[i_y]) & 
+                            (k2k1 < y_bins[i_y+1]) & 
+                            (k3k1 >= x_bins[i_x]) & 
+                            (k3k1 <= x_bins[i_x+1]))
+            else: 
+                if (i_y == len(y_bins)-2): 
+                    lim = ((k2k1 >= y_bins[i_y]) & 
+                            (k2k1 <= y_bins[i_y+1]) & 
+                            (k3k1 >= x_bins[i_x]) & 
+                            (k3k1 < x_bins[i_x+1]))
+                else: 
+                    lim = ((k2k1 >= y_bins[i_y]) & 
+                            (k2k1 < y_bins[i_y+1]) & 
+                            (k3k1 >= x_bins[i_x]) & 
+                            (k3k1 < x_bins[i_x+1]))
+
             if np.sum(lim) > 0: 
                 BorQ_grid[i_x, i_y] = np.average(BorQ[lim], weights=cnts[lim])
             else: 
                 BorQ_grid[i_x, i_y] = -np.inf
+        #print '---', i_y, (len(x_bins)-1) - (len(y_bins)-1-i_y), '---'
+        #print np.arange(len(x_bins)-1)[np.isfinite(BorQ_grid[:,i_y])]
     return BorQ_grid
