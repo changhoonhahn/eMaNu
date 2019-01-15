@@ -16,7 +16,7 @@ from emanu import util as UT
 
 def haloBispectrum(mneut, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3200.,
         Ngrid=360, Nmax=40, Ncut=3, step=3, silent=True, overwrite=False): 
-    if zspace: raise NotImplementedError
+    if zspace: 'z' 
     else: str_space = 'r' 
     fhalo = ''.join([UT.dat_dir(), 'halos/', 
         'groups.', 
@@ -25,7 +25,6 @@ def haloBispectrum(mneut, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3200.,
         '.nzbin', str(nzbin),   # zbin 
         '.mhmin', str(mh_min), '.hdf5']) 
 
-    # 'groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space', '.mhmin', str(mh_min), '.dat']) 
     fbk = ''.join([UT.dat_dir(), 'bispectrum/', 
         fhalo.split('/')[-1].rsplit('.hdf5', 1)[0],
         '.', str_space, 'space',
@@ -39,14 +38,13 @@ def haloBispectrum(mneut, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3200.,
         # read in data file  
         if not silent: print('--- calculating %s ---' % fbk) 
         if not silent: print('--- reading %s ---' % fhalo) 
-        #x, y, z = np.loadtxt(fhalo, skiprows=1, unpack=True, usecols=[0,1,2]) 
-        #xyz = np.zeros((3, len(x)))
-        #xyz[0,:] = x
-        #xyz[1,:] = y 
-        #xyz[2,:] = z
 
         f = h5py.File(fhalo, 'r') 
         xyz = f['Position'].value.T
+        
+        if zspace: # impose redshift space distortions on the z-axis 
+            v_offset = f['VelocityOffset'].value.T
+            xyz += (f['VelocityOffset'].value * [0, 0, 1]).T 
         
         if not silent: print('FFTing the halo field') 
         delta = pySpec.FFTperiodic(xyz, fft='fortran', Lbox=Lbox, Ngrid=Ngrid, silent=silent) 
@@ -68,7 +66,7 @@ def haloBispectrum(mneut, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3200.,
 
 def haloBispectrum_sigma8(sig8, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3200.,
         Ngrid=360, Nmax=40, Ncut=3, step=3, silent=True, overwrite=False): 
-    if zspace: raise NotImplementedError
+    if zspace: str_space = 'z'  
     else: str_space = 'r' 
     fhalo = ''.join([UT.dat_dir(), 'halos/', 
         'groups.', 
@@ -76,7 +74,6 @@ def haloBispectrum_sigma8(sig8, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3
         '.', str(nreal),                 # realization #
         '.nzbin', str(nzbin),       # zbin 
         '.mhmin', str(mh_min), '.hdf5']) 
-    # 'groups.0.0eV.sig8', str(sig8), '.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space', '.mhmin', str(mh_min), '.dat']) 
 
     fbk = ''.join([UT.dat_dir(), 'bispectrum/', 
          fhalo.split('/')[-1].rsplit('.hdf5', 1)[0],
@@ -91,14 +88,12 @@ def haloBispectrum_sigma8(sig8, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3
         # read in data file  
         if not silent: print('--- calculating %s ---' % fbk) 
         if not silent: print('--- reading %s ---' % fhalo) 
-        #x, y, z = np.loadtxt(fhalo, skiprows=1, unpack=True, usecols=[0,1,2]) 
-        #xyz = np.zeros((3, len(x)))
-        #xyz[0,:] = x
-        #xyz[1,:] = y 
-        #xyz[2,:] = z
-        
         f = h5py.File(fhalo, 'r') 
         xyz = f['Position'].value.T
+        
+        if zspace: # impose redshift space distortions on the z-axis 
+            v_offset = f['VelocityOffset'].value.T
+            xyz += (f['VelocityOffset'].value * [0, 0, 1]).T 
         
         delta = pySpec.FFTperiodic(xyz, fft='fortran', Lbox=Lbox, Ngrid=Ngrid, silent=silent) 
         delta_fft = pySpec.reflect_delta(delta, Ngrid=Ngrid) 
@@ -118,15 +113,16 @@ def haloBispectrum_sigma8(sig8, nreal, nzbin, Lbox=1000., zspace=False, mh_min=3
 
 if __name__=="__main__":
     run = sys.argv[1]
+    mnu_or_sig8 = float(sys.argv[2]) 
+    nreal = int(sys.argv[3]) 
+    nzbin = int(sys.argv[4]) 
+    rsd = sys.argv[5]
+    if rsd == 'r': zspace = False
+    elif rsd == 'z': zspace = True
+
     if run == 'mneut': 
-        mneut = float(sys.argv[2]) 
-        nreal = int(sys.argv[3]) 
-        nzbin = int(sys.argv[4]) 
-        haloBispectrum(mneut, nreal, nzbin, Lbox=1000., zspace=False, 
+        haloBispectrum(mnu_or_sig8, nreal, nzbin, Lbox=1000., zspace=zspace, 
                 Ngrid=360, Nmax=40, Ncut=3, step=3, silent=False, overwrite=False)
     elif run == 'sigma8': 
-        sig8 = float(sys.argv[2]) 
-        nreal = int(sys.argv[3]) 
-        nzbin = int(sys.argv[4]) 
-        haloBispectrum_sigma8(sig8, nreal, nzbin, Lbox=1000., zspace=False, 
+        haloBispectrum_sigma8(mnu_or_sig8, nreal, nzbin, Lbox=1000., zspace=zspace, 
                 Ngrid=360, Nmax=40, Ncut=3, step=3, silent=False, overwrite=False)
