@@ -71,14 +71,19 @@ def NeutHalos(mneut, nreal, nzbin, mh_min=3200., silent=True, overwrite=False):
         if not silent: print('--- reading %s ---' % f_halo)
         # save to hdf5 
         f = h5py.File(f_halo, 'r') 
-        f.attrs['Lbox'] = 1000. 
         header = {} 
-        for k in f.attrs.keys():    # save attributes
-            header[k] = f.header[k] 
+        for k in f.attrs.keys():    # save attributes/header 
+            header[k] = f.attrs[k] 
+        header['Lbox'] = 1000. 
         group_data = {} 
-        for k in f.keys():          # save group data
+        for k in f.keys():          # save halo data
             group_data[k] = f[k].value 
         f.close() 
+
+        # get cosmology from header 
+        Omega_b = 0.049 # fixed baryon 
+        cosmo = NBlab.cosmology.Planck15.clone(Omega_cdm=header['Omega_m']-Omega_b, 
+                h=header['h'], Omega_b=Omega_b)
     else: 
         if not silent: print('--- constructing %s ---' % f_halo)
         if mneut == 0.1: 
@@ -151,16 +156,22 @@ def Sig8Halos(sig8, nreal, nzbin, mh_min=3200., silent=True, overwrite=False):
         '.mhmin', str(mh_min), '.hdf5']) 
 
     if os.path.isfile(f_halo) and not overwrite:
-        if not silent: print("--- reading %s ---" % f_halo) 
+        if not silent: print('--- reading %s ---' % f_halo)
         # save to hdf5 
         f = h5py.File(f_halo, 'r') 
         header = {} 
-        for k in f.attrs.keys():    # save attributes
-            header[k] = f.header[k] 
+        for k in f.attrs.keys():    # save attributes/header 
+            header[k] = f.attrs[k] 
+        header['Lbox'] = 1000. 
         group_data = {} 
-        for k in f.keys():          # save group data
+        for k in f.keys():          # save halo data
             group_data[k] = f[k].value 
         f.close() 
+
+        # get cosmology from header 
+        Omega_b = 0.049 # fixed baryon 
+        cosmo = NBlab.cosmology.Planck15.clone(Omega_cdm=header['Omega_m']-Omega_b, 
+                h=header['h'], Omega_b=Omega_b)
     else: 
         if not silent: print("--- constructing %s ---" % f_halo) 
         dir = ''.join([UT.dat_dir(), '0.0eV_', str(sig8), '/', str(nreal)])

@@ -29,6 +29,8 @@ mpl.rcParams['ytick.major.size'] = 5
 mpl.rcParams['ytick.major.width'] = 1.5
 mpl.rcParams['legend.frameon'] = False
 
+def compare_Plk(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=False): 
+
 
 def compare_dB123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=False): 
     ''' Make various bispectrum plots as a function of m_nu 

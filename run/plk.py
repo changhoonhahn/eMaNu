@@ -18,7 +18,7 @@ def hadesHalo_Plk(mneut, nreal, nzbin, zspace=False, Lbox=1000., mh_min=3200., N
     -----
     * Takes ~20 seconds.
     '''
-    if zspace: raise NotImplementedError
+    if zspace: str_space = 'z'  
     else: str_space = 'r' 
     # P_l(k) output file 
     fplk = ''.join([UT.dat_dir(), 'plk/', 
@@ -34,6 +34,11 @@ def hadesHalo_Plk(mneut, nreal, nzbin, zspace=False, Lbox=1000., mh_min=3200., N
 
     # read in Neutrino halo with mneut eV, realization # nreal, at z specified by nzbin 
     halos = Dat.NeutHalos(mneut, nreal, nzbin, mh_min=mh_min, silent=True) 
+
+    if zspace: # impose redshift space distortions on the z-axis 
+        v_offset = halos['VelocityOffset']
+        halos['RSDPosition'] = ((halos['Position'] + halos['VelocityOffset'] * [0, 0, 1] + Lbox) % Lbox) 
+
     # calculate P_l(k) 
     plk = FM.Observables(halos, observable='plk', rsd=zspace, dk=0.005, kmin=0.005, Nmesh=Nmesh)
 
@@ -53,7 +58,7 @@ def hadesHalo_Plk_sigma8(sig8, nreal, nzbin, zspace=False, Lbox=1000., mh_min=32
     -----
     * Takes ~20 seconds.
     '''
-    if zspace: raise NotImplementedError
+    if zspace: str_space = 'z' 
     else: str_space = 'r' 
     if sig8 not in [0.822, 0.818, 0.807, 0.798]: 
         raise ValueError("sigma_8 value not available") 
@@ -72,6 +77,11 @@ def hadesHalo_Plk_sigma8(sig8, nreal, nzbin, zspace=False, Lbox=1000., mh_min=32
     # read in Neutrino halo with 0.0eV but with sigma_8 matched to some massive eV catalog, 
     # realization # nreal, at z specified by nzbin 
     halos = Dat.Sig8Halos(sig8, nreal, nzbin, mh_min=mh_min, silent=True) 
+    
+    if zspace: # impose redshift space distortions on the z-axis 
+        v_offset = halos['VelocityOffset']
+        halos['RSDPosition'] = ((halos['Position'] + halos['VelocityOffset'] * [0, 0, 1] + Lbox) % Lbox) 
+
     # calculate P_l(k) 
     plk = FM.Observables(halos, observable='plk', rsd=zspace, dk=0.005, kmin=0.005, Nmesh=Nmesh)
     # header 
