@@ -110,18 +110,14 @@ def compare_dB123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=
         i_k = i_k[klim]
         j_k = j_k[klim]
         l_k = l_k[klim]
+
+        ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # triangle order
+
         ii = 0 
         for mnu, B123 in zip([0.0]+mnus, [B123_fid]+B123s):
             b123 = B123[klim] - B123_fid[klim]
+            _b123 = b123[ijl] 
 
-            _b123 = [] 
-            l_usort = np.sort(np.unique(l_k))
-            for l in l_usort: 
-                j_usort = np.sort(np.unique(j_k[l_k == l]))
-                for j in j_usort: 
-                    i_usort = np.sort(np.unique(i_k[(l_k == l) & (j_k == j)]))
-                    for i in i_usort: 
-                        _b123.append(b123[(i_k == i) & (j_k == j) & (l_k == l)])
             if mnu != 0.0: 
                 sub.plot(range(np.sum(klim)), _b123, c='C'+str(ii), label=str(mnu)+'eV') 
             else: 
@@ -135,14 +131,7 @@ def compare_dB123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=
 
         for sig8, B123 in zip(sig8s, B123_s8s):
             b123 = B123[klim] - B123_fid[klim]
-            _b123 = [] 
-            l_usort = np.sort(np.unique(l_k))
-            for l in l_usort: 
-                j_usort = np.sort(np.unique(j_k[l_k == l]))
-                for j in j_usort: 
-                    i_usort = np.sort(np.unique(i_k[(l_k == l) & (j_k == j)]))
-                    for i in i_usort: 
-                        _b123.append(b123[(i_k == i) & (j_k == j) & (l_k == l)])
+            _b123 = b123[ijl] 
             if ii < 10: 
                 sub2.plot(range(np.sum(klim)), _b123, c='C'+str(ii), label='$\sigma_8=$'+str(sig8)) 
             else: 
@@ -165,28 +154,13 @@ def compare_dB123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=
         sub = fig.add_subplot(111)
         for mnu, B123 in zip([0.0]+mnus, [B123_fid]+B123s):
             b123 = B123[klim] - B123_fid[klim]
-
-            _b123 = [] 
-            l_usort = np.sort(np.unique(l_k))
-            for l in l_usort: 
-                j_usort = np.sort(np.unique(j_k[l_k == l]))
-                for j in j_usort: 
-                    i_usort = np.sort(np.unique(i_k[(l_k == l) & (j_k == j)]))
-                    for i in i_usort: 
-                        _b123.append(b123[(i_k == i) & (j_k == j) & (l_k == l)])
+            _b123 = b123[ijl]
             sub.plot(range(np.sum(klim)), _b123, c='C'+str(ii), lw=2, label=str(mnu)+'eV') 
             ii += 1 
         
         for sig8, B123 in zip(sig8s, B123_s8s):
             b123 = B123[klim] - B123_fid[klim]
-            _b123 = [] 
-            l_usort = np.sort(np.unique(l_k))
-            for l in l_usort: 
-                j_usort = np.sort(np.unique(j_k[l_k == l]))
-                for j in j_usort: 
-                    i_usort = np.sort(np.unique(i_k[(l_k == l) & (j_k == j)]))
-                    for i in i_usort: 
-                        _b123.append(b123[(i_k == i) & (j_k == j) & (l_k == l)])
+            _b123 = b123[ijl] 
             if ii < 10: 
                 sub.plot(range(np.sum(klim)), _b123, c='C'+str(ii), lw=0.75, label='$\sigma_8=$'+str(sig8)) 
             else: 
@@ -205,31 +179,19 @@ def compare_dB123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=
         i_k = i_k[klim]
         j_k = j_k[klim]
         l_k = l_k[klim]
+        
+        ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # triangle order
+
         ii = 1 
         for mnu, B123 in zip(mnus, B123s):
             b123 = (B123[klim] - B123_fid[klim])/B123_fid[klim]
-
-            _b123 = [] 
-            l_usort = np.sort(np.unique(l_k))
-            for l in l_usort: 
-                j_usort = np.sort(np.unique(j_k[l_k == l]))
-                for j in j_usort: 
-                    i_usort = np.sort(np.unique(i_k[(l_k == l) & (j_k == j)]))
-                    for i in i_usort: 
-                        _b123.append(b123[(i_k == i) & (j_k == j) & (l_k == l)])
+            _b123 = b123[ijl]
             sub.plot(range(np.sum(klim)), _b123, lw=2, c='C'+str(ii), label=str(mnu)+'eV') 
             ii += 1 
         
         for sig8, B123 in zip(sig8s, B123_s8s):
             b123 = (B123[klim] - B123_fid[klim])/B123_fid[klim]
-            _b123 = [] 
-            l_usort = np.sort(np.unique(l_k))
-            for l in l_usort: 
-                j_usort = np.sort(np.unique(j_k[l_k == l]))
-                for j in j_usort: 
-                    i_usort = np.sort(np.unique(i_k[(l_k == l) & (j_k == j)]))
-                    for i in i_usort: 
-                        _b123.append(b123[(i_k == i) & (j_k == j) & (l_k == l)])
+            _b123 = b123[ijl] 
             if ii < 10: 
                 sub.plot(range(np.sum(klim)), _b123, lw='1', c='C'+str(ii), label='$\sigma_8=$'+str(sig8)) 
             else: 
@@ -250,7 +212,7 @@ def compare_dB123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=
     return None 
 
 
-def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=False): 
+def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, errorbar=False, zspace=False): 
     ''' Make various bispectrum plots as a function of m_nu 
     '''
     str_rsd = ''
@@ -296,7 +258,7 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=F
                 sub.set_xticklabels([]) 
                 sub.set_yticklabels([]) 
 
-        for i in range(len(sig8s)): 
+        for i in range(3): 
             B123_i, cnts_i = B123_s8s[i], cnt_s8s[i]
             BQgrid = ePlots._BorQgrid(k3k1[klim], k2k1[klim], B123_i[klim], cnts_i[klim], x_bins, y_bins)
             sub = fig.add_subplot(2,4,i+6)
@@ -323,36 +285,24 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=F
         fig.savefig(''.join([UT.doc_dir(), 'figs/haloB123_shape', str_rsd, '.pdf']), bbox_inches='tight') 
 
     elif typ == 'amp':
+        i_k = i_k[klim]
+        j_k = j_k[klim]
+        l_k = l_k[klim]
+            
+        ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order of triangles 
+
         fig = plt.figure(figsize=(25,8))
         sub = fig.add_subplot(211)
         axins = inset_axes(sub, loc='upper center', width="40%", height="55%") 
         sub2 = fig.add_subplot(212)
         axins2 = inset_axes(sub2, loc='upper center', width="40%", height="55%") 
-        i_k = i_k[klim]
-        j_k = j_k[klim]
-        l_k = l_k[klim]
         ii = 0 
         for mnu, B123 in zip(mnus, B123s):
-            b123 = B123[klim]
-
-            _b123 = [] 
-            l_usort = np.sort(np.unique(l_k))
-            for l in l_usort: 
-                j_usort = np.sort(np.unique(j_k[l_k == l]))
-                for j in j_usort: 
-                    i_usort = np.sort(np.unique(i_k[(l_k == l) & (j_k == j)]))
-                    for i in i_usort: 
-                        _b123.append(b123[(i_k == i) & (j_k == j) & (l_k == l)])
-            #sub.scatter(range(np.sum(klim)), _b123, s=5, c='C'+str(ii), label=str(mnu)+'eV') 
+            _b123 = B123[klim][ijl]
             sub.plot(range(np.sum(klim)), _b123, c='C'+str(ii), label=str(mnu)+'eV') 
-            # inset axes....
-            #axins.scatter(range(np.sum(klim)), _b123, s=5, c='C'+str(ii), label=str(mnu)+'eV') 
             axins.plot(range(np.sum(klim)), _b123, c='C'+str(ii), label=str(mnu)+'eV') 
-            
             if mnu == 0.0: 
-                #sub2.scatter(range(np.sum(klim)), _b123, s=5, c='C0') 
                 sub2.plot(range(np.sum(klim)), _b123, c='C0') 
-                #axins2.scatter(range(np.sum(klim)), _b123, s=5, c='C0') 
                 axins2.plot(range(np.sum(klim)), _b123, c='C0') 
             ii += 1 
 
@@ -369,18 +319,7 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=F
         sub.set_ylim([5e7, 8e9]) 
         
         for sig8, B123 in zip(sig8s, B123_s8s):
-            b123 = B123[klim]
-            _b123 = [] 
-            l_usort = np.sort(np.unique(l_k))
-            for l in l_usort: 
-                j_usort = np.sort(np.unique(j_k[l_k == l]))
-                for j in j_usort: 
-                    i_usort = np.sort(np.unique(i_k[(l_k == l) & (j_k == j)]))
-                    for i in i_usort: 
-                        _b123.append(b123[(i_k == i) & (j_k == j) & (l_k == l)])
-            #sub2.scatter(range(np.sum(klim)), _b123, s=5, c='C'+str(ii), label='$\sigma_8=$'+str(sig8)) 
-            #sub2.plot(range(np.sum(klim)), _b123, c='C'+str(ii), label='$\sigma_8=$'+str(sig8)) 
-            # inset axes....
+            _b123 = B123[klim][ijl]
             if ii < 10: 
                 sub2.plot(range(np.sum(klim)), _b123, c='C'+str(ii), label='$\sigma_8=$'+str(sig8)) 
                 axins2.plot(range(np.sum(klim)), _b123, c='C'+str(ii)) 
@@ -486,12 +425,14 @@ def readB123_sigma8(sig8, i, nzbin, BorQ='B', zspace=False):
 
 
 if __name__=="__main__": 
-    #compare_B123('shape', nreals=range(1,71), krange=[0.03, 0.5], nbin=31)
-    #compare_dB123('shape', nreals=range(1,71), krange=[0.03, 0.5], nbin=31)
-    #compare_B123('amp', nreals=range(1,71), krange=[0.03, 0.5], zspace=False)
-    #compare_dB123('amp', nreals=range(1,71), krange=[0.03, 0.5], zspace=False)
-    #compare_dB123('relative', nreals=range(1,71), krange=[0.03, 0.5], nbin=25)
+    #compare_B123('shape', nreals=range(1,100), krange=[0.03, 0.5], nbin=31)
+    #compare_dB123('shape', nreals=range(1,100), krange=[0.03, 0.5], nbin=31)
+    compare_B123('amp', nreals=range(1,100), krange=[0.03, 0.5], zspace=False)
+    compare_dB123('amp', nreals=range(1,100), krange=[0.03, 0.5], zspace=False)
+    compare_dB123('relative', nreals=range(1,100), krange=[0.03, 0.5])
     
-    compare_B123('amp', nreals=range(1,2), krange=[0.03, 0.5], zspace=True)
-    compare_dB123('amp', nreals=range(1,2), krange=[0.03, 0.5], zspace=True)
-    compare_dB123('relative', nreals=range(1,2), krange=[0.03, 0.5], zspace=True)
+    #compare_B123('shape', nreals=range(1,20), krange=[0.03, 0.5], zspace=True, nbin=31)
+    #compare_dB123('shape', nreals=range(1,20), krange=[0.03, 0.5], zspace=True, nbin=31)
+    compare_B123('amp', nreals=range(1,20), krange=[0.03, 0.5], zspace=True)
+    compare_dB123('amp', nreals=range(1,20), krange=[0.03, 0.5], zspace=True)
+    compare_dB123('relative', nreals=range(1,20), krange=[0.03, 0.5], zspace=True)
