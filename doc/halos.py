@@ -259,15 +259,16 @@ def readPlk_sigma8(sig8, i, nzbin, zspace=False):
 ##################################################################
 # bispectrum comparison 
 ##################################################################
-
-def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, errorbar=False, zspace=False): 
+def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=False): 
     ''' Make various bispectrum plots as a function of m_nu 
     '''
     str_rsd = ''
     if zspace: str_rsd = '_rsd'
-    mnus = [0.0, 0.06, 0.1, 0.15]
+    mnus = [0.06, 0.1, 0.15]
     sig8s = [0.822, 0.818, 0.807, 0.798]
     kmin, kmax = krange 
+
+    _, _, _, B123_fid, cnts_fid, _ = readB123(0.0, nreals, 4, BorQ='B', zspace=zspace)
 
     B123s, cnts = [], [] 
     for mnu in mnus: 
@@ -288,19 +289,18 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, errorbar
             (j_k*kf <= kmax) & (j_k*kf >= kmin) & 
             (l_k*kf <= kmax) & (l_k*kf >= kmin)) 
 
-    if typ == 'shape':
+    if typ == 'b_shape': 
         x_bins = np.linspace(0., 1., int(nbin)+1)
         y_bins = np.linspace(0.5, 1., int(0.5*nbin)+1)
 
         fig = plt.figure(figsize=(25,6))
-        for i in range(len(mnus)):
-            B123_i, cnts_i = B123s[i], cnts[i]
+        for i, mnu, B123_i, cnts_i in zip(range(len(mnus)+1), [0.0]+mnus, [B123_fid]+B123s, [cnts_fid]+cnts):
             BQgrid = ePlots._BorQgrid(k3k1[klim], k2k1[klim], B123_i[klim], cnts_i[klim], x_bins, y_bins)
 
             sub = fig.add_subplot(2,4,i+1)
             bplot = sub.pcolormesh(x_bins, y_bins, BQgrid.T,
                     norm=LogNorm(vmin=5e7, vmax=1e9), cmap='RdBu')
-            sub.text(0.05, 0.05, str(mnus[i])+'eV', ha='left', va='bottom', 
+            sub.text(0.05, 0.05, str(mnu)+'eV', ha='left', va='bottom', 
                     transform=sub.transAxes, fontsize=20)
             if i > 0: 
                 sub.set_xticklabels([]) 
@@ -332,7 +332,95 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, errorbar
         #cbar.set_label('$B(k_1, k_2, k_3) - B^\mathrm{(fid)}$', rotation=90, fontsize=20)
         fig.savefig(''.join([UT.doc_dir(), 'figs/haloB123_shape', str_rsd, '.pdf']), bbox_inches='tight') 
 
-    elif typ == 'amp':
+    elif typ == 'db_shape':
+        x_bins = np.linspace(0., 1., int(nbin)+1)
+        y_bins = np.linspace(0.5, 1., int(0.5*nbin)+1)
+
+        fig = plt.figure(figsize=(25,6))
+        for i in range(len(mnus)):
+            B123_i, cnts_i = B123s[i], cnts[i]
+            dB123 = B123_i - B123_fid
+            BQgrid = ePlots._BorQgrid(k3k1[klim], k2k1[klim], dB123[klim], cnts_i[klim], x_bins, y_bins)
+
+            sub = fig.add_subplot(2,4,i+1)
+            bplot = sub.pcolormesh(x_bins, y_bins, BQgrid.T,
+                    norm=LogNorm(vmin=1e6, vmax=5e7), cmap='RdBu')
+            sub.text(0.05, 0.05, str(mnus[i])+'eV', ha='left', va='bottom', 
+                    transform=sub.transAxes, fontsize=20)
+            if i > 0: 
+                sub.set_xticklabels([]) 
+                sub.set_yticklabels([]) 
+
+        for i in range(len(sig8s)): 
+            B123_i, cnts_i = B123_s8s[i], cnt_s8s[i]
+            dB123 = B123_i - B123_fid
+            BQgrid = ePlots._BorQgrid(k3k1[klim], k2k1[klim], dB123[klim], cnts_i[klim], x_bins, y_bins)
+            sub = fig.add_subplot(2,4,i+5)
+            bplot = sub.pcolormesh(x_bins, y_bins, BQgrid.T,
+                    norm=LogNorm(vmin=1e6, vmax=5e7), cmap='RdBu')
+            sub.text(0.05, 0.05, '0.0eV', ha='left', va='bottom', 
+                    transform=sub.transAxes, fontsize=20)
+            sub.text(0.975, 0.025, '$\sigma_8$='+str(round(sig8s[i],3)), ha='right', va='bottom', 
+                    transform=sub.transAxes, fontsize=20)
+            if i > 1: 
+                sub.set_yticklabels([]) 
+
+        bkgd = fig.add_subplot(111, frameon=False)
+        bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+        bkgd.set_xlabel('$k_3/k_1$', labelpad=10, fontsize=25)
+        bkgd.set_ylabel('$k_2/k_1$', labelpad=5, fontsize=25)
+        fig.subplots_adjust(wspace=0.15, hspace=0.2, right=0.935)
+        cbar_ax = fig.add_axes([0.95, 0.15, 0.0125, 0.7])
+        cbar = fig.colorbar(bplot, cax=cbar_ax)
+        cbar.set_label('$\Delta B = B(k_1, k_2, k_3) - B^\mathrm{(fid)}$', rotation=90, fontsize=20)
+        fig.savefig(''.join([UT.doc_dir(), 'figs/halodB123_shape', str_rsd, '.pdf']), bbox_inches='tight') 
+
+    elif typ == 'relative_shape':
+        x_bins = np.linspace(0., 1., int(nbin)+1)
+        y_bins = np.linspace(0.5, 1., int(0.5*nbin)+1)
+        
+        BQgrid_fid = ePlots._BorQgrid(k3k1[klim], k2k1[klim], B123_fid[klim], cnts[0][klim], x_bins, y_bins)
+
+        fig = plt.figure(figsize=(25,6))
+        for i in range(len(mnus)):
+            B123_i, cnts_i = B123s[i], cnts[i]
+            dB123 = B123_i - B123_fid
+            dBQgrid = ePlots._BorQgrid(k3k1[klim], k2k1[klim], dB123[klim], cnts_i[klim], x_bins, y_bins)
+
+            sub = fig.add_subplot(2,4,i+1)
+            bplot = sub.pcolormesh(x_bins, y_bins, dBQgrid.T/BQgrid_fid.T,
+                    vmin=0., vmax=0.15, cmap='RdBu')
+            sub.text(0.05, 0.05, str(mnus[i])+'eV', ha='left', va='bottom', 
+                    transform=sub.transAxes, fontsize=20)
+            if i > 0: 
+                sub.set_xticklabels([]) 
+                sub.set_yticklabels([]) 
+
+        for i in range(len(sig8s)): 
+            B123_i, cnts_i = B123_s8s[i], cnt_s8s[i]
+            dB123 = B123_i - B123_fid
+            dBQgrid = ePlots._BorQgrid(k3k1[klim], k2k1[klim], dB123[klim], cnts_i[klim], x_bins, y_bins)
+            sub = fig.add_subplot(2,4,i+5)
+            bplot = sub.pcolormesh(x_bins, y_bins, dBQgrid.T/BQgrid_fid.T,
+                    vmin=0., vmax=0.15, cmap='RdBu')
+            sub.text(0.05, 0.05, '0.0eV', ha='left', va='bottom', 
+                    transform=sub.transAxes, fontsize=20)
+            sub.text(0.975, 0.025, '$\sigma_8$='+str(round(sig8s[i],3)), ha='right', va='bottom', 
+                    transform=sub.transAxes, fontsize=20)
+            if i > 1: 
+                sub.set_yticklabels([]) 
+
+        bkgd = fig.add_subplot(111, frameon=False)
+        bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+        bkgd.set_xlabel('$k_3/k_1$', labelpad=10, fontsize=25)
+        bkgd.set_ylabel('$k_2/k_1$', labelpad=5, fontsize=25)
+        fig.subplots_adjust(wspace=0.15, hspace=0.2, right=0.935)
+        cbar_ax = fig.add_axes([0.95, 0.15, 0.0125, 0.7])
+        cbar = fig.colorbar(bplot, cax=cbar_ax)
+        cbar.set_label('$(B(k_1, k_2, k_3) - B^\mathrm{(fid)})/B^\mathrm{(fid)}$', rotation=90, fontsize=20)
+        fig.savefig(''.join([UT.doc_dir(), 'figs/halodB123_relative_shape', str_rsd, '.pdf']), bbox_inches='tight') 
+
+    elif typ == 'b_amp': 
         i_k = i_k[klim]
         j_k = j_k[klim]
         l_k = l_k[klim]
@@ -345,7 +433,7 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, errorbar
         sub2 = fig.add_subplot(212)
         axins2 = inset_axes(sub2, loc='upper center', width="40%", height="55%") 
         ii = 0 
-        for mnu, B123 in zip(mnus, B123s):
+        for mnu, B123 in zip([0.0]+mnus, [B123_fid]+B123s):
             _b123 = B123[klim][ijl]
             sub.plot(range(np.sum(klim)), _b123, c='C'+str(ii), label=str(mnu)+'eV') 
             axins.plot(range(np.sum(klim)), _b123, c='C'+str(ii), label=str(mnu)+'eV') 
@@ -393,83 +481,8 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, errorbar
         bkgd.set_ylabel('$B(k_1, k_2, k_3)$', fontsize=25) 
         fig.subplots_adjust(hspace=0.15)
         fig.savefig(''.join([UT.doc_dir(), 'figs/haloB123_amp', str_rsd, '.pdf']), bbox_inches='tight') 
-    return None 
-
-
-def compare_dB123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=False): 
-    ''' Make various bispectrum plots as a function of m_nu 
-    '''
-    str_rsd = ''
-    if zspace: str_rsd = '_rsd'
-    mnus = [0.06, 0.1, 0.15]
-    sig8s = [0.822, 0.818, 0.807, 0.798]
-    kmin, kmax = krange 
-
-    _, _, _, B123_fid, _, _ = readB123(0.0, nreals, 4, BorQ='B', zspace=zspace)
-
-    B123s, cnts = [], [] 
-    for mnu in mnus: 
-        _i, _j, _l, _B123, _cnts, kf = readB123(mnu, nreals, 4, BorQ='B', zspace=zspace)
-        B123s.append(_B123) 
-        cnts.append(_cnts)
-
-    B123_s8s, cnt_s8s = [], [] 
-    for sig8 in sig8s: 
-        _i, _j, _l, _B123, _cnts, kf = readB123_sigma8(sig8, nreals, 4, BorQ='B', zspace=zspace)
-        B123_s8s.append(_B123) 
-        cnt_s8s.append(_cnts)
-        
-    i_k, j_k, l_k = _i, _j, _l
-    k3k1 = l_k.astype(float)/i_k.astype(float)
-    k2k1 = j_k.astype(float)/i_k.astype(float)
-    klim = ((i_k*kf <= kmax) & (i_k*kf >= kmin) &
-            (j_k*kf <= kmax) & (j_k*kf >= kmin) & 
-            (l_k*kf <= kmax) & (l_k*kf >= kmin)) 
-
-    if typ == 'shape':
-        x_bins = np.linspace(0., 1., int(nbin)+1)
-        y_bins = np.linspace(0.5, 1., int(0.5*nbin)+1)
-
-        fig = plt.figure(figsize=(25,6))
-        for i in range(len(mnus)):
-            B123_i, cnts_i = B123s[i], cnts[i]
-            dB123 = B123_i - B123_fid
-            BQgrid = ePlots._BorQgrid(k3k1[klim], k2k1[klim], dB123[klim], cnts_i[klim], x_bins, y_bins)
-
-            sub = fig.add_subplot(2,4,i+1)
-            bplot = sub.pcolormesh(x_bins, y_bins, BQgrid.T,
-                    norm=LogNorm(vmin=1e6, vmax=5e7), cmap='RdBu')
-            sub.text(0.05, 0.05, str(mnus[i])+'eV', ha='left', va='bottom', 
-                    transform=sub.transAxes, fontsize=20)
-            if i > 0: 
-                sub.set_xticklabels([]) 
-                sub.set_yticklabels([]) 
-
-        for i in range(len(sig8s)): 
-            B123_i, cnts_i = B123_s8s[i], cnt_s8s[i]
-            dB123 = B123_i - B123_fid
-            BQgrid = ePlots._BorQgrid(k3k1[klim], k2k1[klim], dB123[klim], cnts_i[klim], x_bins, y_bins)
-            sub = fig.add_subplot(2,4,i+5)
-            bplot = sub.pcolormesh(x_bins, y_bins, BQgrid.T,
-                    norm=LogNorm(vmin=1e6, vmax=5e7), cmap='RdBu')
-            sub.text(0.05, 0.05, '0.0eV', ha='left', va='bottom', 
-                    transform=sub.transAxes, fontsize=20)
-            sub.text(0.975, 0.025, '$\sigma_8$='+str(round(sig8s[i],3)), ha='right', va='bottom', 
-                    transform=sub.transAxes, fontsize=20)
-            if i > 1: 
-                sub.set_yticklabels([]) 
-
-        bkgd = fig.add_subplot(111, frameon=False)
-        bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-        bkgd.set_xlabel('$k_3/k_1$', labelpad=10, fontsize=25)
-        bkgd.set_ylabel('$k_2/k_1$', labelpad=5, fontsize=25)
-        fig.subplots_adjust(wspace=0.15, hspace=0.2, right=0.935)
-        cbar_ax = fig.add_axes([0.95, 0.15, 0.0125, 0.7])
-        cbar = fig.colorbar(bplot, cax=cbar_ax)
-        cbar.set_label('$\Delta B = B(k_1, k_2, k_3) - B^\mathrm{(fid)}$', rotation=90, fontsize=20)
-        fig.savefig(''.join([UT.doc_dir(), 'figs/halodB123_shape', str_rsd, '.pdf']), bbox_inches='tight') 
-
-    elif typ == 'amp':
+    
+    elif typ == 'db_amp':
         fig = plt.figure(figsize=(25,8))
         sub = fig.add_subplot(211)
         sub2 = fig.add_subplot(212)
@@ -538,6 +551,90 @@ def compare_dB123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=
         sub.set_yscale('log') 
         sub.set_ylim([1e6, 5e8]) 
         fig.savefig(''.join([UT.doc_dir(), 'figs/halodB123_amp_comp', str_rsd, '.pdf']), bbox_inches='tight') 
+    
+    elif typ in ['b_amp_equilateral', 'b_amp_squeezed']: 
+        # equilateral triangles 
+        i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim]
+        if typ == 'b_amp_equilateral': 
+            tri = (i_k == j_k) & (j_k == l_k) # only equilateral 
+        elif typ == 'b_amp_squeezed': 
+            tri = (i_k == j_k) & (l_k == 3) # i_k >= j_k >= l_k (= 3*kf~0.01) 
+            
+        fig = plt.figure(figsize=(10,8))
+        gs = mpl.gridspec.GridSpec(5,1, figure=fig) 
+        sub = plt.subplot(gs[:3,0]) 
+        axins = inset_axes(sub, loc='lower left', width="50%", height="50%") 
+        sub2 = plt.subplot(gs[-2:,0]) 
+        ii = 0 
+        for mnu, B123 in zip([0.0]+mnus, [B123_fid]+B123s):
+            _b123 = B123[klim][tri]
+            sub.plot(kf*i_k[tri], _b123, c='C'+str(ii), label=str(mnu)+'eV') 
+            axins.plot(kf*i_k[tri], _b123, c='C'+str(ii), label=str(mnu)+'eV') 
+            if mnu != 0.0: 
+                sub2.plot(kf*i_k[tri], _b123/B123_fid[klim][tri], c='C'+str(ii)) 
+            ii += 1 
+
+        for sig8, B123 in zip(sig8s, B123_s8s):
+            _b123 = B123[klim][tri]
+            if ii < 10: 
+                sub.plot(kf*i_k[tri], _b123, c='C'+str(ii), ls='--', label='$\sigma_8=$'+str(sig8)) 
+                axins.plot(kf*i_k[tri], _b123, c='C'+str(ii), ls='--') 
+                sub2.plot(kf*i_k[tri], _b123/B123_fid[klim][tri], c='C'+str(ii), ls='--') 
+            else: 
+                sub.plot(kf*i_k[tri], _b123, c='C9', ls='--', label='$\sigma_8=$'+str(sig8)) 
+                axins.plot(kf*i_k[tri], _b123, c='C9', ls='--') 
+                sub2.plot(kf*i_k[tri], _b123/B123_fid[klim][tri], c='C9', ls='--') 
+            ii += 2 
+        
+        sub2.plot([kmin, kmax], [1., 1.], c='k', ls='--', lw=2) 
+        
+        # subplot 1 inset 
+        axins.set_xscale('log') 
+        axins.set_xlim(0.2, 0.3)
+        axins.set_yscale('log') 
+        if typ == 'b_amp_equilateral': 
+            axins.set_ylim(1.3e8, 2.3e8) 
+        elif typ == 'b_amp_squeezed': 
+            axins.set_ylim(1e9, 1.4e9) 
+        axins.xaxis.set_minor_formatter(NullFormatter())
+        axins.yaxis.set_minor_formatter(NullFormatter())
+        axins.xaxis.set_major_formatter(NullFormatter())
+        axins.yaxis.set_major_formatter(NullFormatter())
+        mark_inset(sub, axins, loc1=3, loc2=4, fc="none", ec="0.5")
+
+        sub.legend(loc='upper right', ncol=2, columnspacing=0.2, 
+                markerscale=4, handletextpad=0.25, fontsize=18) 
+        sub.set_xscale('log') 
+        sub.set_xlim([kmin, kmax])
+        sub.set_xticklabels([]) 
+        sub.set_yscale('log') 
+        
+        sub2.set_xscale('log')
+        sub2.set_xlim([kmin, kmax]) 
+        sub2.set_ylim([0.95, 1.2]) 
+        if typ == 'b_amp_equilateral': 
+            sub.set_ylim([5e7, 1.25e10]) 
+            sub.set_ylabel('$B(k, k, k)$', fontsize=25) 
+            sub2.set_ylabel('$B(k, k, k)/B^\mathrm{(fid)}$', fontsize=25) 
+            sub.set_title('{\em equilateral} configuration', pad=10, fontsize=25) 
+        elif typ == 'b_amp_squeezed': 
+            sub.set_ylim([7e8, 1.25e10]) 
+            sub.set_ylabel('$B(k_1 = '+str(round(3*kf,3))+', k_2, k_2)$', fontsize=20) 
+            sub2.set_ylabel('$B(k_1 = '+str(round(3*kf,3))+', k_2, k_2)/B^\mathrm{(fid)}$', fontsize=25) 
+            sub.set_title('{\em squeezed} configuration', pad=10, fontsize=25) 
+        
+        bkgd = fig.add_subplot(111, frameon=False)
+        bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+        if typ == 'b_amp_equilateral': 
+            bkgd.set_xlabel(r'$k$ [$h$/Mpc]', labelpad=10, fontsize=25) 
+        elif typ == 'b_amp_squeezed': 
+            bkgd.set_xlabel(r'$k_2$ [$h$/Mpc]', labelpad=10, fontsize=25) 
+
+        fig.subplots_adjust(hspace=0.1)
+        if typ == 'b_amp_equilateral': 
+            fig.savefig(''.join([UT.doc_dir(), 'figs/haloB123_amp_equ', str_rsd, '.pdf']), bbox_inches='tight') 
+        elif typ == 'b_amp_squeezed': 
+            fig.savefig(''.join([UT.doc_dir(), 'figs/haloB123_amp_squ', str_rsd, '.pdf']), bbox_inches='tight') 
 
     elif typ == 'relative':
         fig = plt.figure(figsize=(18,6))
@@ -692,20 +789,26 @@ def readB123_sigma8(sig8, i, nzbin, BorQ='B', zspace=False):
 
 
 if __name__=="__main__": 
-    #compare_B123('shape', nreals=range(1,101), krange=[0.01, 0.5], nbin=31)
-    #compare_dB123('shape', nreals=range(1,101), krange=[0.01, 0.5], nbin=31)
-    #compare_B123('amp', nreals=range(1,101), krange=[0.01, 0.5], zspace=False)
-    #compare_dB123('amp', nreals=range(1,101), krange=[0.01, 0.5], zspace=False)
-    #compare_dB123('relative', nreals=range(1,101), krange=[0.01, 0.5])
-    #compare_dB123('ratio', nreals=range(1,101), krange=[0.01, 0.5], zspace=False)
+    #compare_B123('b_shape', nreals=range(1,101), krange=[0.01, 0.5], nbin=31)
+    #compare_B123('db_shape', nreals=range(1,101), krange=[0.01, 0.5], nbin=31)
+    #compare_B123('relative_shape', nreals=range(1,101), krange=[0.01, 0.5], nbin=31)
+    #compare_B123('b_amp', nreals=range(1,101), krange=[0.01, 0.5], zspace=False)
+    #compare_B123('b_amp_equilateral', nreals=range(1,101), krange=[0.01, 0.5], zspace=False)
+    #compare_B123('b_amp_squeezed', nreals=range(1,101), krange=[0.01, 0.5], zspace=False)
+    #compare_B123('db_amp', nreals=range(1,101), krange=[0.01, 0.5], zspace=False)
+    #compare_B123('relative', nreals=range(1,101), krange=[0.01, 0.5])
+    #compare_B123('ratio', nreals=range(1,101), krange=[0.01, 0.5], zspace=False)
     
     #compare_Plk('plk', nreals=range(1,11), krange=[0.01, 0.5], zspace=False)
     #compare_Plk('plk', nreals=range(1,101), krange=[0.01, 0.5], zspace=True)
-    compare_Plk('ratio', nreals=range(1,101), krange=[0.01, 0.5], zspace=True)
+    #compare_Plk('ratio', nreals=range(1,101), krange=[0.01, 0.5], zspace=True)
 
-    #compare_B123('shape', nreals=range(1,20), krange=[0.01, 0.5], zspace=True, nbin=31)
-    #compare_dB123('shape', nreals=range(1,20), krange=[0.01, 0.5], zspace=True, nbin=31)
-    #compare_B123('amp', nreals=range(1,20), krange=[0.01, 0.5], zspace=True)
-    #compare_dB123('amp', nreals=range(1,20), krange=[0.01, 0.5], zspace=True)
-    #compare_dB123('relative', nreals=range(1,20), krange=[0.01, 0.5], zspace=True)
-    #compare_dB123('ratio', nreals=range(1,20), krange=[0.01, 0.5], zspace=True)
+    #compare_B123('b_shape', nreals=range(1,20), krange=[0.01, 0.5], zspace=True, nbin=31)
+    #compare_B123('db_shape', nreals=range(1,20), krange=[0.01, 0.5], zspace=True, nbin=31)
+    #compare_B123('relative_shape', nreals=range(1,20), krange=[0.01, 0.5], zspace=True, nbin=31)
+    #compare_B123('b_amp', nreals=range(1,20), krange=[0.01, 0.5], zspace=True)
+    compare_B123('b_amp_equilateral', nreals=range(1,20), krange=[0.01, 0.5], zspace=True)
+    compare_B123('b_amp_squeezed', nreals=range(1,20), krange=[0.01, 0.5], zspace=True)
+    #compare_B123('db_amp', nreals=range(1,20), krange=[0.01, 0.5], zspace=True)
+    #compare_B123('relative', nreals=range(1,20), krange=[0.01, 0.5], zspace=True)
+    #compare_B123('ratio', nreals=range(1,20), krange=[0.01, 0.5], zspace=True)
