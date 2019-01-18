@@ -392,8 +392,8 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=F
                     vmin=0., vmax=0.15, cmap='RdBu')
             sub.text(0.05, 0.05, str(mnus[i])+'eV', ha='left', va='bottom', 
                     transform=sub.transAxes, fontsize=20)
+            sub.set_xticklabels([]) 
             if i > 0: 
-                sub.set_xticklabels([]) 
                 sub.set_yticklabels([]) 
 
         for i in range(len(sig8s)): 
@@ -407,14 +407,15 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=F
                     transform=sub.transAxes, fontsize=20)
             sub.text(0.975, 0.025, '$\sigma_8$='+str(round(sig8s[i],3)), ha='right', va='bottom', 
                     transform=sub.transAxes, fontsize=20)
-            if i > 1: 
+            if i > 0: 
                 sub.set_yticklabels([]) 
+                sub.set_xticks([0.2, 0.4, 0.6, 0.8, 1.0]) 
 
         bkgd = fig.add_subplot(111, frameon=False)
         bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
         bkgd.set_xlabel('$k_3/k_1$', labelpad=10, fontsize=25)
         bkgd.set_ylabel('$k_2/k_1$', labelpad=5, fontsize=25)
-        fig.subplots_adjust(wspace=0.15, hspace=0.2, right=0.935)
+        fig.subplots_adjust(wspace=0.05, hspace=0.1, right=0.935)
         cbar_ax = fig.add_axes([0.95, 0.15, 0.0125, 0.7])
         cbar = fig.colorbar(bplot, cax=cbar_ax)
         cbar.set_label('$(B(k_1, k_2, k_3) - B^\mathrm{(fid)})/B^\mathrm{(fid)}$', rotation=90, fontsize=20)
@@ -805,10 +806,10 @@ if __name__=="__main__":
 
     #compare_B123('b_shape', nreals=range(1,20), krange=[0.01, 0.5], zspace=True, nbin=31)
     #compare_B123('db_shape', nreals=range(1,20), krange=[0.01, 0.5], zspace=True, nbin=31)
-    #compare_B123('relative_shape', nreals=range(1,20), krange=[0.01, 0.5], zspace=True, nbin=31)
+    compare_B123('relative_shape', nreals=range(1,20), krange=[0.01, 0.5], zspace=True, nbin=31)
     #compare_B123('b_amp', nreals=range(1,20), krange=[0.01, 0.5], zspace=True)
-    compare_B123('b_amp_equilateral', nreals=range(1,20), krange=[0.01, 0.5], zspace=True)
-    compare_B123('b_amp_squeezed', nreals=range(1,20), krange=[0.01, 0.5], zspace=True)
+    #compare_B123('b_amp_equilateral', nreals=range(1,20), krange=[0.01, 0.5], zspace=True)
+    #compare_B123('b_amp_squeezed', nreals=range(1,20), krange=[0.01, 0.5], zspace=True)
     #compare_B123('db_amp', nreals=range(1,20), krange=[0.01, 0.5], zspace=True)
     #compare_B123('relative', nreals=range(1,20), krange=[0.01, 0.5], zspace=True)
     #compare_B123('ratio', nreals=range(1,20), krange=[0.01, 0.5], zspace=True)

@@ -16,7 +16,7 @@ echo "start time ... $now"
 #done 
 
 # RSD bispectrum
-for ireal in {2..5}; do 
+for ireal in {20..25}; do 
     for mneut in 0.0  0.06 0.1 0.15; do 
         now=$(date +"%T") 
         echo "$mneut ... $ireal ... $now"
