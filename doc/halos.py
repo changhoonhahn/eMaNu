@@ -29,7 +29,371 @@ mpl.rcParams['ytick.major.size'] = 5
 mpl.rcParams['ytick.major.width'] = 1.5
 mpl.rcParams['legend.frameon'] = False
 
-def compare_Plk(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=False): 
+
+##################################################################
+# powerspectrum comparison 
+##################################################################
+
+def compare_Plk(typ, nreals=range(1,71), krange=[0.03, 0.25], zspace=False): 
+    str_rsd = ''
+    if zspace: str_rsd = '_rsd'
+    mnus = [0.0, 0.06, 0.1, 0.15]
+    sig8s = [0.822, 0.818, 0.807, 0.798]
+    kmin, kmax = krange 
+
+    # read in all the powerspectrum
+    p0ks, p2ks, p4ks = [], [], [] 
+    for mnu in mnus: 
+        k, p0k, p2k, p4k = readPlk(mnu, nreals, 4, zspace=zspace)
+        p0ks.append(p0k)
+        p2ks.append(p2k)
+        p4ks.append(p4k)
+
+    p0k_s8s, p2k_s8s, p4k_s8s = [], [], [] 
+    for sig8 in sig8s: 
+        k, p0k, p2k, p4k = readPlk_sigma8(sig8, nreals, 4, zspace=zspace)
+        p0k_s8s.append(p0k) 
+        p2k_s8s.append(p2k) 
+        p4k_s8s.append(p4k) 
+
+    sig_p0k, sig_p2k, sig_p4k = sigma_Plk(nreals, 4, zspace=zspace)
+
+    klim = ((k <= kmax) & (k >= kmin))
+
+    if typ == 'plk': 
+        fig = plt.figure(figsize=(12,8))
+        sub = fig.add_subplot(211)
+        axins = inset_axes(sub, loc='upper right', width="35%", height="50%") 
+        ii = 0 
+        for mnu, p0k, p2k, p4k in zip(mnus, p0ks, p2ks, p4ks):
+            sub.plot(k[klim], k[klim] * p0k[klim], c='C'+str(ii), label=str(mnu)+'eV') 
+            axins.plot(k[klim], k[klim] * p0k[klim], c='C'+str(ii))
+            ii += 1 
+        
+        for sig8, p0k, p2k, p4k in zip(sig8s, p0k_s8s, p2k_s8s, p4k_s8s):
+            if ii < 10: 
+                sub.plot(k[klim], k[klim] * p0k[klim], ls=':', c='C'+str(ii)) 
+                axins.plot(k[klim], k[klim] * p0k[klim], ls=':', c='C'+str(ii))
+            else: 
+                sub.plot(k[klim], k[klim] * p0k[klim], ls=':', c='C9') 
+                axins.plot(k[klim], k[klim] * p0k[klim], ls=':', c='C9')
+            ii += 2 
+        #axins.set_xscale('log')
+        axins.set_xlim(0.15, 0.3)
+        #axins.set_yscale('log') 
+        axins.set_ylim(1200, 1700) 
+        axins.set_xticklabels('') 
+        axins.set_yticklabels('') 
+        #axins.yaxis.set_minor_formatter(NullFormatter())
+        mark_inset(sub, axins, loc1=2, loc2=4, fc="none", ec="0.5")
+        sub.legend(loc='lower left', ncol=2, handletextpad=0.25, columnspacing=0.5, fontsize=18) 
+        #sub.set_xlabel("$k$ [$h$/Mpc]", fontsize=25) 
+        #sub.set_xscale('log') 
+        sub.set_xlim([1e-2, 0.5])
+        sub.set_ylim([500, 2700]) 
+        sub.set_ylabel('$k\, P_0(k)$', fontsize=25) 
+
+        sub = fig.add_subplot(212)
+        axins = inset_axes(sub, loc='upper right', width="35%", height="50%") 
+        ii = 0 
+        for mnu, p0k, p2k, p4k in zip(mnus, p0ks, p2ks, p4ks):
+            sub.plot(k[klim], k[klim] * p2k[klim], c='C'+str(ii)) 
+            axins.plot(k[klim], k[klim] * p2k[klim], c='C'+str(ii))
+            ii += 1 
+        
+        for sig8, p0k, p2k, p4k in zip(sig8s, p0k_s8s, p2k_s8s, p4k_s8s):
+            if ii < 10: 
+                sub.plot(k[klim], k[klim] * p2k[klim], ls=':', c='C'+str(ii), label='$\sigma_8=$'+str(sig8)) 
+                axins.plot(k[klim], k[klim] * p2k[klim], ls=':', c='C'+str(ii))
+            else: 
+                sub.plot(k[klim], k[klim] * p2k[klim], ls=':', c='C9', label='$\sigma_8=$'+str(sig8)) 
+                axins.plot(k[klim], k[klim] * p2k[klim], ls=':', c='C9')
+            ii += 2 
+        axins.set_xlim(0.15, 0.3)
+        axins.set_ylim(640, 840) 
+        axins.set_xticklabels('') 
+        axins.set_yticklabels('') 
+        mark_inset(sub, axins, loc1=2, loc2=4, fc="none", ec="0.5")
+        sub.legend(loc='lower left', ncol=2, handletextpad=0.25, columnspacing=0.5, fontsize=18) 
+        sub.set_xlabel("$k$ [$h$/Mpc]", fontsize=25) 
+        sub.set_xlim([1e-2, 0.5])
+        sub.set_ylim([300, 1300]) 
+        sub.set_ylabel('$k\, P_2(k)$', fontsize=25) 
+        fig.savefig(''.join([UT.doc_dir(), 'figs/haloPlk_amp', str_rsd, '.pdf']), bbox_inches='tight') 
+
+    elif typ == 'ratio': 
+        fig = plt.figure(figsize=(8,8))
+        sub = fig.add_subplot(211)
+        ii = 0 
+        for mnu, p0k in zip(mnus, p0ks): 
+            if mnu == 0.:  
+                p0k_fid = p0k
+            else: 
+                sub.plot(k[klim], p0k[klim]/p0k_fid[klim], c='C'+str(ii), label=str(mnu)+'eV') 
+            ii += 1 
+        
+        for sig8, p0k in zip(sig8s, p0k_s8s):
+            if ii < 10: 
+                sub.plot(k[klim], p0k[klim]/p0k_fid[klim], ls=':', c='C'+str(ii)) 
+            else: 
+                sub.plot(k[klim], p0k[klim]/p0k_fid[klim], ls=':', c='C9') 
+            ii += 2 
+        sub.fill_between(k, np.ones(len(k)), np.ones(len(k))+sig_p0k/p0k_fid, 
+                color='k', alpha=0.2, linewidth=0) 
+        sub.plot([1e-4, 10.], [1., 1.], c='k', ls='--') 
+        sub.legend(loc='upper left', ncol=2, handletextpad=0.25, columnspacing=0.5, fontsize=18) 
+        sub.set_xscale("log") 
+        sub.set_xlim([1e-2, 0.5])
+        sub.set_ylim([0.95, 1.2]) 
+        sub.set_ylabel('$P_0(k)/P_0^\mathrm{(fid)}(k)$', fontsize=25) 
+
+        sub = fig.add_subplot(212)
+        ii = 0 
+        for mnu, p2k in zip(mnus, p2ks):
+            if mnu == 0.: 
+                p2k_fid = p2k
+            else: 
+                sub.plot(k[klim], p2k[klim]/p2k_fid[klim], c='C'+str(ii)) 
+            ii += 1 
+        
+        for sig8, p2k in zip(sig8s, p2k_s8s):
+            if ii < 10: 
+                sub.plot(k[klim], p2k[klim]/p2k_fid[klim], ls=':', c='C'+str(ii), label='$\sigma_8=$'+str(sig8)) 
+            else: 
+                sub.plot(k[klim], p2k[klim]/p2k_fid[klim], ls=':', c='C9', label='$\sigma_8=$'+str(sig8)) 
+            ii += 2 
+        sub.fill_between(k, np.ones(len(k)), np.ones(len(k))+sig_p2k/p2k_fid, 
+                color='k', alpha=0.2, linewidth=0) 
+        sub.plot([1e-4, 10.], [1., 1.], c='k', ls='--') 
+        sub.legend(loc='upper left', ncol=2, handletextpad=0.25, columnspacing=0.5, fontsize=18) 
+        sub.set_xlabel("$k$ [$h$/Mpc]", fontsize=25) 
+        sub.set_xscale("log") 
+        sub.set_xlim([1e-2, 0.5])
+        sub.set_ylim([0.95, 1.2]) 
+        sub.set_ylabel('$P_2(k)/P_2^\mathrm{(fid)}(k)$', fontsize=25) 
+        fig.savefig(''.join([UT.doc_dir(), 'figs/haloPlk_ratio', str_rsd, '.pdf']), bbox_inches='tight') 
+    return None
+
+
+def sigma_Plk(i, nzbin, zspace=False):
+    '''diagonal element of the covariance matrix 
+    '''
+    pk_kwargs = {
+            'zspace': zspace, 
+            'mh_min': 3200., 
+            'Ngrid': 360}
+
+    k, p0k, p2k, p4k = [], [], [], []
+    for ii, _i in enumerate(i):
+        plk_i = Obvs.Plk_halo(0.0, _i, nzbin, **pk_kwargs)
+        p0k.append(plk_i['p0k'])
+        p2k.append(plk_i['p2k'])
+        p4k.append(plk_i['p4k'])
+    sig_p0k = np.std(p0k, axis=0)
+    sig_p2k = np.std(p2k, axis=0)
+    sig_p4k = np.std(p4k, axis=0)
+    return sig_p0k, sig_p2k, sig_p4k
+
+
+def readPlk(mneut, i, nzbin, zspace=False):
+    ''' read in bispectrum of massive neutrino halo catalogs
+    using the function Obvs.B123_halo
+    '''
+    pk_kwargs = {
+            'zspace': zspace, 
+            'mh_min': 3200., 
+            'Ngrid': 360
+            }
+
+    if isinstance(i, int):
+        plk_i = Obvs.Plk_halo(mneut, i, nzbin, **pk_kwargs)
+        k = plk_i['k'] 
+        p0k = plk_i['p0k'] 
+        p2k = plk_i['p2k'] 
+        p4k = plk_i['p4k'] 
+    elif isinstance(i, (list, np.ndarray)):
+        k, p0k, p2k, p4k = [], [], [], []
+        for ii, _i in enumerate(i):
+            plk_i = Obvs.Plk_halo(mneut, _i, nzbin, **pk_kwargs)
+            k.append(plk_i['k'])
+            p0k.append(plk_i['p0k'])
+            p2k.append(plk_i['p2k'])
+            p4k.append(plk_i['p4k'])
+        k = np.average(k, axis=0)
+        p0k = np.average(p0k, axis=0)
+        p2k = np.average(p2k, axis=0)
+        p4k = np.average(p4k, axis=0)
+    return k, p0k, p2k, p4k
+
+
+def readPlk_sigma8(sig8, i, nzbin, zspace=False):
+    ''' read in bispectrum of massive neutrino halo catalogs
+    using the function Obvs.B123_halo
+    '''
+    pk_kwargs = {
+            'zspace': zspace, 
+            'mh_min': 3200., 
+            'Ngrid': 360
+            }
+
+    if isinstance(i, int):
+        plk_i = Obvs.Plk_halo_sigma8(sig8, i, nzbin, **pk_kwargs)
+        k = plk_i['k'] 
+        p0k = plk_i['p0k'] 
+        p2k = plk_i['p2k'] 
+        p4k = plk_i['p4k'] 
+    elif isinstance(i, (list, np.ndarray)):
+        k, p0k, p2k, p4k = [], [], [], []
+        for ii, _i in enumerate(i):
+            plk_i = Obvs.Plk_halo_sigma8(sig8, _i, nzbin, **pk_kwargs)
+            k.append(plk_i['k'])
+            p0k.append(plk_i['p0k'])
+            p2k.append(plk_i['p2k'])
+            p4k.append(plk_i['p4k'])
+        k = np.average(k, axis=0)
+        p0k = np.average(p0k, axis=0)
+        p2k = np.average(p2k, axis=0)
+        p4k = np.average(p4k, axis=0)
+    return k, p0k, p2k, p4k
+
+##################################################################
+# bispectrum comparison 
+##################################################################
+
+def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, errorbar=False, zspace=False): 
+    ''' Make various bispectrum plots as a function of m_nu 
+    '''
+    str_rsd = ''
+    if zspace: str_rsd = '_rsd'
+    mnus = [0.0, 0.06, 0.1, 0.15]
+    sig8s = [0.822, 0.818, 0.807, 0.798]
+    kmin, kmax = krange 
+
+    B123s, cnts = [], [] 
+    for mnu in mnus: 
+        _i, _j, _l, _B123, _cnts, kf = readB123(mnu, nreals, 4, BorQ='B', zspace=zspace)
+        B123s.append(_B123) 
+        cnts.append(_cnts)
+
+    B123_s8s, cnt_s8s = [], [] 
+    for sig8 in sig8s: 
+        _i, _j, _l, _B123, _cnts, kf = readB123_sigma8(sig8, nreals, 4, BorQ='B', zspace=zspace)
+        B123_s8s.append(_B123) 
+        cnt_s8s.append(_cnts)
+        
+    i_k, j_k, l_k = _i, _j, _l
+    k3k1 = l_k.astype(float)/i_k.astype(float)
+    k2k1 = j_k.astype(float)/i_k.astype(float)
+    klim = ((i_k*kf <= kmax) & (i_k*kf >= kmin) &
+            (j_k*kf <= kmax) & (j_k*kf >= kmin) & 
+            (l_k*kf <= kmax) & (l_k*kf >= kmin)) 
+
+    if typ == 'shape':
+        x_bins = np.linspace(0., 1., int(nbin)+1)
+        y_bins = np.linspace(0.5, 1., int(0.5*nbin)+1)
+
+        fig = plt.figure(figsize=(25,6))
+        for i in range(len(mnus)):
+            B123_i, cnts_i = B123s[i], cnts[i]
+            BQgrid = ePlots._BorQgrid(k3k1[klim], k2k1[klim], B123_i[klim], cnts_i[klim], x_bins, y_bins)
+
+            sub = fig.add_subplot(2,4,i+1)
+            bplot = sub.pcolormesh(x_bins, y_bins, BQgrid.T,
+                    norm=LogNorm(vmin=5e7, vmax=1e9), cmap='RdBu')
+            sub.text(0.05, 0.05, str(mnus[i])+'eV', ha='left', va='bottom', 
+                    transform=sub.transAxes, fontsize=20)
+            if i > 0: 
+                sub.set_xticklabels([]) 
+                sub.set_yticklabels([]) 
+
+        for i in range(3): 
+            B123_i, cnts_i = B123_s8s[i], cnt_s8s[i]
+            BQgrid = ePlots._BorQgrid(k3k1[klim], k2k1[klim], B123_i[klim], cnts_i[klim], x_bins, y_bins)
+            sub = fig.add_subplot(2,4,i+6)
+            bplot = sub.pcolormesh(x_bins, y_bins, BQgrid.T,
+                    norm=LogNorm(vmin=5e7, vmax=1e9), cmap='RdBu')
+            sub.text(0.05, 0.05, '0.0eV', ha='left', va='bottom', 
+                    transform=sub.transAxes, fontsize=20)
+            sub.text(0.975, 0.025, '$\sigma_8$='+str(round(sig8s[i],3)), ha='right', va='bottom', 
+                    transform=sub.transAxes, fontsize=20)
+            if i > 1: 
+                sub.set_yticklabels([]) 
+
+        bkgd = fig.add_subplot(111, frameon=False)
+        bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+        bkgd.set_xlabel('$k_3/k_1$', labelpad=10, fontsize=25)
+        bkgd.set_ylabel('$k_2/k_1$', labelpad=5, fontsize=25)
+        fig.subplots_adjust(wspace=0.15, hspace=0.2, right=0.935)
+        cbar_ax = fig.add_axes([0.95, 0.15, 0.0125, 0.7])
+        cbar = fig.colorbar(bplot, cax=cbar_ax)
+        cbar.set_label('$B(k_1, k_2, k_3)$', rotation=90, fontsize=20)
+        #cbar_ax = fig.add_axes([0.95, 0.125, 0.0125, 0.35])
+        #cbar = fig.colorbar(dbplot, cax=cbar_ax)
+        #cbar.set_label('$B(k_1, k_2, k_3) - B^\mathrm{(fid)}$', rotation=90, fontsize=20)
+        fig.savefig(''.join([UT.doc_dir(), 'figs/haloB123_shape', str_rsd, '.pdf']), bbox_inches='tight') 
+
+    elif typ == 'amp':
+        i_k = i_k[klim]
+        j_k = j_k[klim]
+        l_k = l_k[klim]
+            
+        ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order of triangles 
+
+        fig = plt.figure(figsize=(25,8))
+        sub = fig.add_subplot(211)
+        axins = inset_axes(sub, loc='upper center', width="40%", height="55%") 
+        sub2 = fig.add_subplot(212)
+        axins2 = inset_axes(sub2, loc='upper center', width="40%", height="55%") 
+        ii = 0 
+        for mnu, B123 in zip(mnus, B123s):
+            _b123 = B123[klim][ijl]
+            sub.plot(range(np.sum(klim)), _b123, c='C'+str(ii), label=str(mnu)+'eV') 
+            axins.plot(range(np.sum(klim)), _b123, c='C'+str(ii), label=str(mnu)+'eV') 
+            if mnu == 0.0: 
+                sub2.plot(range(np.sum(klim)), _b123, c='C0') 
+                axins2.plot(range(np.sum(klim)), _b123, c='C0') 
+            ii += 1 
+
+        axins.set_xlim(900, 1050)
+        axins.set_yscale('log') 
+        axins.set_ylim(7e7, 3e8) 
+        axins.set_xticklabels('') 
+        axins.yaxis.set_minor_formatter(NullFormatter())
+        mark_inset(sub, axins, loc1=3, loc2=4, fc="none", ec="0.5")
+
+        sub.legend(loc='upper right', markerscale=4, handletextpad=0.25, fontsize=20) 
+        sub.set_xlim([0, np.sum(klim)])
+        sub.set_yscale('log') 
+        sub.set_ylim([5e7, 8e9]) 
+        
+        for sig8, B123 in zip(sig8s, B123_s8s):
+            _b123 = B123[klim][ijl]
+            if ii < 10: 
+                sub2.plot(range(np.sum(klim)), _b123, c='C'+str(ii), label='$\sigma_8=$'+str(sig8)) 
+                axins2.plot(range(np.sum(klim)), _b123, c='C'+str(ii)) 
+            else: 
+                sub2.plot(range(np.sum(klim)), _b123, c='C9', label='$\sigma_8=$'+str(sig8)) 
+                axins2.plot(range(np.sum(klim)), _b123, c='C9') 
+            ii += 2 
+        sub2.legend(loc='upper right', markerscale=4, handletextpad=0.25, fontsize=20) 
+        sub2.set_xlim([0, np.sum(klim)])
+        sub2.set_yscale('log') 
+        sub2.set_ylim([5e7, 8e9]) 
+        
+        axins2.set_xlim(900, 1050)
+        axins2.set_yscale('log') 
+        axins2.set_ylim(7e7, 3e8) 
+        axins2.set_xticklabels('') 
+        axins2.yaxis.set_minor_formatter(NullFormatter())
+        mark_inset(sub2, axins2, loc1=3, loc2=4, fc="none", ec="0.5")
+        
+        bkgd = fig.add_subplot(111, frameon=False)
+        bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+        bkgd.set_xlabel(r'$k_1 \le k_2 \le k_3$ triangle indices', labelpad=10, fontsize=25) 
+        bkgd.set_ylabel('$B(k_1, k_2, k_3)$', fontsize=25) 
+        fig.subplots_adjust(hspace=0.15)
+        fig.savefig(''.join([UT.doc_dir(), 'figs/haloB123_amp', str_rsd, '.pdf']), bbox_inches='tight') 
+    return None 
 
 
 def compare_dB123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=False): 
@@ -211,142 +575,43 @@ def compare_dB123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=
         bkgd.set_ylabel('$(B(k_1, k_2, k_3) - B^\mathrm{(fid)})/B^\mathrm{(fid)}$', labelpad=15, fontsize=25) 
         fig.subplots_adjust(hspace=0.15)
         fig.savefig(''.join([UT.doc_dir(), 'figs/halodB123_relative', str_rsd, '.pdf']), bbox_inches='tight') 
-    return None 
 
-
-def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, errorbar=False, zspace=False): 
-    ''' Make various bispectrum plots as a function of m_nu 
-    '''
-    str_rsd = ''
-    if zspace: str_rsd = '_rsd'
-    mnus = [0.0, 0.06, 0.1, 0.15]
-    sig8s = [0.822, 0.818, 0.807, 0.798]
-    kmin, kmax = krange 
-
-    B123s, cnts = [], [] 
-    for mnu in mnus: 
-        _i, _j, _l, _B123, _cnts, kf = readB123(mnu, nreals, 4, BorQ='B', zspace=zspace)
-        B123s.append(_B123) 
-        cnts.append(_cnts)
-
-    B123_s8s, cnt_s8s = [], [] 
-    for sig8 in sig8s: 
-        _i, _j, _l, _B123, _cnts, kf = readB123_sigma8(sig8, nreals, 4, BorQ='B', zspace=zspace)
-        B123_s8s.append(_B123) 
-        cnt_s8s.append(_cnts)
-        
-    i_k, j_k, l_k = _i, _j, _l
-    k3k1 = l_k.astype(float)/i_k.astype(float)
-    k2k1 = j_k.astype(float)/i_k.astype(float)
-    klim = ((i_k*kf <= kmax) & (i_k*kf >= kmin) &
-            (j_k*kf <= kmax) & (j_k*kf >= kmin) & 
-            (l_k*kf <= kmax) & (l_k*kf >= kmin)) 
-
-    if typ == 'shape':
-        x_bins = np.linspace(0., 1., int(nbin)+1)
-        y_bins = np.linspace(0.5, 1., int(0.5*nbin)+1)
-
-        fig = plt.figure(figsize=(25,6))
-        for i in range(len(mnus)):
-            B123_i, cnts_i = B123s[i], cnts[i]
-            BQgrid = ePlots._BorQgrid(k3k1[klim], k2k1[klim], B123_i[klim], cnts_i[klim], x_bins, y_bins)
-
-            sub = fig.add_subplot(2,4,i+1)
-            bplot = sub.pcolormesh(x_bins, y_bins, BQgrid.T,
-                    norm=LogNorm(vmin=5e7, vmax=1e9), cmap='RdBu')
-            sub.text(0.05, 0.05, str(mnus[i])+'eV', ha='left', va='bottom', 
-                    transform=sub.transAxes, fontsize=20)
-            if i > 0: 
-                sub.set_xticklabels([]) 
-                sub.set_yticklabels([]) 
-
-        for i in range(3): 
-            B123_i, cnts_i = B123_s8s[i], cnt_s8s[i]
-            BQgrid = ePlots._BorQgrid(k3k1[klim], k2k1[klim], B123_i[klim], cnts_i[klim], x_bins, y_bins)
-            sub = fig.add_subplot(2,4,i+6)
-            bplot = sub.pcolormesh(x_bins, y_bins, BQgrid.T,
-                    norm=LogNorm(vmin=5e7, vmax=1e9), cmap='RdBu')
-            sub.text(0.05, 0.05, '0.0eV', ha='left', va='bottom', 
-                    transform=sub.transAxes, fontsize=20)
-            sub.text(0.975, 0.025, '$\sigma_8$='+str(round(sig8s[i],3)), ha='right', va='bottom', 
-                    transform=sub.transAxes, fontsize=20)
-            if i > 1: 
-                sub.set_yticklabels([]) 
-
-        bkgd = fig.add_subplot(111, frameon=False)
-        bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-        bkgd.set_xlabel('$k_3/k_1$', labelpad=10, fontsize=25)
-        bkgd.set_ylabel('$k_2/k_1$', labelpad=5, fontsize=25)
-        fig.subplots_adjust(wspace=0.15, hspace=0.2, right=0.935)
-        cbar_ax = fig.add_axes([0.95, 0.15, 0.0125, 0.7])
-        cbar = fig.colorbar(bplot, cax=cbar_ax)
-        cbar.set_label('$B(k_1, k_2, k_3)$', rotation=90, fontsize=20)
-        #cbar_ax = fig.add_axes([0.95, 0.125, 0.0125, 0.35])
-        #cbar = fig.colorbar(dbplot, cax=cbar_ax)
-        #cbar.set_label('$B(k_1, k_2, k_3) - B^\mathrm{(fid)}$', rotation=90, fontsize=20)
-        fig.savefig(''.join([UT.doc_dir(), 'figs/haloB123_shape', str_rsd, '.pdf']), bbox_inches='tight') 
-
-    elif typ == 'amp':
+    elif typ == 'ratio':
+        fig = plt.figure(figsize=(18,6))
+        sub = fig.add_subplot(111)
         i_k = i_k[klim]
         j_k = j_k[klim]
         l_k = l_k[klim]
-            
-        ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order of triangles 
+        
+        ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # triangle order
 
-        fig = plt.figure(figsize=(25,8))
-        sub = fig.add_subplot(211)
-        axins = inset_axes(sub, loc='upper center', width="40%", height="55%") 
-        sub2 = fig.add_subplot(212)
-        axins2 = inset_axes(sub2, loc='upper center', width="40%", height="55%") 
-        ii = 0 
+        ii = 1 
         for mnu, B123 in zip(mnus, B123s):
-            _b123 = B123[klim][ijl]
-            sub.plot(range(np.sum(klim)), _b123, c='C'+str(ii), label=str(mnu)+'eV') 
-            axins.plot(range(np.sum(klim)), _b123, c='C'+str(ii), label=str(mnu)+'eV') 
-            if mnu == 0.0: 
-                sub2.plot(range(np.sum(klim)), _b123, c='C0') 
-                axins2.plot(range(np.sum(klim)), _b123, c='C0') 
+            b123 = (B123[klim] / B123_fid[klim])
+            _b123 = b123[ijl]
+            sub.plot(range(np.sum(klim)), _b123, lw=2, c='C'+str(ii), label=str(mnu)+'eV') 
             ii += 1 
-
-        axins.set_xlim(900, 1050)
-        axins.set_yscale('log') 
-        axins.set_ylim(7e7, 3e8) 
-        axins.set_xticklabels('') 
-        axins.yaxis.set_minor_formatter(NullFormatter())
-        mark_inset(sub, axins, loc1=3, loc2=4, fc="none", ec="0.5")
-
-        sub.legend(loc='upper right', markerscale=4, handletextpad=0.25, fontsize=20) 
-        sub.set_xlim([0, np.sum(klim)])
-        sub.set_yscale('log') 
-        sub.set_ylim([5e7, 8e9]) 
         
         for sig8, B123 in zip(sig8s, B123_s8s):
-            _b123 = B123[klim][ijl]
+            b123 = (B123[klim] / B123_fid[klim])
+            _b123 = b123[ijl] 
             if ii < 10: 
-                sub2.plot(range(np.sum(klim)), _b123, c='C'+str(ii), label='$\sigma_8=$'+str(sig8)) 
-                axins2.plot(range(np.sum(klim)), _b123, c='C'+str(ii)) 
+                sub.plot(range(np.sum(klim)), _b123, lw='1', c='C'+str(ii), label='$\sigma_8=$'+str(sig8)) 
             else: 
-                sub2.plot(range(np.sum(klim)), _b123, c='C9', label='$\sigma_8=$'+str(sig8)) 
-                axins2.plot(range(np.sum(klim)), _b123, c='C9') 
+                sub.plot(range(np.sum(klim)), _b123, lw='1', c='C9', label='$\sigma_8=$'+str(sig8)) 
             ii += 2 
-        sub2.legend(loc='upper right', markerscale=4, handletextpad=0.25, fontsize=20) 
-        sub2.set_xlim([0, np.sum(klim)])
-        sub2.set_yscale('log') 
-        sub2.set_ylim([5e7, 8e9]) 
-        
-        axins2.set_xlim(900, 1050)
-        axins2.set_yscale('log') 
-        axins2.set_ylim(7e7, 3e8) 
-        axins2.set_xticklabels('') 
-        axins2.yaxis.set_minor_formatter(NullFormatter())
-        mark_inset(sub2, axins2, loc1=3, loc2=4, fc="none", ec="0.5")
+        sub.plot([0, np.sum(klim)], [1., 1.], c='k', ls='--', lw=2)
+        sub.legend(loc='upper right', ncol=3, markerscale=4, handletextpad=0.25, fontsize=20) 
+        sub.set_xlim([0, np.sum(klim)])
+        sub.set_ylim([0.98, 1.2]) 
+        #sub.set_yticks([0., 0.05, 0.1, 0.15, 0.2]) 
         
         bkgd = fig.add_subplot(111, frameon=False)
         bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
         bkgd.set_xlabel(r'$k_1 \le k_2 \le k_3$ triangle indices', labelpad=10, fontsize=25) 
-        bkgd.set_ylabel('$B(k_1, k_2, k_3)$', fontsize=25) 
+        bkgd.set_ylabel('$B(k_1, k_2, k_3) / B^\mathrm{(fid)}$', labelpad=15, fontsize=25) 
         fig.subplots_adjust(hspace=0.15)
-        fig.savefig(''.join([UT.doc_dir(), 'figs/haloB123_amp', str_rsd, '.pdf']), bbox_inches='tight') 
+        fig.savefig(''.join([UT.doc_dir(), 'figs/halodB123_ratio', str_rsd, '.pdf']), bbox_inches='tight') 
     return None 
 
 
@@ -427,14 +692,20 @@ def readB123_sigma8(sig8, i, nzbin, BorQ='B', zspace=False):
 
 
 if __name__=="__main__": 
-    #compare_B123('shape', nreals=range(1,100), krange=[0.03, 0.5], nbin=31)
-    #compare_dB123('shape', nreals=range(1,100), krange=[0.03, 0.5], nbin=31)
-    compare_B123('amp', nreals=range(1,100), krange=[0.03, 0.5], zspace=False)
-    compare_dB123('amp', nreals=range(1,100), krange=[0.03, 0.5], zspace=False)
-    compare_dB123('relative', nreals=range(1,100), krange=[0.03, 0.5])
+    #compare_B123('shape', nreals=range(1,101), krange=[0.01, 0.5], nbin=31)
+    #compare_dB123('shape', nreals=range(1,101), krange=[0.01, 0.5], nbin=31)
+    #compare_B123('amp', nreals=range(1,101), krange=[0.01, 0.5], zspace=False)
+    #compare_dB123('amp', nreals=range(1,101), krange=[0.01, 0.5], zspace=False)
+    #compare_dB123('relative', nreals=range(1,101), krange=[0.01, 0.5])
+    #compare_dB123('ratio', nreals=range(1,101), krange=[0.01, 0.5], zspace=False)
     
-    #compare_B123('shape', nreals=range(1,20), krange=[0.03, 0.5], zspace=True, nbin=31)
-    #compare_dB123('shape', nreals=range(1,20), krange=[0.03, 0.5], zspace=True, nbin=31)
-    compare_B123('amp', nreals=range(1,20), krange=[0.03, 0.5], zspace=True)
-    compare_dB123('amp', nreals=range(1,20), krange=[0.03, 0.5], zspace=True)
-    compare_dB123('relative', nreals=range(1,20), krange=[0.03, 0.5], zspace=True)
+    #compare_Plk('plk', nreals=range(1,11), krange=[0.01, 0.5], zspace=False)
+    #compare_Plk('plk', nreals=range(1,101), krange=[0.01, 0.5], zspace=True)
+    compare_Plk('ratio', nreals=range(1,101), krange=[0.01, 0.5], zspace=True)
+
+    #compare_B123('shape', nreals=range(1,20), krange=[0.01, 0.5], zspace=True, nbin=31)
+    #compare_dB123('shape', nreals=range(1,20), krange=[0.01, 0.5], zspace=True, nbin=31)
+    #compare_B123('amp', nreals=range(1,20), krange=[0.01, 0.5], zspace=True)
+    #compare_dB123('amp', nreals=range(1,20), krange=[0.01, 0.5], zspace=True)
+    #compare_dB123('relative', nreals=range(1,20), krange=[0.01, 0.5], zspace=True)
+    #compare_dB123('ratio', nreals=range(1,20), krange=[0.01, 0.5], zspace=True)

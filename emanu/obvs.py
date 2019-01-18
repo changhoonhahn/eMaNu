@@ -8,18 +8,58 @@ import numpy as np
 from . import util as UT 
 
 
-def Plk_halo(mneut, nreal, nzbin, zspace=False, sim='hades'): 
+def Plk_halo(mneut, nreal, nzbin, zspace=False, mh_min=3200., Ngrid=360): 
     ''' Return the powerspectrum multipoles for halo catalog with
     total neutrino mass `mneut`, realization `nreal`, and redshift 
     bin `nzbin` in either real/redshift space. 
     '''
-    f = _obvs_fname('plk', mneut, nreal, nzbin, zspace)
+    if zspace: str_space = 'z' # redshift space 
+    else: str_space = 'r' # real 
+    fpk = ''.join([UT.dat_dir(), 'plk/', 
+        'plk.groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), 
+        '.', str_space, 'space', 
+        '.mhmin', str(mh_min), 
+        '.Nmesh', str(Ngrid), 
+        '.dat']) 
+    if not os.path.isfile(fpk): 
+        raise ValueError("--- %s does not exist ---" % fpk) 
+
     # read in plk 
-    k,p0k,p2k,p4k = np.loadtxt(f, skiprows=3, unpack=True, usecols=[0,1,2,3]) 
+    k,p0k,p2k,p4k = np.loadtxt(fpk, skiprows=3, unpack=True, usecols=[0,1,2,3]) 
     plk = {'k': k, 'p0k': p0k, 'p2k': p2k, 'p4k':p4k} 
 
     # readin shot-noise from header 
-    with open(f) as lines: 
+    with open(fpk) as lines: 
+        for i_l, line in enumerate(lines):
+            if i_l == 1: 
+                str_sn = line
+                break 
+    plk['shotnoise'] = float(str_sn.strip().split('P_shotnoise')[-1])
+    return plk 
+
+
+def Plk_halo_sigma8(sig8, nreal, nzbin, zspace=False, mh_min=3200., Ngrid=360): 
+    ''' Return the powerspectrum multipoles for halo catalog with
+    total neutrino mass `mneut`, realization `nreal`, and redshift 
+    bin `nzbin` in either real/redshift space. 
+    '''
+    if zspace: str_space = 'z' # redshift space 
+    else: str_space = 'r' # real 
+    fpk = ''.join([UT.dat_dir(), 'plk/', 
+        'plk.groups.0.0eV.sig8', str(sig8), '.', str(nreal), '.nzbin', str(nzbin), 
+        '.', str_space, 'space', 
+        '.mhmin', str(mh_min), 
+        '.Nmesh', str(Ngrid), 
+        '.dat']) 
+    if not os.path.isfile(fpk): 
+        raise ValueError("--- %s does not exist ---" % fpk) 
+
+    # read in plk 
+    k,p0k,p2k,p4k = np.loadtxt(fpk, skiprows=3, unpack=True, usecols=[0,1,2,3]) 
+    plk = {'k': k, 'p0k': p0k, 'p2k': p2k, 'p4k':p4k} 
+
+    # readin shot-noise from header 
+    with open(fpk) as lines: 
         for i_l, line in enumerate(lines):
             if i_l == 1: 
                 str_sn = line
