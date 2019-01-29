@@ -969,8 +969,8 @@ def readB123_sigma8(sig8, i, nzbin, BorQ='B', zspace=False, sn_corr=True):
 
 
 if __name__=="__main__": 
-    compare_Plk(nreals=range(1,11), krange=[0.01, 0.5])
-    ratio_Plk(nreals=range(1,11), krange=[0.01, 0.5])
+    compare_Plk(nreals=range(1,101), krange=[0.01, 0.5])
+    ratio_Plk(nreals=range(1,101), krange=[0.01, 0.5])
 
     for rsd in [True]: #[False, True]:  
         if not rsd: nreals = range(1, 101) 
