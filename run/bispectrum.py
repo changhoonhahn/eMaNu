@@ -13,7 +13,6 @@ from pyspectrum import pyspectrum as pySpec
 # -- emanu -- 
 from emanu import util as UT 
 
-
 def haloBispectrum(mneut, nreal, nzbin, zspace=False, mh_min=3200.,
         Ngrid=360, Nmax=40, Ncut=3, step=3, silent=True, overwrite=False): 
     if zspace: str_space = 'z' 
@@ -128,4 +127,10 @@ if __name__=="__main__":
                 Ngrid=360, Nmax=40, Ncut=3, step=3, silent=False, overwrite=False)
     elif run == 'sigma8': 
         haloBispectrum_sigma8(mnu_or_sig8, nreal, nzbin, zspace=zspace, 
+                Ngrid=360, Nmax=40, Ncut=3, step=3, silent=False, overwrite=False)
+    elif run == 'mneut_pk': 
+        haloPk_periodic(mnu_or_sig8, nreal, nzbin, zspace=zspace, 
+                Ngrid=360, Nmax=40, Ncut=3, step=3, silent=False, overwrite=False)
+    elif run == 'sigma8_pk': 
+        haloPk_periodic_sigma8(mnu_or_sig8, nreal, nzbin, zspace=zspace, 
                 Ngrid=360, Nmax=40, Ncut=3, step=3, silent=False, overwrite=False)

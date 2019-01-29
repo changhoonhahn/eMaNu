@@ -8,7 +8,7 @@ import numpy as np
 from . import util as UT 
 
 
-def Plk_halo(mneut, nreal, nzbin, zspace=False, mh_min=3200., Ngrid=360): 
+def Plk_halo(mneut, nreal, nzbin, zspace=False, mh_min=3200., Ngrid=360, Nbin=120): 
     ''' Return the powerspectrum multipoles for halo catalog with
     total neutrino mass `mneut`, realization `nreal`, and redshift 
     bin `nzbin` in either real/redshift space. 
@@ -20,6 +20,7 @@ def Plk_halo(mneut, nreal, nzbin, zspace=False, mh_min=3200., Ngrid=360):
         '.', str_space, 'space', 
         '.mhmin', str(mh_min), 
         '.Nmesh', str(Ngrid), 
+        '.Nbin', str(Nbin), 
         '.dat']) 
     if not os.path.isfile(fpk): 
         raise ValueError("--- %s does not exist ---" % fpk) 
@@ -38,7 +39,7 @@ def Plk_halo(mneut, nreal, nzbin, zspace=False, mh_min=3200., Ngrid=360):
     return plk 
 
 
-def Plk_halo_sigma8(sig8, nreal, nzbin, zspace=False, mh_min=3200., Ngrid=360): 
+def Plk_halo_sigma8(sig8, nreal, nzbin, zspace=False, mh_min=3200., Ngrid=360, Nbin=120): 
     ''' Return the powerspectrum multipoles for halo catalog with
     total neutrino mass `mneut`, realization `nreal`, and redshift 
     bin `nzbin` in either real/redshift space. 
@@ -50,6 +51,7 @@ def Plk_halo_sigma8(sig8, nreal, nzbin, zspace=False, mh_min=3200., Ngrid=360):
         '.', str_space, 'space', 
         '.mhmin', str(mh_min), 
         '.Nmesh', str(Ngrid), 
+        '.Nbin', str(Nbin), 
         '.dat']) 
     if not os.path.isfile(fpk): 
         raise ValueError("--- %s does not exist ---" % fpk) 

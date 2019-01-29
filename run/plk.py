@@ -10,7 +10,7 @@ from emanu.hades import data as Dat
 from emanu import forwardmodel as FM
 
 
-def hadesHalo_Plk(mneut, nreal, nzbin, zspace=False, Lbox=1000., mh_min=3200., Nmesh=360, overwrite=False): 
+def hadesHalo_Plk(mneut, nreal, nzbin, zspace=False, Lbox=1000., mh_min=3200., Nmesh=360, Nbin=120, overwrite=False): 
     ''' Calculate the powerspectrum multipoles for Paco's Neutrio 
     halo catalogs
 
@@ -26,6 +26,7 @@ def hadesHalo_Plk(mneut, nreal, nzbin, zspace=False, Lbox=1000., mh_min=3200., N
         'groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space',
         '.mhmin', str(mh_min), 
         '.Nmesh', str(Nmesh), 
+        '.Nbin', str(Nbin), 
         '.dat']) 
 
     if os.path.isfile(fplk) and not overwrite: 
@@ -38,9 +39,11 @@ def hadesHalo_Plk(mneut, nreal, nzbin, zspace=False, Lbox=1000., mh_min=3200., N
     if zspace: # impose redshift space distortions on the z-axis 
         v_offset = halos['VelocityOffset']
         halos['RSDPosition'] = ((halos['Position'] + halos['VelocityOffset'] * [0, 0, 1] + Lbox) % Lbox) 
-
+    
+    kf = 2*np.pi/Lbox 
+    dk = kf * Nmesh / Nbin 
     # calculate P_l(k) 
-    plk = FM.Observables(halos, observable='plk', rsd=zspace, dk=0.005, kmin=0.005, Nmesh=Nmesh)
+    plk = FM.Observables(halos, observable='plk', rsd=zspace, dk=dk, kmin=kf, Nmesh=Nmesh)
 
     # header 
     hdr = ''.join(['P_l(k) measurements for m neutrino = ', str(mneut), ' eV, realization ', str(nreal), ', zbin ', str(nzbin), 
@@ -51,7 +54,7 @@ def hadesHalo_Plk(mneut, nreal, nzbin, zspace=False, Lbox=1000., mh_min=3200., N
     return None 
 
 
-def hadesHalo_Plk_sigma8(sig8, nreal, nzbin, zspace=False, Lbox=1000., mh_min=3200., Nmesh=360, overwrite=False): 
+def hadesHalo_Plk_sigma8(sig8, nreal, nzbin, zspace=False, Lbox=1000., mh_min=3200., Nmesh=360, Nbin=120, overwrite=False): 
     ''' Calculate the powerspectrum multipoles for Paco's Neutrino halo catalogs
 
     notes
@@ -68,6 +71,7 @@ def hadesHalo_Plk_sigma8(sig8, nreal, nzbin, zspace=False, Lbox=1000., mh_min=32
         'groups.0.0eV.sig8', str(sig8), '.', str(nreal), '.nzbin', str(nzbin), '.', str_space, 'space',
         '.mhmin', str(mh_min),
         '.Nmesh', str(Nmesh), 
+        '.Nbin', str(Nbin), 
         '.dat']) 
 
     if os.path.isfile(fplk) and not overwrite: 
@@ -82,8 +86,10 @@ def hadesHalo_Plk_sigma8(sig8, nreal, nzbin, zspace=False, Lbox=1000., mh_min=32
         v_offset = halos['VelocityOffset']
         halos['RSDPosition'] = ((halos['Position'] + halos['VelocityOffset'] * [0, 0, 1] + Lbox) % Lbox) 
 
+    kf = 2*np.pi/Lbox 
+    dk = kf * Nmesh / Nbin 
     # calculate P_l(k) 
-    plk = FM.Observables(halos, observable='plk', rsd=zspace, dk=0.005, kmin=0.005, Nmesh=Nmesh)
+    plk = FM.Observables(halos, observable='plk', rsd=zspace, dk=dk, kmin=kf, Nmesh=Nmesh)
     # header 
     hdr = ''.join(['P_l(k) measurements for m neutrino = 0.0 eV, sigma_8=', str(sig8), ', realization ', str(nreal), ', zbin ', str(nzbin), 
         '\n P_shotnoise ', str(plk['shotnoise']), 
