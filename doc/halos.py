@@ -390,7 +390,7 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=F
 
             sub = fig.add_subplot(2,4,i+1)
             bplot = sub.pcolormesh(x_bins, y_bins, BQgrid.T,
-                    norm=LogNorm(vmin=5e7, vmax=1e9), cmap='RdBu')
+                    norm=LogNorm(vmin=5e6, vmax=1e9), cmap='RdBu')
             sub.text(0.05, 0.05, str(mnu)+'eV', ha='left', va='bottom', 
                     transform=sub.transAxes, fontsize=20)
             if i > 0: 
@@ -402,7 +402,7 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=F
             BQgrid = ePlots._BorQgrid(k3k1[klim], k2k1[klim], B123_i[klim], cnts_i[klim], x_bins, y_bins)
             sub = fig.add_subplot(2,4,i+6)
             bplot = sub.pcolormesh(x_bins, y_bins, BQgrid.T,
-                    norm=LogNorm(vmin=5e7, vmax=1e9), cmap='RdBu')
+                    norm=LogNorm(vmin=5e6, vmax=1e9), cmap='RdBu')
             sub.text(0.05, 0.05, '0.0eV', ha='left', va='bottom', 
                     transform=sub.transAxes, fontsize=20)
             sub.text(0.975, 0.025, '$\sigma_8$='+str(round(sig8s[i],3)), ha='right', va='bottom', 
@@ -969,23 +969,23 @@ def readB123_sigma8(sig8, i, nzbin, BorQ='B', zspace=False, sn_corr=True):
 
 
 if __name__=="__main__": 
-    compare_Plk(nreals=range(1,101), krange=[0.01, 0.5])
-    ratio_Plk(nreals=range(1,101), krange=[0.01, 0.5])
+    #compare_Plk(nreals=range(1,101), krange=[0.01, 0.5])
+    #ratio_Plk(nreals=range(1,101), krange=[0.01, 0.5])
 
     for rsd in [True]: #[False, True]:  
         if not rsd: nreals = range(1, 101) 
-        else: nreals = range(1, 45) 
+        else: nreals = range(1, 51) 
         for kmax in [0.5]: 
+            compare_B123('b_shape', 
+                    nreals=nreals, krange=[0.01, kmax], zspace=rsd, nbin=31)
             continue 
-            #compare_B123('b_shape', 
-            #        nreals=nreals, krange=[0.01, kmax], zspace=rsd, nbin=31)
-            #compare_B123('relative_shape', 
-            #        nreals=nreals, krange=[0.01, kmax], zspace=rsd, nbin=31)
+            compare_B123('relative_shape', 
+                    nreals=nreals, krange=[0.01, kmax], zspace=rsd, nbin=31)
             compare_B123('b_amp', 
                     nreals=nreals, krange=[0.01, kmax], zspace=rsd)
-            #compare_B123('b_amp_equilateral', 
-            #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
-            #compare_B123('b_amp_squeezed', 
-            #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
-            #compare_B123('relative', 
-            #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
+            compare_B123('b_amp_equilateral', 
+                    nreals=nreals, krange=[0.01, kmax], zspace=rsd)
+            compare_B123('b_amp_squeezed', 
+                    nreals=nreals, krange=[0.01, kmax], zspace=rsd)
+            compare_B123('relative', 
+                    nreals=nreals, krange=[0.01, kmax], zspace=rsd)
