@@ -110,7 +110,7 @@ if __name__=='__main__':
         zstr = sys.argv[5]
         nmesh = int(sys.argv[6])
         if zstr == 'z': zbool = True
-        elif zstr == 'real': zbool = False
+        elif zstr == 'r': zbool = False
         hadesHalo_Plk(mneut, nreal, nzbin, zspace=zbool, Lbox=1000., Nmesh=nmesh)
     elif run == 'halo_sig8': 
         # python plk.py halo mneut nreal nzbin zstr
@@ -120,7 +120,7 @@ if __name__=='__main__':
         zstr = sys.argv[5]
         nmesh = int(sys.argv[6])
         if zstr == 'z': zbool = True
-        elif zstr == 'real': zbool = False
+        elif zstr == 'r': zbool = False
         hadesHalo_Plk_sigma8(sig8, nreal, nzbin, zspace=zbool, Lbox=1000., Nmesh=nmesh)
     else: 
         raise ValueError
