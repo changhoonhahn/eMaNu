@@ -52,13 +52,22 @@ def haloBispectrum(mneut, nreal, nzbin, zspace=False, mh_min=3200.,
         
         # calculate bispectrum 
         if not silent: print('calculating the halo bispectrum') 
-        i_k, j_k, l_k, b123, q123, cnts = pySpec.Bk123_periodic(
+        b123out = pySpec.Bk123_periodic(
                 delta_fft, Nmax=Nmax, Ncut=Ncut, step=step, fft_method='pyfftw', nthreads=1, silent=silent) 
+        i_k = b123out['i_k1']
+        j_k = b123out['i_k2']
+        l_k = b123out['i_k3']
+        pki = b123out['p0k1']
+        pkj = b123out['p0k2']
+        pkl = b123out['p0k3']
+        b123 = b123out['b123'] 
+        q123 = b123out['q123'] 
+        cnts = b123out['counts'] 
 
-        hdr = ('halo bispectrum for mneut=%f, realization %i, redshift bin %i; k_f = 2pi/%f' % 
-                (mneut, nreal, nzbin, Lbox))
-        np.savetxt(fbk, np.array([i_k, j_k, l_k, b123, q123, cnts]).T, fmt='%i %i %i %.5e %.5e %.5e', 
-                delimiter='\t', header=hdr)
+        hdr = ('halo bispectrum for mneut=%f, realization %i, redshift bin %i; k_f = 2pi/%f, Nhalo=%i' % 
+                (mneut, nreal, nzbin, Lbox, xyz.shape[1]))
+        np.savetxt(fbk, np.array([i_k, j_k, l_k, b123, q123, cnts, pki, pkj, pkl]).T, 
+                fmt='%i %i %i %.5e %.5e %.5e %.5e %.5e %.5e', delimiter='\t', header=hdr)
     else: 
         if not silent: print('--- %s already exists ---' % fbk) 
     return None 
@@ -101,13 +110,22 @@ def haloBispectrum_sigma8(sig8, nreal, nzbin, zspace=False, mh_min=3200.,
         delta_fft = pySpec.reflect_delta(delta, Ngrid=Ngrid) 
         
         # calculate bispectrum 
-        i_k, j_k, l_k, b123, q123, cnts = pySpec.Bk123_periodic(
+        b123out = pySpec.Bk123_periodic(
                 delta_fft, Nmax=Nmax, Ncut=Ncut, step=step, fft_method='pyfftw', nthreads=1, silent=silent) 
+        i_k = b123out['i_k1']
+        j_k = b123out['i_k2']
+        l_k = b123out['i_k3']
+        pki = b123out['p0k1']
+        pkj = b123out['p0k2']
+        pkl = b123out['p0k3']
+        b123 = b123out['b123'] 
+        q123 = b123out['q123'] 
+        cnts = b123out['counts'] 
 
-        hdr = ('halo bispectrum for sigma_8=%f, realization %i, redshift bin %i; k_f = 2pi/%f' % 
-                (sig8, nreal, nzbin, Lbox))
-        np.savetxt(fbk, np.array([i_k, j_k, l_k, b123, q123, cnts]).T, fmt='%i %i %i %.5e %.5e %.5e', 
-                delimiter='\t', header=hdr)
+        hdr = ('halo bispectrum for sigma_8=%f, realization %i, redshift bin %i; k_f = 2pi/%f, Nhalo=%i' % 
+                (sig8, nreal, nzbin, Lbox, xyz.shape[1]))
+        np.savetxt(fbk, np.array([i_k, j_k, l_k, b123, q123, cnts, pki, pkj, pkl]).T, 
+                fmt='%i %i %i %.5e %.5e %.5e %.5e %.5e %.5e', delimiter='\t', header=hdr)
     else: 
         if not silent: print('--- %s already exists ---' % fbk) 
     return None 

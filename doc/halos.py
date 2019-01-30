@@ -519,11 +519,11 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=F
             
         ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order of triangles 
 
-        fig = plt.figure(figsize=(25,8))
+        fig = plt.figure(figsize=(25,10))
         sub = fig.add_subplot(211)
-        axins = inset_axes(sub, loc='upper center', width="40%", height="55%") 
+        axins = inset_axes(sub, loc='upper right', width="40%", height="45%") 
         sub2 = fig.add_subplot(212)
-        axins2 = inset_axes(sub2, loc='upper center', width="40%", height="55%") 
+        axins2 = inset_axes(sub2, loc='upper right', width="40%", height="45%") 
         ii = 0 
         for mnu, B123 in zip([0.0]+mnus, [B123_fid]+B123s):
             _b123 = B123[klim][ijl]
@@ -534,17 +534,17 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=F
                 axins2.plot(range(np.sum(klim)), _b123, c='C0') 
             ii += 1 
 
-        axins.set_xlim(900, 1050)
+        axins.set_xlim(480, 500)
         axins.set_yscale('log') 
-        axins.set_ylim(1e7, 5e8) 
+        axins.set_ylim(5e7, 2e8) 
         axins.set_xticklabels('') 
         axins.yaxis.set_minor_formatter(NullFormatter())
-        mark_inset(sub, axins, loc1=3, loc2=4, fc="none", ec="0.5")
+        mark_inset(sub, axins, loc1=2, loc2=4, fc="none", ec="0.5")
 
-        sub.legend(loc='upper right', markerscale=4, handletextpad=0.25, fontsize=20) 
+        sub.legend(loc='lower left', frameon=True, ncol=4, columnspacing=0.5, markerscale=4, handletextpad=0.25, fontsize=20) 
         sub.set_xlim([0, np.sum(klim)])
         sub.set_yscale('log') 
-        sub.set_ylim([5e6, 8e9]) 
+        sub.set_ylim([1e6, 1e10]) 
         
         for sig8, B123 in zip(sig8s, B123_s8s):
             _b123 = B123[klim][ijl]
@@ -555,17 +555,17 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=F
                 sub2.plot(range(np.sum(klim)), _b123, c='C9', label='$\sigma_8=$'+str(sig8)) 
                 axins2.plot(range(np.sum(klim)), _b123, c='C9') 
             ii += 2 
-        sub2.legend(loc='upper right', markerscale=4, handletextpad=0.25, fontsize=20) 
+        sub2.legend(loc='lower left', frameon=True, ncol=4, columnspacing=0.5, markerscale=4, handletextpad=0.25, fontsize=20) 
         sub2.set_xlim([0, np.sum(klim)])
         sub2.set_yscale('log') 
-        sub2.set_ylim([5e6, 8e9]) 
+        sub2.set_ylim([1e6, 1e10]) 
         
-        axins2.set_xlim(900, 1050)
+        axins2.set_xlim(480, 500)
         axins2.set_yscale('log') 
-        axins2.set_ylim(1e7, 5e8) 
+        axins2.set_ylim(5e7, 2e8) 
         axins2.set_xticklabels('') 
         axins2.yaxis.set_minor_formatter(NullFormatter())
-        mark_inset(sub2, axins2, loc1=3, loc2=4, fc="none", ec="0.5")
+        mark_inset(sub2, axins2, loc1=2, loc2=4, fc="none", ec="0.5")
         
         bkgd = fig.add_subplot(111, frameon=False)
         bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
@@ -1033,21 +1033,21 @@ if __name__=="__main__":
 
     for rsd in [True]: #[False, True]:  
         if not rsd: nreals = range(1, 101) 
-        else: nreals = range(1, 63) 
+        else: nreals = range(1, 76) 
         for kmax in [0.5]: 
             #compare_B123('b_shape', 
             #        nreals=nreals, krange=[0.01, kmax], zspace=rsd, nbin=31)
             #compare_B123('relative_shape', 
             #        nreals=nreals, krange=[0.01, kmax], zspace=rsd, nbin=31)
-            #compare_B123('b_amp', 
-            #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
+            compare_B123('b_amp', 
+                    nreals=nreals, krange=[0.01, kmax], zspace=rsd)
             #compare_B123('b_amp_equilateral', 
             #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
             #compare_B123('b_amp_squeezed', 
             #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
             #compare_B123('relative', 
             #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
-            compare_B123_triangle(30, 18, 
-                    nreals=nreals, krange=[0.01, kmax], zspace=rsd)
-            compare_B123_triangle(30, 24, 
-                    nreals=nreals, krange=[0.01, kmax], zspace=rsd)
+            #compare_B123_triangle(30, 18, 
+            #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
+            #compare_B123_triangle(30, 24, 
+            #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
