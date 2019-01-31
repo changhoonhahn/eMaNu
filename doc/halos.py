@@ -541,7 +541,7 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=F
         axins.yaxis.set_minor_formatter(NullFormatter())
         mark_inset(sub, axins, loc1=2, loc2=4, fc="none", ec="0.5")
 
-        sub.legend(loc='lower left', frameon=True, ncol=4, columnspacing=0.5, markerscale=4, handletextpad=0.25, fontsize=20) 
+        sub.legend(loc='lower left', ncol=4, columnspacing=0.5, markerscale=4, handletextpad=0.25, fontsize=20) 
         sub.set_xlim([0, np.sum(klim)])
         sub.set_yscale('log') 
         sub.set_ylim([1e6, 1e10]) 
@@ -555,7 +555,7 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=F
                 sub2.plot(range(np.sum(klim)), _b123, c='C9', label='$\sigma_8=$'+str(sig8)) 
                 axins2.plot(range(np.sum(klim)), _b123, c='C9') 
             ii += 2 
-        sub2.legend(loc='lower left', frameon=True, ncol=4, columnspacing=0.5, markerscale=4, handletextpad=0.25, fontsize=20) 
+        sub2.legend(loc='lower left', ncol=4, columnspacing=0.5, markerscale=4, handletextpad=0.25, fontsize=20) 
         sub2.set_xlim([0, np.sum(klim)])
         sub2.set_yscale('log') 
         sub2.set_ylim([1e6, 1e10]) 
@@ -569,8 +569,8 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=F
         
         bkgd = fig.add_subplot(111, frameon=False)
         bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-        bkgd.set_xlabel(r'$k_1 \le k_2 \le k_3$ triangle indices', labelpad=10, fontsize=25) 
-        bkgd.set_ylabel('$B(k_1, k_2, k_3)$', fontsize=25) 
+        bkgd.set_xlabel(r'$k_1 \le k_2 \le k_3$ triangle indices', labelpad=15, fontsize=25) 
+        bkgd.set_ylabel('$B(k_1, k_2, k_3)$', labelpad=10, fontsize=25) 
         fig.subplots_adjust(hspace=0.15)
         fig.savefig(''.join([UT.doc_dir(), 'figs/haloB123_amp', '_', krange_str, str_rsd, '.pdf']), bbox_inches='tight') 
     
@@ -802,7 +802,7 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=F
     return None 
 
 
-def compare_B123_triangle(ik1, ik2, nreals=range(1,71), krange=[0.03, 0.5], zspace=False): 
+def compare_B123_triangle(ik_pairs, nreals=range(1,71), krange=[0.03, 0.5], zspace=False): 
     ''' Make various bispectrum plots as a function of m_nu 
     '''
     str_rsd = ''
@@ -826,44 +826,54 @@ def compare_B123_triangle(ik1, ik2, nreals=range(1,71), krange=[0.03, 0.5], zspa
         B123_s8s.append(_B123) 
         cnt_s8s.append(_cnts)
     i_k, j_k, l_k = _i, _j, _l
-        
-    klim = ((i_k == ik1) & (j_k == ik2)) | ((j_k == ik1) & (l_k == ik2)) 
-    
-    # angle between k1 and k2 
-    ik3 = [] 
-    for i, j, l in zip(i_k[klim], j_k[klim], l_k[klim]): 
-        ijl = np.array([i, j, l]) 
-        _ijl = np.delete(ijl, np.argmin(np.abs(ijl - ik1)))
-        _ik3 = np.delete(_ijl, np.argmin(np.abs(_ijl - ik2)))[0]
-        ik3.append(_ik3)
-    ik3 = np.array(ik3) 
-    theta12 = np.arccos((ik3**2 - ik1**2 - ik2**2)/2./ik1/ik2)
+   
+    fig = plt.figure(figsize=(6*len(ik_pairs),8))
+    for i_p, ik_pair in enumerate(ik_pairs):  
+        ik1, ik2 = ik_pair 
 
-    theta_sort = np.argsort(theta12) 
+        klim = ((i_k == ik1) & (j_k == ik2)) | ((j_k == ik1) & (l_k == ik2)) 
+        # angle between k1 and k2 
+        ik3 = [] 
+        for i, j, l in zip(i_k[klim], j_k[klim], l_k[klim]): 
+            ijl = np.array([i, j, l]) 
+            _ijl = np.delete(ijl, np.argmin(np.abs(ijl - ik1)))
+            _ik3 = np.delete(_ijl, np.argmin(np.abs(_ijl - ik2)))[0]
+            ik3.append(_ik3)
+        ik3 = np.array(ik3) 
+        theta12 = np.arccos((ik3**2 - ik1**2 - ik2**2)/2./ik1/ik2)
 
-    fig = plt.figure(figsize=(8,8))
-    sub = fig.add_subplot(111)
-    ii = 1
-    for mnu, B123 in zip(mnus, B123s): 
-        _b123 = (B123[klim][theta_sort] - B123_fid[klim][theta_sort])/B123_fid[klim][theta_sort]
-        sub.plot(theta12[theta_sort]/np.pi, _b123, c='C'+str(ii), label=str(mnu)+'eV')
-        sub.set_xlim([0., 1.]) 
-        ii += 1 
-    lstyles = ['-', '--', '-.', ':']
-    for sig8, B123, ls in zip(sig8s, B123_s8s, lstyles): 
-        _b123 = (B123[klim][theta_sort] - B123_fid[klim][theta_sort])/B123_fid[klim][theta_sort]
-        sub.plot(theta12[theta_sort]/np.pi, _b123, c='k', ls=ls, label='$\sigma_8='+str(sig8)+'$')
-        sub.set_xlim([0., 1.]) 
-    sub.set_ylim([0., 0.15]) 
-    sub.set_yticks([0., 0.05, 0.1, 0.15]) 
+        theta_sort = np.argsort(theta12) 
+
+        sub = fig.add_subplot(1, len(ik_pairs), i_p+1)
+        ii = 1
+        for mnu, B123 in zip(mnus, B123s): 
+            _b123 = (B123[klim][theta_sort] - B123_fid[klim][theta_sort])/B123_fid[klim][theta_sort]
+            sub.plot(theta12[theta_sort]/np.pi, _b123, c='C'+str(ii), label=str(mnu)+'eV')
+            sub.set_xlim([0., 1.]) 
+            ii += 1 
+        ii = 1 
+        for i, sig8, B123 in zip(range(len(sig8s)), sig8s, B123_s8s): 
+            _b123 = (B123[klim][theta_sort] - B123_fid[klim][theta_sort])/B123_fid[klim][theta_sort]
+            if i < 3: 
+                #sub.plot(theta12[theta_sort]/np.pi, _b123, c='k', lw=0.2)
+                sub.plot(theta12[theta_sort]/np.pi, _b123, c='C'+str(ii), lw=1, 
+                        ls=(0,(5,6)), label='$\sigma_8='+str(sig8)+'$')
+            else: 
+                sub.plot(theta12[theta_sort]/np.pi, _b123, c='k', 
+                        ls=(0,(1,6)), lw=0.5, label='$\sigma_8='+str(sig8)+'$')
+            sub.set_xlim([0., 1.]) 
+            ii += 1 
+        sub.set_ylim([0., 0.15]) 
+        sub.set_yticks([0., 0.05, 0.1, 0.15]) 
+        sub.set_title('$k_1 = %.2f, k_2 = %.2f$' % (ik1*kf, ik2*kf), fontsize=20)
+        if i_p > 0: sub.set_yticklabels([]) 
     sub.legend(loc='upper left', ncol=3, handletextpad=0.2, columnspacing=0.4, fontsize=20) 
     bkgd = fig.add_subplot(111, frameon=False)
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
     bkgd.set_xlabel(r'$\theta_{12}/\pi$', labelpad=10, fontsize=25) 
-    bkgd.set_ylabel((r'$(B(k_1=%.2f, k_2=%.2f, \theta_{12}) - B^\mathrm{(fid)})/B^\mathrm{(fid)}$' % (ik1*kf, ik2*kf)), 
-            labelpad=10, fontsize=20) 
+    bkgd.set_ylabel((r'$(B(k_1, k_2, \theta_{12}) - B^\mathrm{(fid)})/B^\mathrm{(fid)}$'), labelpad=10, fontsize=20) 
     fig.savefig(''.join([UT.doc_dir(), 'figs/', 
-        'haloB123_triangle.k1_', str(ik1), '.k2_', str(ik2), '_', krange_str, str_rsd, '.pdf']), bbox_inches='tight') 
+        'haloB123_triangles.', krange_str, str_rsd, '.pdf']), bbox_inches='tight') 
     return None 
 
 
@@ -1039,15 +1049,13 @@ if __name__=="__main__":
             #        nreals=nreals, krange=[0.01, kmax], zspace=rsd, nbin=31)
             #compare_B123('relative_shape', 
             #        nreals=nreals, krange=[0.01, kmax], zspace=rsd, nbin=31)
-            compare_B123('b_amp', 
-                    nreals=nreals, krange=[0.01, kmax], zspace=rsd)
+            #compare_B123('b_amp', 
+            #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
             #compare_B123('b_amp_equilateral', 
             #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
             #compare_B123('b_amp_squeezed', 
             #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
             #compare_B123('relative', 
             #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
-            #compare_B123_triangle(30, 18, 
-            #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
-            #compare_B123_triangle(30, 24, 
-            #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
+            compare_B123_triangle([[30, 18], [30, 24], [12,9]], 
+                    nreals=nreals, krange=[0.01, kmax], zspace=rsd)
