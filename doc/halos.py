@@ -4,6 +4,7 @@ figures looking at hades halo catalog with massive neutrinos
 
 
 '''
+import os 
 import h5py
 import numpy as np 
 # --- eMaNu --- 
@@ -749,7 +750,7 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=F
             _b123 = b123[ijl] 
             sub.plot(range(np.sum(klim)), _b123, lw=1, c='k', label='$\sigma_8=$'+str(sig8)) 
             sub.plot([0, np.sum(klim)], [0., 0.], c='k', ls='--', lw=2)
-            sub.legend(loc='upper left', ncol=2, markerscale=4, handletextpad=0.25, fontsize=20) 
+            sub.legend(loc='upper left', ncol=2, markerscale=4, handletextpad=0.5, fontsize=25) 
             sub.set_xlim([0, np.sum(klim)])
             sub.set_ylim([-0.01, 0.2]) 
             sub.set_yticks([0., 0.05, 0.1, 0.15, 0.2]) 
@@ -758,8 +759,8 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=F
         
         bkgd = fig.add_subplot(111, frameon=False)
         bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-        bkgd.set_xlabel(r'$k_1 \le k_2 \le k_3$ triangle indices', labelpad=10, fontsize=25) 
-        bkgd.set_ylabel('$(B(k_1, k_2, k_3) - B^\mathrm{(fid)})/B^\mathrm{(fid)}$', labelpad=15, fontsize=25) 
+        bkgd.set_xlabel(r'$k_1 \le k_2 \le k_3$ triangle indices', labelpad=10, fontsize=30) 
+        bkgd.set_ylabel('$B(k_1, k_2, k_3) / B^\mathrm{fid} - 1 $', labelpad=15, fontsize=30) 
         fig.subplots_adjust(hspace=0.1)
         fig.savefig(''.join([UT.doc_dir(), 'figs/halodB123_relative', '_', krange_str, str_rsd, '.pdf']), bbox_inches='tight') 
 
@@ -827,7 +828,7 @@ def compare_B123_triangle(ik_pairs, nreals=range(1,71), krange=[0.03, 0.5], zspa
         cnt_s8s.append(_cnts)
     i_k, j_k, l_k = _i, _j, _l
    
-    fig = plt.figure(figsize=(6*len(ik_pairs),8))
+    fig = plt.figure(figsize=(6*len(ik_pairs),6))
     for i_p, ik_pair in enumerate(ik_pairs):  
         ik1, ik2 = ik_pair 
 
@@ -847,11 +848,14 @@ def compare_B123_triangle(ik_pairs, nreals=range(1,71), krange=[0.03, 0.5], zspa
         sub = fig.add_subplot(1, len(ik_pairs), i_p+1)
         ii = 1
         for mnu, B123 in zip(mnus, B123s): 
+            lbl = None 
+            if i_p == 0: lbl = str(mnu)+'eV'
             _b123 = (B123[klim][theta_sort] - B123_fid[klim][theta_sort])/B123_fid[klim][theta_sort]
-            sub.plot(theta12[theta_sort]/np.pi, _b123, c='C'+str(ii), label=str(mnu)+'eV')
+            sub.plot(theta12[theta_sort]/np.pi, _b123, c='C'+str(ii), label=lbl)
             sub.set_xlim([0., 1.]) 
             ii += 1 
         ii = 1 
+        if i_p == 0: sub.legend(loc='upper left', handletextpad=0.2, fontsize=20) 
         for i, sig8, B123 in zip(range(len(sig8s)), sig8s, B123_s8s): 
             _b123 = (B123[klim][theta_sort] - B123_fid[klim][theta_sort])/B123_fid[klim][theta_sort]
             if i < 3: 
@@ -865,176 +869,166 @@ def compare_B123_triangle(ik_pairs, nreals=range(1,71), krange=[0.03, 0.5], zspa
             ii += 1 
         sub.set_ylim([0., 0.15]) 
         sub.set_yticks([0., 0.05, 0.1, 0.15]) 
-        sub.set_title('$k_1 = %.2f, k_2 = %.2f$' % (ik1*kf, ik2*kf), fontsize=20)
+        sub.set_title('$k_1 = %.2f,\,\,k_2 = %.2f$' % (ik1*kf, ik2*kf), fontsize=25)
         if i_p > 0: sub.set_yticklabels([]) 
-    sub.legend(loc='upper left', ncol=3, handletextpad=0.2, columnspacing=0.4, fontsize=20) 
+        if i_p == 1: sub.legend(loc='upper left', handletextpad=0.2, fontsize=20) 
     bkgd = fig.add_subplot(111, frameon=False)
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
     bkgd.set_xlabel(r'$\theta_{12}/\pi$', labelpad=10, fontsize=25) 
-    bkgd.set_ylabel((r'$(B(k_1, k_2, \theta_{12}) - B^\mathrm{(fid)})/B^\mathrm{(fid)}$'), labelpad=10, fontsize=20) 
+    bkgd.set_ylabel((r'$B(k_1, k_2, \theta_{12}) / B^\mathrm{fid} - 1$'), labelpad=10, fontsize=25) 
+    fig.subplots_adjust(wspace=0.1) 
     fig.savefig(''.join([UT.doc_dir(), 'figs/', 
-        'haloB123_triangles.', krange_str, str_rsd, '.pdf']), bbox_inches='tight') 
+        'haloB123_triangles_', krange_str, str_rsd, '.pdf']), bbox_inches='tight') 
     return None 
 
 
-def B123_shotnoise(i_k, j_k, l_k, mneut, i, nzbin, zspace=False, mh_min=3200.): 
-    ''' Calculate the shot noise correction term for the bispectrum
+def readB123(mneut, ireals, nzbin, BorQ='B', zspace=False):
+    ''' read in bispectrum of massive neutrino halo catalogs with `mneut` eV
+    `ireals` realizations, `nzbin` redshift bin 
+
+    :param mneut: 
+        neutrino mass
+
+    :param ireals: 
+        2 element array/list/tuple that specifies the realizations 
+
+    :param nzbin: 
+        redshift bin number 
     '''
-    if isinstance(i, int): i = [i]
-    Nhalos = []
-    for ii, _i in enumerate(i):
-        if zspace: str_space = 'z' 
-        else: str_space = 'r' 
-        fhalo = ''.join([UT.dat_dir(), 'halos/', 
-            'groups.', 
-            str(mneut), 'eV.',      # mnu eV
-            str(_i),                 # realization #
-            '.nzbin', str(nzbin),   # zbin 
-            '.mhmin', str(mh_min), '.hdf5']) 
+    if zspace: str_rsd = '.zspace'
+    else: str_rsd = '.rspace'
+    fb123 = ''.join([UT.doc_dir(), 'dat/', 
+        'halo_bispectrum.', str(mneut), 'eV.', 
+        str(ireals[0]), '_', str(ireals[1]), '.z', str(nzbin), str_rsd, '.hdf5']) 
 
-        f = h5py.File(fhalo, 'r') 
-        if ii == 0:
-            Lbox = f.attrs['Lbox']
-            kf = 2 * np.pi / Lbox 
-        Nhalos.append(f['Mass'].value.size)
+    if os.path.isfile(fb123): 
+        f = h5py.File(fb123, 'r') 
+        k_f = f.attrs['kf'] 
 
-    nhalo = np.average(Nhalos)/Lbox**3 # (Mpc/h)^-3
-    k, p0k, p2k, p4k = readPlk(mneut, range(1,101), nzbin, zspace=zspace)
-    
-    p0ki = np.interp(i_k*kf, k, p0k) 
-    p0kj = np.interp(j_k*kf, k, p0k) 
-    p0kl = np.interp(l_k*kf, k, p0k) 
+        i_k = f['i_k1'].value 
+        j_k = f['i_k2'].value 
+        l_k = f['i_k3'].value 
+        
+        p0k1 = f['p0k1'].value
+        p0k2 = f['p0k2'].value
+        p0k3 = f['p0k3'].value
+        
+        B123 = f['B123'].value
+        B_SN = f['B_SN'].value 
+        Q123 = f['Q123'].value
+        counts = f['counts'].value
+    else: 
+        ffix = lambda mneut, nreal, nzbin: ''.join([UT.dat_dir(), 'bispectrum/', 
+            'groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), '.mhmin3200.0', str_rsd, 
+            '.Ngrid360.Nmax40.Ncut3.step3.pyfftw.dat']) 
+        
+        p0k1, p0k2, p0k3 = [], [], [] 
+        B123, Q123, B_SN, counts = [], [], [], [] 
+        for ii, _i in enumerate(range(ireals[0], ireals[1]+1)):
+            i_k, j_k, l_k, _p0k1, _p0k2, _p0k3, b123, q123, b_sn, cnts = np.loadtxt(ffix(mneut, _i, nzbin), 
+                    skiprows=1, unpack=True, usecols=range(10)) 
+            p0k1.append(_p0k1)
+            p0k2.append(_p0k2)
+            p0k3.append(_p0k3)
+            B123.append(b123)
+            B_SN.append(b_sn)
+            Q123.append(q123)
+            counts.append(cnts)
+        
+        k_f = 2.*np.pi/1000. # k_fundmanetal
 
-    sn_corr = (p0ki + p0kj + p0kl)/nhalo + 1./nhalo**2 
-    return sn_corr
+        f = h5py.File(fb123, 'w') 
+        f.attrs['kf'] = k_f
+        f.create_dataset('i_k1', data=i_k)
+        f.create_dataset('i_k2', data=j_k)
+        f.create_dataset('i_k3', data=l_k)
 
+        f.create_dataset('p0k1', data=np.array(p0k1))
+        f.create_dataset('p0k2', data=np.array(p0k2))
+        f.create_dataset('p0k3', data=np.array(p0k3))
 
-def B123_shotnoise_sigma(i_k, j_k, l_k, sig8, i, nzbin, zspace=False, mh_min=3200.): 
-    ''' Calculate the shot noise correction term for the bispectrum
-    '''
-    if isinstance(i, int): i = [i]
-    Nhalos = []
-    for ii, _i in enumerate(i):
-        if zspace: str_space = 'z' 
-        else: str_space = 'r' 
-        fhalo = ''.join([UT.dat_dir(), 'halos/', 
-            'groups.', 
-            '0.0eV.sig8_', str(sig8),   # 0.0eV, sigma8
-            '.', str(_i),               # realization #
-            '.nzbin', str(nzbin),       # zbin 
-            '.mhmin', str(mh_min), '.hdf5']) 
+        f.create_dataset('B123', data=np.array(B123))
+        f.create_dataset('B_SN', data=np.array(B_SN))
+        f.create_dataset('Q123', data=np.array(Q123))
+        f.create_dataset('counts', data=np.array(counts)) 
+        f.close() 
 
-        f = h5py.File(fhalo, 'r') 
-        if ii == 0:
-            Lbox = f.attrs['Lbox']
-            kf = 2 * np.pi / Lbox 
-        Nhalos.append(f['Mass'].value.size) 
-
-    nhalo = np.average(Nhalos)/Lbox**3 # (Mpc/h)^-3
-    k, p0k, p2k, p4k = readPlk_sigma8(sig8, range(1,101), nzbin, zspace=zspace)
-    
-    p0ki = np.interp(i_k*kf, k, p0k) 
-    p0kj = np.interp(j_k*kf, k, p0k) 
-    p0kl = np.interp(l_k*kf, k, p0k) 
-
-    sn_corr = (p0ki + p0kj + p0kl)/nhalo + 1./nhalo**2 
-    return sn_corr
-
-
-def readB123(mneut, i, nzbin, BorQ='B', zspace=False, sn_corr=True):
-    ''' read in bispectrum of massive neutrino halo catalogs
-    using the function Obvs.B123_halo
-    '''
-    bk_kwargs = {
-            'Lbox': 1000., 
-            'zspace': zspace, 
-            'mh_min': 3200., 
-            'Ngrid': 360, 
-            'Nmax': 40, 
-            'Ncut': 3, 
-            'step': 3}
-
-    if isinstance(i, int):
-        i_k, j_k, l_k, B123, Q123, cnts, k_f = Obvs.B123_halo(mneut, i, nzbin, **bk_kwargs)
-        B123 = np.array(B123) * (2*np.pi)**6 / k_f**6 
-        if sn_corr: # correct for shot noise 
-            B_sn = B123_shotnoise(i_k, j_k, l_k, mneut, i, nzbin, zspace=zspace)
-            B123 -= B_sn 
-    elif isinstance(i, (list, np.ndarray)):
-        i_k, j_k, l_k, B123, Q123, cnts = [], [], [], [], [], []
-        for ii, _i in enumerate(i):
-            i_k_i, j_k_i, l_k_i, B123_i, Q123_i, cnts_i, k_f = Obvs.B123_halo(mneut, _i, nzbin, **bk_kwargs)
-            i_k.append(i_k_i)
-            j_k.append(j_k_i)
-            l_k.append(l_k_i)
-            B123.append(B123_i)
-            Q123.append(Q123_i)
-            cnts.append(cnts_i)
-
-        i_k = np.average(i_k, axis=0)
-        j_k = np.average(j_k, axis=0)
-        l_k = np.average(l_k, axis=0)
-
-        B123 = np.array(B123) * (2*np.pi)**6 / k_f**6 
-
-        if sn_corr: # correct for shot noise 
-            B_sn = B123_shotnoise(i_k, j_k, l_k, mneut, i, nzbin, zspace=zspace)
-            B123 -= B_sn 
-        B123 = np.average(B123, axis=0)
-        Q123 = np.average(Q123, axis=0)
-        cnts = np.average(cnts, axis=0)
+    B123 = np.average(B123, axis=0)
+    Q123 = np.average(Q123, axis=0)
+    counts = np.average(counts, axis=0)
 
     if BorQ == 'B':
-        return i_k, j_k, l_k, B123, cnts, k_f
+        return i_k, j_k, l_k, B123, counts, k_f
     elif BorQ == 'Q':
-        return i_k, j_k, l_k, Q123, cnts, k_f 
+        return i_k, j_k, l_k, Q123, counts, k_f 
 
 
-def readB123_sigma8(sig8, i, nzbin, BorQ='B', zspace=False, sn_corr=True):
+def readB123_sigma8(sig8, ireals, nzbin, BorQ='B', zspace=False):
     ''' read in bispectrum of sigma8 varied m_nu = 0 halo catalogs
     using the function Obvs.B123_halo_sigma8
     '''
-    bk_kwargs = {
-            'Lbox': 1000., 
-            'zspace': zspace, 
-            'mh_min': 3200., 
-            'Ngrid': 360, 
-            'Nmax': 40, 
-            'Ncut': 3, 
-            'step': 3}
+    if zspace: str_rsd = '.zspace'
+    else: str_rsd = '.rspace'
+    fb123 = ''.join([UT.doc_dir(), 'dat/', 
+        'halo_bispectrum.0.0eV.sig8_', str(sig8), '.', 
+        str(ireals[0]), '_', str(ireals[1]), '.z', str(nzbin), str_rsd, '.hdf5']) 
 
-    if isinstance(i, int):
-        i_k, j_k, l_k, B123, Q123, cnts, k_f = Obvs.B123_halo_sigma8(sig8, i, nzbin, **bk_kwargs)
-        B123 = np.array(B123) * (2*np.pi)**6 / k_f**6 
-        if sn_corr: 
-            B_sn = B123_shotnoise_sigma(i_k, j_k, l_k, sig8, i, nzbin, zspace=zspace)
-            B123 -= B_sn 
-    elif isinstance(i, (list, np.ndarray)):
-        i_k, j_k, l_k, B123, Q123, cnts = [], [], [], [], [], []
-        for ii, _i in enumerate(i):
-            i_k_i, j_k_i, l_k_i, B123_i, Q123_i, cnts_i, k_f = Obvs.B123_halo_sigma8(sig8, _i, nzbin, **bk_kwargs)
-            i_k.append(i_k_i)
-            j_k.append(j_k_i)
-            l_k.append(l_k_i)
-            B123.append(B123_i)
-            Q123.append(Q123_i)
-            cnts.append(cnts_i)
-        i_k = np.average(i_k, axis=0)
-        j_k = np.average(j_k, axis=0)
-        l_k = np.average(l_k, axis=0)
+    if os.path.isfile(fb123): 
+        f = h5py.File(fb123, 'r') 
+        k_f = f.attrs['kf'] 
 
-        B123 = np.array(B123) * (2*np.pi)**6 / k_f**6 
-        if sn_corr: 
-            B_sn = B123_shotnoise_sigma(i_k, j_k, l_k, sig8, i, nzbin, zspace=zspace)
-            B123 -= B_sn 
-        B123 = np.average(B123, axis=0)
-        Q123 = np.average(Q123, axis=0)
-        cnts = np.average(cnts, axis=0)
+        i_k = f['i_k1'].value 
+        j_k = f['i_k2'].value 
+        l_k = f['i_k3'].value 
+        
+        B123 = f['B123'].value
+        B_sn = f['B_SN'].value 
+        Q123 = f['Q123'].value
+        counts = f['counts'].value
+    else: 
+        ffix = lambda sig8, nreal, nzbin: ''.join([UT.dat_dir(), 'bispectrum/', 
+            'groups.0.0eV.sig8_', str(sig8), '.', str(nreal), '.nzbin', str(nzbin), '.mhmin3200.0', str_rsd,
+            '.Ngrid360.Nmax40.Ncut3.step3.pyfftw.dat']) 
+        
+        p0k1, p0k2, p0k3 = [], [], [] 
+        B123, Q123, B_SN, counts = [], [], [], [] 
+        for ii, _i in enumerate(range(ireals[0], ireals[1]+1)):
+            i_k, j_k, l_k, _p0k1, _p0k2, _p0k3, b123, q123, b_sn, cnts = np.loadtxt(ffix(sig8, _i, nzbin), 
+                    skiprows=1, unpack=True, usecols=range(10)) 
+            p0k1.append(_p0k1)
+            p0k2.append(_p0k2)
+            p0k3.append(_p0k3)
+            B123.append(b123)
+            B_SN.append(b_sn)
+            Q123.append(q123)
+            counts.append(cnts)
+        
+        k_f = 2.*np.pi/1000. # k_fundmanetal
+
+        f = h5py.File(fb123, 'w') 
+        f.attrs['kf'] = k_f 
+        f.create_dataset('i_k1', data=i_k)
+        f.create_dataset('i_k2', data=j_k)
+        f.create_dataset('i_k3', data=l_k)
+
+        f.create_dataset('p0k1', data=np.array(p0k1))
+        f.create_dataset('p0k2', data=np.array(p0k2))
+        f.create_dataset('p0k3', data=np.array(p0k3))
+
+        f.create_dataset('B123', data=np.array(B123))
+        f.create_dataset('B_SN', data=np.array(B_SN))
+        f.create_dataset('Q123', data=np.array(Q123))
+        f.create_dataset('counts', data=np.array(counts)) 
+        f.close() 
+
+    B123 = np.average(B123, axis=0)
+    Q123 = np.average(Q123, axis=0)
+    counts = np.average(counts, axis=0)
 
     if BorQ == 'B':
-        return i_k, j_k, l_k, B123, cnts, k_f
+        return i_k, j_k, l_k, B123, counts, k_f
     elif BorQ == 'Q':
-        return i_k, j_k, l_k, Q123, cnts, k_f
+        return i_k, j_k, l_k, Q123, counts, k_f
 
 
 if __name__=="__main__": 
@@ -1042,20 +1036,20 @@ if __name__=="__main__":
     #ratio_Plk(nreals=range(1,101), krange=[0.01, 0.5])
 
     for rsd in [True]: #[False, True]:  
-        if not rsd: nreals = range(1, 101) 
-        else: nreals = range(1, 76) 
+        if not rsd: nreals = (1, 100) 
+        else: nreals = (1, 100) 
         for kmax in [0.5]: 
-            #compare_B123('b_shape', 
-            #        nreals=nreals, krange=[0.01, kmax], zspace=rsd, nbin=31)
-            #compare_B123('relative_shape', 
-            #        nreals=nreals, krange=[0.01, kmax], zspace=rsd, nbin=31)
-            #compare_B123('b_amp', 
-            #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
-            #compare_B123('b_amp_equilateral', 
-            #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
-            #compare_B123('b_amp_squeezed', 
-            #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
-            #compare_B123('relative', 
-            #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
-            compare_B123_triangle([[30, 18], [30, 24], [12,9]], 
+            compare_B123('b_shape', 
+                    nreals=nreals, krange=[0.01, kmax], zspace=rsd, nbin=31)
+            compare_B123('relative_shape', 
+                    nreals=nreals, krange=[0.01, kmax], zspace=rsd, nbin=31)
+            compare_B123('b_amp', 
+                    nreals=nreals, krange=[0.01, kmax], zspace=rsd)
+            compare_B123('b_amp_equilateral', 
+                    nreals=nreals, krange=[0.01, kmax], zspace=rsd)
+            compare_B123('b_amp_squeezed', 
+                    nreals=nreals, krange=[0.01, kmax], zspace=rsd)
+            compare_B123('relative', 
+                    nreals=nreals, krange=[0.01, kmax], zspace=rsd)
+            compare_B123_triangle([[30, 18], [18, 18], [12,9]], 
                     nreals=nreals, krange=[0.01, kmax], zspace=rsd)
