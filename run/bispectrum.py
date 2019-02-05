@@ -242,6 +242,66 @@ def fix_B123_shotnoise():
     return None 
 
 
+def fix_B123_shotnoise_random(): 
+    ''' fix HADES halo bispecturm outputs to correctly account for shot noise 
+    without having to rerun the bispectrum Jan 31, 2019 
+    '''
+    fhalo = lambda mneut, nreal, str_rsd: ''.join([UT.dat_dir(), 'halos/', 
+        'groups.', str(mneut), 'eV.', str(nreal), '.nzbin4.mhmin3200.0.hdf5']) 
+
+    fbk = lambda mneut, nreal, str_rsd: ''.join([UT.dat_dir(), 'bispectrum/backup/', 
+        'groups.', str(mneut), 'eV.', str(nreal), '.nzbin4.mhmin3200.0.', str_rsd, 'space',
+        '.Ngrid360.Nmax40.Ncut3.step3.pyfftw.dat']) 
+    
+    ffix = lambda mneut, nreal, str_rsd: ''.join([UT.dat_dir(), 'bispectrum/', 
+        'groups.', str(mneut), 'eV.', str(nreal), '.nzbin4.mhmin3200.0.', str_rsd, 'space',
+        '.Ngrid360.Nmax40.Ncut3.step3.pyfftw.dat']) 
+
+    for mneut in [0.0]: 
+        for i in range(1,2): 
+            for zstr in ['r']: 
+                halo = h5py.File(fhalo(mneut, i, zstr), 'r') 
+                Lbox = halo.attrs['Lbox']
+                kf = 2 * np.pi / Lbox
+
+                Nhalo = halo['Position'].value.shape[0]
+                nhalo = float(Nhalo)/Lbox**3
+                print('nbar = %f' % nhalo) 
+                print('1/nbar = %f' % (1./nhalo))
+
+                i_k, j_k, l_k, b123, q123, cnts = np.loadtxt(fbk(mneut, i, zstr), 
+                        unpack=True, skiprows=1, usecols=[0,1,2,3,4,5]) 
+        
+                xyz = halo['Position'].value.T
+                if zstr == 'z': # impose redshift space distortions on the z-axis 
+                    v_offset = halo['VelocityOffset'].value.T
+                    xyz += (halo['VelocityOffset'].value * [0, 0, 1]).T + Lbox
+                    xyz = (xyz % Lbox) 
+    
+                delta = pySpec.FFTperiodic(xyz, fft='fortran', Lbox=Lbox, Ngrid=360, silent=True) 
+                delta_fft = pySpec.reflect_delta(delta, Ngrid=360) 
+                p0k1, p0k2, p0k3 = pySpec._pk_Bk123_periodic(delta_fft, 
+                        Nmax=40, Ncut=3, step=3, fft='pyfftw', nthreads=1, silent=True)
+                assert len(p0k1) == len(i_k) 
+                assert len(p0k2) == len(j_k) 
+                assert len(p0k3) == len(l_k) 
+
+                p0k1 = p0k1 * (2 * np.pi)**3 / kf**3 - 1./nhalo
+                p0k2 = p0k2 * (2 * np.pi)**3 / kf**3 - 1./nhalo
+                p0k3 = p0k3 * (2 * np.pi)**3 / kf**3 - 1./nhalo
+                b_sn = (p0k1 + p0k2 + p0k3)/nhalo + 1./nhalo**2
+
+                b123 = b123 * (2.*np.pi)**6 / kf**6 - b_sn 
+                q123 = b123 / (p0k1*p0k2 + p0k1*p0k3 + p0k2*p0k3) 
+        
+                hdr = ('halo bispectrum for mneut=%.2f, realization %i, redshift bin %i; k_f = 2pi/%.1f, Nhalo=%i' % 
+                        (mneut, i, 4, Lbox, Nhalo))
+                np.savetxt(ffix(mneut, i, zstr), 
+                        np.array([i_k, j_k, l_k, p0k1, p0k2, p0k3, b123, q123, b_sn, cnts]).T, 
+                        fmt='%i %i %i %.5e %.5e %.5e %.5e %.5e %.5e %.5e', delimiter='\t', header=hdr)
+    return None 
+
+
 if __name__=="__main__":
     run = sys.argv[1]
     mnu_or_sig8 = float(sys.argv[2]) 
@@ -264,4 +324,5 @@ if __name__=="__main__":
         haloPk_periodic_sigma8(mnu_or_sig8, nreal, nzbin, zspace=zspace, 
                 Ngrid=360, Nmax=40, Ncut=3, step=3, silent=False, overwrite=False)
     elif run == 'fix': 
-        fix_B123_shotnoise()
+        #fix_B123_shotnoise()
+        fix_B123_shotnoise_random()
