@@ -32,6 +32,42 @@ mpl.rcParams['ytick.major.width'] = 1.5
 mpl.rcParams['legend.frameon'] = False
 
 
+def quijote_covariance(krange=[0.01, 0.5]):
+    ''' calculate the covariance matrix using the 15,000 fiducial 
+    bispetra.
+    '''
+    # read in fiducial bispectra
+    dir_bk = os.path.join(UT.dat_dir(), 'bispectrum') 
+    bks = h5py.File(os.path.join(dir_bk, 'quijote_fiducial.hdf5'), 'r') 
+    i_k, j_k, l_k = bks['k1'].value, bks['k2'].value, bks['k3'].value 
+    pk1, pk2, pk3 = bks['p0k1'].value, bks['p0k2'].value, bks['p0k3'].value
+    bk = bks['b123'].value 
+    
+    # k range limit of the bispectrum
+    kmin, kmax = krange  
+    kf = 2.*np.pi/1000. # fundmaentla mode
+    klim = ((i_k*kf <= kmax) & (i_k*kf >= kmin) &
+            (j_k*kf <= kmax) & (j_k*kf >= kmin) & 
+            (l_k*kf <= kmax) & (l_k*kf >= kmin)) 
+    
+    i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim] 
+    ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order of triangles 
+
+    # evaluate covariance matrix
+    _bk = bk[:,klim]
+    C_bk = np.cov(_bk[:,ijl.flatten()].T) 
+    assert np.sum(klim) == C_bk.shape[0]
+
+    # write C_bk to hdf5 file 
+    f = h5py.File(os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_Cov_bk.%.2f_%.2f.gmorder.hdf5' % (kmin, kmax)), 'w') 
+    f.create_dataset('k1', data=i_k[ijl])
+    f.create_dataset('k2', data=j_k[ijl])
+    f.create_dataset('k3', data=l_k[ijl])
+    f.create_dataset('C_bk', data=C_bk) 
+    f.close()
+    return None 
+
+
 def quijote_comparison(par, krange=[0.01, 0.5]): 
     ''' Compare quijote simulations across a specified parameter `par`
     
@@ -185,8 +221,14 @@ def _hdf5_quijote(subdir):
 
 
 if __name__=="__main__": 
-    for par in ['Mnu', 'Ob', 'Om', 'h', 'ns', 's8']: 
-        quijote_comparison(par, krange=[0.01, 0.5])
+    # write to hdf5 
     #for sub in ['Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'Ob_m', 'Ob_p', 'Om_m', 'Om_p', 
     #        'fiducial', 'fiducial_NCV', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p']: 
     #    _hdf5_quijote(sub)
+    
+    # check along parameter axis
+    #for par in ['Mnu', 'Ob', 'Om', 'h', 'ns', 's8']: 
+    #    quijote_comparison(par, krange=[0.01, 0.5])
+    
+    # covariance matrix 
+    quijote_covariance(krange=[0.01, 0.5])
