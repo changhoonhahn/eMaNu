@@ -44,13 +44,13 @@ def code_dir():
 def fig_dir(): 
     ''' directory for figures 
     '''
-    return code_dir()+'figs/'
+    return os.path.join(code_dir(), 'figs')
 
 
 def doc_dir(): 
     ''' directory for paper related stuff 
     '''
-    return code_dir()+'doc/'
+    return os.path.join(code_dir(), 'doc')
 
 
 def hades_dir(mneut, nreal): 

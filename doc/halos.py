@@ -1001,9 +1001,66 @@ def readB123_sigma8(sig8, ireals, nzbin, BorQ='B', zspace=False):
         return i_k, j_k, l_k, Q123, counts, k_f
 
 
+def quijote_test(subdir, krange=[0.01, 0.5]): 
+    ''' test quijote bispectrum transferred from cca server
+    '''
+    dir_bk = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote', subdir) 
+    fbks = os.listdir(dir_bk) 
+    nbk = len(fbks) 
+    
+    for i, fbk in enumerate(fbks):
+        i_k, j_k, l_k, _p0k1, _p0k2, _p0k3, b123, q123, b_sn, cnts = np.loadtxt(
+                os.path.join(dir_bk, fbk), skiprows=1, unpack=True, usecols=range(10)) 
+        
+        if i == 0: bks = np.zeros((nbk, len(i_k)))
+        bks[i,:] = b123
+    
+    kf = 2.*np.pi/1000. # k_fundmanetal
+    kmin, kmax = krange 
+    klim = ((i_k*kf <= kmax) & (i_k*kf >= kmin) &
+            (j_k*kf <= kmax) & (j_k*kf >= kmin) & 
+            (l_k*kf <= kmax) & (l_k*kf >= kmin)) 
+
+    i_k = i_k[klim]
+    j_k = j_k[klim]
+    l_k = l_k[klim]
+    ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order of triangles 
+
+    fig = plt.figure(figsize=(25,5))
+    sub = fig.add_subplot(111)
+    axins = inset_axes(sub, loc='upper right', width="40%", height="45%") 
+    _bks = bks[:,klim]
+    #sub.fill_between(range(np.sum(klim)), 
+    #        (np.average(_bks, axis=0) - np.std(_bks, axis=0)).flatten()[ijl].T, 
+    #        (np.average(_bks, axis=0) + np.std(_bks, axis=0)).flatten()[ijl].T, color='k', alpha=0.5) 
+    sub.plot(range(np.sum(klim)), np.average(_bks, axis=0)[ijl], c='k') 
+    
+    #axins.fill_between(range(np.sum(klim)), 
+    #        (np.average(_bks, axis=0) - np.std(_bks, axis=0)).flatten()[ijl].T, 
+    #        (np.average(_bks, axis=0) + np.std(_bks, axis=0)).flatten()[ijl].T, color='k', alpha=0.5) 
+    axins.plot(range(np.sum(klim)), np.average(_bks, axis=0)[ijl], c='k') 
+    sub.legend(loc='lower left', ncol=4, columnspacing=0.5, markerscale=4, handletextpad=0.25, fontsize=20) 
+    sub.set_yscale('log') 
+    axins.set_yscale('log') 
+    sub.set_xlim([0, np.sum(klim)])
+    sub.set_ylim([1e6, 1e10]) 
+    axins.set_xlim(480, 500)
+    axins.set_ylim(5e7, 2e8) 
+    axins.set_xticklabels('') 
+    axins.yaxis.set_minor_formatter(NullFormatter())
+    mark_inset(sub, axins, loc1=2, loc2=4, fc="none", ec="0.5")
+    fig.savefig(os.path.join(UT.doc_dir(), 'figs', '_quijote_test.'+subdir+'.pdf'), bbox_inches='tight') 
+    plt.close()
+    return None 
+
+
+
 if __name__=="__main__": 
     #compare_Plk(nreals=range(1,101), krange=[0.01, 0.5])
     #ratio_Plk(nreals=range(1,101), krange=[0.01, 0.5])
+    for sub in ['Om_m', 'Om_p', 'Ob_m', 'Ob_p', 'h_m', 'h_p']: 
+        quijote_test(sub, krange=[0.01, 0.5])
+    raise ValueError
 
     for rsd in [False, True]:  
         if not rsd: nreals = (1, 100) 
