@@ -32,18 +32,106 @@ mpl.rcParams['ytick.major.width'] = 1.5
 mpl.rcParams['legend.frameon'] = False
 
 
-def quijote_comparison(par): 
+def quijote_comparison(par, krange=[0.01, 0.5]): 
     ''' Compare quijote simulations across a specified parameter `par`
     
     :param par: 
         string that specifies the parameter to compare along  
+
+    :param krange: (default: [0.01, 0.5]) 
+        k range to limit the bispectrum
     '''
+    kmin, kmax = krange  
+    kf = 2.*np.pi/1000. # fundmaentla mode
+
     # gather quijote bispectra for parameter par 
     dir_bk = os.path.join(UT.dat_dir(), 'bispectrum') 
     fbks = glob.glob(dir_bk+'/'+'quijote_%s*.hdf5' % par)
+    # labels for the files 
+    lbls = [fbk.rsplit('quijote_', 1)[-1].rsplit('.hdf5')[0].replace('_p', '+').replace('p', '+').replace('_m', '-') 
+            for fbk in fbks]
 
-    fbks =  
-    fig = plt.figure()
+    fig = plt.figure(figsize=(30,5))
+    gs = mpl.gridspec.GridSpec(1,7, figure=fig) 
+    sub0 = plt.subplot(gs[0,:2])  # pk panel
+    sub1 = plt.subplot(gs[0,2:]) # bk panel
+    axins = inset_axes(sub1, loc='upper right', width="40%", height="45%") 
+
+    for i, fbk, lbl in zip(range(len(fbks)), fbks, lbls): # loop through the bispectrum
+        bks = h5py.File(fbk, 'r') 
+        i_k, j_k, l_k = bks['k1'].value, bks['k2'].value, bks['k3'].value 
+        pk1, pk2, pk3 = bks['p0k1'].value, bks['p0k2'].value, bks['p0k3'].value
+        bk = bks['b123'].value 
+    
+        # plot P(k) 
+        klim = (i_k*kf <= kmax) & (i_k*kf >= kmin) 
+        isort = np.argsort(i_k[klim]) 
+        kk = kf * i_k[klim][isort]
+        avgpk = np.average(pk1, axis=0)[klim][isort]
+        sub0.plot(kk, avgpk, c='C'+str(i), label=lbl) 
+        
+        # plot B(k1,k2,k3) 
+        klim = ((i_k*kf <= kmax) & (i_k*kf >= kmin) &
+                (j_k*kf <= kmax) & (j_k*kf >= kmin) & 
+                (l_k*kf <= kmax) & (l_k*kf >= kmin)) 
+        i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim] 
+
+        ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order of triangles 
+        avgbk = np.average(bk, axis=0)[klim][ijl]
+        sub1.plot(range(np.sum(klim)), avgbk, c='C'+str(i)) 
+        axins.plot(range(np.sum(klim)), avgbk, c='C'+str(i))
+
+    # plot fiducial 
+    bks = h5py.File(os.path.join(dir_bk, 'quijote_fiducial.hdf5'), 'r') 
+    i_k, j_k, l_k = bks['k1'].value, bks['k2'].value, bks['k3'].value 
+    pk1, pk2, pk3 = bks['p0k1'].value, bks['p0k2'].value, bks['p0k3'].value
+    bk = bks['b123'].value 
+    # plot P(k) 
+    klim = (i_k*kf <= kmax) & (i_k*kf >= kmin) 
+    isort = np.argsort(i_k[klim]) 
+    kk = kf * i_k[klim][isort]
+    avgpk = np.average(pk1, axis=0)[klim][isort]
+    stdpk = np.std(pk1, axis=0)[klim][isort]
+    sub0.fill_between(kk, avgpk - stdpk, avgpk + stdpk, color='k', alpha=0.25, linewidth=0, label='fiducial') 
+    
+    # plot B(k1,k2,k3) 
+    klim = ((i_k*kf <= kmax) & (i_k*kf >= kmin) &
+            (j_k*kf <= kmax) & (j_k*kf >= kmin) & 
+            (l_k*kf <= kmax) & (l_k*kf >= kmin)) 
+    i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim] 
+    ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order of triangles 
+    avgbk = np.average(bk, axis=0)[klim][ijl]
+    stdbk = np.std(bk, axis=0)[klim][ijl]
+    sub1.fill_between(np.arange(np.sum(klim)), (avgbk - stdbk).flatten(), (avgbk + stdbk).flatten(), 
+            color='k', alpha=0.25, linewidth=0) 
+    axins.fill_between(np.arange(np.sum(klim)), (avgbk - stdbk).flatten(), (avgbk + stdbk).flatten(), 
+            color='k', alpha=0.25, linewidth=0) 
+
+    # pk panel 
+    sub0.legend(loc='lower left', ncol=1, handletextpad=0.25, columnspacing=0.5, fontsize=18) 
+    sub0.set_xlabel("$k$ [$h$/Mpc]", fontsize=25) 
+    sub0.set_xscale("log") 
+    sub0.set_xlim([1e-2, 0.5])
+    sub0.set_xticks([1e-2, 1e-1, 0.5]) 
+    sub0.set_xticklabels([r'0.01', '0.1', r'0.5'])
+    sub0.set_ylabel('$P_0(k)$', fontsize=25) 
+    sub0.set_yscale("log") 
+    sub0.set_ylim([1e3, 1e5]) 
+    # bk panel
+    sub1.set_yscale('log') 
+    axins.set_yscale('log') 
+    sub1.set_xlabel(r'$k_1 \le k_2 \le k_3$ triangle indices', labelpad=5, fontsize=25) 
+    sub1.set_xlim([0, np.sum(klim)])
+    sub1.set_ylabel('$B(k_1, k_2, k_3)$', labelpad=5, fontsize=25) 
+    sub1.set_ylim([1e6, 1e10]) 
+    axins.set_xlim(480, 500)
+    axins.set_ylim(5e7, 2e8) 
+    axins.set_xticklabels('') 
+    axins.yaxis.set_minor_formatter(NullFormatter())
+    mark_inset(sub1, axins, loc1=2, loc2=4, fc="none", ec="0.5")
+    fig.subplots_adjust(wspace=1.) 
+    fig.savefig(os.path.join(UT.fig_dir(), 'quijote_%s.png' % par), bbox_inches='tight') 
+    return None 
 
 
 def _hdf5_quijote(subdir): 
@@ -97,7 +185,8 @@ def _hdf5_quijote(subdir):
 
 
 if __name__=="__main__": 
-    quijote_comparison('Mnu')
+    for par in ['Mnu', 'Ob', 'Om', 'h', 'ns', 's8']: 
+        quijote_comparison(par, krange=[0.01, 0.5])
     #for sub in ['Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'Ob_m', 'Ob_p', 'Om_m', 'Om_p', 
     #        'fiducial', 'fiducial_NCV', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p']: 
     #    _hdf5_quijote(sub)
