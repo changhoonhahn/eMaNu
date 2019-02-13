@@ -14,6 +14,7 @@ from emanu import plots as ePlots
 # --- plotting --- 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib.patches import Ellipse
 from matplotlib.ticker import StrMethodFormatter, NullFormatter
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
@@ -1023,6 +1024,80 @@ def quijote_covariance(krange=[0.01, 0.5]):
     return None 
 
 
+def quijote_forecast(mpc='c', krange=[0.01, 0.5]):
+    ''' fisher forecast for qujote 
+    
+    :param mpc: (default: 'c') 
+        how the derivatives are calculated 
+
+    :param krange: (default: [0.01, 0.5]) 
+        tuple specifying the kranges of k1, k2, k3 in the bispectrum
+    '''
+    kmin, kmax = krange 
+    # read in  fisher matrix  (Fij)
+    bk_dir = os.path.join(UT.dat_dir(), 'bispectrum')
+    f_ij = os.path.join(bk_dir, 'quijote_Fisher.%s.%.2f_%.2f.gmorder.hdf5' % (mpc, kmin, kmax))
+    f = h5py.File(f_ij, 'r') 
+    Fij = f['Fij'].value
+
+    Finv = np.linalg.inv(Fij) # invert fisher matrix 
+
+    thetas = ['Mnu', 'Ob', 'Om', 'h', 'ns', 's8']
+    ntheta = len(thetas)
+    theta_labels = [r'$M_\nu$', r'$\Omega_b$', r'$\Omega_m$',r'$h$',r'$n_s$',r'$\sigma_8$']
+    theta_lim = [(-0.01, 0.01), (0.0485, 0.0495), (0.3165, 0.3185), (0.67, 0.673), (0.9615, 0.9635), (0.833, 0.835)]
+
+    theta_fid = {'Mnu': 0., 'Ob': 0.049, 'Om': 0.3175, 'h': 0.6711,  'ns': 0.9624,  's8': 0.834}
+    
+    fig = plt.figure(figsize=(17, 15))
+    for i in xrange(ntheta-1): 
+        for j in xrange(i+1, ntheta): 
+            # sub inverse fisher matrix 
+            Finv_sub = np.array([[Finv[i,i], Finv[i,j]], [Finv[j,i], Finv[j,j]]]) 
+
+            theta_fid_i = theta_fid[thetas[i]]
+            theta_fid_j = theta_fid[thetas[j]]
+            
+            # get ellipse parameters 
+            a = np.sqrt(0.5*(Finv_sub[0,0] + Finv_sub[1,1]) + np.sqrt(0.25*(Finv_sub[0,0]-Finv_sub[1,1])**2 + Finv_sub[0,1]**2))
+            b = np.sqrt(0.5*(Finv_sub[0,0] + Finv_sub[1,1]) - np.sqrt(0.25*(Finv_sub[0,0]-Finv_sub[1,1])**2 + Finv_sub[0,1]**2))
+            theta = 0.5 * np.arctan2(2.0 * Finv_sub[0,1], (Finv_sub[0,0] - Finv_sub[1,1]))
+    
+            # plot the ellipse
+            sub = fig.add_subplot(ntheta-1, ntheta-1, (ntheta-1) * (j-1) + i + 1) 
+            for ii, alpha in enumerate([2.48, 1.52]):
+                e = Ellipse(xy=(theta_fid_i, theta_fid_j), 
+                        width=alpha * a, height=alpha * b, angle=theta * 360./(2.*np.pi))
+                sub.add_artist(e)
+                if ii == 0: alpha = 0.5
+                if ii == 1: alpha = 1.
+                e.set_alpha(alpha)
+                e.set_facecolor('C0')
+
+            x_range = np.sqrt(Finv[i,i]) * 1.5
+            y_range = np.sqrt(Finv[j,j]) * 1.5
+            
+            sub.set_xlim(theta_lim[i])
+            sub.set_ylim(theta_lim[j])
+            #sub.set_xlim([theta_fid_i - x_range, theta_fid_i + x_range])
+            #sub.set_ylim([theta_fid_j - y_range, theta_fid_j + y_range])
+            if i == 0:   
+                sub.set_ylabel(theta_labels[j], fontsize=30) 
+            else: 
+                sub.set_yticks([])
+                sub.set_yticklabels([])
+            
+            if j == ntheta-1: 
+                sub.set_xlabel(theta_labels[i], labelpad=10, fontsize=30) 
+            else: 
+                sub.set_xticks([])
+                sub.set_xticklabels([]) 
+    
+    fig.subplots_adjust(wspace=0.05, hspace=0.05) 
+    fig.savefig(os.path.join(UT.doc_dir(), 'figs', 'quijote_Fisher_%s.png' % mpc), bbox_inches='tight') 
+    return None
+
+
 if __name__=="__main__": 
     #compare_Plk(nreals=range(1,101), krange=[0.01, 0.5])
     #ratio_Plk(nreals=range(1,101), krange=[0.01, 0.5])
@@ -1041,8 +1116,11 @@ if __name__=="__main__":
             #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
             #compare_B123('b_amp_squeezed', 
             #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
-            compare_B123('relative', 
-                    nreals=nreals, krange=[0.01, kmax], zspace=rsd)
-            compare_B123_triangle([[30, 18], [18, 18], [12,9]], 
-                    nreals=nreals, krange=[0.01, kmax], zspace=rsd)
-    quijote_covariance(krange=[0.01, 0.5]) 
+            #compare_B123('relative', 
+            #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
+            #compare_B123_triangle([[30, 18], [18, 18], [12,9]], 
+            #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
+    #quijote_covariance(krange=[0.01, 0.5]) 
+    quijote_forecast(mpc='c', krange=[0.01, 0.5])
+    quijote_forecast(mpc='p', krange=[0.01, 0.5])
+    quijote_forecast(mpc='m', krange=[0.01, 0.5])
