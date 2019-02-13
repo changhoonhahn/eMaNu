@@ -36,35 +36,122 @@ def quijote_covariance(krange=[0.01, 0.5]):
     ''' calculate the covariance matrix using the 15,000 fiducial 
     bispetra.
     '''
-    # read in fiducial bispectra
-    dir_bk = os.path.join(UT.dat_dir(), 'bispectrum') 
-    bks = h5py.File(os.path.join(dir_bk, 'quijote_fiducial.hdf5'), 'r') 
-    i_k, j_k, l_k = bks['k1'].value, bks['k2'].value, bks['k3'].value 
-    pk1, pk2, pk3 = bks['p0k1'].value, bks['p0k2'].value, bks['p0k3'].value
-    bk = bks['b123'].value 
-    
-    # k range limit of the bispectrum
     kmin, kmax = krange  
-    kf = 2.*np.pi/1000. # fundmaentla mode
-    klim = ((i_k*kf <= kmax) & (i_k*kf >= kmin) &
-            (j_k*kf <= kmax) & (j_k*kf >= kmin) & 
-            (l_k*kf <= kmax) & (l_k*kf >= kmin)) 
+    fcov = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_Cov_bk.%.2f_%.2f.gmorder.hdf5' % (kmin, kmax))
+
+    if os.path.isfile(fcov): 
+        f = h5py.File(fcov, 'r') 
+        C_bk = f['C_bk'].value # fiducial covariance matrix 
+    else: 
+        # read in fiducial bispectra
+        dir_bk = os.path.join(UT.dat_dir(), 'bispectrum') 
+        bks = h5py.File(os.path.join(dir_bk, 'quijote_fiducial.hdf5'), 'r') 
+        i_k, j_k, l_k = bks['k1'].value, bks['k2'].value, bks['k3'].value 
+        pk1, pk2, pk3 = bks['p0k1'].value, bks['p0k2'].value, bks['p0k3'].value
+        bk = bks['b123'].value 
+        
+        # k range limit of the bispectrum
+        kf = 2.*np.pi/1000. # fundmaentla mode
+        klim = ((i_k*kf <= kmax) & (i_k*kf >= kmin) &
+                (j_k*kf <= kmax) & (j_k*kf >= kmin) & 
+                (l_k*kf <= kmax) & (l_k*kf >= kmin)) 
+        
+        i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim] 
+        ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order of triangles 
+
+        # evaluate covariance matrix
+        _bk = bk[:,klim]
+        C_bk = np.cov(_bk[:,ijl.flatten()].T) 
+        assert np.sum(klim) == C_bk.shape[0]
+
+        # write C_bk to hdf5 file 
+        f = h5py.File(fcov, 'w') 
+        f.create_dataset('k1', data=i_k[ijl])
+        f.create_dataset('k2', data=j_k[ijl])
+        f.create_dataset('k3', data=l_k[ijl])
+        f.create_dataset('C_bk', data=C_bk) 
+        f.close()
+    return C_bk  
+
+
+def quijote_cov_perturb(theta, krange=[0.01, 0.5]):
+    ''' covariance matrix at some perturbed theta
+
+    :param theta: 
+        string that specifies which parameter
+    '''
+    kmin, kmax = krange  
+    fcov = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_Cov_bk.%s.%.2f_%.2f.gmorder.hdf5' % (theta, kmin, kmax))
     
-    i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim] 
-    ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order of triangles 
+    if os.path.isfile(fcov): 
+        f = h5py.File(fcov, 'r') 
+        C_bk = f['C_bk'].value 
+    else:
+        # read in fiducial bispectra
+        dir_bk = os.path.join(UT.dat_dir(), 'bispectrum') 
+        bks = h5py.File(os.path.join(dir_bk, 'quijote_%s.hdf5' % theta), 'r') 
+        i_k, j_k, l_k = bks['k1'].value, bks['k2'].value, bks['k3'].value 
+        pk1, pk2, pk3 = bks['p0k1'].value, bks['p0k2'].value, bks['p0k3'].value
+        bk = bks['b123'].value 
+        
+        # k range limit of the bispectrum
+        kf = 2.*np.pi/1000. # fundmaentla mode
+        klim = ((i_k*kf <= kmax) & (i_k*kf >= kmin) &
+                (j_k*kf <= kmax) & (j_k*kf >= kmin) & 
+                (l_k*kf <= kmax) & (l_k*kf >= kmin)) 
+        
+        i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim] 
+        ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order of triangles 
 
-    # evaluate covariance matrix
-    _bk = bk[:,klim]
-    C_bk = np.cov(_bk[:,ijl.flatten()].T) 
-    assert np.sum(klim) == C_bk.shape[0]
+        # evaluate covariance matrix
+        _bk = bk[:,klim]
+        C_bk = np.cov(_bk[:,ijl.flatten()].T) 
+        assert np.sum(klim) == C_bk.shape[0]
+        
+        # write C_bk to hdf5 file 
+        f = h5py.File(fcov, 'w') 
+        f.create_dataset('k1', data=i_k[ijl])
+        f.create_dataset('k2', data=j_k[ijl])
+        f.create_dataset('k3', data=l_k[ijl])
+        f.create_dataset('C_bk', data=C_bk) 
+        f.close()
+    return C_bk 
 
-    # write C_bk to hdf5 file 
-    f = h5py.File(os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_Cov_bk.%.2f_%.2f.gmorder.hdf5' % (kmin, kmax)), 'w') 
-    f.create_dataset('k1', data=i_k[ijl])
-    f.create_dataset('k2', data=j_k[ijl])
-    f.create_dataset('k3', data=l_k[ijl])
-    f.create_dataset('C_bk', data=C_bk) 
-    f.close()
+
+##################################################################
+# qujiote fisher stuff
+##################################################################
+def quijote_dcov_dtheta(theta, krange=[0.01, 0.5]): 
+    ''' return derivative of the covariance matrix along theta 
+
+    :param theta: 
+        string that specifies which parameter 
+    ''' 
+    # get all bispectrum covariances along theta  
+    theta_dict = {
+            'Mnu': (['Mnu_p', 'Mnu_pp', 'Mnu_ppp'], [0.1, 0.2, 0.4]),  
+            'Ob': (['Ob_m', 'Ob_p'], [0.048, 0.050]),
+            'Om': (['Om_m', 'Om_p'], [0.3075, 0.3275]),
+            'h':  (['h_m', 'h_p'], [0.6511, 0.6911]),
+            'ns': (['ns_m', 'ns_p'], [0.9424, 0.9824]),
+            's8': (['s8_m', 's8_p'], [0.819, 0.849])} 
+    thetas = theta_dict[theta][1]
+    #C_thetas = [] 
+    #for tt in theta_dict[theta][0]: 
+    #    C_thetas.append(quijote_cov_perturb(tt, krange=krange))
+    
+    theta_fid = {'Mnu': 0., 'Ob': 0.049, 'Om': 0.3175, 'h': 0.6711,  'ns': 0.9624,  's8': 0.834}
+    C_fid = quijote_covariance(krange=krange) 
+
+    thetas = np.array(thetas + [theta_fid[theta]])
+    #C_thetas = np.array(C_thetas + [C_fid])
+    
+    isort = np.argsort(thetas) 
+    thetas = thetas[isort]
+    print theta, thetas
+    #C_thetas = C_thetas[isort]
+
+    # now evaluate the derivative at theta_fid 
     return None 
 
 
@@ -231,4 +318,6 @@ if __name__=="__main__":
     #    quijote_comparison(par, krange=[0.01, 0.5])
     
     # covariance matrix 
-    quijote_covariance(krange=[0.01, 0.5])
+    #quijote_covariance(krange=[0.01, 0.5])
+    for par in ['Mnu', 'Ob', 'Om', 'h', 'ns', 's8']: 
+        quijote_dcov_dtheta(par, krange=[0.01, 0.5])
