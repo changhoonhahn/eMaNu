@@ -53,224 +53,53 @@ def quijote_covariance(krange=[0.01, 0.5]):
         f.close()
     return C_bk  
 
-
-def quijote_cov_perturb(theta, krange=[0.01, 0.5]):
-    ''' covariance matrix at some perturbed theta
-
-    :param theta: 
-        string that specifies which parameter
-    '''
-    kmin, kmax = krange  
-    fcov = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_Cov_bk.%s.%.2f_%.2f.gmorder.hdf5' % (theta, kmin, kmax))
-    
-    if os.path.isfile(fcov): 
-        f = h5py.File(fcov, 'r') 
-        C_bk = f['C_bk'].value 
-    else:
-        # read in fiducial bispectra
-        bk = quijote_bk(theta, krange=krange)
-        C_bk = np.cov(bk.T) 
-
-        # write C_bk to hdf5 file 
-        f = h5py.File(fcov, 'w') 
-        f.create_dataset('C_bk', data=C_bk) 
-        f.close()
-    return C_bk 
-
-
-def quijote_cov_perturb_comparison(theta, krange=[0.01, 0.5]): 
-    ''' Compare fiducial covariance matrix to perturbed theta
-    covariance matrices 
-    '''
-    # fiducial covariance matrix 
-    C_fid = quijote_covariance(krange=krange) 
-
-    if theta == 'Mnu':
-        perturbs = ['p', 'pp', 'ppp'] 
-        pert_lbls = ['+', '++', '+++'] 
-    else:
-        perturbs = ['m', 'p'] 
-        pert_lbls = ['-', '+'] 
-
-    Cs = [] 
-    for perturb in perturbs: # read in covariance matrices
-        Cs.append(quijote_cov_perturb(theta+'_'+perturb, krange=krange)) 
-
-    fig = plt.figure(figsize=(20,10))
-    gs = mpl.gridspec.GridSpec(2, 4, figure=fig) 
-    sub = plt.subplot(gs[0, 0]) 
-    cm = sub.pcolormesh(C_fid, norm=LogNorm(vmin=1e11, vmax=1e18))
-    sub.set_title(r'$C^{\rm (fid)}_{B(k_1, k_2, k_3)}$', fontsize=25)
-    for ii, pert, C in zip(range(len(perturbs)), pert_lbls, Cs): 
-        sub = plt.subplot(gs[0, ii+1]) 
-        cm = sub.pcolormesh(C, norm=LogNorm(vmin=1e11, vmax=1e18))
-        sub.set_title(r'$C^{(%s)}_{B(k_1, k_2, k_3)}$' % pert, fontsize=25)
-        sub.set_yticklabels([]) 
-    
-    sub = plt.subplot(gs[1,:]) 
-    for ii, pert, C in zip(range(len(perturbs)), pert_lbls, Cs): 
-        sub.plot(range(C.shape[0]), np.diag(C), lw=4-ii, label=r'$C^{(%s)}_{i,i}$' % pert)
-    sub.plot(range(C_fid.shape[0]), np.diag(C_fid), c='k', lw=1, ls='--', label=r'$C^{\rm (fid)}_{i,i}$')
-    sub.set_xlabel(r'$k_1 \le k_2 \le k_3$ triangle indices', fontsize=25) 
-    sub.set_xlim([0., 1000.]) 
-    sub.set_yscale('log') 
-    sub.set_ylim([1e13, 5e19]) 
-    sub.legend(loc='upper right', fontsize=20) 
-    fig.subplots_adjust(wspace=0.1, right=0.925)
-    cbar_ax = fig.add_axes([0.95, 0.15, 0.02, 0.7])
-    fig.colorbar(cm, cax=cbar_ax)
-    fig.savefig(os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_Cov_bk_d%s_comparison.png' % theta), 
-        bbox_inches='tight') 
-
 ##################################################################
 # qujiote fisher stuff
 ##################################################################
-def quijote_dCov_dtheta(theta, krange=[0.01, 0.5], validate=False): 
-    ''' return derivative of the covariance matrix along theta. 
-
-    :param theta: 
-        string that specifies which parameter 
-    ''' 
-    kmin, kmax = krange  
-    # fiducial theta and covariance matrix 
-    fid_dict = {'Mnu': 0., 'Ob': 0.049, 'Om': 0.3175, 'h': 0.6711,  'ns': 0.9624,  's8': 0.834}
-    tt_fid = fid_dict[theta] 
-    C_fid = quijote_covariance(krange=krange) 
-
-    # get all bispectrum covariances along theta  
-    theta_dict = {
-            'Mnu': [0.1, 0.2, 0.4], # +, ++, +++ 
-            'Ob': [0.048, 0.050], # others are - + 
-            'Om': [0.3075, 0.3275],
-            'h': [0.6511, 0.6911],
-            'ns': [0.9424, 0.9824],
-            's8': [0.819, 0.849]} 
-
-    if theta == 'Mnu': 
-        tt_p, tt_pp, tt_ppp = theta_dict['Mnu'] 
-        h_p = tt_p - tt_fid # step + 
-        h_pp = tt_pp - tt_fid # step ++ 
-        h_ppp = tt_ppp - tt_fid # step +++ 
-        
-        C_p = quijote_cov_perturb(theta+'_p', krange=krange) # Covariance matrix tt+ 
-        C_pp = quijote_cov_perturb(theta+'_pp', krange=krange) # Covariance matrix tt++
-        C_ppp = quijote_cov_perturb(theta+'_ppp', krange=krange) # Covariance matrix tt+++
-
-        # take the derivatives 
-        dC_p = (C_p - C_fid) / h_p 
-        dC_pp = (C_pp - C_fid) / h_pp
-        dC_ppp = (C_ppp - C_fid) / h_ppp
-
-        for mpc, dC in zip(['p', 'pp', 'ppp'], [dC_p, dC_pp, dC_ppp]): 
-            fdcov = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_dCov_bk_d%s.%s.%.2f_%.2f.gmorder.hdf5' % (theta, mpc, kmin, kmax))
-            f = h5py.File(fdcov, 'w') 
-            f.create_dataset('dC_bk_dtheta', data=dC) 
-            f.close() 
-
-        if validate: 
-            fig = plt.figure(figsize=(15,10))
-            gs = mpl.gridspec.GridSpec(2,3,figure=fig) 
-            for ii, mpc, dC, h in zip(range(3), ['+', '++', '+++'], [dC_p, dC_pp, dC_ppp], [h_p, h_pp, h_ppp]): 
-                sub = plt.subplot(gs[0, ii]) 
-                cm = sub.pcolormesh(dC * h, norm=LogNorm(vmin=1e11, vmax=1e18))
-                sub.set_title(r'$\Delta C^{(%s)}_{B(k_1, k_2, k_3)}$' % mpc, fontsize=25)
-                if ii != 0: sub.set_yticklabels([]) 
-            
-            sub = plt.subplot(gs[1,:]) 
-            for ii, mpc, dC, h in zip(range(3), ['+', '++', '+++'], [dC_p, dC_pp, dC_ppp], [h_p, h_pp, h_ppp]): 
-                #sub.plot(range(dC.shape[0]), np.diag(dC) * h, lw=4-ii, label=r'$\Delta C^{(%s)}_{i,i}$' % mpc)
-                sub.scatter(range(dC.shape[0]), np.diag(dC) * h, s=1, label=r'$\Delta C^{(%s)}_{i,i}$' % mpc)
-            sub.set_xlabel(r'$k_1 \le k_2 \le k_3$ triangle indices', fontsize=25) 
-            sub.set_xlim([0., 1000.]) 
-            sub.set_yscale('symlog') 
-            sub.set_ylim([-1e19, 1e19]) 
-            sub.legend(loc='upper right', markerscale=10, handletextpad=-0.1, fontsize=20) 
-            fig.subplots_adjust(wspace=0.1, right=0.925)
-            cbar_ax = fig.add_axes([0.95, 0.15, 0.02, 0.7])
-            fig.colorbar(cm, cax=cbar_ax)
-            fig.savefig(os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_dCov_bk_d%s.png' % theta), 
-                    bbox_inches='tight') 
-    else: 
-        tt_m, tt_p = theta_dict[theta]
-        h_m = tt_fid - tt_m # step - 
-        h_p = tt_p - tt_fid # step + 
-        
-        C_m = quijote_cov_perturb(theta+'_m', krange=krange) # Covariance matrix tt- 
-        C_p = quijote_cov_perturb(theta+'_p', krange=krange) # Covariance matrix tt+ 
-        
-        # take the derivatives 
-        dC_m = (C_fid - C_m) / h_m 
-        dC_p = (C_p - C_fid) / h_p 
-        dC_c = (C_p - C_m) / (h_m + h_p) 
-        
-        for mpc, dC in zip(['m', 'p', 'c'], [dC_m, dC_p, dC_c]): 
-            fdcov = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_dCov_bk_d%s.%s.%.2f_%.2f.gmorder.hdf5' % (theta, mpc, kmin, kmax))
-            f = h5py.File(fdcov, 'w') 
-            f.create_dataset('dC_bk_dtheta', data=dC) 
-            f.close() 
-
-        if validate: 
-            fig = plt.figure(figsize=(15,10))
-            gs = mpl.gridspec.GridSpec(2,3,figure=fig) 
-            for ii, mpc, dC, h in zip(range(3), ['-', '+', '-+'], [dC_m, dC_p, dC_c], [h_m, h_p, h_m+h_p]): 
-                sub = plt.subplot(gs[0, ii]) 
-                cm = sub.pcolormesh(dC * h, norm=LogNorm(vmin=1e11, vmax=1e18))
-                sub.set_title(r'$\Delta C^{(%s)}_{B(k_1, k_2, k_3)}$' % mpc, fontsize=25)
-                if ii != 0: sub.set_yticklabels([]) 
-            
-            sub = plt.subplot(gs[1,:]) 
-            for ii, mpc, dC, ls, h in zip(range(3), ['-', '+', '-+'], [dC_m, dC_p, dC_c], ['-', '--', ':'], [h_m, h_p, h_m+h_p]): 
-                #sub.plot(range(dC.shape[0]), np.diag(dC) * h, lw=4-ii, label=r'$\Delta C^{(%s)}_{i,i}$' % mpc)
-                sub.scatter(range(dC.shape[0]), np.diag(dC) * h, s=1, label=r'$\Delta C^{(%s)}_{i,i}$' % mpc)
-            sub.set_xlabel(r'$k_1 \le k_2 \le k_3$ triangle indices', fontsize=25) 
-            sub.set_xlim([0., 1000.]) 
-            sub.set_yscale('symlog') 
-            sub.set_ylim([-1e19, 1e19]) 
-            sub.legend(loc='upper right', markerscale=10, handletextpad=-0.1, fontsize=20) 
-            fig.subplots_adjust(wspace=0.1, right=0.925)
-            cbar_ax = fig.add_axes([0.95, 0.15, 0.02, 0.7])
-            fig.colorbar(cm, cax=cbar_ax)
-            fig.savefig(os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_dCov_bk_d%s.png' % theta), 
-                    bbox_inches='tight') 
-    return None 
-
-
-def quijote_Fisher(mpc='c', krange=[0.01, 0.5], validate=False): 
-    ''' calculate fisher matrix for thetas = ['Mnu', 'Ob', 'Om', 'h', 'ns', 's8']
+def quijote_Fisher(krange=[0.01, 0.5], deriv='p', validate=False): 
+    ''' calculate fisher matrix for parameters ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu']
     '''
     kmin, kmax = krange
-    thetas = ['Mnu', 'Ob', 'Om', 'h', 'ns', 's8']
+    thetas = ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu']
+    theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
     Fij = np.zeros((len(thetas), len(thetas)))
     for i, par_i in enumerate(thetas): 
         for j, par_j in enumerate(thetas): 
-            fij = quijote_Fij(par_i, par_j, mpc=mpc, krange=krange)
+            fij = quijote_Fij(par_i, par_j, deriv=deriv, krange=krange)
             Fij[i,j] = fij 
     
     bk_dir = os.path.join(UT.dat_dir(), 'bispectrum')
-    f_ij = os.path.join(bk_dir, 'quijote_Fisher.%s.%.2f_%.2f.gmorder.hdf5' % (mpc, kmin, kmax))
+    f_ij = os.path.join(bk_dir, 'quijote_Fisher.%s.%.2f_%.2f.gmorder.hdf5' % (deriv, kmin, kmax))
     f = h5py.File(f_ij, 'w') 
     f.create_dataset('Fij', data=Fij) 
     f.close() 
+
     if validate: 
         fig = plt.figure(figsize=(6,5))
         sub = fig.add_subplot(111)
-        print('%.2e, %.2e' % (Fij.min(), Fij.max()))
-        cm = sub.pcolormesh(Fij, norm=SymLogNorm(vmin=-5e6, vmax=5e8, linthresh=1e5, linscale=1.))
+
+        cm = sub.pcolormesh(Fij, norm=SymLogNorm(vmin=-2e5, vmax=5e5, linthresh=1e2, linscale=1.))
 
         sub.set_xticks(np.arange(Fij.shape[0]) + 0.5, minor=False)
-        sub.set_xticklabels([r'$M_\nu$', r'$\Omega_b$', r'$\Omega_m$',r'$h$',r'$n_s$',r'$\sigma_8$'], minor=False)
+        sub.set_xticklabels(theta_lbls, minor=False)
         sub.set_yticks(np.arange(Fij.shape[1]) + 0.5, minor=False)
-        sub.set_yticklabels([r'$M_\nu$', r'$\Omega_b$', r'$\Omega_m$',r'$h$',r'$n_s$',r'$\sigma_8$'], minor=False)
-        sub.set_title(r'Fisher Matrix $F_{i,j}^{(%s)}$' % mpc, fontsize=25)
+        sub.set_yticklabels(theta_lbls, minor=False)
+        sub.set_title(r'Fisher Matrix $F_{i,j}^{(%s)}$' % deriv, fontsize=25)
         fig.colorbar(cm)
         fig.savefig(f_ij.replace('.hdf5', '.png'), bbox_inches='tight') 
     return None
 
 
-def quijote_Fij(theta_i, theta_j, mpc='c', krange=[0.01, 0.5]): 
-    ''' calculate Fij = 1/2 * Tr[C^-1 C,i C^-1 C,j + C^-1 Mij]
-    where 
+def quijote_Fij(theta_i, theta_j, deriv='p', krange=[0.01, 0.5]): 
+    ''' calculate the i, j term of the fisher matrix. Fij is typically 
+    calculated as:  
+    
+    Fij = 1/2 * Tr[C^-1 C,i C^-1 C,j + C^-1 Mij]    where
     Mij = dBk/dtheta_i dBk/dtheta_j.T + dBk/dtheta_j dBk/dtheta_i.T
+
+    However, for our purposes we will ignore the first term and compute
+
+    Fij = 1/2 * Tr[C^{-1} Mij] 
 
     :param theta_i: 
         string specificying theta_i 
@@ -278,45 +107,36 @@ def quijote_Fij(theta_i, theta_j, mpc='c', krange=[0.01, 0.5]):
     :param theta_j: 
         string specificying theta_j 
 
-    :param mpc: (default: 'c') 
-        string specifying the derivative. The options are 'm', 'c', 'p'. 
-        For theta == 'Mnu', this corresponds to 'p', 'pp', 'ppp'. 
+    :param deriv: (default: 'p') 
+        string specifying how to compute the Mnu derivative. The options are 
+        'p', 'pp', 'ppp', and 'fd'
     
     :param krange: (default: [0.01, 0.5]) 
         k-range of the bispectrum measurements. Note that the
         Gil-Marin triangle order will also be implemented. 
-
-    :param validate: (default: False) 
-        If True, the code will generate a plot to validate the 
-        derivatives
     '''
     kmin, kmax = krange
     bk_dir = os.path.join(UT.dat_dir(), 'bispectrum')
-    fij = os.path.join(bk_dir, 'Fij', 'quijote_Fij.%s.%s.%s.%.2f_%.2f.gmorder.hdf5' % 
-            (theta_i, theta_j, mpc, kmin, kmax))
+    if 'Mnu' in [theta_i, theta_j]: 
+        fij = os.path.join(bk_dir, 'Fij', 'quijote_Fij.%s.%s.%s.%.2f_%.2f.gmorder.hdf5' % 
+                (theta_i, theta_j, deriv, kmin, kmax))
+    else: 
+        fij = os.path.join(bk_dir, 'Fij', 'quijote_Fij.%s.%s.%.2f_%.2f.gmorder.hdf5' % 
+                (theta_i, theta_j, kmin, kmax))
+
     if os.path.isfile(fij): 
         f = h5py.File(fij, 'r') 
         Fij = f['Fij'].value 
     else: 
-        mpc_i = mpc 
-        mpc_j = mpc 
-        if theta_i == 'Mnu': mpc_i = {'m': 'p', 'c': 'pp', 'p': 'ppp'}[mpc]
-        if theta_j == 'Mnu': mpc_j = {'m': 'p', 'c': 'pp', 'p': 'ppp'}[mpc]
+        str_di, str_dj = '', ''
+        if theta_i == 'Mnu': str_di = '.'+deriv
+        if theta_j == 'Mnu': str_dj = '.'+deriv
 
         C_fid = quijote_covariance(krange=krange) # fiducial covariance
         Cinv = np.linalg.inv(C_fid) # invert the covariance 
         
-        fdCdi = os.path.join(bk_dir, 'quijote_dCov_bk_d%s.%s.%.2f_%.2f.gmorder.hdf5' % (theta_i, mpc_i, kmin, kmax))
-        fdCdj = os.path.join(bk_dir, 'quijote_dCov_bk_d%s.%s.%.2f_%.2f.gmorder.hdf5' % (theta_j, mpc_j, kmin, kmax))
-
-        fi = h5py.File(fdCdi, 'r') 
-        fj = h5py.File(fdCdj, 'r') 
-
-        dCdi = fi['dC_bk_dtheta'].value 
-        dCdj = fj['dC_bk_dtheta'].value 
-
-        fdbk_i = os.path.join(bk_dir, 'quijote_dbk_d%s.%s.%.2f_%.2f.gmorder.hdf5' % (theta_i, mpc_i, kmin, kmax))
-        fdbk_j = os.path.join(bk_dir, 'quijote_dbk_d%s.%s.%.2f_%.2f.gmorder.hdf5' % (theta_j, mpc_j, kmin, kmax))
+        fdbk_i = os.path.join(bk_dir, 'quijote_dbk_d%s%s.%.2f_%.2f.gmorder.hdf5' % (theta_i, str_di, kmin, kmax))
+        fdbk_j = os.path.join(bk_dir, 'quijote_dbk_d%s%s.%.2f_%.2f.gmorder.hdf5' % (theta_j, str_dj, kmin, kmax))
 
         # read in dBk/dtheta_i and dBk/dtheta_j 
         f_i = h5py.File(fdbk_i, 'r') 
@@ -327,20 +147,19 @@ def quijote_Fij(theta_i, theta_j, mpc='c', krange=[0.01, 0.5]):
         # calculate Mij 
         Mij = np.dot(dbk_dtt_i[:,None], dbk_dtt_j[None,:]) + np.dot(dbk_dtt_j[:,None], dbk_dtt_i[None,:])
 
-        Fij = 0.5 * np.trace(np.dot(np.dot(Cinv, dCdi), np.dot(Cinv, dCdj)) + np.dot(Cinv, Mij))
+        Fij = 0.5 * np.trace(np.dot(Cinv, Mij))
 
         f = h5py.File(fij, 'w') 
         f.create_dataset('Fij', data=Fij) 
         f.create_dataset('Cinv', data=Cinv) 
-        f.create_dataset('dCdi', data=dCdi) 
-        f.create_dataset('dCdj', data=dCdj) 
         f.create_dataset('Mij', data=Mij) 
         f.close() 
     return Fij 
 
 
 def quijote_dBk(theta, krange=[0.01, 0.5], validate=False):
-    ''' calculate d B(k)/d theta. 
+    ''' calculate d B(k)/d theta using the paired and fixed quijote simulations
+    run on perturbed theta 
 
     :param theta: 
         string that specifies the parameter to take the 
@@ -383,8 +202,9 @@ def quijote_dBk(theta, krange=[0.01, 0.5], validate=False):
         dBk_p = (Bk_p - Bk_fid) / h_p 
         dBk_pp = (Bk_pp - Bk_fid) / h_pp
         dBk_ppp = (Bk_ppp - Bk_fid) / h_ppp
+        dBk_diff = (-21 * Bk_fid + 32 * Bk_p - 12 * Bk_pp + Bk_ppp)/(12*0.1) # finite difference coefficient
 
-        for mpc, dBk in zip(['p', 'pp', 'ppp'], [dBk_p, dBk_pp, dBk_ppp]): 
+        for mpc, dBk in zip(['p', 'pp', 'ppp', 'fd'], [dBk_p, dBk_pp, dBk_ppp, dBk_diff]): 
             fdbk = os.path.join(UT.dat_dir(), 'bispectrum', 
                     'quijote_dbk_d%s.%s.%.2f_%.2f.gmorder.hdf5' % (theta, mpc, kmin, kmax))
             f = h5py.File(fdbk, 'w') 
@@ -397,6 +217,7 @@ def quijote_dBk(theta, krange=[0.01, 0.5], validate=False):
             for mpc, dBk in zip(['+', '++', '+++'], [dBk_p, dBk_pp, dBk_ppp]): 
                 sub.plot(range(len(Bk_p)), dBk, 
                         label=r'$(B^{(%s)} - B^{\rm fid})/(M_\nu^{(%s)} - M_\nu^{\rm fid})$' % (mpc, mpc))
+            sub.plot(range(len(Bk_p)), dBk_diff, label=r'${\rm d}B/{\rm d} M_\nu$ (finite diff.)')
             sub.legend(loc='upper right', fontsize=20 ) 
             sub.set_xlabel(r'$k_1 \le k_2 \le k_3$ triangle indices', fontsize=25) 
             sub.set_xlim([0., 500.])#len(Bk_p)])  
@@ -417,9 +238,9 @@ def quijote_dBk(theta, krange=[0.01, 0.5], validate=False):
         dBk_p = (Bk_p - Bk_fid) / h_p 
         dBk_c = (Bk_p - Bk_m) / (h_m + h_p) 
         
-        for mpc, dBk in zip(['m', 'p', 'c'], [dBk_m, dBk_p, dBk_c]): 
+        for mpc, dBk in zip(['.m', '.p', ''], [dBk_m, dBk_p, dBk_c]): 
             fdbk = os.path.join(UT.dat_dir(), 'bispectrum', 
-                    'quijote_dbk_d%s.%s.%.2f_%.2f.gmorder.hdf5' % (theta, mpc, kmin, kmax))
+                    'quijote_dbk_d%s%s.%.2f_%.2f.gmorder.hdf5' % (theta, mpc, kmin, kmax))
             f = h5py.File(fdbk, 'w') 
             f.create_dataset('dbk_dtheta', data=dBk) 
             f.close() 
@@ -427,9 +248,9 @@ def quijote_dBk(theta, krange=[0.01, 0.5], validate=False):
         if validate: 
             fig = plt.figure(figsize=(15,5))
             sub = fig.add_subplot(111)
-            for ii, mpc, dBk in zip(range(3), ['-', '+', '-+'], [dBk_m, dBk_p, dBk_c]): 
-                sub.plot(range(len(Bk_p)), dBk, 
-                        label=r'${\rm d}B(k_1, k_2, k_3)^{(%s)}/{\rm d}\theta$' % mpc)
+            for ii, mpc, dBk in zip(range(3), ['-', '+'], [dBk_m, dBk_p]): 
+                sub.plot(range(len(Bk_p)), dBk, label=r'${\rm d}B^{(%s)}/{\rm d}\theta$' % mpc)
+            sub.plot(range(len(Bk_p)), dBk_c, c='k', ls='--', label=r'${\rm d}B/{\rm d}\theta$')
             sub.set_xlabel(r'$k_1 \le k_2 \le k_3$ triangle indices', fontsize=25) 
             sub.set_xlim([0., 500.]) #len(Bk_p)])  
             if theta in ['Ob']: 
@@ -633,10 +454,8 @@ if __name__=="__main__":
     
     # covariance matrix 
     #quijote_covariance(krange=[0.01, 0.5])
-    for par in ['Mnu', 'Ob', 'Om', 'h', 'ns', 's8']: 
-        #quijote_cov_perturb_comparison(par, krange=[0.01, 0.5])
-        quijote_dCov_dtheta(par, krange=[0.01, 0.5], validate=True)
-        #quijote_dBk(par, krange=[0.01, 0.5], validate=True)
-    #quijote_Fisher(mpc='m', krange=[0.01, 0.5], validate=True)   
-    #quijote_Fisher(mpc='c', krange=[0.01, 0.5], validate=True)   
-    #quijote_Fisher(mpc='p', krange=[0.01, 0.5], validate=True)   
+    for kmax in [0.2, 0.3, 0.4, 0.5]: 
+        for par in ['Mnu', 'Ob', 'Om', 'h', 'ns', 's8']: 
+            quijote_dBk(par, krange=[0.01, kmax], validate=True)
+        for deriv in ['p', 'pp', 'ppp', 'fd']: 
+            quijote_Fisher(krange=[0.01, kmax], deriv=deriv, validate=True)   

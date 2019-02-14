@@ -1024,31 +1024,32 @@ def quijote_covariance(krange=[0.01, 0.5]):
     return None 
 
 
-def quijote_forecast(mpc='c', krange=[0.01, 0.5]):
+def quijote_forecast(krange=[0.01, 0.5], deriv='p'):
     ''' fisher forecast for qujote 
     
-    :param mpc: (default: 'c') 
-        how the derivatives are calculated 
-
     :param krange: (default: [0.01, 0.5]) 
         tuple specifying the kranges of k1, k2, k3 in the bispectrum
+    
+    :param mpc: (default: 'p') 
+        how the derivatives along Mnu are calculated. The options are 
+        ['p', 'pp', 'ppp', 'fd'] 
     '''
-    kmin, kmax = krange 
-    # read in  fisher matrix  (Fij)
+    # read in  fisher matrix (Fij)
     bk_dir = os.path.join(UT.dat_dir(), 'bispectrum')
-    f_ij = os.path.join(bk_dir, 'quijote_Fisher.%s.%.2f_%.2f.gmorder.hdf5' % (mpc, kmin, kmax))
+    f_ij = os.path.join(bk_dir, 'quijote_Fisher.%s.%.2f_%.2f.gmorder.hdf5' % (deriv, krange[0], krange[1]))
     f = h5py.File(f_ij, 'r') 
     Fij = f['Fij'].value
 
     Finv = np.linalg.inv(Fij) # invert fisher matrix 
 
-    thetas = ['Mnu', 'Ob', 'Om', 'h', 'ns', 's8']
+    thetas = ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu']
+    theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
+    theta_lims = [(0.15, 0.5), (0., 0.1), (0., 1.5), (0.4, 1.5), (0.67, 1.), (-3, 3)]
     ntheta = len(thetas)
-    theta_labels = [r'$M_\nu$', r'$\Omega_b$', r'$\Omega_m$',r'$h$',r'$n_s$',r'$\sigma_8$']
-    theta_lim = [(-0.01, 0.01), (0.0485, 0.0495), (0.3165, 0.3185), (0.67, 0.673), (0.9615, 0.9635), (0.833, 0.835)]
-
-    theta_fid = {'Mnu': 0., 'Ob': 0.049, 'Om': 0.3175, 'h': 0.6711,  'ns': 0.9624,  's8': 0.834}
     
+    theta_fid = {'Mnu': 0., 'Ob': 0.049, 'Om': 0.3175, 'h': 0.6711,  'ns': 0.9624,  's8': 0.834} # fiducial theta 
+    for i in xrange(ntheta): 
+        if thetas[i] == 'Mnu': print deriv, thetas[i], np.sqrt(Finv[i,i])
     fig = plt.figure(figsize=(17, 15))
     for i in xrange(ntheta-1): 
         for j in xrange(i+1, ntheta): 
@@ -1077,24 +1078,23 @@ def quijote_forecast(mpc='c', krange=[0.01, 0.5]):
             x_range = np.sqrt(Finv[i,i]) * 1.5
             y_range = np.sqrt(Finv[j,j]) * 1.5
             
-            sub.set_xlim(theta_lim[i])
-            sub.set_ylim(theta_lim[j])
-            #sub.set_xlim([theta_fid_i - x_range, theta_fid_i + x_range])
-            #sub.set_ylim([theta_fid_j - y_range, theta_fid_j + y_range])
+            #sub.set_xlim(theta_lims[i])
+            #sub.set_ylim(theta_lims[j])
+            sub.set_xlim([theta_fid_i - x_range, theta_fid_i + x_range])
+            sub.set_ylim([theta_fid_j - y_range, theta_fid_j + y_range])
             if i == 0:   
-                sub.set_ylabel(theta_labels[j], fontsize=30) 
+                sub.set_ylabel(theta_lbls[j], fontsize=30) 
             else: 
                 sub.set_yticks([])
                 sub.set_yticklabels([])
             
             if j == ntheta-1: 
-                sub.set_xlabel(theta_labels[i], labelpad=10, fontsize=30) 
+                sub.set_xlabel(theta_lbls[i], labelpad=10, fontsize=30) 
             else: 
                 sub.set_xticks([])
                 sub.set_xticklabels([]) 
-    
     fig.subplots_adjust(wspace=0.05, hspace=0.05) 
-    fig.savefig(os.path.join(UT.doc_dir(), 'figs', 'quijote_Fisher_%s.png' % mpc), bbox_inches='tight') 
+    fig.savefig(os.path.join(UT.doc_dir(), 'figs', 'quijote_Fisher_%s_%.2f_%.2f.png' % (deriv, krange[0], krange[1])), bbox_inches='tight') 
     return None
 
 
@@ -1121,6 +1121,6 @@ if __name__=="__main__":
             #compare_B123_triangle([[30, 18], [18, 18], [12,9]], 
             #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
     #quijote_covariance(krange=[0.01, 0.5]) 
-    quijote_forecast(mpc='c', krange=[0.01, 0.5])
-    quijote_forecast(mpc='p', krange=[0.01, 0.5])
-    quijote_forecast(mpc='m', krange=[0.01, 0.5])
+    for kmax in [0.5]: #[0.2, 0.3, 0.4, 0.5]: 
+        for deriv in ['p', 'fd']: 
+            quijote_forecast(krange=[0.01, kmax], deriv=deriv)
