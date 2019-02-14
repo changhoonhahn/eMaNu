@@ -1044,7 +1044,7 @@ def quijote_forecast(krange=[0.01, 0.5], deriv='p'):
 
     thetas = ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu']
     theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
-    theta_lims = [(0.15, 0.5), (0., 0.1), (0., 1.5), (0.4, 1.5), (0.67, 1.), (-3, 3)]
+    theta_lims = [(0.275, 0.375), (0.03, 0.07), (0.5, 0.9), (0.75, 1.2), (0.8, 0.87), (-0.25, 0.25)]
     ntheta = len(thetas)
     
     theta_fid = {'Mnu': 0., 'Ob': 0.049, 'Om': 0.3175, 'h': 0.6711,  'ns': 0.9624,  's8': 0.834} # fiducial theta 
@@ -1078,10 +1078,10 @@ def quijote_forecast(krange=[0.01, 0.5], deriv='p'):
             x_range = np.sqrt(Finv[i,i]) * 1.5
             y_range = np.sqrt(Finv[j,j]) * 1.5
             
-            #sub.set_xlim(theta_lims[i])
-            #sub.set_ylim(theta_lims[j])
-            sub.set_xlim([theta_fid_i - x_range, theta_fid_i + x_range])
-            sub.set_ylim([theta_fid_j - y_range, theta_fid_j + y_range])
+            sub.set_xlim(theta_lims[i])
+            sub.set_ylim(theta_lims[j])
+            #sub.set_xlim([theta_fid_i - x_range, theta_fid_i + x_range])
+            #sub.set_ylim([theta_fid_j - y_range, theta_fid_j + y_range])
             if i == 0:   
                 sub.set_ylabel(theta_lbls[j], fontsize=30) 
             else: 

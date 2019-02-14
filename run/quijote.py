@@ -53,6 +53,65 @@ def quijote_covariance(krange=[0.01, 0.5]):
         f.close()
     return C_bk  
 
+
+def qujjote_covariance_convergence(krange=[0.01, 0.5]): 
+    ''' test the convergence of covariance matrix 
+    '''
+    kmin, kmax = krange  
+    bk = quijote_bk('fiducial', krange=krange) # fiducial bispectra
+    ijs = [] 
+    for i in range(bk.shape[1])[::50]: 
+        for j in range(i, bk.shape[1])[::50]: 
+            ijs.append((i, j))
+    print len(ijs)
+
+    nmocks = np.linspace(1000, bk.shape[0], 15).astype(int)
+    Ciis, Cijs = [], [] 
+    for n_bk in nmocks: 
+        C_bk = np.cov(bk[:n_bk,:].T) 
+        Ciis.append(np.diag(C_bk)) 
+        print C_bk[np.array(ijs)].shape
+        Cijs.append(C_bk[np.array(ijs)])
+    Ciis = np.array(Ciis)  
+    Cijs = np.array(Cijs)
+    print Cijs.shape
+
+    fig = plt.figure(figsize=(10,5))
+    sub = fig.add_subplot(121)
+    for i in range(Ciis.shape[1])[10::100]: 
+        sub.plot(nmocks, Ciis[:,i])
+    for j in range(Cijs.shape[1]): 
+        sub.plot(nmocks, Cijs[:,i]) 
+
+    sub.set_xlabel(r"$N_{\rm mocks}$", fontsize=25) 
+    sub.set_xlim([0, bk.shape[0]]) 
+    sub.set_ylabel(r"$C_{i,i}$", fontsize=25) 
+    sub.set_yscale('log') 
+    fig.savefig(os.path.join(UT.fig_dir(), 'quijote_Covii_converge.png'), bbox_inches='tight') 
+    return None
+
+
+def quijote_bk(theta, krange=[0.01, 0.5]): 
+    ''' read in bispectra for specified theta 
+    '''
+    kmin, kmax = krange 
+    # read in fiducial biectra
+    dir_bk = os.path.join(UT.dat_dir(), 'bispectrum') 
+    bks = h5py.File(os.path.join(dir_bk, 'quijote_%s.hdf5' % theta), 'r') 
+    i_k, j_k, l_k = bks['k1'].value, bks['k2'].value, bks['k3'].value 
+    bk = bks['b123'].value 
+
+    # k range limit of the bispectrum
+    kf = 2.*np.pi/1000. # fundmaentla mode
+    klim = ((i_k*kf <= kmax) & (i_k*kf >= kmin) &
+            (j_k*kf <= kmax) & (j_k*kf >= kmin) & 
+            (l_k*kf <= kmax) & (l_k*kf >= kmin)) 
+    
+    i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim] 
+    ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order of triangles 
+    _bk = bk[:,klim]
+    return _bk[:,ijl.flatten()]
+
 ##################################################################
 # qujiote fisher stuff
 ##################################################################
@@ -268,28 +327,6 @@ def quijote_dBk(theta, krange=[0.01, 0.5], validate=False):
     return None 
 
 
-def quijote_bk(theta, krange=[0.01, 0.5]): 
-    ''' read in bispectra for specified theta 
-    '''
-    kmin, kmax = krange 
-    # read in fiducial biectra
-    dir_bk = os.path.join(UT.dat_dir(), 'bispectrum') 
-    bks = h5py.File(os.path.join(dir_bk, 'quijote_%s.hdf5' % theta), 'r') 
-    i_k, j_k, l_k = bks['k1'].value, bks['k2'].value, bks['k3'].value 
-    bk = bks['b123'].value 
-
-    # k range limit of the bispectrum
-    kf = 2.*np.pi/1000. # fundmaentla mode
-    klim = ((i_k*kf <= kmax) & (i_k*kf >= kmin) &
-            (j_k*kf <= kmax) & (j_k*kf >= kmin) & 
-            (l_k*kf <= kmax) & (l_k*kf >= kmin)) 
-    
-    i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim] 
-    ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order of triangles 
-    _bk = bk[:,klim]
-    return _bk[:,ijl.flatten()]
-
-
 def quijote_comparison(par, krange=[0.01, 0.5]): 
     ''' Compare quijote simulations across a specified parameter `par`
     
@@ -454,8 +491,9 @@ if __name__=="__main__":
     
     # covariance matrix 
     #quijote_covariance(krange=[0.01, 0.5])
-    for kmax in [0.2, 0.3, 0.4, 0.5]: 
-        for par in ['Mnu', 'Ob', 'Om', 'h', 'ns', 's8']: 
-            quijote_dBk(par, krange=[0.01, kmax], validate=True)
-        for deriv in ['p', 'pp', 'ppp', 'fd']: 
-            quijote_Fisher(krange=[0.01, kmax], deriv=deriv, validate=True)   
+    qujjote_covariance_convergence(krange=[0.01, 0.5])
+    #for kmax in [0.2, 0.3, 0.4, 0.5]: 
+    #    for par in ['Mnu', 'Ob', 'Om', 'h', 'ns', 's8']: 
+    #        quijote_dBk(par, krange=[0.01, kmax], validate=True)
+    #    for deriv in ['p', 'pp', 'ppp', 'fd']: 
+    #        quijote_Fisher(krange=[0.01, kmax], deriv=deriv, validate=True)   
