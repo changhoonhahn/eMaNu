@@ -1,9 +1,7 @@
 '''
 
-Scripts for dealing with the hades simulation bispectrum
-measurements. THis includes measuring the covariance matrix
-and fisher matrix. 
-
+Scripts for creating data products of hades simulation bispectrum
+measurements that's easy to deal with in the analysis. 
 
 '''
 import os 

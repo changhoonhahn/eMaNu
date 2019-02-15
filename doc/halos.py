@@ -341,6 +341,222 @@ def readPlk_sigma8(sig8, i, nzbin, zspace=False):
 ##################################################################
 # bispectrum comparison 
 ##################################################################
+def hadesBk(mneut, nzbin=4, rsd=True):
+    ''' read in bispectrum of hades massive neutrino halo catalogs 
+    with Mnu = mneut eV and at nzbin redshift bin 
+
+    :param mneut: 
+        neutrino mass [0.0, 0.06, 0.1, 0.15]
+
+    :param nzbin: (default: 4) 
+        redshift bin number 
+    '''
+    dir_bk = os.path.join(UT.dat_dir(), 'bispectrum') 
+    fbks = os.path.join(dir_bk, 
+            'hades.%seV.nzbin%i.mhmin3200.0.%sspace.hdf5' % (str(mneut), nzbin, ['r', 'z'][rsd]))
+    bks = h5py.File(fbks, 'r') 
+    
+    _bks = {}
+    for k in bks.keys(): 
+        _bks[k] = bks[k].value 
+    return _bks
+
+
+def hadesBk_s8(sig8, nzbin=4, rsd=True):
+    ''' read in bispectrum of sigma8 matched Mnu = 0.0 eV halo catalogs
+    
+    :param sig8: 
+        sigma_8 values [0.822, 0.818, 0.807, 0.798]
+
+    :param nzbin: (default: 4) 
+        redshift bin number 
+    '''
+    dir_bk = os.path.join(UT.dat_dir(), 'bispectrum') 
+    fbks = os.path.join(dir_bk, 
+            'hades.0.0eV.sig8_%s.nzbin%i.mhmin3200.0.%sspace.hdf5' % (str(sig8), nzbin, ['r', 'z'][rsd]))
+    bks = h5py.File(fbks, 'r') 
+    
+    _bks = {}
+    for k in bks.keys(): 
+        _bks[k] = bks[k].value 
+    return _bks
+
+
+def quijoteBk(theta): 
+    ''' read in bispectra for specified theta of the quijote simulations. 
+    
+    :param theta: 
+        string that specifies which quijote run. `theta==fiducial`  
+        for the fiducial set of parameters. 
+
+    :return _bks: 
+        dictionary that contains all the bispectrum data from quijote simulation
+    '''
+    dir_bk = os.path.join(UT.dat_dir(), 'bispectrum') 
+    bks = h5py.File(os.path.join(dir_bk, 'quijote_%s.hdf5' % theta), 'r') 
+    
+    _bks = {}
+    for k in bks.keys(): 
+        _bks[k] = bks[k].value 
+    return _bks
+
+
+def quijoteCov(): 
+    ''' read in the full covariance matrix of the quijote bispectrum
+    computed using 15000 simulations at the fiducial parameter values. 
+
+    :return cov:
+        big ass covariance matrix of all the triangle configurations in 
+        the default ordering. 
+    '''
+    # read in fiducial covariance matrix 
+    fcov = h5py.File(os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_Cov_full.hdf5'), 'r') 
+    cov = fcov['C_bk'].value
+    return cov
+
+
+def Bk_comparison(krange=[0.01, 0.5], rsd=True):  
+    '''
+    '''
+    mnus = [0.06, 0.1, 0.15]
+    sig8s = [0.822, 0.818, 0.807, 0.798]
+
+    hades_fid = hadesBk(0.0, nzbin=4, rsd=rsd) # fiducial bispectrum
+    Bk_fid = np.average(hades_fid['b123'], axis=0)
+
+    Bk_Mnu, Bk_s8s = [], [] 
+    for mnu in mnus: # bispectrum for different Mnu
+        hades_i = hadesBk(mnu, nzbin=4, rsd=rsd)
+        Bk_Mnu.append(np.average(hades_i['b123'], axis=0)) 
+    for sig8 in sig8s: # bispectrum for different sigma8 
+        hades_i = hadesBk_s8(sig8, nzbin=4, rsd=rsd)
+        Bk_s8s.append(np.average(hades_i['b123'], axis=0)) 
+
+    # covariance matrix
+    C_full = quijoteCov()
+
+    i_k, j_k, l_k = hades_i['k1'], hades_i['k2'], hades_i['k3']
+    kf = 2.*np.pi/1000. 
+    kmin, kmax = krange # impose k range 
+    klim = ((i_k * kf <= kmax) & (i_k * kf >= kmin) &
+            (j_k * kf <= kmax) & (j_k * kf >= kmin) & 
+            (l_k * kf <= kmax) & (l_k * kf >= kmin)) 
+
+    i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim] 
+
+    ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order of triangles 
+
+    sigBk = np.sqrt(np.diag(C_full))[klim][ijl] 
+
+    fig = plt.figure(figsize=(25,10))
+    sub = fig.add_subplot(211)
+    axins = inset_axes(sub, loc='upper right', width="40%", height="45%") 
+    sub2 = fig.add_subplot(212)
+    axins2 = inset_axes(sub2, loc='upper right', width="40%", height="45%") 
+    
+    tri = np.arange(np.sum(klim))
+    for ii, mnu, bk in zip(range(4), [0.0]+mnus, [Bk_fid]+Bk_Mnu):
+        _bk = bk[klim][ijl]
+        if mnu == 0.0: 
+            sub.fill_between(tri, _bk - sigBk, _bk + sigBk, color='C'+str(ii), alpha=0.25, linewidth=0.) 
+            axins.fill_between(tri, _bk - sigBk, _bk + sigBk, color='C'+str(ii), alpha=0.25, linewidth=0.) 
+            sub2.fill_between(tri, _bk - sigBk, _bk + sigBk, color='C'+str(ii), alpha=0.25, linewidth=0.) 
+            axins2.fill_between(tri, _bk - sigBk, _bk + sigBk, color='C'+str(ii), alpha=0.25, linewidth=0.) 
+            sub2.plot(tri, _bk, c='C0') 
+            axins2.plot(tri, _bk, c='C0') 
+        sub.plot(tri, _bk, c='C'+str(ii), label=str(mnu)+'eV') 
+        axins.plot(tri, _bk, c='C'+str(ii), label=str(mnu)+'eV') 
+
+    for ii, sig8, bk in zip([4, 6, 8, 9], sig8s, Bk_s8s):
+        _bk = bk[klim][ijl]
+        sub2.plot(tri, _bk, c='C'+str(ii), label='$\sigma_8=%.3f$' % sig8) 
+        axins2.plot(tri, _bk, c='C'+str(ii)) 
+
+    sub.legend(loc='lower left', ncol=4, columnspacing=0.5, markerscale=4, handletextpad=0.25, fontsize=20) 
+    sub2.legend(loc='lower left', ncol=4, columnspacing=0.5, markerscale=4, handletextpad=0.25, fontsize=20) 
+
+    sub.set_yscale('log') 
+    axins.set_yscale('log') 
+    
+    sub2.set_yscale('log') 
+    axins2.set_yscale('log') 
+    if rsd:
+        sub.set_xlim([0, 1898])
+        sub.set_ylim([1e6, 1e10]) 
+        axins.set_xlim(480, 500)
+        axins.set_ylim(5e7, 2e8) 
+        sub2.set_xlim([0, 1898])
+        sub2.set_ylim([1e6, 1e10]) 
+        axins2.set_xlim(480, 500)
+        axins2.set_ylim(5e7, 2e8) 
+    else: 
+        sub.set_xlim([0, 1200])
+        sub.set_ylim([1e5, 5e9]) 
+        axins.set_xlim(480, 500)
+        axins.set_ylim(2e7, 1.5e8) 
+        sub2.set_xlim([0, 1200])
+        sub2.set_ylim([1e5, 5e9]) 
+        axins2.set_xlim(480, 500)
+        axins2.set_ylim(2e7, 1.5e8) 
+
+    axins.set_xticklabels('') 
+    axins.yaxis.set_minor_formatter(NullFormatter())
+    mark_inset(sub, axins, loc1=2, loc2=4, fc="none", ec="0.5")
+
+    axins2.set_xticklabels('') 
+    axins2.yaxis.set_minor_formatter(NullFormatter())
+    mark_inset(sub2, axins2, loc1=2, loc2=4, fc="none", ec="0.5")
+    
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    bkgd.set_xlabel(r'$k_1 \le k_2 \le k_3$ triangle indices', labelpad=15, fontsize=25) 
+    bkgd.set_ylabel('$B(k_1, k_2, k_3)$', labelpad=10, fontsize=25) 
+    fig.subplots_adjust(hspace=0.15)
+
+    krange_str = str(kmin).replace('.', '')+'_'+str(kmax).replace('.', '') 
+    ffig = os.path.join(UT.doc_dir(), 'figs', 
+            'haloBk_amp_%s_%s%s.pdf' % 
+            (str(kmin).replace('.', ''), str(kmax).replace('.', ''), ['', '_rsd'][rsd]))
+    fig.savefig(ffig, bbox_inches='tight') 
+    
+    # compare ratio of B(k) amplitude
+    fig = plt.figure(figsize=(18,18))
+
+    bk_fid = Bk_fid[klim][ijl]
+    for i, mnu, sig8, bk, bks8 in zip(range(3), mnus, sig8s, Bk_Mnu, Bk_s8s): 
+        sub = fig.add_subplot(3,1,i+1) 
+
+        db = bk[klim][ijl]/bk_fid - 1.
+        sub.plot(tri, db, lw=2, c='C'+str(i+1), label=str(mnu)+'eV') 
+    
+        db = bks8[klim][ijl]/bk_fid - 1.
+        sub.plot(tri, db, lw=1, c='k', label='$\sigma_8=%.3f$' % sig8) 
+        sub.plot([0, np.sum(klim)], [0., 0.], c='k', ls='--', lw=2)
+        if rsd: 
+            sub.legend(loc='upper left', ncol=2, markerscale=4, handletextpad=0.5, fontsize=25) 
+            sub.set_xlim([0, np.sum(klim)])
+            sub.set_ylim([-0.01, 0.2]) 
+            sub.set_yticks([0., 0.05, 0.1, 0.15, 0.2]) 
+        else: 
+            sub.legend(loc='upper left', frameon=True, ncol=2, markerscale=4, handletextpad=0.5, fontsize=25) 
+            sub.set_xlim([0, 1200])
+            sub.set_ylim([-0.01, 0.25]) 
+            sub.set_yticks([0., 0.05, 0.1, 0.15, 0.2, 0.25]) 
+
+        if i < 2: sub.set_xticklabels([]) 
+    
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    bkgd.set_xlabel(r'$k_1 \le k_2 \le k_3$ triangle indices', labelpad=10, fontsize=30) 
+    bkgd.set_ylabel('$B(k_1, k_2, k_3) / B^\mathrm{fid} - 1 $', labelpad=15, fontsize=30) 
+    fig.subplots_adjust(hspace=0.1)
+    ffig = os.path.join(UT.doc_dir(), 'figs', 
+            'haloBk_residual_%s_%s%s.pdf' % 
+            (str(kmin).replace('.', ''), str(kmax).replace('.', ''), ['', '_rsd'][rsd]))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+
 def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=False): 
     ''' Make various bispectrum plots as a function of m_nu 
     '''
@@ -465,81 +681,6 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=F
         cbar.set_label('$(B(k_1, k_2, k_3) - B^\mathrm{(fid)})/B^\mathrm{(fid)}$', rotation=90, fontsize=20)
         fig.savefig(''.join([UT.doc_dir(), 'figs/halodB123_relative_shape', '_', krange_str, str_rsd, '.pdf']), bbox_inches='tight') 
 
-    elif typ == 'b_amp': 
-        i_k = i_k[klim]
-        j_k = j_k[klim]
-        l_k = l_k[klim]
-            
-        ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order of triangles 
-
-        fig = plt.figure(figsize=(25,10))
-        sub = fig.add_subplot(211)
-        axins = inset_axes(sub, loc='upper right', width="40%", height="45%") 
-        sub2 = fig.add_subplot(212)
-        axins2 = inset_axes(sub2, loc='upper right', width="40%", height="45%") 
-        ii = 0 
-        for mnu, B123 in zip([0.0]+mnus, [B123_fid]+B123s):
-            _b123 = B123[klim][ijl]
-            sub.plot(range(np.sum(klim)), _b123, c='C'+str(ii), label=str(mnu)+'eV') 
-            axins.plot(range(np.sum(klim)), _b123, c='C'+str(ii), label=str(mnu)+'eV') 
-            if mnu == 0.0: 
-                sub2.plot(range(np.sum(klim)), _b123, c='C0') 
-                axins2.plot(range(np.sum(klim)), _b123, c='C0') 
-            ii += 1 
-
-        sub.legend(loc='lower left', ncol=4, columnspacing=0.5, markerscale=4, handletextpad=0.25, fontsize=20) 
-        sub.set_yscale('log') 
-        axins.set_yscale('log') 
-        if rsd:
-            sub.set_xlim([0, np.sum(klim)])
-            sub.set_ylim([1e6, 1e10]) 
-            axins.set_xlim(480, 500)
-            axins.set_ylim(5e7, 2e8) 
-        else: 
-            sub.set_xlim([0, 1200])
-            sub.set_ylim([1e5, 5e9]) 
-            axins.set_xlim(480, 500)
-            axins.set_ylim(2e7, 1.5e8) 
-        
-        axins.set_xticklabels('') 
-        axins.yaxis.set_minor_formatter(NullFormatter())
-        mark_inset(sub, axins, loc1=2, loc2=4, fc="none", ec="0.5")
-
-        
-        for sig8, B123 in zip(sig8s, B123_s8s):
-            _b123 = B123[klim][ijl]
-            if ii < 10: 
-                sub2.plot(range(np.sum(klim)), _b123, c='C'+str(ii), label='$\sigma_8=$'+str(sig8)) 
-                axins2.plot(range(np.sum(klim)), _b123, c='C'+str(ii)) 
-            else: 
-                sub2.plot(range(np.sum(klim)), _b123, c='C9', label='$\sigma_8=$'+str(sig8)) 
-                axins2.plot(range(np.sum(klim)), _b123, c='C9') 
-            ii += 2 
-        sub2.legend(loc='lower left', ncol=4, columnspacing=0.5, markerscale=4, handletextpad=0.25, fontsize=20) 
-        sub2.set_yscale('log') 
-        axins2.set_yscale('log') 
-        if rsd:
-            sub2.set_xlim([0, np.sum(klim)])
-            sub2.set_ylim([1e6, 1e10]) 
-            axins2.set_xlim(480, 500)
-            axins2.set_ylim(5e7, 2e8) 
-        else: 
-            sub2.set_xlim([0, 1200])
-            sub2.set_ylim([1e5, 5e9]) 
-            axins2.set_xlim(480, 500)
-            axins2.set_ylim(2e7, 1.5e8) 
-        
-        axins2.set_xticklabels('') 
-        axins2.yaxis.set_minor_formatter(NullFormatter())
-        mark_inset(sub2, axins2, loc1=2, loc2=4, fc="none", ec="0.5")
-        
-        bkgd = fig.add_subplot(111, frameon=False)
-        bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-        bkgd.set_xlabel(r'$k_1 \le k_2 \le k_3$ triangle indices', labelpad=15, fontsize=25) 
-        bkgd.set_ylabel('$B(k_1, k_2, k_3)$', labelpad=10, fontsize=25) 
-        fig.subplots_adjust(hspace=0.15)
-        fig.savefig(''.join([UT.doc_dir(), 'figs/haloB123_amp', '_', krange_str, str_rsd, '.pdf']), bbox_inches='tight') 
-    
     elif typ == 'db_amp':
         fig = plt.figure(figsize=(25,8))
         sub = fig.add_subplot(211)
@@ -774,6 +915,54 @@ def compare_B123(typ, nreals=range(1,71), krange=[0.03, 0.25], nbin=50, zspace=F
     return None 
 
 
+def B123_kmax_test(kmin=0.01, kmax1=0.4, kmax2=0.5, rsd=True): 
+    ''' bispectrum for triangle configurations that are outside 
+    the k-range kmin < k < kmax1 but inside kmin < k < kmax2. This 
+    is to better understand the extra signal that comes from going 
+    to higher kmax
+    '''
+    kf = 2.*np.pi/1000.
+    hades = hadesBk(0.0, nzbin=4, rsd=rsd)  
+    i_k, j_k, l_k, bk = hades['k1'], hades['k2'], hades['k3'], hades['b123'] 
+
+    quijo = quijoteBk('fiducial')
+    bk_q = quijo['b123'] 
+
+    # get triangles outside of klim1 but inside klim2 
+    klim1 = ((i_k*kf <= kmax1) & (i_k*kf >= kmin) &
+            (j_k*kf <= kmax1) & (j_k*kf >= kmin) & 
+            (l_k*kf <= kmax1) & (l_k*kf >= kmin)) 
+    
+    klim2 = ((i_k*kf <= kmax2) & (i_k*kf >= kmin) &
+            (j_k*kf <= kmax2) & (j_k*kf >= kmin) & 
+            (l_k*kf <= kmax2) & (l_k*kf >= kmin)) 
+    klim = ~klim1 & klim2
+    
+    i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim]
+    ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order the triangles 
+    
+    bk = bk[:,klim][:,ijl]
+    bk_q = bk_q[:,klim][:,ijl] 
+    
+    mu_bk = np.average(bk, axis=0) 
+    sig_bk = np.std(bk_q, axis=0)
+    
+    fig = plt.figure(figsize=(25,5))
+    sub = fig.add_subplot(111)
+    sub.fill_between(np.arange(np.sum(klim)), mu_bk - sig_bk, mu_bk + sig_bk, 
+            color='C0', alpha=0.25, linewidth=0)
+    sub.plot(np.arange(np.sum(klim)), mu_bk, c='C0')
+    sub.set_title(r'$%.1f < k_{\rm max} < %.1f$' % (kmax1, kmax2), fontsize=25) 
+    sub.set_yscale('log') 
+    sub.set_xlim([0, np.sum(klim)])
+    sub.set_ylim([1e6, 1e9]) 
+        
+    fig.savefig(os.path.join(UT.doc_dir(), 'figs', 
+        'B123_kmax_test_%.1f_%.1f_%.1f_%sspace.pdf' % (kmin, kmax1, kmax2, ['r', 'z'][rsd])), 
+        bbox_inches='tight') 
+    return None
+
+
 def compare_B123_triangle(ik_pairs, nreals=range(1,71), krange=[0.03, 0.5], zspace=False): 
     ''' Make various bispectrum plots as a function of m_nu 
     '''
@@ -853,154 +1042,6 @@ def compare_B123_triangle(ik_pairs, nreals=range(1,71), krange=[0.03, 0.5], zspa
     return None 
 
 
-def readB123(mneut, ireals, nzbin, BorQ='B', zspace=False):
-    ''' read in bispectrum of massive neutrino halo catalogs with `mneut` eV
-    `ireals` realizations, `nzbin` redshift bin 
-
-    :param mneut: 
-        neutrino mass
-
-    :param ireals: 
-        2 element array/list/tuple that specifies the realizations 
-
-    :param nzbin: 
-        redshift bin number 
-    '''
-    if zspace: str_rsd = '.zspace'
-    else: str_rsd = '.rspace'
-    fb123 = ''.join([UT.doc_dir(), 'dat/', 
-        'halo_bispectrum.', str(mneut), 'eV.', 
-        str(ireals[0]), '_', str(ireals[1]), '.z', str(nzbin), str_rsd, '.hdf5']) 
-
-    if os.path.isfile(fb123): 
-        f = h5py.File(fb123, 'r') 
-        k_f = f.attrs['kf'] 
-
-        i_k = f['i_k1'].value 
-        j_k = f['i_k2'].value 
-        l_k = f['i_k3'].value 
-        
-        p0k1 = f['p0k1'].value
-        p0k2 = f['p0k2'].value
-        p0k3 = f['p0k3'].value
-        
-        B123 = f['B123'].value
-        B_SN = f['B_SN'].value 
-        Q123 = f['Q123'].value
-        counts = f['counts'].value
-    else: 
-        ffix = lambda mneut, nreal, nzbin: ''.join([UT.dat_dir(), 'bispectrum/', 
-            'groups.', str(mneut), 'eV.', str(nreal), '.nzbin', str(nzbin), '.mhmin3200.0', str_rsd, 
-            '.Ngrid360.Nmax40.Ncut3.step3.pyfftw.dat']) 
-        
-        p0k1, p0k2, p0k3 = [], [], [] 
-        B123, Q123, B_SN, counts = [], [], [], [] 
-        for ii, _i in enumerate(range(ireals[0], ireals[1]+1)):
-            i_k, j_k, l_k, _p0k1, _p0k2, _p0k3, b123, q123, b_sn, cnts = np.loadtxt(ffix(mneut, _i, nzbin), 
-                    skiprows=1, unpack=True, usecols=range(10)) 
-            p0k1.append(_p0k1)
-            p0k2.append(_p0k2)
-            p0k3.append(_p0k3)
-            B123.append(b123)
-            B_SN.append(b_sn)
-            Q123.append(q123)
-            counts.append(cnts)
-        
-        k_f = 2.*np.pi/1000. # k_fundmanetal
-
-        f = h5py.File(fb123, 'w') 
-        f.attrs['kf'] = k_f
-        f.create_dataset('i_k1', data=i_k)
-        f.create_dataset('i_k2', data=j_k)
-        f.create_dataset('i_k3', data=l_k)
-
-        f.create_dataset('p0k1', data=np.array(p0k1))
-        f.create_dataset('p0k2', data=np.array(p0k2))
-        f.create_dataset('p0k3', data=np.array(p0k3))
-
-        f.create_dataset('B123', data=np.array(B123))
-        f.create_dataset('B_SN', data=np.array(B_SN))
-        f.create_dataset('Q123', data=np.array(Q123))
-        f.create_dataset('counts', data=np.array(counts)) 
-        f.close() 
-
-    B123 = np.average(B123, axis=0)
-    Q123 = np.average(Q123, axis=0)
-    counts = np.average(counts, axis=0)
-
-    if BorQ == 'B':
-        return i_k, j_k, l_k, B123, counts, k_f
-    elif BorQ == 'Q':
-        return i_k, j_k, l_k, Q123, counts, k_f 
-
-
-def readB123_sigma8(sig8, ireals, nzbin, BorQ='B', zspace=False):
-    ''' read in bispectrum of sigma8 varied m_nu = 0 halo catalogs
-    using the function Obvs.B123_halo_sigma8
-    '''
-    if zspace: str_rsd = '.zspace'
-    else: str_rsd = '.rspace'
-    fb123 = ''.join([UT.doc_dir(), 'dat/', 
-        'halo_bispectrum.0.0eV.sig8_', str(sig8), '.', 
-        str(ireals[0]), '_', str(ireals[1]), '.z', str(nzbin), str_rsd, '.hdf5']) 
-
-    if os.path.isfile(fb123): 
-        f = h5py.File(fb123, 'r') 
-        k_f = f.attrs['kf'] 
-
-        i_k = f['i_k1'].value 
-        j_k = f['i_k2'].value 
-        l_k = f['i_k3'].value 
-        
-        B123 = f['B123'].value
-        B_sn = f['B_SN'].value 
-        Q123 = f['Q123'].value
-        counts = f['counts'].value
-    else: 
-        ffix = lambda sig8, nreal, nzbin: ''.join([UT.dat_dir(), 'bispectrum/', 
-            'groups.0.0eV.sig8_', str(sig8), '.', str(nreal), '.nzbin', str(nzbin), '.mhmin3200.0', str_rsd,
-            '.Ngrid360.Nmax40.Ncut3.step3.pyfftw.dat']) 
-        
-        p0k1, p0k2, p0k3 = [], [], [] 
-        B123, Q123, B_SN, counts = [], [], [], [] 
-        for ii, _i in enumerate(range(ireals[0], ireals[1]+1)):
-            i_k, j_k, l_k, _p0k1, _p0k2, _p0k3, b123, q123, b_sn, cnts = np.loadtxt(ffix(sig8, _i, nzbin), 
-                    skiprows=1, unpack=True, usecols=range(10)) 
-            p0k1.append(_p0k1)
-            p0k2.append(_p0k2)
-            p0k3.append(_p0k3)
-            B123.append(b123)
-            B_SN.append(b_sn)
-            Q123.append(q123)
-            counts.append(cnts)
-        
-        k_f = 2.*np.pi/1000. # k_fundmanetal
-
-        f = h5py.File(fb123, 'w') 
-        f.attrs['kf'] = k_f 
-        f.create_dataset('i_k1', data=i_k)
-        f.create_dataset('i_k2', data=j_k)
-        f.create_dataset('i_k3', data=l_k)
-
-        f.create_dataset('p0k1', data=np.array(p0k1))
-        f.create_dataset('p0k2', data=np.array(p0k2))
-        f.create_dataset('p0k3', data=np.array(p0k3))
-
-        f.create_dataset('B123', data=np.array(B123))
-        f.create_dataset('B_SN', data=np.array(B_SN))
-        f.create_dataset('Q123', data=np.array(Q123))
-        f.create_dataset('counts', data=np.array(counts)) 
-        f.close() 
-
-    B123 = np.average(B123, axis=0)
-    Q123 = np.average(Q123, axis=0)
-    counts = np.average(counts, axis=0)
-
-    if BorQ == 'B':
-        return i_k, j_k, l_k, B123, counts, k_f
-    elif BorQ == 'Q':
-        return i_k, j_k, l_k, Q123, counts, k_f
-
 ##################################################################
 # qujiote fisher 
 ##################################################################
@@ -1011,7 +1052,7 @@ def quijote_covariance(krange=[0.01, 0.5]):
     kmin, kmax = krange  
 
     # read in covariance matrix 
-    f = h5py.File(os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_Cov_bk.%.2f_%.2f.gmorder.hdf5' % (kmin, kmax)), 'r') 
+    f = h5py.File(os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_Cov_bk.sn.%.2f_%.2f.gmorder.hdf5' % (kmin, kmax)), 'r') 
     C_bk = f['C_bk'].value 
 
     # plot the covariance matrix 
@@ -1024,19 +1065,21 @@ def quijote_covariance(krange=[0.01, 0.5]):
     return None 
 
 
-def quijote_forecast(krange=[0.01, 0.5], deriv='p'):
+def quijote_forecast(krange=[0.01, 0.5], deriv='p', shotnoise=True):
     ''' fisher forecast for qujote 
     
     :param krange: (default: [0.01, 0.5]) 
         tuple specifying the kranges of k1, k2, k3 in the bispectrum
     
-    :param mpc: (default: 'p') 
+    :param deriv: (default: 'p') 
         how the derivatives along Mnu are calculated. The options are 
         ['p', 'pp', 'ppp', 'fd'] 
     '''
     # read in  fisher matrix (Fij)
     bk_dir = os.path.join(UT.dat_dir(), 'bispectrum')
-    f_ij = os.path.join(bk_dir, 'quijote_Fisher.%s.%.2f_%.2f.gmorder.hdf5' % (deriv, krange[0], krange[1]))
+    sn_str = ''
+    if shotnoise: sn_str = '.sn'
+    f_ij = os.path.join(bk_dir, 'quijote_Fisher%s.%s.%.2f_%.2f.gmorder.hdf5' % (sn_str, deriv, krange[0], krange[1]))
     f = h5py.File(f_ij, 'r') 
     Fij = f['Fij'].value
 
@@ -1094,7 +1137,7 @@ def quijote_forecast(krange=[0.01, 0.5], deriv='p'):
                 sub.set_xticks([])
                 sub.set_xticklabels([]) 
     fig.subplots_adjust(wspace=0.05, hspace=0.05) 
-    fig.savefig(os.path.join(UT.doc_dir(), 'figs', 'quijote_Fisher_%s_%.2f_%.2f.png' % (deriv, krange[0], krange[1])), bbox_inches='tight') 
+    fig.savefig(os.path.join(UT.doc_dir(), 'figs', 'quijote_Fisher_%s_%s_%.2f_%.2f.png' % (sn_str, deriv, krange[0], krange[1])), bbox_inches='tight') 
     return None
 
 
@@ -1102,9 +1145,8 @@ if __name__=="__main__":
     #compare_Plk(nreals=range(1,101), krange=[0.01, 0.5])
     #ratio_Plk(nreals=range(1,101), krange=[0.01, 0.5])
     for rsd in [False, True]:  
-        if not rsd: nreals = (1, 100) 
-        else: nreals = (1, 100) 
-        for kmax in [0.5]: 
+        for kmax in [0.2, 0.3, 0.4, 0.5]: 
+            Bk_comparison(krange=[0.01, kmax], rsd=rsd)
             continue 
             #compare_B123('b_shape', 
             #        nreals=nreals, krange=[0.01, kmax], zspace=rsd, nbin=31)
@@ -1120,7 +1162,11 @@ if __name__=="__main__":
             #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
             #compare_B123_triangle([[30, 18], [18, 18], [12,9]], 
             #        nreals=nreals, krange=[0.01, kmax], zspace=rsd)
+    #for k in [0.2, 0.3, 0.4]: 
+    #    B123_kmax_test(kmin=0.01, kmax1=k, kmax2=k+0.1, rsd=True)
     #quijote_covariance(krange=[0.01, 0.5]) 
-    for kmax in [0.5]: #[0.2, 0.3, 0.4, 0.5]: 
-        for deriv in ['p', 'fd']: 
-            quijote_forecast(krange=[0.01, kmax], deriv=deriv)
+    for kmax in [0.5]: 
+        continue 
+        #for deriv in ['p', 'fd']: 
+        quijote_forecast(krange=[0.01, kmax], deriv='fd', shotnoise=True)
+        quijote_forecast(krange=[0.01, kmax], deriv='fd', shotnoise=False)

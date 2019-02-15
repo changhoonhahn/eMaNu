@@ -24,7 +24,7 @@ def ijl_order(i_k, j_k, l_k, typ='GM'):
                     i_bq_new.append(i_bq[(i_k == i) & (j_k == j) & (l_k == l)])
     else: 
         raise NotImplementedError
-    return np.array(i_bq_new)
+    return np.array(i_bq_new).flatten()
 
 
 def check_env(): 
