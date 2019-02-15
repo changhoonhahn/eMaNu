@@ -429,6 +429,7 @@ def compare_Bk(krange=[0.01, 0.5], rsd=True):
 
     hades_fid = hadesBk(0.0, nzbin=4, rsd=rsd) # fiducial bispectrum
     Bk_fid = np.average(hades_fid['b123'], axis=0)
+    Bk_sn = np.average(hades_fid['b_sn'], axis=0) 
 
     Bk_Mnu, Bk_s8s = [], [] 
     for mnu in mnus: # bispectrum for different Mnu
@@ -477,6 +478,7 @@ def compare_Bk(krange=[0.01, 0.5], rsd=True):
         _bk = bk[klim][ijl]
         sub2.plot(tri, _bk, c='C'+str(ii), label='$\sigma_8=%.3f$' % sig8) 
         axins2.plot(tri, _bk, c='C'+str(ii)) 
+    #sub.plot(tri, Bk_sn[klim][ijl], c='k', ls=':') 
 
     sub.legend(loc='lower left', ncol=4, columnspacing=0.5, markerscale=4, handletextpad=0.25, fontsize=20) 
     sub2.legend(loc='lower left', ncol=4, columnspacing=0.5, markerscale=4, handletextpad=0.25, fontsize=20) 
@@ -695,6 +697,7 @@ def compare_Bk_triangle(typ, rsd=True):
 
     hades_fid = hadesBk(0.0, nzbin=4, rsd=rsd) # fiducial bispectrum
     Bk_fid = np.average(hades_fid['b123'], axis=0)
+    Bk_sn = np.average(hades_fid['b_sn'], axis=0) 
 
     Bk_Mnu, Bk_s8s = [], [] 
     for mnu in mnus: # bispectrum for different Mnu
@@ -714,6 +717,7 @@ def compare_Bk_triangle(typ, rsd=True):
     elif typ == 'squ': # i_k >= j_k >= l_k (= 3*kf~0.01) 
         tri = (i_k == j_k) & (l_k == 3)
     sigBk = np.sqrt(np.diag(C_full))[tri] 
+    print Bk_sn[tri]
     
     # plot 
     fig = plt.figure(figsize=(10,8))
@@ -733,6 +737,7 @@ def compare_Bk_triangle(typ, rsd=True):
         sub.plot(kf * i_k[tri], bk[tri], c='C'+str(ii), ls='--', label='$\sigma_8=$'+str(sig8)) 
         sub2.plot(kf * i_k[tri], bk[tri]/Bk_fid[tri], c='C'+str(ii), ls='--') 
     sub2.plot([1e-4, 1e3], [1., 1.], c='k', ls='--', lw=2) 
+    sub.plot(kf * i_k[tri], Bk_sn[tri], c='k', ls=':')
     
     sub.legend(loc='upper right', ncol=2, columnspacing=0.2, 
             markerscale=4, handletextpad=0.25, fontsize=18) 
@@ -1225,9 +1230,8 @@ if __name__=="__main__":
     #ratio_Plk(nreals=range(1,101), krange=[0.01, 0.5])
 
     for kmax in [0.2, 0.3, 0.4, 0.5]: 
-        continue 
-        #compare_Bk(krange=[0.01, kmax], rsd=rsd)
-        #compare_Bk_shape(krange=[0.01, kmax], rsd=rsd, nbin=31)
+        compare_Bk(krange=[0.01, kmax], rsd=True)
+        #compare_Bk_shape(krange=[0.01, kmax], rsd=True, nbin=31)
         #quijote_covariance(krange=[0.01, kmax])
         #quijote_forecast(krange=[0.01, kmax])
     
@@ -1239,9 +1243,9 @@ if __name__=="__main__":
     #compare_Bk_triangles([[30, 18], [18, 18], [12,9]], rsd=True)
 
     # equilateral triangles 
-    compare_Bk_triangle('equ', rsd=True)
-    quijote_forecast_triangle_kmax('equ')
+    #compare_Bk_triangle('equ', rsd=True)
+    #quijote_forecast_triangle_kmax('equ')
 
     # squeezed triangles 
-    compare_Bk_triangle('squ', rsd=True)
-    quijote_forecast_triangle_kmax('squ')
+    #compare_Bk_triangle('squ', rsd=True)
+    #quijote_forecast_triangle_kmax('squ')

@@ -516,7 +516,8 @@ if __name__=="__main__":
     #for sub in ['Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'Ob_m', 'Ob_p', 'Om_m', 'Om_p', 
     #        'fiducial', 'fiducial_NCV', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p']: 
     #    quijote_hdf5(sub)
-    quijote_Cov_full(shotnoise=True)   
+    #quijote_Cov_full(shotnoise=True)   
+    #quijote_Cov_full(shotnoise=False)   
 
     # check along parameter axis
     #for par in ['Mnu', 'Ob', 'Om', 'h', 'ns', 's8']: 
@@ -524,7 +525,7 @@ if __name__=="__main__":
     
     # covariance matrix 
     #quijote_covariance(krange=[0.01, 0.5], shotnoise=True) # covariance matrix with shotnoise (i.e. correct covariance) 
-    #quijote_Cov_SNcomparison(krange=[0.01, 0.5])
+    quijote_Cov_SNcomparison(krange=[0.01, 0.5])
     #qujjote_covariance_convergence(krange=[0.01, 0.5])
 
     for kmax in [0.2, 0.3, 0.4, 0.5]: 
