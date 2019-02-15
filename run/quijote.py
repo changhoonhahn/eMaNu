@@ -103,6 +103,9 @@ def quijote_Cov_full(shotnoise=True):
     fcov = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_Cov_full%s.hdf5' % ['.sn_corr', ''][shotnoise])
     f = h5py.File(fcov, 'w') 
     f.create_dataset('C_bk', data=C_bk) 
+    f.create_dataset('k1', data=fbks['k1'].value) 
+    f.create_dataset('k2', data=fbks['k2'].value) 
+    f.create_dataset('k3', data=fbks['k3'].value) 
     f.close()
     return None 
 
