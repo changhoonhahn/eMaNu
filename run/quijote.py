@@ -53,13 +53,18 @@ def quijote_hdf5(subdir):
     for i, fbk in enumerate(fbks):
         i_k, j_k, l_k, _p0k1, _p0k2, _p0k3, b123, q123, b_sn, cnts = np.loadtxt(
                 os.path.join(dir_quij, fbk), skiprows=1, unpack=True, usecols=range(10)) 
+        hdr = open(os.path.join(dir_quij, fbk)).readline().rstrip() 
+        Nhalo = int(hdr.split('Nhalo=')[-1])
+ 
         if i == 0: 
+            Nhalos = np.zeros((nbk)) 
             p0k1 = np.zeros((nbk, len(i_k)))
             p0k2 = np.zeros((nbk, len(i_k)))
             p0k3 = np.zeros((nbk, len(i_k)))
             bks = np.zeros((nbk, len(i_k)))
             qks = np.zeros((nbk, len(i_k)))
             bsn = np.zeros((nbk, len(i_k)))
+        Nhalos[i] = Nhalo
         p0k1[i,:] = _p0k1
         p0k2[i,:] = _p0k2
         p0k3[i,:] = _p0k3
@@ -79,6 +84,7 @@ def quijote_hdf5(subdir):
     f.create_dataset('q123', data=qks) 
     f.create_dataset('b_sn', data=bsn) 
     f.create_dataset('counts', data=cnts) 
+    f.create_dataset('Nhalos', data=Nhalos) 
     f.close()
     return None 
 
@@ -343,9 +349,10 @@ def quijote_dBk(theta, krange=[0.01, 0.5], validate=False):
         dBk_p = (Bk_p - Bk_fid) / h_p 
         dBk_pp = (Bk_pp - Bk_fid) / h_pp
         dBk_ppp = (Bk_ppp - Bk_fid) / h_ppp
-        dBk_diff = (-21 * Bk_fid + 32 * Bk_p - 12 * Bk_pp + Bk_ppp)/(12*0.1) # finite difference coefficient
+        dBk_diff1 = (-21 * Bk_fid + 32 * Bk_p - 12 * Bk_pp + Bk_ppp)/(12*0.1) # finite difference coefficient
+        dBk_diff2 = (-105 * Bk_fid + 160 * Bk_p - 60 * Bk_pp + 5 * Bk_ppp)/6. # finite difference coefficient
 
-        for mpc, dBk in zip(['p', 'pp', 'ppp', 'fd'], [dBk_p, dBk_pp, dBk_ppp, dBk_diff]): 
+        for mpc, dBk in zip(['p', 'pp', 'ppp', 'fd1', 'fd2'], [dBk_p, dBk_pp, dBk_ppp, dBk_diff1, dBk_diff2]): 
             fdbk = os.path.join(UT.dat_dir(), 'bispectrum', 
                     'quijote_dbk_d%s.%s.%.2f_%.2f.gmorder.hdf5' % (theta, mpc, kmin, kmax))
             f = h5py.File(fdbk, 'w') 
@@ -358,7 +365,8 @@ def quijote_dBk(theta, krange=[0.01, 0.5], validate=False):
             for mpc, dBk in zip(['+', '++', '+++'], [dBk_p, dBk_pp, dBk_ppp]): 
                 sub.plot(range(len(Bk_p)), dBk, 
                         label=r'$(B^{(%s)} - B^{\rm fid})/(M_\nu^{(%s)} - M_\nu^{\rm fid})$' % (mpc, mpc))
-            sub.plot(range(len(Bk_p)), dBk_diff, label=r'${\rm d}B/{\rm d} M_\nu$ (finite diff.)')
+            sub.plot(range(len(Bk_p)), dBk_diff1, label=r'${\rm d}B/{\rm d} M_\nu$ (finite diff. 1)')
+            sub.plot(range(len(Bk_p)), dBk_diff2, label=r'${\rm d}B/{\rm d} M_\nu$ (finite diff. 2)')
             sub.legend(loc='upper right', fontsize=20 ) 
             sub.set_xlabel(r'$k_1 \le k_2 \le k_3$ triangle indices', fontsize=25) 
             sub.set_xlim([0., 500.])#len(Bk_p)])  
@@ -516,6 +524,7 @@ if __name__=="__main__":
     #for sub in ['Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'Ob_m', 'Ob_p', 'Om_m', 'Om_p', 
     #        'fiducial', 'fiducial_NCV', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p']: 
     #    quijote_hdf5(sub)
+    #quijote_hdf5('fiducial') 
     #quijote_Cov_full(shotnoise=True)   
     #quijote_Cov_full(shotnoise=False)   
 
@@ -525,13 +534,13 @@ if __name__=="__main__":
     
     # covariance matrix 
     #quijote_covariance(krange=[0.01, 0.5], shotnoise=True) # covariance matrix with shotnoise (i.e. correct covariance) 
-    quijote_Cov_SNcomparison(krange=[0.01, 0.5])
+    #quijote_Cov_SNcomparison(krange=[0.01, 0.5])
     #qujjote_covariance_convergence(krange=[0.01, 0.5])
 
+    for par in ['Mnu', 'Ob', 'Om', 'h', 'ns', 's8']: 
+        quijote_dBk(par, krange=[0.01, 0.5], validate=True)
     for kmax in [0.2, 0.3, 0.4, 0.5]: 
         for deriv in ['p', 'fd']: 
             pass
             #quijote_Fisher(krange=[0.01, kmax], deriv=deriv, shotnoise=True, validate=True)   
             #quijote_Fisher(krange=[0.01, kmax], deriv=deriv, shotnoise=False, validate=True)   
-    #    for par in ['Mnu', 'Ob', 'Om', 'h', 'ns', 's8']: 
-    #        quijote_dBk(par, krange=[0.01, kmax], validate=True)
