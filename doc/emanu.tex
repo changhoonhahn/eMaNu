@@ -33,6 +33,9 @@
 \newcommand{\Var}{\mathrm{Var}}
 \newcommand{\Nd}{{100}\xspace}
 
+\newcommand{\Om}{\Omega_{\rm m}} 
+\newcommand{\Ob}{\Omega_{\rm b}} 
+\newcommand{\OL}{\Omega_\Lambda}
 \newcommand{\smnu}{\sum m_\nu} 
 \newcommand{\sig}{\sigma_8} 
 \newcommand{\hmpc}{\,h/\mathrm{Mpc}}
@@ -60,12 +63,6 @@
 %%% Here are the things that make collaborative effort easier
 \newcommand{\ch}[1]{{\color{orange}{\bf CH:} #1}}
 \newcommand{\lss}{{\small{LSS}}\xspace}
-\newcommand{\gmm}{{\small{GMM}}\xspace}
-\newcommand{\gmms}{{\small{GMM}s}\xspace}
-\newcommand{\EM}{{\small{EM}}\xspace}
-\newcommand{\bic}{{\small{BIC}}\xspace}
-\newcommand{\pca}{{\small{PCA}}\xspace}
-\newcommand{\ica}{{\small{ICA}}\xspace}
 \newcommand{\patchy}{{\fontshape\scdefault\selectfont patchy}}
 
 \begin{document}\sloppy\sloppypar\frenchspacing 
@@ -74,26 +71,20 @@
 \date{\texttt{DRAFT~---~\githash~---~\gitdate~---~NOT READY FOR DISTRIBUTION}}
 
 \newcounter{affilcounter}
-% \altaffiltext{1}{}
-
-%\setcounter{affilcounter}{1}
-%
-%\edef \lbl {\arabic{affilcounter}}\stepcounter{affilcounter}
-%\altaffiltext{\lbl}{Lawrence Berkeley National Laboratory, 1 Cyclotron Rd, Berkeley CA 94720, USA}
-%
-%\edef \bccp {\arabic{affilcounter}}\stepcounter{affilcounter}
-%\altaffiltext{\bccp}{Berkeley Center for Cosmological Physics, University of California, Berkeley, CA 94720, USA}
-
 \author{ChangHoon Hahn}
 \altaffiliation{hahn.changhoon@gmail.com}
 \affil{Lawrence Berkeley National Laboratory, 1 Cyclotron Rd, Berkeley CA 94720, USA}
 \affil{Berkeley Center for Cosmological Physics, University of California, Berkeley, CA 94720, USA}
 
 \author{Francisco Villaescusa-Navarro} 
-%\affil{Center for Computational Astrophysics, Flatiron Institute, 162 5th Avenue, New York, NY 10010, USA} 
+\affil{Center for Computational Astrophysics, Flatiron Institute, 162 5th Avenue, New York, NY 10010, USA} 
+
+\author{Emanuele Castorina} 
+\affil{Berkeley Center for Cosmological Physics, University of California, Berkeley, CA 94720, USA}
+\affil{Lawrence Berkeley National Laboratory, 1 Cyclotron Rd, Berkeley CA 94720, USA}
 
 \begin{abstract}
-blah 
+    abstract
 \end{abstract}
 
 \keywords{
@@ -129,14 +120,23 @@ In Section blah
 % Section   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{HADES and Quijote simulations} \label{sec:hades} 
-brief description of the hades simulation and the halo catalogs
-%We use a subset of the HADES12 simulations. We briefly describe the characteristics of this subset here and refer the reader to F. Villaescusa-Navarro et al. (2017, in preparation) for further details. The simulations have been run using the TreePM+SPH code GADGET-III (Springel 2005). All simula- tions are run in a periodic box size of 1 h−1 Gpc, and all models share the value of the following cosmological parameters:
-%Ωm=0.3175, Ωb=0.049, ΩΛ=0.6825, ns = 0.9624, h = 0.6711, and kpivot=0.05 h Mpc−1, which are in very good agreement with those obtained by Planck (Planck Collaboration et al. 2016). All our massive neutrino runs assume degenerate masses.13 A summary of the different simulations can be found in Table 1.
+We use a subset of the HADES\footnote{https://franciscovillaescusa.github.io/hades.html} 
+and Quijote simulation suites. The HADES simulations have been run
+using the {\sc GADGET-III} TreePM+SPH code~\citep{springel2005} in a 
+periodic $(1 h^{-1}{\rm Gpc})^3$ box. All of the HADES simulations 
+share the values of the following cosmological parameters:
+$\Om{=}0.3175, \Ob{=}0.049, \OL{=}0.6825, n_s{=}0.9624, h{=}0.6711$, 
+and $k_{\rm pivot} = 0.05~h{\rm Mpc}^{-1}$. These parameters are in
+good agreement with Planck constraints~\cite{planck2016}. 
+
+%All our massive neutrino runs assume degenerate masses.13 A summary of the different simulations can be found in Table 1.
 %We present convergence tests for the N-body simulations in Appendix A. We notice that while our lower-resolution simulations cannot be used to provide absolute theory predictions that are accurate at 1% down to the smallest scales we consider, k=0.5 h Mpc−1, their relative difference will be much more accurate (see Appendix A for details). Thus, in this work we either show relative differences or show absolute values for all models. We emphasize that for the latter, even if the absolute value from our simulations is not converged on a given scale, the relative differences between models should almost be.
+
+\ch{describe quijote simulations} 
 
 \begin{figure}
 \begin{center}
-\includegraphics[width=0.95\textwidth]{figs/haloPlk_rsd_ratio.pdf}
+\includegraphics[width=0.9\textwidth]{figs/haloPlk_rsd_ratio.pdf}
     \caption{Impact of $\smnu$ and $\sig$ on the redshift-space halo power 
     spectrum monopole and quadrupole. $\smnu$ and $\sig$ produce almost identical 
     effects on halo clustering on small scales ($k > 0.1\hmpc$). This degeneracy 
@@ -155,7 +155,7 @@ Brief description of the Scoccimarro et al. bispectrum estimator here
 
 \begin{figure}
 \begin{center}
-\includegraphics[width=\textwidth]{figs/haloB123_shape_001_05_rsd.pdf}
+    \includegraphics[width=\textwidth]{figs/haloBk_shape_001_05_rsd.pdf} 
     \caption{The redshift-space halo bispectrum, $B(k_1, k_2, k_3)$ as a 
     function of triangle configuration shape for $\smnu = 0.0, 0.06, 0.10$, 
     and $0.15\,\mathrm{eV}$ (top panels) and $\sig = 0.822, 0.818, 0.807$, 
@@ -169,7 +169,7 @@ Brief description of the Scoccimarro et al. bispectrum estimator here
 
 \begin{figure}
 \begin{center}
-\includegraphics[width=0.95\textwidth]{figs/haloB123_amp_001_05_rsd.pdf}
+\includegraphics[width=0.9\textwidth]{figs/haloBk_amp_001_05_rsd.pdf}
     \caption{The redshift-space halo bispectrum, $B(k_1, k_2, k_3)$, as a
     function of all triangle configurations for $\smnu = 0.0, 0.06, 0.10$, 
     and $0.15\,\mathrm{eV}$ (top panel) and $\sig = 0.822, 0.818, 0.807$, 
@@ -182,15 +182,15 @@ Brief description of the Scoccimarro et al. bispectrum estimator here
 \end{center}
 \end{figure}
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Section   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results} \label{sec:results} 
+\subsection{Breaking the $\smnu$-- $\sig$ degeneracy}
 
 \begin{figure}
 \begin{center}
-\includegraphics[width=\textwidth]{figs/halodB123_relative_shape_001_05_rsd.pdf} 
+\includegraphics[width=\textwidth]{figs/haloBk_dshape_001_05_rsd.pdf} 
     \caption{The shape depdence of the $\smnu$ and $\sig$ impact on the 
     redshift-space halo bispectrum, $\Delta B/B^\mathrm{(fid)}$. 
     $\smnu = 0.06, 0.10$, and $0.15\,\mathrm{eV}$ (top panels; left to right) are aligned
@@ -208,7 +208,7 @@ Brief description of the Scoccimarro et al. bispectrum estimator here
 
 \begin{figure}
 \begin{center}
-\includegraphics[width=\textwidth]{figs/halodB123_relative_001_05_rsd.pdf}
+\includegraphics[width=0.9\textwidth]{figs/haloBk_residual_001_05_rsd.pdf}
     \caption{The impact of $\smnu$ and $\sig$ on the redshift-space 
     halo bispectrum for all triangle configurations: $\Delta B/B^\mathrm{(fid)}$. 
     The impact of $\smnu$ differs significantly from the impact of $\sig$ 
@@ -227,18 +227,64 @@ Brief description of the Scoccimarro et al. bispectrum estimator here
 
 \begin{figure}
 \begin{center}
-\includegraphics[width=\textwidth]{figs/haloB123_triangles_001_05_rsd.pdf}
+\includegraphics[width=0.95\textwidth]{figs/haloBk_triangles_rsd.pdf}
     \caption{}
 \label{fig:dbk_amp}
 \end{center}
 \end{figure}
 
+\subsection{Forecasts}
 
+\begin{figure}
+\begin{center}
+    \includegraphics[width=0.6\textwidth]{figs/quijote_bkCov_001_05.png} 
+    \caption{Covariance matrix of the halo bispectrum estimated using the 
+    $15,000$ realizations of the Qujiote simulation suite with the fiducial
+    cosmology: $\Om{=}0.3175, \Ob{=}0.049, h{=}0.6711, n_s{=}0.9624, \sig{=}0.834$, 
+    and $\smnu{=}0.0$ eV. \ch{explain triangle configuration order} 
+    }
+\label{fig:bk_cov}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=\textwidth]{figs/quijote_pbkFisher_001_05.pdf}
+    \caption{}
+\label{fig:bk_fish}
+\end{center}
+\end{figure}
+
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=\textwidth]{figs/quijote_pkFisher_kmax.pdf} 
+    \caption{}
+\label{fig:pk_fish_kmax}
+\end{center}
+\end{figure}
+
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=\textwidth]{figs/quijote_bkFisher_kmax.pdf} 
+    \caption{}
+\label{fig:bk_fish_kmax}
+\end{center}
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Section   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Summary} 
 
+
+\section*{Acknowledgements}
+It's a pleasure to thank 
+    Simone Ferraro, 
+    Shirley Ho, 
+
+\appendix
+\section{Testing Convergence} 
 %\bibliographystyle{yahapj}
 \end{document}
