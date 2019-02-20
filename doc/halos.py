@@ -1661,6 +1661,130 @@ def quijote_pbkForecast(krange=[0.01, 0.5]):
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
+
+def quijote_pbkForecast_Mnu_s8(krange=[0.01, 0.5]):
+    ''' fisher forecast for Mnu and sigma 8 using quijote from P(k) and B(k) 
+    overlayed on them. Then overlay Hades parameter points ontop to see if
+    things make somewhat sense.
+    
+    :param krange: (default: [0.01, 0.5]) 
+        tuple specifying the kranges of k1, k2, k3 in the bispectrum
+    '''
+    bk_dir = os.path.join(UT.dat_dir(), 'bispectrum')
+    # read in fisher matrices from powerspectrum 
+    f_ij = os.path.join(bk_dir, 'quijote_pkFij.%.2f_%.2f.hdf5' % (krange[0], krange[1]))
+    if not os.path.isfile(f_ij): quijote_pkFisher(krange=krange)
+    f = h5py.File(f_ij, 'r') 
+    pkFij = f['Fij'].value
+
+    # read in fisher matrices from bisectrum 
+    f_ij = os.path.join(bk_dir, 'quijote_bkFij.%.2f_%.2f.hdf5' % (krange[0], krange[1]))
+    if not os.path.isfile(f_ij): quijote_bkFisher(krange=krange)
+    f = h5py.File(f_ij, 'r') 
+    bkFij = f['Fij'].value
+
+    pkFinv = np.linalg.inv(pkFij) # invert fisher matrix 
+    bkFinv = np.linalg.inv(bkFij) # invert fisher matrix 
+
+    thetas = ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu']
+    theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
+    #theta_lims = [(0.275, 0.375), (0.03, 0.07), (0.5, 0.9), (0.75, 1.2), (0.8, 0.87), (-0.25, 0.25)]
+    theta_lims = [(0.25, 0.385), (0.02, 0.08), (0.3, 1.1), (0.6, 1.3), (0.79, 0.88), (-0.4, 0.4)]
+    theta_fid = {'Mnu': 0., 'Ob': 0.049, 'Om': 0.3175, 'h': 0.6711,  'ns': 0.9624,  's8': 0.834} # fiducial theta 
+    ntheta = len(thetas)
+    
+    fig = plt.figure(figsize=(7,7))
+    sub = fig.add_subplot(111) 
+    i, j = 4, 5
+    for _i, Finv in enumerate([pkFinv, bkFinv]):
+        # sub inverse fisher matrix 
+        Finv_sub = np.array([[Finv[i,i], Finv[i,j]], [Finv[j,i], Finv[j,j]]]) 
+
+        theta_fid_i = theta_fid[thetas[i]]
+        theta_fid_j = theta_fid[thetas[j]]
+        
+        # get ellipse parameters 
+        a = np.sqrt(0.5*(Finv_sub[0,0] + Finv_sub[1,1]) + np.sqrt(0.25*(Finv_sub[0,0]-Finv_sub[1,1])**2 + Finv_sub[0,1]**2))
+        b = np.sqrt(0.5*(Finv_sub[0,0] + Finv_sub[1,1]) - np.sqrt(0.25*(Finv_sub[0,0]-Finv_sub[1,1])**2 + Finv_sub[0,1]**2))
+        theta = 0.5 * np.arctan2(2.0 * Finv_sub[0,1], (Finv_sub[0,0] - Finv_sub[1,1]))
+
+        # plot the ellipse
+        for ii, alpha in enumerate([2.48, 1.52]):
+            e = Ellipse(xy=(theta_fid_i, theta_fid_j), 
+                    width=alpha * a, height=alpha * b, angle=theta * 360./(2.*np.pi))
+            sub.add_artist(e)
+            if ii == 0: alpha = 0.5
+            if ii == 1: alpha = 1.
+            e.set_alpha(alpha)
+            e.set_facecolor('C%i' % _i)
+    sub.set_xlabel(theta_lbls[i], labelpad=10, fontsize=30) 
+    sub.set_xlim(theta_lims[i])
+    sub.set_ylabel(theta_lbls[j], fontsize=30) 
+    sub.set_ylim(theta_lims[j])
+    sub.fill_between([],[],[], color='C0', label=r'$P^{\rm halo}_0(k)$') 
+    sub.fill_between([],[],[], color='C1', label=r'$B^{\rm halo}(k_1, k_2, k_3)$') 
+    # overlay hades
+    hades_sig8 = [0.833, 0.822, 0.815, 0.806]
+    hades_Mnus = [0., 0.06, 0.10, 0.15]
+    sub.scatter(hades_sig8, hades_Mnus, c='k', marker='+', zorder=10, label='HADES sims')
+    
+    _hades_sig8 = [0.822, 0.818, 0.807, 0.798]
+    sub.scatter(_hades_sig8, np.zeros(len(_hades_sig8)), c='k', marker='x', zorder=10)
+
+    sub.legend(loc='upper right', handletextpad=0.2, markerscale=5, fontsize=20)
+    #sub.text(0.86, 0.61, '$%.2f \leq k_1, k_2, k_3 \leq %.1f$' % (krange[0], krange[1]), ha='right', va='bottom', 
+    #        transform=sub.transAxes, fontsize=25)
+    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_pbkFisher_Mnu_sig8_%s_%s.png' % 
+            (str(krange[0]).replace('.', ''), str(krange[1]).replace('.', '')))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
+
+
+def hades_dchi2(krange=[0.01, 0.5]):
+    ''' calculate delta chi-squared for the hades simulation using the quijote 
+    simulation covariance matrix
+    
+    :param krange: (default: [0.01, 0.5]) 
+        tuple specifying the kranges of k1, k2, k3 in the bispectrum
+    '''
+    # read in B(k) of fiducial quijote simulation for covariance matrix
+    quij = quijoteBk('fiducial') # theta_fiducial 
+    bks = quij['b123'] + quij['b_sn']                   # shotnoise uncorrected B(k) 
+    i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
+
+    # impose k limit on bispectrum
+    kmin, kmax = krange 
+    kf = 2.*np.pi/1000. # fundmaentla mode
+    bklim = ((i_k*kf <= kmax) & (i_k*kf >= kmin) &
+            (j_k*kf <= kmax) & (j_k*kf >= kmin) & 
+            (l_k*kf <= kmax) & (l_k*kf >= kmin)) 
+    ijl = UT.ijl_order(i_k[bklim], j_k[bklim], l_k[bklim], typ='GM') # order of triangles 
+    bks = bks[:,bklim][:,ijl] 
+
+    C_bk = np.cov(bks.T) # covariance matrix 
+    C_inv = np.linalg.inv(C_bk) # invert the covariance 
+    
+    # fiducial hades B(k) 
+    hades_fid = hadesBk(0.0, nzbin=4, rsd=True) # fiducial bispectrum
+    Bk_fid = np.average(hades_fid['b123'], axis=0)
+
+    mnus = [0.0, 0.06, 0.1, 0.15]
+    sig8s = [0.822, 0.818, 0.807, 0.798]
+    for mnu in mnus: # bispectrum for different Mnu
+        hades_i = hadesBk(mnu, nzbin=4, rsd=True)
+        _bk = np.average(hades_i['b123'], axis=0)
+        dbk = (_bk - Bk_fid)[bklim][ijl]
+        chi2 = np.sum(np.dot(dbk.T, np.dot(C_inv, dbk)))
+        print('Mnu=%.2f, delta chi-squared %.2f' % (mnu, chi2))
+
+    for sig8 in sig8s: # bispectrum for different sigma8 
+        hades_i = hadesBk_s8(sig8, nzbin=4, rsd=True)
+        _bk = np.average(hades_i['b123'], axis=0)
+        dbk = (_bk - Bk_fid)[bklim][ijl]
+        chi2 = np.sum(np.dot(dbk.T, np.dot(C_inv, dbk)))
+        print('sig8=%.3f, delta chi-squared %.2f' % (sig8, chi2))
+    return None
+
 ##################################################################
 # qujiote fisher tests 
 ##################################################################
@@ -2133,7 +2257,9 @@ if __name__=="__main__":
     #for kmax in [0.2, 0.3, 0.4, 0.5]: 
     #    quijote_pkbkCov(krange=[0.01, kmax])
     #    quijote_pbkForecast(krange=[0.01, kmax])
-    quijote_pbkForecast(krange=[0.01, 0.5])
+    #quijote_pbkForecast(krange=[0.01, 0.5])
+    #quijote_pbkForecast_Mnu_s8(krange=[0.01, 0.5])
+    hades_dchi2(krange=[0.01, 0.5])
         
     #for par in ['Mnu', 'Ob', 'Om', 'h', 'ns', 's8']: 
     #    quijote_dBk_nmock(par)
