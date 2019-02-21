@@ -480,6 +480,9 @@ def compare_Bk(krange=[0.01, 0.5], rsd=True):
         axins2.plot(tri, _bk, c='C'+str(ii)) 
     #sub.plot(tri, Bk_sn[klim][ijl], c='k', ls=':') 
 
+    #print(i_k[ijl][480:500]) 
+    #print(j_k[ijl][480:500]) 
+    #print(l_k[ijl][480:500]) 
     sub.legend(loc='lower left', ncol=4, columnspacing=0.5, markerscale=4, handletextpad=0.25, fontsize=20) 
     sub2.legend(loc='lower left', ncol=4, columnspacing=0.5, markerscale=4, handletextpad=0.25, fontsize=20) 
 
@@ -541,7 +544,7 @@ def compare_Bk(krange=[0.01, 0.5], rsd=True):
         #if i == 0: sub.fill_between(tri, np.zeros(np.sum(klim)), sigBk/bk_fid, color='k', alpha=0.25, linewidth=0.) 
     
         db = bks8[klim][ijl]/bk_fid - 1.
-        sub.plot(tri, db, lw=1, c='k', label='$\sigma_8=%.3f$' % sig8) 
+        sub.plot(tri, db, lw=1, c='k', label='0.0 eV\n$\sigma_8=%.3f$' % sig8) 
         sub.plot([0, np.sum(klim)], [0., 0.], c='k', ls='--', lw=2)
         if rsd: 
             sub.legend(loc='upper left', ncol=2, markerscale=4, handletextpad=0.5, fontsize=25) 
@@ -565,6 +568,63 @@ def compare_Bk(krange=[0.01, 0.5], rsd=True):
             'haloBk_residual_%s_%s%s.pdf' % 
             (str(kmin).replace('.', ''), str(kmax).replace('.', ''), ['', '_rsd'][rsd]))
     fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+
+def compare_Bk_rsd(krange=[0.01, 0.5]):  
+    ''' Compare the amplitude of the fiducial HADES bispectrum in
+    redshift space versus real space. 
+
+    :param krange: (default: [0.01, 0.5]) 
+        k-range of k1, k2, k3 
+    '''
+    hades_fid = hadesBk(0.0, nzbin=4, rsd=False) # fiducial bispectrum
+    Bk_fid = np.average(hades_fid['b123'], axis=0)
+    Bk_sn = np.average(hades_fid['b_sn'], axis=0) 
+    hades_fid = hadesBk(0.0, nzbin=4, rsd=True) # fiducial bispectrum
+    Bk_fid_rsd = np.average(hades_fid['b123'], axis=0) 
+    Bk_sn_rsd = np.average(hades_fid['b_sn'], axis=0) 
+
+    i_k, j_k, l_k = hades_fid['k1'], hades_fid['k2'], hades_fid['k3']
+    kf = 2.*np.pi/1000. 
+    kmin, kmax = krange # impose k range 
+    klim = ((i_k * kf <= kmax) & (i_k * kf >= kmin) &
+            (j_k * kf <= kmax) & (j_k * kf >= kmin) & 
+            (l_k * kf <= kmax) & (l_k * kf >= kmin)) 
+
+    i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim] 
+
+    ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order of triangles 
+
+    fig = plt.figure(figsize=(25,5))
+    sub = fig.add_subplot(111)
+    tri = np.arange(np.sum(klim))
+    sub.plot(tri, Bk_fid[klim][ijl], c='C0', label='real-space') 
+    sub.plot(tri, Bk_fid_rsd[klim][ijl], c='C1', label='redshift-space') 
+    sub.legend(loc='upper right', fontsize=20) 
+    sub.set_yscale('log') 
+    sub.set_xlim([0, np.sum(klim)])
+    sub.set_ylim([1e6, 1e10]) 
+    sub.set_xlabel('triangle configurations', labelpad=15, fontsize=25) 
+    sub.set_ylabel('$B(k_1, k_2, k_3)$', labelpad=10, fontsize=25) 
+    krange_str = str(kmin).replace('.', '')+'_'+str(kmax).replace('.', '') 
+    ffig = os.path.join(UT.doc_dir(), 'figs', 
+            'haloBk_amp_%s_%s_rsd_comparison.png' % (str(kmin).replace('.', ''), str(kmax).replace('.', '')))
+    fig.savefig(ffig, bbox_inches='tight') 
+
+    fig = plt.figure(figsize=(25,5))
+    sub = fig.add_subplot(111)
+    tri = np.arange(np.sum(klim))
+    sub.plot(tri, Bk_fid_rsd[klim][ijl]/Bk_fid[klim][ijl], c='C0')
+    sub.set_xlim([0, np.sum(klim)])
+    sub.set_ylim([1., 5.]) 
+    sub.set_xlabel('triangle configurations', labelpad=15, fontsize=25) 
+    sub.set_ylabel('$B^{(s)}/B$', labelpad=10, fontsize=25) 
+    krange_str = str(kmin).replace('.', '')+'_'+str(kmax).replace('.', '') 
+    ffig = os.path.join(UT.doc_dir(), 'figs', 
+            'haloBk_amp_%s_%s_rsd_ratio.png' % (str(kmin).replace('.', ''), str(kmax).replace('.', '')))
+    fig.savefig(ffig, bbox_inches='tight') 
+
     return None 
 
 
@@ -1601,6 +1661,8 @@ def quijote_pbkForecast(krange=[0.01, 0.5]):
     theta_lims = [(0.25, 0.385), (0.02, 0.08), (0.3, 1.1), (0.6, 1.3), (0.8, 0.88), (-0.4, 0.4)]
     theta_fid = {'Mnu': 0., 'Ob': 0.049, 'Om': 0.3175, 'h': 0.6711,  'ns': 0.9624,  's8': 0.834} # fiducial theta 
     ntheta = len(thetas)
+    print('P(k) marginalized constraint on Mnu = %f' % np.sqrt(pkFinv[-1,-1]))
+    print('B(k1,k2,k3) marginalized constraint on Mnu = %f' % np.sqrt(bkFinv[-1,-1]))
     
     fig = plt.figure(figsize=(17, 15))
     for i in xrange(ntheta-1): 
@@ -1871,9 +1933,9 @@ def quijote_forecast_triangle_kmax(typ):
         tuple specifying the kranges of k1, k2, k3 in the bispectrum
     '''
     bk_dir = os.path.join(UT.dat_dir(), 'bispectrum')
-    kmaxs = [0.2, 0.3, 0.5]
-    colrs = ['C2', 'C1', 'C0']
-    alphas = [0.7, 0.8, 0.9] 
+    kmaxs = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
+    colrs =  ['C%i' % i for i in range(len(kmaxs))]
+    alphas = np.repeat(0.7, len(kmaxs))#[0.7, 0.8, 0.9] 
     # read in fisher matrix (Fij)
     Finvs = [] 
     for kmax in kmaxs: 
@@ -1950,7 +2012,7 @@ def quijote_forecast_triangle_kmax(typ):
 
         sub.set_xlim([kmaxs[0], kmaxs[-1]]) 
         sub.set_ylabel(r'$\sigma_{%s}$' % theta_lbls[i], fontsize=25)
-        sub.set_ylim([0., theta_lims[i][1]]) 
+        sub.set_ylim([0., 2*theta_lims[i][1]]) 
 
     bkgd = fig.add_subplot(111, frameon=False)
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
@@ -2044,24 +2106,21 @@ def quijote_forecast_nmock(krange=[0.01, 0.5]):
     theta_fid = {'Mnu': 0., 'Ob': 0.049, 'Om': 0.3175, 'h': 0.6711,  'ns': 0.9624,  's8': 0.834} # fiducial theta 
     ntheta = len(thetas)
     
-    fig = plt.figure(figsize=(15, 10))
+    fig = plt.figure(figsize=(6,6))
+    sub = fig.add_subplot(111) 
+    sub.plot([1000, 15000], [1., 1.], c='k', ls='--', lw=1) 
+    sub.plot([1000, 15000], [0.9, 0.9], c='k', ls=':', lw=1) 
     for i in xrange(ntheta): 
-        sub = fig.add_subplot(2,ntheta/2,i+1) 
         sig_theta = np.zeros(len(nmocks))
         for ik in range(len(nmocks)): 
             sig_theta[ik] = np.sqrt(Finvs[ik][i,i])
-
-        sub.plot(nmocks, sig_theta) 
-
-        sub.set_xlim([nmocks[0], nmocks[-1]]) 
-        sub.set_ylabel(r'$\sigma_{%s}$' % theta_lbls[i], fontsize=25)
-        sub.set_ylim([0., 2.*sig_theta[-1]])
-
-    bkgd = fig.add_subplot(111, frameon=False)
-    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-    bkgd.set_xlabel(r"$N$ Quijote mocks", labelpad=10, fontsize=25) 
-    fig.subplots_adjust(wspace=0.35, hspace=0.1) 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_Fisher_nmocks_%s_%s.png' % 
+        sub.plot(nmocks, sig_theta/sig_theta[-1], label=r'$%s$' % theta_lbls[i]) 
+        sub.set_xlim([3000, 15000]) 
+    sub.legend(loc='lower right', fontsize=20) 
+    sub.set_ylabel(r'$\sigma_\theta(N_{\rm fid})/\sigma_\theta(N_{\rm fid}=15,000)$', fontsize=25)
+    sub.set_ylim([0.5, 1.1]) 
+    sub.set_xlabel(r"$N_{\rm fid}$ Quijote realizations", labelpad=10, fontsize=25) 
+    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_Fisher_nmocks_%s_%s.pdf' % 
             (str(kmin).replace('.', ''), str(kmax).replace('.', '')))
     fig.savefig(ffig, bbox_inches='tight') 
     return None
@@ -2147,24 +2206,22 @@ def quijote_forecast_dBk_nmock(krange=[0.01, 0.5]):
     theta_fid = {'Mnu': 0., 'Ob': 0.049, 'Om': 0.3175, 'h': 0.6711,  'ns': 0.9624,  's8': 0.834} # fiducial theta 
     ntheta = len(thetas)
     
-    fig = plt.figure(figsize=(15, 10))
+    fig = plt.figure(figsize=(6,6))
+    sub = fig.add_subplot(111)
+    sub.plot([100., 500.], [1., 1.], c='k', ls='--', lw=1) 
+    sub.plot([100., 500.], [0.9, 0.9], c='k', ls=':', lw=1) 
     for i in xrange(ntheta): 
-        sub = fig.add_subplot(2,ntheta/2,i+1) 
         sig_theta = np.zeros(len(nmocks))
         for ik in range(len(nmocks)): 
             sig_theta[ik] = np.sqrt(Finvs[ik][i,i])
 
-        sub.plot(nmocks, sig_theta) 
-
-        sub.set_xlim([nmocks[0], nmocks[-1]]) 
-        sub.set_ylabel(r'$\sigma_{%s}$' % theta_lbls[i], fontsize=25)
-        sub.set_ylim([0., 2.*sig_theta[-1]])
-
-    bkgd = fig.add_subplot(111, frameon=False)
-    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-    bkgd.set_xlabel(r"$N$ Quijote mocks", labelpad=10, fontsize=25) 
-    fig.subplots_adjust(wspace=0.35, hspace=0.1) 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_Fisher_dBk_nmocks_%s_%s.png' % 
+        sub.plot(nmocks, sig_theta/sig_theta[-1], label=(r'$%s$' % theta_lbls[i]))
+        sub.set_xlim([100, 500]) 
+    sub.legend(loc='lower right', fontsize=20) 
+    sub.set_ylabel(r'$\sigma_\theta(N_{\rm mock})/\sigma_\theta(N_{\rm mock}=500)$', fontsize=25)
+    sub.set_ylim([0.5, 1.1]) 
+    sub.set_xlabel(r"$N_{\rm mock}$ Quijote realizations", labelpad=10, fontsize=25) 
+    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_Fisher_dBk_nmocks_%s_%s.pdf' % 
             (str(kmin).replace('.', ''), str(kmax).replace('.', '')))
     fig.savefig(ffig, bbox_inches='tight') 
     return None
@@ -2241,6 +2298,7 @@ if __name__=="__main__":
     #ratio_Plk(nreals=range(1,101), krange=[0.01, 0.5])
 
     for kmax in [0.5]: #[0.2, 0.3, 0.4, 0.5]: 
+        #compare_Bk(krange=[0.01, kmax], rsd=True)
         continue 
         quijote_pkCov(krange=[0.01, kmax]) 
         quijote_pkFisher(krange=[0.01, kmax])
@@ -2253,13 +2311,12 @@ if __name__=="__main__":
     #quijote_bkCov(krange=[0.01, 0.5])
     #quijote_pkForecast_kmax() 
     #quijote_bkForecast_kmax()
+    compare_Bk_rsd(krange=[0.01, 0.5])
     
     #for kmax in [0.2, 0.3, 0.4, 0.5]: 
     #    quijote_pkbkCov(krange=[0.01, kmax])
     #    quijote_pbkForecast(krange=[0.01, kmax])
-    #quijote_pbkForecast(krange=[0.01, 0.5])
-    #quijote_pbkForecast_Mnu_s8(krange=[0.01, 0.5])
-    hades_dchi2(krange=[0.01, 0.5])
+    #hades_dchi2(krange=[0.01, 0.5])
         
     #for par in ['Mnu', 'Ob', 'Om', 'h', 'ns', 's8']: 
     #    quijote_dBk_nmock(par)
