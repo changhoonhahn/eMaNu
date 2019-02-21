@@ -483,6 +483,8 @@ def compare_Bk(krange=[0.01, 0.5], rsd=True):
     #print(i_k[ijl][480:500]) 
     #print(j_k[ijl][480:500]) 
     #print(l_k[ijl][480:500]) 
+
+    sub2.text(0.02, 0.15, '0.0 eV', ha='left', va='bottom', transform=sub2.transAxes, fontsize=20)
     sub.legend(loc='lower left', ncol=4, columnspacing=0.5, markerscale=4, handletextpad=0.25, fontsize=20) 
     sub2.legend(loc='lower left', ncol=4, columnspacing=0.5, markerscale=4, handletextpad=0.25, fontsize=20) 
 
@@ -522,7 +524,7 @@ def compare_Bk(krange=[0.01, 0.5], rsd=True):
     
     bkgd = fig.add_subplot(111, frameon=False)
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-    bkgd.set_xlabel(r'$k_1 \le k_2 \le k_3$ triangle indices', labelpad=15, fontsize=25) 
+    bkgd.set_xlabel(r'triangle configurations', labelpad=15, fontsize=25) 
     bkgd.set_ylabel('$B(k_1, k_2, k_3)$', labelpad=10, fontsize=25) 
     fig.subplots_adjust(hspace=0.15)
 
@@ -561,8 +563,8 @@ def compare_Bk(krange=[0.01, 0.5], rsd=True):
     
     bkgd = fig.add_subplot(111, frameon=False)
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-    bkgd.set_xlabel(r'$k_1 \le k_2 \le k_3$ triangle indices', labelpad=10, fontsize=30) 
-    bkgd.set_ylabel('$B(k_1, k_2, k_3) / B^\mathrm{fid} - 1 $', labelpad=15, fontsize=30) 
+    bkgd.set_xlabel(r'triangle configurations', labelpad=15, fontsize=25) 
+    bkgd.set_ylabel('$(B(k_1, k_2, k_3) - B^\mathrm{(fid)})/B^\mathrm{(fid)}$', labelpad=15, fontsize=30) 
     fig.subplots_adjust(hspace=0.1)
     ffig = os.path.join(UT.doc_dir(), 'figs', 
             'haloBk_residual_%s_%s%s.pdf' % 
@@ -601,7 +603,7 @@ def compare_Bk_rsd(krange=[0.01, 0.5]):
     tri = np.arange(np.sum(klim))
     sub.plot(tri, Bk_fid[klim][ijl], c='C0', label='real-space') 
     sub.plot(tri, Bk_fid_rsd[klim][ijl], c='C1', label='redshift-space') 
-    sub.legend(loc='upper right', fontsize=20) 
+    sub.legend(loc='upper right', fontsize=25) 
     sub.set_yscale('log') 
     sub.set_xlim([0, np.sum(klim)])
     sub.set_ylim([1e6, 1e10]) 
@@ -609,7 +611,7 @@ def compare_Bk_rsd(krange=[0.01, 0.5]):
     sub.set_ylabel('$B(k_1, k_2, k_3)$', labelpad=10, fontsize=25) 
     krange_str = str(kmin).replace('.', '')+'_'+str(kmax).replace('.', '') 
     ffig = os.path.join(UT.doc_dir(), 'figs', 
-            'haloBk_amp_%s_%s_rsd_comparison.png' % (str(kmin).replace('.', ''), str(kmax).replace('.', '')))
+            'haloBk_amp_%s_%s_rsd_comparison.pdf' % (str(kmin).replace('.', ''), str(kmax).replace('.', '')))
     fig.savefig(ffig, bbox_inches='tight') 
 
     fig = plt.figure(figsize=(25,5))
@@ -1011,7 +1013,7 @@ def quijote_bkCov(krange=[0.01, 0.5]):
     sub = fig.add_subplot(111)
     cm = sub.pcolormesh(C_bk, norm=LogNorm(vmin=1e11, vmax=1e18))
     cbar = fig.colorbar(cm, ax=sub) 
-    cbar.set_label(r'Quijote covariance matrix, ${\bf C}_{B}$', fontsize=25, labelpad=10, rotation=90)
+    cbar.set_label(r'$B(k_1, k_2, k_3)$ covariance matrix, ${\bf C}_{B}$', fontsize=25, labelpad=10, rotation=90)
     #sub.set_title(r'Quijote $B(k_1, k_2, k_3)$ Covariance', fontsize=25)
     ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_bkCov_%s_%s.png' % 
             (str(kmin).replace('.', ''), str(kmax).replace('.', '')))
@@ -1409,9 +1411,11 @@ def quijote_bkForecast_kmax():
                 sub.set_xticklabels([]) 
 
     bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.text(0.82, 0.77, r'$B^{\rm halo}(k_1, k_2, k_3)$', ha='right', va='bottom', 
+                transform=bkgd.transAxes, fontsize=25)
     for colr, alpha, kmax in zip(colrs, alphas, kmaxs): 
-        bkgd.fill_between([],[],[], color=colr, alpha=alpha, label=r'$0.01 < k < k_{\rm max} = %.1f$' % kmax) 
-    bkgd.legend(loc='upper right', handletextpad=0.3, bbox_to_anchor=(0.95, 0.775), fontsize=25)
+        bkgd.fill_between([],[],[], color=colr, alpha=alpha, label=r'$k_1, k_2, k_3 < k_{\rm max} = %.1f$' % kmax) 
+    bkgd.legend(loc='upper right', handletextpad=0.3, bbox_to_anchor=(0.925, 0.775), fontsize=25)
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
     fig.subplots_adjust(wspace=0.05, hspace=0.05) 
     ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_bkFisher_kmax.pdf')
@@ -1623,9 +1627,11 @@ def quijote_pkForecast_kmax():
                 sub.set_xticklabels([]) 
 
     bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.text(0.75, 0.775, r'$P_0^{\rm halo}(k)$', ha='right', va='bottom', 
+                transform=bkgd.transAxes, fontsize=25)
     for colr, alpha, kmax in zip(colrs, alphas, kmaxs): 
-        bkgd.fill_between([],[],[], color=colr, alpha=alpha, label=r'$0.01 < k < k_{\rm max} = %.1f$' % kmax) 
-    bkgd.legend(loc='upper right', handletextpad=0.3, bbox_to_anchor=(0.95, 0.775), fontsize=25)
+        bkgd.fill_between([],[],[], color=colr, alpha=alpha, label=r'$k_{\rm max} = %.1f$' % kmax) 
+    bkgd.legend(loc='upper right', handletextpad=0.3, bbox_to_anchor=(0.815, 0.775), fontsize=25)
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
     fig.subplots_adjust(wspace=0.05, hspace=0.05) 
     ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_pkFisher_kmax.pdf')
@@ -1714,7 +1720,7 @@ def quijote_pbkForecast(krange=[0.01, 0.5]):
     bkgd.fill_between([],[],[], color='C0', label=r'$P^{\rm halo}_0(k)$') 
     bkgd.fill_between([],[],[], color='C1', label=r'$B^{\rm halo}(k_1, k_2, k_3)$') 
     bkgd.legend(loc='upper right', bbox_to_anchor=(0.875, 0.775), fontsize=25)
-    bkgd.text(0.86, 0.61, '$%.2f \leq k_1, k_2, k_3 \leq %.1f$' % (krange[0], krange[1]), ha='right', va='bottom', 
+    bkgd.text(0.75, 0.61, r'$k_{\rm max} = %.1f$' % krange[1], ha='right', va='bottom', 
                 transform=bkgd.transAxes, fontsize=25)
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
     fig.subplots_adjust(wspace=0.05, hspace=0.05) 
@@ -2298,7 +2304,7 @@ if __name__=="__main__":
     #ratio_Plk(nreals=range(1,101), krange=[0.01, 0.5])
 
     for kmax in [0.5]: #[0.2, 0.3, 0.4, 0.5]: 
-        #compare_Bk(krange=[0.01, kmax], rsd=True)
+        quijote_bkCov(krange=[0.01, kmax])
         continue 
         quijote_pkCov(krange=[0.01, kmax]) 
         quijote_pkFisher(krange=[0.01, kmax])
@@ -2313,14 +2319,12 @@ if __name__=="__main__":
     #quijote_bkForecast_kmax()
     compare_Bk_rsd(krange=[0.01, 0.5])
     
-    #for kmax in [0.2, 0.3, 0.4, 0.5]: 
+    for kmax in [0.5]:#, 0.3, 0.4, 0.5]: 
+        continue
+        quijote_pbkForecast(krange=[0.01, kmax])
     #    quijote_pkbkCov(krange=[0.01, kmax])
-    #    quijote_pbkForecast(krange=[0.01, kmax])
     #hades_dchi2(krange=[0.01, 0.5])
         
-    #for par in ['Mnu', 'Ob', 'Om', 'h', 'ns', 's8']: 
-    #    quijote_dBk_nmock(par)
-
     # kmax test
     #for k in [0.2, 0.3, 0.4]: 
     #    B123_kmax_test(kmin=0.01, kmax1=k, kmax2=k+0.1, rsd=True)
@@ -2337,7 +2341,11 @@ if __name__=="__main__":
     #compare_Bk_triangle('squ', rsd=True)
     #quijote_forecast_triangle_kmax('squ')
     #quijote_pkbkCov_triangle('squ', krange=[0.01, 0.5])
-
-    # nmock of quijote 
+    
+    # convergence tests 
     #quijote_forecast_nmock(krange=[0.01, 0.5])
     #quijote_forecast_dBk_nmock(krange=[0.01, 0.5])
+
+    #for par in ['Mnu', 'Ob', 'Om', 'h', 'ns', 's8']: 
+    #    quijote_dBk_nmock(par)
+

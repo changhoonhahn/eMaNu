@@ -20,5 +20,8 @@ emanu.pdf: *.tex vc.tex
 	( grep Rerun emanu.log && ${LATEX} emanu ) || echo "Done."
 	( grep Rerun emanu.log && ${LATEX} emanu ) || echo "Done."
 
+rs_email.pdf: *.tex
+	${LATEX} rs_email 
+
 clean:
 	${RM} $(foreach suff, ${TMP_SUFFS}, emanu.${suff})

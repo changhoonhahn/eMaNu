@@ -29,9 +29,7 @@
 % math shih
 \newcommand{\setof}[1]{\left\{{#1}\right\}}
 \newcommand{\given}{\,|\,}
-\newcommand{\pseudo}{{\mathrm{pseudo}}}
-\newcommand{\Var}{\mathrm{Var}}
-\newcommand{\Nd}{{100}\xspace}
+\newcommand{\lss}{{\small{LSS}}\xspace}
 
 \newcommand{\Om}{\Omega_{\rm m}} 
 \newcommand{\Ob}{\Omega_{\rm b}} 
@@ -55,19 +53,13 @@
 
 %% MS: To make collaborating easier
 \definecolor{orange}{rgb}{1,0.5,0}
-%\setlength{\marginparwidth}{1.2in}
-%\let\oldmarginpar\marginpar
-%\renewcommand\marginpar[1]{\-\oldmarginpar[\raggedleft\footnotesize #1]%
-%  {\raggedright\footnotesize #1}}
 
 %%% Here are the things that make collaborative effort easier
 \newcommand{\ch}[1]{{\color{orange}{\bf CH:} #1}}
-\newcommand{\lss}{{\small{LSS}}\xspace}
-\newcommand{\patchy}{{\fontshape\scdefault\selectfont patchy}}
 
 \begin{document}\sloppy\sloppypar\frenchspacing 
 
-\title{Breaking $\smnu$ Parameter Degeneracies with Three-point Statistics} 
+\title{Breaking $\smnu$ Parameter Degeneracies with the Bispectrum} 
 \date{\texttt{DRAFT~---~\githash~---~\gitdate~---~NOT READY FOR DISTRIBUTION}}
 
 \newcounter{affilcounter}
@@ -158,11 +150,17 @@ Brief description of the Scoccimarro et al. bispectrum estimator here
     \includegraphics[width=\textwidth]{figs/haloBk_shape_001_05_rsd.pdf} 
     \caption{The redshift-space halo bispectrum, $B(k_1, k_2, k_3)$ as a 
     function of triangle configuration shape for $\smnu = 0.0, 0.06, 0.10$, 
-    and $0.15\,\mathrm{eV}$ (top panels) and $\sig = 0.822, 0.818, 0.807$, 
-    and $0.798$ (lower panels). 
-    \ch{details on the triangle configurations and the colormap}.
-    We describe the estimator used to calculate $B(k_1, k_2, k_3)$ in 
-    Section~\ref{sec:bk}.}
+    and $0.15\,\mathrm{eV}$ (upper panels) and $\sig = 0.822, 0.818$, and 
+    $0.807$ (lower panels). We describe the triangle configuration shape 
+    by the ratio of the triangle sides: $k_3/k_1$ and $k_2/k_1$. In each 
+    of the panels, the upper left bin contains squeezed triangles 
+    ($k_1 = k_2 \gg k_3$); the upper right bin contains equilateral triangles 
+    ($k_1 = k_2 = k_3$); and the bottom center bin contains folded triangles 
+    ($k_1 = 2 k_2 = 2 k_3$). We include all triangle configurations with 
+    $k_1, k_2, k_3 \leq k_{\rm max} = 0.5~h/{\rm Mpc}$. In the three 
+    right-most columns, the HADES simulations of the top and bottom panels 
+    have matching $\sig$ values. We describe the estimator used to calculate 
+    $B(k_1, k_2, k_3)$ in Section~\ref{sec:bk}.}
 \label{fig:bk_shape}
 \end{center}
 \end{figure}
@@ -171,13 +169,17 @@ Brief description of the Scoccimarro et al. bispectrum estimator here
 \begin{center}
 \includegraphics[width=0.9\textwidth]{figs/haloBk_amp_001_05_rsd.pdf}
     \caption{The redshift-space halo bispectrum, $B(k_1, k_2, k_3)$, as a
-    function of all triangle configurations for $\smnu = 0.0, 0.06, 0.10$, 
-    and $0.15\,\mathrm{eV}$ (top panel) and $\sig = 0.822, 0.818, 0.807$, 
-    and $0.798$ (lower panel). 
-    \ch{details on the ordering of the triangle configurations; also mention
-    how it's roughly scale dependence}.
-    We describe the estimator used to calculate $B(k_1, k_2, k_3)$ in 
-    Section~\ref{sec:bk}.}
+    function of triangle configurations for $\smnu = 0.0, 0.06, 0.10$, 
+    and $0.15\,\mathrm{eV}$ (top panel) and $\smnu = 0.0$ eV, $\sig = 0.822, 0.818, 0.807$, 
+    and $0.798$ (lower panel). We include all possible triangle configurations 
+    with $k_1, k_2, k_3 \leq k_{\rm max} = 0.5~h/{\rm Mpc}$ where we loop 
+    through the configurations with $k_3$ in the inner most loop and 
+    $k_1$ in the outer most loop satisfying $k_1 \leq k_2 \leq k_3$. In the 
+    insets of the panels we zoom into triangle configurations with 
+    $k_1 = 0.113$, $0.226 \leq k_2 \leq 0.283$, and $0.283 \leq k_3 \leq 0.377~h/{\rm Mpc}$. 
+    The blue shaded regions represent the uncertainties estimated using 
+    the $15,000$ fiducial Quijote simulations and illustrate how triangle 
+    configurations on small scales are dominated by shot noise.}
 \label{fig:bk_amp}
 \end{center}
 \end{figure}
@@ -186,38 +188,44 @@ Brief description of the Scoccimarro et al. bispectrum estimator here
 % Section   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results} \label{sec:results} 
-\subsection{Breaking the $\smnu$-- $\sig$ degeneracy}
+\subsection{Breaking the $\smnu$-- $\sig$ degeneracy} \label{sec:mnusig}
 
 \begin{figure}
 \begin{center}
 \includegraphics[width=\textwidth]{figs/haloBk_dshape_001_05_rsd.pdf} 
-    \caption{The shape depdence of the $\smnu$ and $\sig$ impact on the 
-    redshift-space halo bispectrum, $\Delta B/B^\mathrm{(fid)}$. 
-    $\smnu = 0.06, 0.10$, and $0.15\,\mathrm{eV}$ (top panels; left to right) are aligned
-    with $\sig = 0.822, 0.818$, and $0.807\,\mathrm{eV}$ (bottom planes; left to right),
-    which produce mostly degenerate imprints on the redshift-space power 
-    spectrum. \ch{Details on the shape dependence}. 
-    The difference between the top and bottom panels illustrate 
-    that {\em $\smnu$ induces a sigificantly different impact on the 
-    shape-dependence of the halo bispectrum than $\sig$}. 
+    \caption{The shape dependence of the $\smnu$ and $\sig$ imprint on 
+    the redshift-space halo bispectrum, $\Delta B/B^\mathrm{(fid)}$. 
+    We align the $\smnu{=}~0.06, 0.10$, and $0.15\,\mathrm{eV}$ (upper panels) 
+    with $\smnu{=}~0.0$ eV, $\sig{=}~0.822$, $0.818$, and $0.807$ (bottom panels) 
+    such that simulations of top and bottom panels in each of the three columns 
+    have matching $\sig^{c}$, which produce mostly degenerate imprints on 
+    the redshift-space power spectrum. The difference between the top and 
+    bottom panels highlight, for instance, that $\smnu$ leaves a distinct
+    imprint on elongated and isosceles triangles (bins along the bottom left
+    and bottom right edges, respectively) from $\sig$. {\em The imprint of 
+    $\smnu$ has an overall distinct shape dependence on the bispectrum that 
+    cannot be replicated by a change of $\sig$}. 
     }
 \label{fig:dbk_shape}
 \end{center}
 \end{figure}
 
-
 \begin{figure}
 \begin{center}
 \includegraphics[width=0.9\textwidth]{figs/haloBk_residual_001_05_rsd.pdf}
     \caption{The impact of $\smnu$ and $\sig$ on the redshift-space 
-    halo bispectrum for all triangle configurations: $\Delta B/B^\mathrm{(fid)}$. 
-    The impact of $\smnu$ differs significantly from the impact of $\sig$ 
-    both in amplitude and scale dependence. For instance, $\smnu = 0.15\,\mathrm{eV}$ 
-    (red) has a $\sim 5\%$ stronger impact on the bispectrum than $\sig = 0.798$ 
-    (cyan dotted), which has little difference in the power spectrum (Figure~\ref{fig:plk}). 
+    halo bispectrum, $\Delta B/B^\mathrm{(fid)}$, for triangle configurations with 
+    $k_1, k_2, k_3 \leq 0.5 h/{\rm Mpc}$. We compare $\Delta B/B^\mathrm{(fid)}$ 
+    of the HADES simulations with $\smnu = 0.06$ (top), $0.10$ (middle), and 
+    $0.15$ eV (bottom) to $\Delta B/B^\mathrm{(fid)}$ of $\smnu=0.0$ eV HADES 
+    simulations with matching $\sig$. The impact of $\smnu$ on the bispectrum
+    has a significantly different amplitude than the impact of $\sig$. For 
+    instance, $\smnu{=}~0.15\,\mathrm{eV}$ (red) has a $\sim 5\%$ stronger impact 
+    on the bispectrum than $\smnu{=}~0.0$ eV, $\sig{=}~0.798$ (black). Meanwhile, 
+    these two simulations have power spectrums that differ by $< 1\%$ (Figure~\ref{fig:plk}). 
     Combined with the shape-dependence of Figure~\ref{fig:dbk_shape}, {\em the 
-    contrasting impact of $\smnu$ and $\sig$ on the redshift-space halo bispectrum 
-    illustrate that the bispectrum break the degeneracy between $\smnu$
+    distinct impact of $\smnu$ and $\sig$ on the redshift-space halo bispectrum 
+    illustrate that the bispectrum can break the degeneracy between $\smnu$
     and $\sig$ that degrade constraints from two-point analyses}. 
     }
 \label{fig:dbk_amp}
@@ -228,20 +236,32 @@ Brief description of the Scoccimarro et al. bispectrum estimator here
 \begin{figure}
 \begin{center}
 \includegraphics[width=0.95\textwidth]{figs/haloBk_triangles_rsd.pdf}
-    \caption{}
+    \caption{The impact of $\smnu$ and $\sig$ on the redshift-space halo 
+    bispectrum, $\Delta B/B^\mathrm{(fid)}$, for triangles that have  
+    $[k_1, k_2] = [0.19, 0.11], [0.11, 0.11]$ and $[0.08, 0.06]~h/{\rm Mpc}$ 
+    (left to right) with different angles in between, $\theta_{12}$. Again, 
+    the HADES simulations with $\smnu{=}~0.06$, $0.10$, and $0.15$ eV 
+    (orange, green, red) have matching $\sig^{c}$ with the $\smnu{=}~0.0$ eV, 
+    $\sig{=}~0.822$, $0.818$, and $0.807$ (purple, pink, yellow dashed). Comparison
+    between  these two sets of simulations further illustrate the distinct 
+    imprint of the $\smnu$ on the bispectrum. We also include $\smnu{=}~0.0$ eV, 
+    $\sig{=}~0.798$ (black dashed) to highlight that change in $\sig$ cannot 
+    reproduce the imprint of $\smnu$. 
+    }
 \label{fig:dbk_amp}
 \end{center}
 \end{figure}
 
-\subsection{Forecasts}
+\subsection{Forecasts} \label{sec:forecasts}
 
 \begin{figure}
 \begin{center}
     \includegraphics[width=0.6\textwidth]{figs/quijote_bkCov_001_05.png} 
-    \caption{Covariance matrix of the halo bispectrum estimated using the 
-    $15,000$ realizations of the Qujiote simulation suite with the fiducial
-    cosmology: $\Om{=}0.3175, \Ob{=}0.049, h{=}0.6711, n_s{=}0.9624, \sig{=}0.834$, 
-    and $\smnu{=}0.0$ eV. \ch{explain triangle configuration order} 
+    \caption{Covariance matrix of the redshift-space halo bispectrum estimated 
+    using the 15,000 realizations of the Qujiote simulation suite with the 
+    fiducial cosmology: $\Om{=}0.3175$, $\Ob{=}0.049$, $h{=}0.6711$, $n_s{=}0.9624$, $\sig{=}0.834$, 
+    and $\smnu{=}0.0$ eV. The triangle configurations (the bins) have the same 
+    ordering as in Figures~\ref{fig:bk_amp} and~\ref{fig:dbk_amp}.
     }
 \label{fig:bk_cov}
 \end{center}
@@ -250,7 +270,15 @@ Brief description of the Scoccimarro et al. bispectrum estimator here
 \begin{figure}
 \begin{center}
     \includegraphics[width=\textwidth]{figs/quijote_pbkFisher_001_05.pdf}
-    \caption{}
+    \caption{Fisher forecast constraints on cosmological parameters from the 
+    redshift-space halo power spectrum monopole (blue) and bispectrum (orange) 
+    derived using the Quijote simulation suite. For both the power spectrum 
+    and bispectrum constraints, we set $k_{\rm max} = 0.5~h/{\rm Mpc}$. The 
+    contours mark the $68\%$ and $95\%$ confidence interals. The bispectrum 
+    {\em substantially} improves constraints on all of the cosmological parameters 
+    over the power spectrum. {\em For $\smnu$, the bispectrum improves the constraint
+    from $\sigma_{\smnu}{=}~0.279$ to $0.0258$ --- over an order of magnitude 
+    improvement over the power spectrum}.}
 \label{fig:bk_fish}
 \end{center}
 \end{figure}
@@ -259,7 +287,11 @@ Brief description of the Scoccimarro et al. bispectrum estimator here
 \begin{figure}
 \begin{center}
     \includegraphics[width=\textwidth]{figs/quijote_pkFisher_kmax.pdf} 
-    \caption{}
+    \caption{Fisher forecast constraints on cosmological parameters from the 
+    redshift-space halo power spectrum monopole for $k_{\rm max} = 0.2$ (green) 0.3 (orange), 
+    and $0.5~h/{\rm Mpc}$ (blue). The contours mark the $68\%$ (black dashed) and $95\%$ 
+    confidence intervals. The contours illustrate the degeneracy between $\smnu$ and $\sig$ 
+    we find  in the power spectrum comparisons of the HADES simulations (Figure~\ref{fig:plk}).}
 \label{fig:pk_fish_kmax}
 \end{center}
 \end{figure}
@@ -268,7 +300,12 @@ Brief description of the Scoccimarro et al. bispectrum estimator here
 \begin{figure}
 \begin{center}
     \includegraphics[width=\textwidth]{figs/quijote_bkFisher_kmax.pdf} 
-    \caption{}
+    \caption{Constraints on cosmological parameters from the redshift-space
+    halo bispectrum for $k_1, k_2, k_3 \leq k_{\rm max} = 0.2$ (green) 0.3 (orange), 
+    and $0.5~h/{\rm Mpc}$ (blue). The contours mark the $68\%$ (black dashed) and $95\%$ 
+    confidence intervals. As we find with the bispectrum comparisons of the HADES 
+    simulations (Section~\ref{sec:mnusig}, the bispectrum breaks the degeneracy 
+    with $\sig$. \ch{probably want to say more things}}
 \label{fig:bk_fish_kmax}
 \end{center}
 \end{figure}
@@ -285,6 +322,33 @@ It's a pleasure to thank
     Shirley Ho, 
 
 \appendix
+\section{Redshift-space Bispectrum} 
+\begin{figure}
+\begin{center}
+    \includegraphics[width=0.95\textwidth]{figs/haloBk_amp_001_05_rsd_comparison.pdf}
+    \caption{Comparison of the fiducial HADES simuluation real and redshift-space halo
+    bispectrum (blue and orange).}
+\label{fig:cov_converge}
+\end{center}
+\end{figure}
+
 \section{Testing Convergence} 
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=0.5\textwidth]{figs/quijote_Fisher_nmocks_001_05.pdf}
+    \caption{}
+\label{fig:cov_converge}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=0.5\textwidth]{figs/quijote_Fisher_dBk_nmocks_001_05.pdf} 
+    \caption{}
+\label{fig:dbk_converge}
+\end{center}
+\end{figure}
+
 %\bibliographystyle{yahapj}
 \end{document}
