@@ -40,13 +40,17 @@ def hades_Mnu_hdf5(mneut, nzbin=4, rsd=True):
     for i, fbk in enumerate(fbks):
         i_k, j_k, l_k, _p0k1, _p0k2, _p0k3, b123, q123, b_sn, cnts = np.loadtxt(
                 os.path.join(hades_dir, fbk), skiprows=1, unpack=True, usecols=range(10)) 
+        hdr = open(os.path.join(hades_dir, fbk)).readline().rstrip() 
+        Nhalo = int(hdr.split('Nhalo=')[-1])
         if i == 0: 
+            Nhalos = np.zeros((nbk)) 
             p0k1 = np.zeros((nbk, len(i_k)))
             p0k2 = np.zeros((nbk, len(i_k)))
             p0k3 = np.zeros((nbk, len(i_k)))
             bks = np.zeros((nbk, len(i_k)))
             qks = np.zeros((nbk, len(i_k)))
             bsn = np.zeros((nbk, len(i_k)))
+        Nhalos[i] = Nhalo
         p0k1[i,:] = _p0k1
         p0k2[i,:] = _p0k2
         p0k3[i,:] = _p0k3
@@ -68,6 +72,7 @@ def hades_Mnu_hdf5(mneut, nzbin=4, rsd=True):
     f.create_dataset('q123', data=qks) 
     f.create_dataset('b_sn', data=bsn) 
     f.create_dataset('counts', data=cnts) 
+    f.create_dataset('Nhalos', data=Nhalos) 
     f.close()
     return None 
 
@@ -100,13 +105,17 @@ def hades_sig8_hdf5(sig8, nzbin=4, rsd=True):
     for i, fbk in enumerate(fbks):
         i_k, j_k, l_k, _p0k1, _p0k2, _p0k3, b123, q123, b_sn, cnts = np.loadtxt(
                 os.path.join(hades_dir, fbk), skiprows=1, unpack=True, usecols=range(10)) 
+        hdr = open(os.path.join(hades_dir, fbk)).readline().rstrip() 
+        Nhalo = int(hdr.split('Nhalo=')[-1])
         if i == 0: 
+            Nhalos = np.zeros((nbk)) 
             p0k1 = np.zeros((nbk, len(i_k)))
             p0k2 = np.zeros((nbk, len(i_k)))
             p0k3 = np.zeros((nbk, len(i_k)))
             bks = np.zeros((nbk, len(i_k)))
             qks = np.zeros((nbk, len(i_k)))
             bsn = np.zeros((nbk, len(i_k)))
+        Nhalos[i] = Nhalo
         p0k1[i,:] = _p0k1
         p0k2[i,:] = _p0k2
         p0k3[i,:] = _p0k3
@@ -129,14 +138,15 @@ def hades_sig8_hdf5(sig8, nzbin=4, rsd=True):
     f.create_dataset('q123', data=qks) 
     f.create_dataset('b_sn', data=bsn) 
     f.create_dataset('counts', data=cnts) 
+    f.create_dataset('Nhalos', data=Nhalos) 
     f.close()
     return None 
 
 
 if __name__=="__main__":
-    #for mnu in [0.0, 0.06, 0.1, 0.15]: 
-    #    hades_Mnu_hdf5(mnu, nzbin=4, rsd=False)
-    #    hades_Mnu_hdf5(mnu, nzbin=4, rsd=True)
+    for mnu in [0.0, 0.06, 0.1, 0.15]: 
+        hades_Mnu_hdf5(mnu, nzbin=4, rsd=False)
+        hades_Mnu_hdf5(mnu, nzbin=4, rsd=True)
     for sig8 in [0.822, 0.818, 0.807, 0.798]:
         hades_sig8_hdf5(sig8, nzbin=4, rsd=False)
         hades_sig8_hdf5(sig8, nzbin=4, rsd=True)

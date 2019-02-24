@@ -369,9 +369,9 @@ def quijote_dBk(theta, krange=[0.01, 0.5], validate=False):
             sub.plot(range(len(Bk_p)), dBk_diff2, label=r'${\rm d}B/{\rm d} M_\nu$ (finite diff. 2)')
             sub.legend(loc='upper right', fontsize=20 ) 
             sub.set_xlabel(r'$k_1 \le k_2 \le k_3$ triangle indices', fontsize=25) 
-            sub.set_xlim([0., 500.])#len(Bk_p)])  
+            sub.set_xlim([0., len(Bk_p)])  
             sub.set_yscale('log') 
-            sub.set_ylim([5e6, 1e10]) 
+            sub.set_ylim([1e6, 1e10]) 
             fig.savefig(os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_dbk_d%s.png' % theta), 
                     bbox_inches='tight') 
     else: 
@@ -521,9 +521,8 @@ def quijote_comparison(par, krange=[0.01, 0.5]):
 
 if __name__=="__main__": 
     # write to hdf5 
-    #for sub in ['Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'Ob_m', 'Ob_p', 'Om_m', 'Om_p', 
-    #        'fiducial', 'fiducial_NCV', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p']: 
-    #    quijote_hdf5(sub)
+    for sub in ['Mnu_pp', 'Mnu_ppp', 'Ob_m', 'Ob_p', 'Om_m', 'Om_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p']: #['Mnu_p']:  
+        quijote_hdf5(sub)
     #quijote_hdf5('fiducial') 
     #quijote_Cov_full(shotnoise=True)   
     #quijote_Cov_full(shotnoise=False)   
@@ -537,8 +536,8 @@ if __name__=="__main__":
     #quijote_Cov_SNcomparison(krange=[0.01, 0.5])
     #qujjote_covariance_convergence(krange=[0.01, 0.5])
 
-    for par in ['Mnu', 'Ob', 'Om', 'h', 'ns', 's8']: 
-        quijote_dBk(par, krange=[0.01, 0.5], validate=True)
+    #for par in ['Mnu']:#, 'Ob', 'Om', 'h', 'ns', 's8']: 
+    #    quijote_dBk(par, krange=[0.01, 0.5], validate=True)
     for kmax in [0.2, 0.3, 0.4, 0.5]: 
         for deriv in ['p', 'fd']: 
             pass
