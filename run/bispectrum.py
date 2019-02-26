@@ -127,6 +127,59 @@ def haloBispectrum_sigma8(sig8, nreal, nzbin, zspace=False, mh_min=3200.,
     return None 
 
 
+def haloBispectrum_Mhmin(mneut, nreal, nzbin, mh_min, zspace=False,
+        Ngrid=360, Nmax=40, Ncut=3, step=3, silent=True, overwrite=False): 
+    ''' Calculate HADES halo bispectrum for specified mh_min. 
+    '''
+    assert mh_min > 3200., 'mh_min has to be greater than 3200'
+    if zspace: str_space = 'z' 
+    else: str_space = 'r' 
+    fhalo = os.path.join(UT.dat_dir(), 'halos', 
+            'groups.%seV.%i.nzbin%i.mhmin3200.0.hdf5' % (str(mneut), nreal, nzbin))
+
+    fbk = os.path.join(UT.dat_dir(), 'bispectrum', 'hades', 
+            '%s.mhmin%.1f.%sspace.Ngrid%i.Nmax%i.Ncut%i.step%i.pyfftw.dat' % 
+            (os.path.basename(fhalo).rsplit('.mhmin3200.0.hdf5', 1)[0], mh_min, str_space, Ngrid, Nmax, Ncut, step))
+    if not os.path.isfile(fbk) or overwrite: 
+        # read in data file  
+        if not silent: print('--- calculating %s ---' % fbk) 
+        if not silent: print('--- reading %s ---' % fhalo) 
+        f = h5py.File(fhalo, 'r') 
+        Lbox = f.attrs['Lbox']
+        xyz = f['Position'].value.T
+        
+        if zspace: # impose redshift space distortions on the z-axis 
+            v_offset = f['VelocityOffset'].value.T
+            xyz += (f['VelocityOffset'].value * [0, 0, 1]).T + Lbox
+            xyz = (xyz % Lbox) 
+        # impose new halo mass limit 
+        mhlim = (f['Mass'].value > mh_min * 1e10) 
+        print('%i halos above Mh_lim = 3200. x 10^10Msun' % xyz.shape[1])
+        print('%i halos above Mh_lim = %.f x 10^10Msun' % (np.sum(mhlim), mh_min))
+
+        # calculate bispectrum 
+        b123out = pySpec.Bk_periodic(xyz[:,mhlim], Lbox=Lbox, Ngrid=Ngrid, 
+                step=step, Ncut=Ncut, Nmax=Nmax, fft='pyfftw', nthreads=1, silent=silent) 
+        i_k = b123out['i_k1']
+        j_k = b123out['i_k2']
+        l_k = b123out['i_k3']
+        p0k1 = b123out['p0k1']
+        p0k2 = b123out['p0k2']
+        p0k3 = b123out['p0k3']
+        b123 = b123out['b123'] 
+        b_sn = b123out['b123_sn'] 
+        q123 = b123out['q123'] 
+        cnts = b123out['counts'] 
+       
+        hdr = ('halo bispectrum for mneut=%f, realization %i, redshift bin %i; k_f = 2pi/%.1f, Nhalo=%i' % 
+                (mneut, nreal, nzbin, Lbox, np.sum(mhlim)))
+        np.savetxt(fbk, np.array([i_k, j_k, l_k, p0k1, p0k2, p0k3, b123, q123, b_sn, cnts]).T, 
+                        fmt='%i %i %i %.5e %.5e %.5e %.5e %.5e %.5e %.5e', delimiter='\t', header=hdr)
+    else: 
+        if not silent: print('--- %s already exists ---' % fbk) 
+    return None 
+
+
 def fix_B123_shotnoise(): 
     ''' fix HADES halo bispecturm outputs to correctly account for shot noise 
     without having to rerun the bispectrum Jan 31, 2019 
@@ -323,6 +376,10 @@ if __name__=="__main__":
     elif run == 'sigma8_pk': 
         haloPk_periodic_sigma8(mnu_or_sig8, nreal, nzbin, zspace=zspace, 
                 Ngrid=360, Nmax=40, Ncut=3, step=3, silent=False, overwrite=False)
+    elif run == 'mhmin': 
+        mh_min = float(sys.argv[6]) # 10^10 Msun
+        haloBispectrum_Mhmin(mnu_or_sig8, nreal, nzbin, mh_min, zspace=zspace,
+                 Ngrid=360, Nmax=40, Ncut=3, step=3, silent=True, overwrite=False)
     elif run == 'fix': 
         #fix_B123_shotnoise()
         fix_B123_shotnoise_random()
