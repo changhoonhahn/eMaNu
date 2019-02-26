@@ -2686,44 +2686,6 @@ def quijote_nbars():
     print thetas[np.argmin(nbars)]
     return None
 
-
-############################################################
-# hades vs quijote Mnu 
-def hades_quijote_Mnu(): 
-    '''
-    '''
-    hades_mnus = [0.0, 0.06, 0.1, 0.15]
-    quijote_mnus = [0.0, 0.1, 0.2, 0.4] 
-    Pk_hades, Bk_hades = [], [] 
-    for mnu in hades_mnus: 
-        hades = hadesBk(mnu, nzbin=4, rsd=rsd) # fiducial bispectrum
-        Pk_hades.append(np.average(hades['p0k1'], axis=0)) 
-        Bk_hades.append(np.average(hades['b123'], axis=0)) 
-    i_k, j_k, l_k = hades['k1'], hades['k2'], hades['k3']
-    
-    Pk_quijote, Bk_quijote = [], [] 
-    for tt in ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']: 
-        quijote = quijoteBk(tt) 
-        Pk_quijote.append(np.average(quijote['p0k1'], axis=0)) 
-        Bk_quijote.append(np.average(quijote['b123'], axis=0)) 
-    
-    kf = 2.*np.pi/1000.
-    _, _iuniq = np.unique(i_k, return_index=True)
-
-    fig = plt.figure(figsize=(16,5))
-    sub = fig.add_subplot(111)
-    for pk, mnu in zip(Pk_hades, hades_mnus): 
-        sub.plot(i_k[_iuniq] * kf, pk[_iuniq]/Pk_hades[0][_iuniq], label='%.2f eV' % mnu) 
-    for pk, mnu in zip(Pk_quijote, quijote_mnus): 
-        sub.plot(i_k[_iuniq] * kf, pk[_iuniq]/Pk_quijote[0][_iuniq], ls='--', label='%.2f eV' % mnu) 
-    sub.legend(loc='lower left', fontsize=20)
-    sub.set_xlim(1e-2, 1e0) 
-    sub.set_xscale('log') 
-    sub.set_ylabel(r'$P(k)/P^{\rm fid}(k)$', fontsize=20) 
-    sub.set_ylim([0.9, 1.1]) 
-    fig.savefig(os.path.join(UT.fig_dir(), 'hades_quijote_Mnu.pk.png'), bbox_inches='tight') 
-    return None 
-
 ############################################################
 # real vs rsd
 ############################################################
