@@ -519,13 +519,43 @@ def quijote_comparison(par, krange=[0.01, 0.5]):
     return None 
 
 
+##
+def quijote_avgBk_forEma(): 
+    ''' write out average bispectrum of fiducial quijote in real and redshift 
+    space for Ema to fit his PT models and run fisher forecasts using PT.  
+    '''
+    dir_bk = os.path.join(UT.dat_dir(), 'bispectrum') 
+    for s1, s2 in zip(['', '.real'], ['z', 'r']): 
+        bks = h5py.File(os.path.join(dir_bk, 'quijote_fiducial%s.hdf5' % s1), 'r') 
+        i_k, j_k, l_k = bks['k1'].value, bks['k2'].value, bks['k3'].value 
+        p0k1, p0k2, p0k3 = bks['p0k1'].value, bks['p0k2'].value, bks['p0k3'].value 
+        b123, q123, b_sn = bks['b123'].value, bks['q123'].value, bks['b_sn'].value
+        cnts = bks['counts'].value 
+        Nhalos = bks['Nhalos'].value 
+        
+        _p0k1 = np.average(p0k1, axis=0)
+        _p0k2 = np.average(p0k2, axis=0)
+        _p0k3 = np.average(p0k3, axis=0)
+        _b123 = np.average(b123, axis=0)
+        _b_sn = np.average(b_sn, axis=0)
+        _Nhalos = np.average(Nhalos) 
+
+        fbk = os.path.join(dir_bk, 'quijote_fiducial_avgBk_%sspace.dat' % s2) 
+        hdr = '\n'.join(['Average B(k) of Quijote fiducial in %s-space; Lbox=1000., avg Nhalo=%i' % (s2, _Nhalos), 
+            'i_k1, i_k2, i_k3, p0(k1), p0(k2), p0(k3), b(k1,k2,k3), b_shotnoise, counts']) 
+        np.savetxt(fbk, np.array([i_k, j_k, l_k, _p0k1, _p0k2, _p0k3, _b123, _b_sn, cnts]).T, 
+                        fmt='%i %i %i %.5e %.5e %.5e %.5e %.5e %.5e', delimiter='\t', header=hdr)
+    return None  
+
+
 if __name__=="__main__": 
     # write to hdf5 
-    for sub in ['Mnu_pp', 'Mnu_ppp', 'Ob_m', 'Ob_p', 'Om_m', 'Om_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p']: #['Mnu_p']:  
-        quijote_hdf5(sub)
+    #for sub in ['Mnu_pp', 'Mnu_ppp', 'Ob_m', 'Ob_p', 'Om_m', 'Om_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p']: #['Mnu_p']:  
+    #    quijote_hdf5(sub)
     #quijote_hdf5('fiducial') 
     #quijote_Cov_full(shotnoise=True)   
     #quijote_Cov_full(shotnoise=False)   
+    quijote_avgBk_forEma()
 
     # check along parameter axis
     #for par in ['Mnu', 'Ob', 'Om', 'h', 'ns', 's8']: 
