@@ -1722,6 +1722,7 @@ def quijote_Forecast(obs, kmax=0.5, rsd=True, dmnu='fin'):
         raise ValueError
     
     Finv = np.linalg.inv(Fij) # invert fisher matrix 
+    print('sigma_s8 = %f' % np.sqrt(Finv[-2,-2]))
     print('sigma_Mnu = %f' % np.sqrt(Finv[-1,-1]))
     
     fig = plt.figure(figsize=(17, 15))
@@ -2905,13 +2906,12 @@ if __name__=="__main__":
             quijote_pkbkCov(kmax=kmax, rsd=rsd)
 
     # fisher forecasts 
-    for rsd in [True]: #, False]: 
-        continue 
+    for rsd in [False]: #, False]: 
         for kmax in [0.5]: #[0.2, 0.3, 0.4, 0.5]: 
-            for dmnu in ['p', 'pp', 'ppp', 'fin']: 
+            for dmnu in ['fin']: #['p', 'pp', 'ppp', 'fin']: 
                 quijote_Forecast('pk', kmax=kmax, rsd=rsd, dmnu=dmnu)
                 quijote_Forecast('bk', kmax=kmax, rsd=rsd, dmnu=dmnu)
-                quijote_pbkForecast(kmax=kmax, rsd=rsd, dmnu=dmnu)
+                #quijote_pbkForecast(kmax=kmax, rsd=rsd, dmnu=dmnu)
         #quijote_Forecast_kmax('pk', rsd=rsd) 
         #quijote_Forecast_kmax('bk', rsd=rsd)
         #quijote_pkForecast_dmnu(rsd=rsd)
@@ -2957,5 +2957,5 @@ if __name__=="__main__":
     #quijote_pkbkCov_triangle('equ', krange=[0.01, 0.5])
     
     # convergence tests 
-    quijote_forecast_nmock(kmax=0.5, rsd=True)
-    quijote_forecast_dBk_nmock(kmax=0.5, rsd=True)
+    #quijote_forecast_nmock(kmax=0.5, rsd=True)
+    #quijote_forecast_dBk_nmock(kmax=0.5, rsd=True)

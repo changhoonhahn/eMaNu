@@ -29,14 +29,13 @@ echo "start time ... $now"
 #    done 
 #done 
 
-for ireal in {2..10}; do 
-    for mhmin in 3600. 4000. 4400.; do 
+for ireal in {1..10}; do 
+    for mhmin in 3300. 3400. 3500; do 
         now=$(date +"%T") 
         echo "0.0eV ... $ireal ... Mh_min > $mhmin x10^10Msun... $now"
         python /Users/ChangHoon/projects/eMaNu/run/bispectrum.py mhmin 0.0 $ireal 4 z $mhmin
     done 
 done 
-
 
 now=$(date +"%T") 
 echo "end time ... $now"
