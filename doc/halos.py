@@ -1576,6 +1576,61 @@ def quijote_dBk(theta, rsd=True, dmnu='fin'):
     return dBk
 
 
+def quijote_Bratio_thetas(kmax=0.5): 
+    ''' compare the derivative of B along thetas 
+    '''
+    kf = 2.*np.pi/1000.
+    quij = quijoteBk('fiducial', rsd=True)
+    bk_fid = np.average(quij['b123'], axis=0) 
+    i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
+
+    klim = ((i_k * kf <= kmax) & (j_k * kf <= kmax) & (l_k * kf <= kmax)) 
+    i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim] 
+    ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order of triangles 
+
+    fig = plt.figure(figsize=(20,8))
+    sub = fig.add_subplot(111)
+    for tt, lbl in zip(['Om_m', 'Ob_p', 'h_p', 'ns_m', 's8_p', 'Mnu_p'], theta_lbls): 
+        quij = quijoteBk(tt, rsd=True) 
+        sub.plot(range(np.sum(klim)), (np.average(quij['b123'], axis=0)/bk_fid)[klim][ijl], label=lbl)
+    sub.plot([0., np.sum(klim)], [1., 1.], c='k', ls='--', zorder=0) 
+    sub.legend(loc='upper right', ncol=2, frameon=True, fontsize=20) 
+    sub.set_xlabel('triangle configurations', fontsize=25) 
+    sub.set_xlim(0, np.sum(klim))
+    sub.set_ylabel(r'$B(k_1, k_2, k_3)/B^{\rm fid}$', fontsize=25) 
+    sub.set_ylim(0.9, 1.15) 
+    ffig = os.path.join(UT.fig_dir(), 'quijote_Bratio_theta.png')
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
+
+
+def quijote_B_relative_error(kmax=0.5): 
+    kf = 2.*np.pi/1000.
+    quij = quijoteBk('fiducial', rsd=True)
+    bk_fid = np.average(quij['b123'], axis=0) 
+    i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
+
+    klim = ((i_k * kf <= kmax) & (j_k * kf <= kmax) & (l_k * kf <= kmax)) 
+    i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim] 
+    ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order of triangles 
+
+    _, _, _, C_fid = quijoteCov(rsd=rsd)
+
+    Cii = np.diag(C_fid)[klim][ijl]
+
+    fig = plt.figure(figsize=(10,5))
+    sub = fig.add_subplot(111)
+    sub.plot(range(np.sum(klim)), np.sqrt(Cii)/bk_fid[klim][ijl]) 
+    sub.set_xlabel('triangle configurations', fontsize=25) 
+    sub.set_xlim(0, np.sum(klim))
+    sub.set_ylabel(r'$\sqrt{C_{i,i}}/B^{\rm fid}_i$', fontsize=25) 
+    sub.set_ylim(0.0, 2.5) 
+    ffig = os.path.join(UT.fig_dir(), 'quijote_B_relative_error.png')
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
+
+
+
 # fisher matrix 
 def quijote_pkFisher(kmax=0.5, rsd=True, dmnu='fin', validate=False): 
     ''' calculate fisher matrix for parameters ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu']
@@ -2056,6 +2111,7 @@ def hades_dchi2(krange=[0.01, 0.5]):
         print('sig8=%.3f, delta chi-squared %.2f' % (sig8, chi2))
     return None
 
+
 ##################################################################
 # forecasts with free scaling factor 
 ##################################################################
@@ -2191,7 +2247,7 @@ def quijote_Forecast_freeScale(obs, kmax=0.5, rsd=True, dmnu='fin'):
         _theta_lims = [(0.1, 0.5), (0.0, 0.2), (0.0, 1.3), (0.4, 1.6), (0.0, 2.), (-1., 1.), (0.5, 2.)]
     else: 
         _theta_lims = [(0.25, 0.385), (0.02, 0.08), (0.3, 1.1), (0.6, 1.3), (0.8, 0.88), (-0.4, 0.4), (0.8, 1.2)]
-    _theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$', 'Amp']
+    _theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$', '$b_1$']
     
     fig = plt.figure(figsize=(17, 15))
     for i in xrange(ntheta): 
@@ -2909,6 +2965,7 @@ if __name__=="__main__":
     for rsd in [False]: #, False]: 
         for kmax in [0.5]: #[0.2, 0.3, 0.4, 0.5]: 
             for dmnu in ['fin']: #['p', 'pp', 'ppp', 'fin']: 
+                continue 
                 quijote_Forecast('pk', kmax=kmax, rsd=rsd, dmnu=dmnu)
                 quijote_Forecast('bk', kmax=kmax, rsd=rsd, dmnu=dmnu)
                 #quijote_pbkForecast(kmax=kmax, rsd=rsd, dmnu=dmnu)
@@ -2926,13 +2983,16 @@ if __name__=="__main__":
     # amplitude scaling factor is a free parameter
     for kmax in [0.2, 0.5]: 
         continue 
-        #quijote_Forecast_freeScale('pk', kmax=kmax, rsd=True, dmnu='fin')
-        #quijote_Forecast_freeScale('bk', kmax=kmax, rsd=True, dmnu='fin')
-        quijote_Forecast_freeScale('bk_equ', kmax=kmax, rsd=True, dmnu='fin')
-        quijote_Forecast_freeScale('bk_squ', kmax=kmax, rsd=True, dmnu='fin')
-        quijote_Forecast_freeScale('bk_equ', kmax=kmax, rsd=False, dmnu='fin')
-        quijote_Forecast_freeScale('bk_squ', kmax=kmax, rsd=False, dmnu='fin')
-        
+        print('kmax = %.1f' % kmax) 
+        quijote_Forecast_freeScale('pk', kmax=kmax, rsd=True, dmnu='fin')
+        quijote_Forecast_freeScale('bk', kmax=kmax, rsd=True, dmnu='fin')
+        #quijote_Forecast_freeScale('bk_equ', kmax=kmax, rsd=True, dmnu='fin')
+        #quijote_Forecast_freeScale('bk_squ', kmax=kmax, rsd=True, dmnu='fin')
+        #quijote_Forecast_freeScale('bk_equ', kmax=kmax, rsd=False, dmnu='fin')
+        #quijote_Forecast_freeScale('bk_squ', kmax=kmax, rsd=False, dmnu='fin')
+    quijote_Bratio_thetas(kmax=0.5)
+    quijote_B_relative_error(kmax=0.5)
+
     # SN uncorrected forecasts 
     #compare_Bk_SNuncorr(krange=[0.01, 0.5], rsd=True)
     #compare_Qk_SNuncorr(krange=[0.01, 0.5], rsd=True)
