@@ -1576,6 +1576,29 @@ def quijote_dBk(theta, rsd=True, dmnu='fin'):
     return dBk
 
 
+def quijote_dP_dthetas(kmax=0.5):
+    quij = quijoteBk('fiducial', rsd=True)
+    pk_fid = np.average(quij['p0k1'], axis=0) 
+    i_k = quij['k1']
+    kf = 2.*np.pi/1000.
+    klim = (kf * i_k < kmax)
+
+    fig = plt.figure(figsize=(10,5))
+    sub = fig.add_subplot(111)
+    for tt, lbl in zip(['Om', 'Ob', 'h', 'ns', 's8', 'Mnu'], theta_lbls): 
+        dpdt = quijote_dPk(tt, rsd=True, dmnu='fin')
+        sub.plot(i_k[klim] * kf, np.abs(dpdt[klim])/pk_fid[klim], label=lbl) 
+    sub.legend(loc='upper right', fontsize=20) 
+    sub.set_xlabel('k', fontsize=25) 
+    sub.set_xscale('log') 
+    sub.set_xlim(1.8e-2, 0.5) 
+    #sub.set_yscale('log') 
+    sub.set_ylim(0., 1.5) 
+    ffig = os.path.join(UT.fig_dir(), 'quijote_dP_dthetas.png')
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
+
+
 def quijote_Bratio_thetas(kmax=0.5): 
     ''' compare the derivative of B along thetas 
     '''
@@ -1776,6 +1799,7 @@ def quijote_Forecast(obs, kmax=0.5, rsd=True, dmnu='fin'):
     else: 
         raise ValueError
     
+    print Fij[-1,-1]
     Finv = np.linalg.inv(Fij) # invert fisher matrix 
     print('sigma_s8 = %f' % np.sqrt(Finv[-2,-2]))
     print('sigma_Mnu = %f' % np.sqrt(Finv[-1,-1]))
@@ -2640,6 +2664,7 @@ def quijote_nbars():
     for sub in thetas:
         quij = quijoteBk(sub)
         nbars.append(np.average(quij['Nhalos'])/1.e9)
+        print sub, np.average(quij['Nhalos'])/1.e9
     print np.min(nbars)
     print np.min(nbars) * 1e9 
     print thetas[np.argmin(nbars)]
@@ -2990,8 +3015,9 @@ if __name__=="__main__":
         #quijote_Forecast_freeScale('bk_squ', kmax=kmax, rsd=True, dmnu='fin')
         #quijote_Forecast_freeScale('bk_equ', kmax=kmax, rsd=False, dmnu='fin')
         #quijote_Forecast_freeScale('bk_squ', kmax=kmax, rsd=False, dmnu='fin')
-    quijote_Bratio_thetas(kmax=0.5)
-    quijote_B_relative_error(kmax=0.5)
+    #quijote_Bratio_thetas(kmax=0.5)
+    #quijote_B_relative_error(kmax=0.5)
+    quijote_dP_dthetas(kmax=0.5)
 
     # SN uncorrected forecasts 
     #compare_Bk_SNuncorr(krange=[0.01, 0.5], rsd=True)
