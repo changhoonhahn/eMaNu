@@ -75,6 +75,9 @@
 \affil{Berkeley Center for Cosmological Physics, University of California, Berkeley, CA 94720, USA}
 \affil{Lawrence Berkeley National Laboratory, 1 Cyclotron Rd, Berkeley CA 94720, USA}
 
+\author{Roman Scoccimarro} 
+\affil{Center for Cosmology and Particle Physics, Department of Physics, New York University, NY 10003, New York, USA}
+
 \begin{abstract}
     abstract
 \end{abstract}
@@ -111,7 +114,7 @@ In Section blah
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Section   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{HADES and Quijote simulations} \label{sec:hades} 
+\section{HADES and Quijote Simulation Suites} \label{sec:hades} 
 We use a subset of the HADES\footnote{https://franciscovillaescusa.github.io/hades.html} 
 and Quijote simulation suites. The HADES simulations have been run
 using the {\sc GADGET-III} TreePM+SPH code~\citep{springel2005} in a 
@@ -125,6 +128,46 @@ good agreement with Planck constraints~\cite{planck2016}.
 %We present convergence tests for the N-body simulations in Appendix A. We notice that while our lower-resolution simulations cannot be used to provide absolute theory predictions that are accurate at 1% down to the smallest scales we consider, k=0.5 h Mpc−1, their relative difference will be much more accurate (see Appendix A for details). Thus, in this work we either show relative differences or show absolute values for all models. We emphasize that for the latter, even if the absolute value from our simulations is not converged on a given scale, the relative differences between models should almost be.
 
 \ch{describe quijote simulations} 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% simulation table
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{table}
+\caption{HADES and Quijote simulation suites} 
+\begin{center}
+\begin{tabular}{ccccccccc} \toprule
+    Name  &$\smnu$ (eV) & $\Omega_m$ & $\Omega_b$ & $h$ & $n_s$ & $\sigma^m_8$ & $\sigma^c_8$ & realizations \\[3pt] \hline\hline
+    \multicolumn{9}{c}{HADES suite} \\ \hline
+    Fiducial    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.833 & 0.833 & 100 \\ 
+                & 0.06  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.819 & 0.822 & 100 \\ 
+                & 0.10  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.809 & 0.815 & 100 \\ 
+                & 0.15  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.798 & 0.806 & 100 \\ 
+                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.822 & 0.822 & 100 \\ 
+                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.818 & 0.818 & 100 \\ 
+                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.807 & 0.807 & 100 \\ 
+                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.798 & 0.798 & 100 \\ 
+    \hline \hline
+    \multicolumn{9}{c}{Qujiote suite} \\ \hline
+    Fiducial 	    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 15,000 \\ 
+    $\smnu^+$       & 0.1   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
+    $\smnu^{++}$    & 0.2   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
+    $\smnu^{+++}$   & 0.4   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
+    $\Omega_m^+$    & 0.0   & 0.3275 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
+    $\Omega_m^-$    & 0.0   & 0.3075 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
+    $\Omega_b^+$    & 0.0   & 0.3175 & 0.050 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
+    $\Omega_b^-$    & 0.0   & 0.3175 & 0.048 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
+    $h^+$           & 0.0   & 0.3175 & 0.049 & 0.6911 & 0.9624 & 0.834 & 0.834 & 500 \\ 
+    $h^-$           & 0.0   & 0.3175 & 0.049 & 0.6511 & 0.9624 & 0.834 & 0.834 & 500 \\ 
+    $n_s^+$         & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9824 & 0.834 & 0.834 & 500 \\ 
+    $n_s^-$         & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9424 & 0.834 & 0.834 & 500 \\ 
+    $\sigma_8^+$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.849 & 0.849 & 500 \\ 
+    $\sigma_8^-$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.819 & 0.819 & 500 \\ 
+    \hline
+\end{tabular} \label{tab:sims}
+\end{center}
+\end{table}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 \begin{figure}
 \begin{center}
@@ -256,7 +299,7 @@ Brief description of the Scoccimarro et al. bispectrum estimator here
 
 \begin{figure}
 \begin{center}
-    \includegraphics[width=0.6\textwidth]{figs/quijote_bkCov_001_05.png} 
+    \includegraphics[width=0.6\textwidth]{figs/quijote_bkCov_kmax05.png} 
     \caption{Covariance matrix of the redshift-space halo bispectrum estimated 
     using the 15,000 realizations of the Qujiote simulation suite with the 
     fiducial cosmology: $\Om{=}0.3175$, $\Ob{=}0.049$, $h{=}0.6711$, $n_s{=}0.9624$, $\sig{=}0.834$, 

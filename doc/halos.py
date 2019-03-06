@@ -3017,7 +3017,7 @@ if __name__=="__main__":
         #quijote_Forecast_freeScale('bk_squ', kmax=kmax, rsd=False, dmnu='fin')
     #quijote_Bratio_thetas(kmax=0.5)
     #quijote_B_relative_error(kmax=0.5)
-    quijote_dP_dthetas(kmax=0.5)
+    #quijote_dP_dthetas(kmax=0.5)
 
     # SN uncorrected forecasts 
     #compare_Bk_SNuncorr(krange=[0.01, 0.5], rsd=True)
@@ -3027,7 +3027,7 @@ if __name__=="__main__":
     #for rsd in [True, False]:  
     #    quijote_Forecast_SNuncorr('pk', kmax=0.5, rsd=rsd, dmnu='fin')
     #    quijote_Forecast_SNuncorr('bk', kmax=0.5, rsd=rsd, dmnu='fin')
-    #quijote_nbars()
+    quijote_nbars()
         
     # kmax test
     #for k in [0.2, 0.3, 0.4]: 
