@@ -116,16 +116,36 @@ In Section blah
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{HADES and Quijote Simulation Suites} \label{sec:hades} 
 We use a subset of the HADES\footnote{https://franciscovillaescusa.github.io/hades.html} 
-and Quijote simulation suites. The HADES simulations have been run
-using the {\sc GADGET-III} TreePM+SPH code~\citep{springel2005} in a 
-periodic $(1 h^{-1}{\rm Gpc})^3$ box. All of the HADES simulations 
-share the values of the following cosmological parameters:
-$\Om{=}0.3175, \Ob{=}0.049, \OL{=}0.6825, n_s{=}0.9624, h{=}0.6711$, 
-and $k_{\rm pivot} = 0.05~h{\rm Mpc}^{-1}$. These parameters are in
-good agreement with Planck constraints~\cite{planck2016}. 
+and Quijote simulation suites. Below, we briefly describe these simulations; 
+a brief summary of the simulations can be found in Table~\ref{tab:sims}. 
+The HADES simulations start from Zel'dovich approximated initial conditions 
+generated at $z=99$ using the~\cite{zennaro2017a} rescaling method and follow 
+the gravitational evolution of $N_{\rm cdm}=512^3$ CDM, plus $N_{\nu}=512^3$ 
+neutrino particles (for massive neutrino models), to $z=0$. They are run using 
+the {\sc GADGET-III} TreePM+SPH code~\citep{springel2005} in a periodic 
+$(1 h^{-1}{\rm Gpc})^3$ box. All of the HADES simulations share the following 
+cosmological parameter values, which are in good agreement with Planck 
+constraints~\cite{ade2016a}: $\Om{=}0.3175, \Ob{=}0.049, \OL{=}0.6825, n_s{=}0.9624, h{=}0.6711$, 
+and $k_{\rm pivot} = 0.05~h{\rm Mpc}^{-1}$. 
 
-%All our massive neutrino runs assume degenerate masses.13 A summary of the different simulations can be found in Table 1.
-%We present convergence tests for the N-body simulations in Appendix A. We notice that while our lower-resolution simulations cannot be used to provide absolute theory predictions that are accurate at 1% down to the smallest scales we consider, k=0.5 h Mpc−1, their relative difference will be much more accurate (see Appendix A for details). Thus, in this work we either show relative differences or show absolute values for all models. We emphasize that for the latter, even if the absolute value from our simulations is not converged on a given scale, the relative differences between models should almost be.
+The HADES suite includes models with degenerate massive neutrinos of different 
+masses: $\smnu = $ 0.06, 0.10, and 0.15 eV. These massive neutrino models are run 
+using the ``particle method'', where neutrinos are described as a collisionless 
+and pressureless fluid and therefore modeled as particles, same as 
+CDM~\citep{brandbyge2008,viel2010}. HADES also includes models with massless 
+neutrino and different values of $\sigma_8$ to examine the $\smnu-\sigma_8$ 
+degeneracy. The $\sigma_8$ values were chosen to match either the $\sigma_8$ 
+of the massive neutrino models computed with respect to the total matter 
+(CDM + baryons + $\nu$), $\sigma_8^m$, or the CDM + baryons, $\sigma_8^{c}$: 
+$\sigma_8 = 0.822, 0.818, 0.807$, and $0.798$. Each model has $100$ independent 
+realizations and we focus on the snapshots saved at $z = 0$. Halos closely 
+trace the CDM+baryon field rather than the total matter field and neutrinos 
+have negligible contribution to halo masses~\citep[\emph{e.g.}][]{ichiki2012, castorina2014, loverde2014, villaescusa-navarro2014}.
+Hence, dark matter halos are identified in each realization using the Friends-of-Friends 
+algorithm~\cite[FoF][]{davis1985} with linking length $b=0.2$ on the CDM + baryon
+distribution; only halos with masses $> 3.2\times 10^{13} h^{-1}M_\odot$ 
+are included. For further details on the HADES simulations, we refer readers 
+to~\cite{villaescusa-navarro2018}. 
 
 \ch{describe quijote simulations} 
 
@@ -133,41 +153,41 @@ good agreement with Planck constraints~\cite{planck2016}.
 % simulation table
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{table}
-\caption{HADES and Quijote simulation suites} 
+\caption{Specifications of the HADES and Quijote simulation suites.} 
 \begin{center}
-\begin{tabular}{ccccccccc} \toprule
-    Name  &$\smnu$ (eV) & $\Omega_m$ & $\Omega_b$ & $h$ & $n_s$ & $\sigma^m_8$ & $\sigma^c_8$ & realizations \\[3pt] \hline\hline
-    \multicolumn{9}{c}{HADES suite} \\ \hline
-    Fiducial    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.833 & 0.833 & 100 \\ 
-                & 0.06  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.819 & 0.822 & 100 \\ 
-                & 0.10  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.809 & 0.815 & 100 \\ 
-                & 0.15  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.798 & 0.806 & 100 \\ 
-                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.822 & 0.822 & 100 \\ 
-                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.818 & 0.818 & 100 \\ 
-                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.807 & 0.807 & 100 \\ 
-                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.798 & 0.798 & 100 \\ 
+\begin{tabular}{ccccccccccc} \toprule
+    Name  &$\smnu$ & $\Omega_m$ & $\Omega_b$ & $h$ & $n_s$ & $\sigma^m_8$ & $\sigma^c_8$ & $m_{\rm cdm}$ & $m_\nu$ & realizations \\
+      &(eV) & & & & & & & ($10^{10}h^{-1}M_\odot$) & ($10^{10}h^{-1}M_\odot$) & \\[3pt] \hline\hline
+    \multicolumn{11}{c}{HADES suite} \\ \hline
+    Fiducial    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.833 & 0.833 & 65.66 & 0      &100 \\ 
+                & 0.06  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.819 & 0.822 & 65.36 & 29.57  &100 \\ 
+                & 0.10  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.809 & 0.815 & 65.16 & 49.28  &100 \\ 
+                & 0.15  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.798 & 0.806 & 64.92 & 73.95  &100 \\ 
+                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.822 & 0.822 & 65.66 & 0      &100 \\ 
+                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.818 & 0.818 & 65.66 & 0      &100 \\ 
+                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.807 & 0.807 & 65.66 & 0      &100 \\ 
+                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.798 & 0.798 & 65.66 & 0      &100 \\ 
     \hline \hline
-    \multicolumn{9}{c}{Qujiote suite} \\ \hline
-    Fiducial 	    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 15,000 \\ 
-    $\smnu^+$       & 0.1   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $\smnu^{++}$    & 0.2   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $\smnu^{+++}$   & 0.4   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $\Omega_m^+$    & 0.0   & 0.3275 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $\Omega_m^-$    & 0.0   & 0.3075 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $\Omega_b^+$    & 0.0   & 0.3175 & 0.050 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $\Omega_b^-$    & 0.0   & 0.3175 & 0.048 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $h^+$           & 0.0   & 0.3175 & 0.049 & 0.6911 & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $h^-$           & 0.0   & 0.3175 & 0.049 & 0.6511 & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $n_s^+$         & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9824 & 0.834 & 0.834 & 500 \\ 
-    $n_s^-$         & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9424 & 0.834 & 0.834 & 500 \\ 
-    $\sigma_8^+$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.849 & 0.849 & 500 \\ 
-    $\sigma_8^-$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.819 & 0.819 & 500 \\ 
+    \multicolumn{11}{c}{Qujiote suite} \\ \hline
+    Fiducial 	    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 15,000 \\ 
+    $\smnu^+$       & 0.1   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
+    $\smnu^{++}$    & 0.2   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
+    $\smnu^{+++}$   & 0.4   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
+    $\Omega_m^+$    & 0.0   & 0.3275 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
+    $\Omega_m^-$    & 0.0   & 0.3075 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
+    $\Omega_b^+$    & 0.0   & 0.3175 & 0.050 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
+    $\Omega_b^-$    & 0.0   & 0.3175 & 0.048 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
+    $h^+$           & 0.0   & 0.3175 & 0.049 & 0.6911 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
+    $h^-$           & 0.0   & 0.3175 & 0.049 & 0.6511 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
+    $n_s^+$         & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9824 & 0.834 & 0.834 & & & 500 \\ 
+    $n_s^-$         & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9424 & 0.834 & 0.834 & & & 500 \\ 
+    $\sigma_8^+$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.849 & 0.849 & & & 500 \\ 
+    $\sigma_8^-$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.819 & 0.819 & & & 500 \\ 
     \hline
 \end{tabular} \label{tab:sims}
 \end{center}
 \end{table}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 \begin{figure}
 \begin{center}
@@ -186,7 +206,7 @@ good agreement with Planck constraints~\cite{planck2016}.
 % Section   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Bispectrum} \label{sec:bk} 
-Brief description of the Scoccimarro et al. bispectrum estimator here 
+Brief description of the bispectrum estimator here.
 
 \begin{figure}
 \begin{center}
@@ -393,5 +413,6 @@ It's a pleasure to thank
 \end{center}
 \end{figure}
 
-%\bibliographystyle{yahapj}
+\bibliographystyle{yahapj}
+\bibliography{emanu} 
 \end{document}
