@@ -37,7 +37,7 @@
   Sutton, {Suur-Uski}, Sygnet, Tauber, Terenzi, Toffolatti, Tomasi, Tristram,
   Trombetti, Tucci, Tuovinen, T\"urler, Umana, Valenziano, Valiviita, Tent,
   Vielva, Villa, Wade, Wandelt, Wehus, White, White, Wilkinson, Yvon, Zacchei,
-  \& Zonca}]{ade2016a}
+  Zonca, \& Zonca}]{ade2016a}
 Ade, P. a.~R., Aghanim, N., Arnaud, M., {et~al.} 2016,
   \href{http://dx.doi.org/10.1051/0004-6361/201525830}{\JournalTitle{Astronomy
   \& Astrophysics}, 594, A13}
@@ -69,6 +69,18 @@ Ichiki, K., \& Takada, M. 2012,
 LoVerde, M. 2014,
   \href{http://dx.doi.org/10.1103/PhysRevD.90.083518}{\JournalTitle{Physical
   Review D}, 90, 083518}
+
+\bibitem[{Scoccimarro(2015)}]{scoccimarro2015}
+Scoccimarro, R. 2015,
+  \href{http://dx.doi.org/10.1103/PhysRevD.92.083532}{\JournalTitle{Physical
+  Review D}, 92}, \href{http://arxiv.org/abs/1506.02729}{{\sffamily
+  arXiv:1506.02729}}
+
+\bibitem[{Sefusatti {et~al.}(2016)Sefusatti, Crocce, Scoccimarro, \&
+  Couchman}]{sefusatti2016}
+Sefusatti, E., Crocce, M., Scoccimarro, R., \& Couchman, H. M.~P. 2016,
+  \href{http://dx.doi.org/10.1093/mnras/stw1229}{\JournalTitle{Monthly Notices
+  of the Royal Astronomical Society}, 460, 3624}
 
 \bibitem[{Springel(2005)}]{springel2005}
 Springel, V. 2005,

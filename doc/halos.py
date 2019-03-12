@@ -2724,12 +2724,12 @@ def compare_Pk_rsd(krange=[0.01, 0.5]):
     return None 
 
 
-def compare_Bk_rsd(krange=[0.01, 0.5]):  
+def compare_Bk_rsd(kmax=0.5):  
     ''' Compare the amplitude of the fiducial HADES bispectrum in
     redshift space versus real space. 
 
-    :param krange: (default: [0.01, 0.5]) 
-        k-range of k1, k2, k3 
+    :param kmax: (default: 0.5) 
+        k_max of k1, k2, k3 
     '''
     fig = plt.figure(figsize=(25,5))
     sub = fig.add_subplot(111)
@@ -2741,13 +2741,9 @@ def compare_Bk_rsd(krange=[0.01, 0.5]):
 
     i_k, j_k, l_k = hades_fid['k1'], hades_fid['k2'], hades_fid['k3']
     kf = 2.*np.pi/1000. 
-    kmin, kmax = krange # impose k range 
-    klim = ((i_k * kf <= kmax) & (i_k * kf >= kmin) &
-            (j_k * kf <= kmax) & (j_k * kf >= kmin) & 
-            (l_k * kf <= kmax) & (l_k * kf >= kmin)) 
+    klim = ((i_k * kf <= kmax) & (j_k * kf <= kmax) & (l_k * kf <= kmax)) 
 
     i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim] 
-
     ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order of triangles 
 
     tri = np.arange(np.sum(klim))
@@ -2755,30 +2751,35 @@ def compare_Bk_rsd(krange=[0.01, 0.5]):
     sub.plot(tri, Bk_fid_rsd[klim][ijl], c='C1', label='redshift-space') 
 
     equ = ((i_k[ijl] == j_k[ijl]) & (l_k[ijl] == i_k[ijl]))
-    sub.scatter(tri[equ], Bk_fid_rsd[klim][ijl][equ], c='k', zorder=10, label='equilateral') 
-    for ii_k, x, y in zip(i_k[ijl][equ][::2], tri[equ][::2], Bk_fid_rsd[klim][ijl][equ][::2]):  
-        sub.text(x, 1.1*y, '$k = %.2f$' % (ii_k * kf), ha='left', va='bottom', fontsize=15)
+    sub.scatter(tri[equ], Bk_fid_rsd[klim][ijl][equ], marker='^', 
+            facecolors='none', edgecolors='k', zorder=10, label='equilateral\ntriangles') 
+    for iii, ii_k, x, y in zip(range(10000), i_k[ijl][equ][1::2], tri[equ][1::2], Bk_fid_rsd[klim][ijl][equ][1::2]):  
+        if iii < 1: 
+            sub.text(x, 1.2*y, '$k = %.2f$' % (ii_k * kf), ha='center', va='bottom', fontsize=15)
+        elif iii < 6: 
+            sub.text(x, 2.5*y, '$k = %.2f$' % (ii_k * kf), ha='center', va='bottom', fontsize=15)
+        elif iii < 10: 
+            sub.text(x, 1.5*y, '$k = %.2f$' % (ii_k * kf), ha='center', va='bottom', fontsize=15)
 
     quij_fid = quijoteBk('fiducial', rsd=False) # fiducial bispectrum
     _Bk_fid = np.average(quij_fid['b123'], axis=0)
     quij_fid = quijoteBk('fiducial', rsd=True) # fiducial bispectrum
     _Bk_fid_rsd = np.average(quij_fid['b123'], axis=0) 
 
-    sub.plot(tri, _Bk_fid[klim][ijl], c='C0', ls=':', label='Quijote') 
-    sub.plot(tri, _Bk_fid_rsd[klim][ijl], c='C1') 
+    #sub.plot(tri, _Bk_fid[klim][ijl], c='C0', ls=':', label='Quijote') 
+    #sub.plot(tri, _Bk_fid_rsd[klim][ijl], c='C1') 
 
-    sub.legend(loc='upper right', fontsize=25) 
+    sub.legend(loc='upper right', handletextpad=0.5, markerscale=2, fontsize=22) 
     sub.set_yscale('log') 
     sub.set_xlim([0, np.sum(klim)])
-    sub.set_ylim([1e6, 1e10]) 
+    sub.set_ylim([1e5, 1e10]) 
     sub.set_xlabel('triangle configurations', labelpad=15, fontsize=25) 
     sub.set_ylabel('$B(k_1, k_2, k_3)$', labelpad=10, fontsize=25) 
-    krange_str = str(kmin).replace('.', '')+'_'+str(kmax).replace('.', '') 
     ffig = os.path.join(UT.doc_dir(), 'figs', 
-            'haloBk_amp_%s_%s_rsd_comparison.pdf' % (str(kmin).replace('.', ''), str(kmax).replace('.', '')))
+            'haloBk_amp_kmax%s_rsd_comparison.pdf' % str(kmax).replace('.', ''))
     fig.savefig(ffig, bbox_inches='tight') 
     ffig = os.path.join(UT.doc_dir(), 'figs', 
-            'haloBk_amp_%s_%s_rsd_comparison.png' % (str(kmin).replace('.', ''), str(kmax).replace('.', '')))
+            'haloBk_amp_kmax%s_rsd_comparison.png' % str(kmax).replace('.', ''))
     fig.savefig(ffig, bbox_inches='tight') 
 
     fig = plt.figure(figsize=(25,5))
@@ -2790,11 +2791,9 @@ def compare_Bk_rsd(krange=[0.01, 0.5]):
     sub.set_ylim([1., 5.]) 
     sub.set_xlabel('triangle configurations', labelpad=15, fontsize=25) 
     sub.set_ylabel('$B^{(s)}/B$', labelpad=10, fontsize=25) 
-    krange_str = str(kmin).replace('.', '')+'_'+str(kmax).replace('.', '') 
     ffig = os.path.join(UT.doc_dir(), 'figs', 
-            'haloBk_amp_%s_%s_rsd_ratio.png' % (str(kmin).replace('.', ''), str(kmax).replace('.', '')))
+            'haloBk_amp_kmax%s_rsd_ratio.png' % str(kmax).replace('.', ''))
     fig.savefig(ffig, bbox_inches='tight') 
-
     return None 
 
 
@@ -3000,7 +2999,7 @@ if __name__=="__main__":
         #quijote_bkForecast_dmnu(rsd=rsd)
     # rsd 
     #compare_Pk_rsd(krange=[0.01, 0.5])
-    #compare_Bk_rsd(krange=[0.01, 0.5])
+    compare_Bk_rsd(kmax=0.5)
     #compare_Qk_rsd(krange=[0.01, 0.5])
     
     #hades_dchi2(krange=[0.01, 0.5])
@@ -3027,7 +3026,7 @@ if __name__=="__main__":
     #for rsd in [True, False]:  
     #    quijote_Forecast_SNuncorr('pk', kmax=0.5, rsd=rsd, dmnu='fin')
     #    quijote_Forecast_SNuncorr('bk', kmax=0.5, rsd=rsd, dmnu='fin')
-    quijote_nbars()
+    #quijote_nbars()
         
     # kmax test
     #for k in [0.2, 0.3, 0.4]: 

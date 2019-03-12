@@ -42,6 +42,7 @@
   \begin{tabular}[#1]{@{}c@{}}#2\end{tabular}}
 % text shih
 \newcommand{\foreign}[1]{\textsl{#1}}
+\newcommand{\bfi}[1]{\textbf{\textit{#1}}}
 \newcommand{\etal}{\foreign{et~al.}}
 \newcommand{\opcit}{\foreign{Op.~cit.}}
 \newcommand{\documentname}{\textsl{Article}}
@@ -169,23 +170,24 @@ to~\cite{villaescusa-navarro2018}.
                 & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.798 & 0.798 & 65.66 & 0      &100 \\ 
     \hline \hline
     \multicolumn{11}{c}{Qujiote suite} \\ \hline
-    Fiducial 	    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 15,000 \\ 
-    $\smnu^+$       & 0.1   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
-    $\smnu^{++}$    & 0.2   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
-    $\smnu^{+++}$   & 0.4   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
-    $\Omega_m^+$    & 0.0   & 0.3275 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
-    $\Omega_m^-$    & 0.0   & 0.3075 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
-    $\Omega_b^+$    & 0.0   & 0.3175 & 0.050 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
-    $\Omega_b^-$    & 0.0   & 0.3175 & 0.048 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
-    $h^+$           & 0.0   & 0.3175 & 0.049 & 0.6911 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
-    $h^-$           & 0.0   & 0.3175 & 0.049 & 0.6511 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
-    $n_s^+$         & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9824 & 0.834 & 0.834 & & & 500 \\ 
-    $n_s^-$         & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9424 & 0.834 & 0.834 & & & 500 \\ 
-    $\sigma_8^+$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.849 & 0.849 & & & 500 \\ 
-    $\sigma_8^-$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.819 & 0.819 & & & 500 \\ 
+    Fiducial 	    & 0.0         & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 15,000 \\ 
+    $\smnu^+$       & \underline{0.1}   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
+    $\smnu^{++}$    & \underline{0.2}   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
+    $\smnu^{+++}$   & \underline{0.4}   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
+    $\Omega_m^+$    & 0.0   & \underline{ 0.3275} & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
+    $\Omega_m^-$    & 0.0   & \underline{ 0.3075} & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
+    $\Omega_b^+$    & 0.0   & 0.3175 & \underline{0.050} & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
+    $\Omega_b^-$    & 0.0   & 0.3175 & \underline{0.048} & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
+    $h^+$           & 0.0   & 0.3175 & 0.049 & \underline{0.6911} & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
+    $h^-$           & 0.0   & 0.3175 & 0.049 & \underline{0.6511} & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
+    $n_s^+$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9824} & 0.834 & 0.834 & & & 500 \\ 
+    $n_s^-$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9424} & 0.834 & 0.834 & & & 500 \\ 
+    $\sigma_8^+$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.849} & \underline{0.849} & & & 500 \\ 
+    $\sigma_8^-$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.819} & \underline{0.819} & & & 500 \\ 
     \hline
 \end{tabular} \label{tab:sims}
 \end{center}
+    {\bf Notes:} description of the table
 \end{table}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -206,7 +208,44 @@ to~\cite{villaescusa-navarro2018}.
 % Section   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Bispectrum} \label{sec:bk} 
-Brief description of the bispectrum estimator here.
+Paragraph briefly describing the bispectrum and its advantages, qualitatively.
+
+We use the estimator the bispectrum monopole ($\ell = 0$) as described in 
+\cite{scoccimarro2015,sefusatti2016} that exploit Fast Fourier Transforms 
+(FFTs): 
+\beq \label{eq:bk} 
+\hat{B}_{\ell = 0}(k_1,k_2, k_3) = \frac{1}{V_B}\int\limits_{k_1}d^3q_1 \int\limits_{k_2}d^3q_2 \int\limits_{k_3}d^3q_3~\delta_{\rm D}({\bfi q_{123}}) \delta({\bfi q_1}) \delta({\bfi q_2}) \delta({\bfi q_3}).
+\eeq
+$\delta_{\rm D}$ above represents a Dirac delta function and hence
+$\delta_{\rm D}({\bfi q_{123}}) = \delta_{\rm D}({\bfi q_1} + {\bfi q_2} + {\bfi q_3})$ 
+ensures that the ${\bfi q}_i$ triplet actually form a closed triangle. Furthermore, 
+each of the integrals above represent an integral over a spherical shell in $k$-space 
+with radius $\delta k$ centered at ${\bfi k}_i$ --- \emph{i.e.} 
+\beq
+\int_{k_i}{\rm d}^3q \equiv \int\limits_{k_i-\delta k/2}^{k_i+\delta k/2}{\rm d}q~q^2\int {\rm d}\Omega.
+\eeq
+Lastly, the normalization factor
+\beq
+V_B = \int\limits_{k_1}d^3q_1 \int\limits_{k_2}d^3q_2 \int\limits_{k_3}d^3q_3~\delta_{\rm D}({\bfi q_{123}})
+\eeq
+is proportional to the number of triplets ${\bfi q_1}$, ${\bfi q_2}$, and ${\bfi q_3}$
+that can be found in the triangle bin defined by $k_1$, $k_2$, and $k_3$ with 
+width $\delta k$. In order to evaluate the integrals in Eq.~\ref{eq:bk}, we 
+take advantage of the plane-wave representation of the Dirac delta function 
+and rewrite the equation as
+\begin{align}
+\hat{B}_{\ell = 0}(k_1,k_2, k_3) &= \frac{1}{V_B} \int\frac{{\rm d}^3x}{(2\pi)^3}\int\limits_{k_1}d^3q_1 \int\limits_{k_2}d^3q_2 \int\limits_{k_3}d^3q_3~\delta({\bfi q_1}) \delta({\bfi q_2}) \delta({\bfi q_3})~e^{i{\bfi q_{123}}\cdot{\bfi x}} \\ 
+    &= \frac{1}{V_B} \int\frac{{\rm d}^3x}{(2\pi)^3}\prod\limits_{i=1}^{3} I_{k_i}({\bfi x})
+\end{align}
+where 
+\beq
+I_{k_i}({\bfi x}) = \int\limits_k {\rm d}^3q~\delta({\bfi q})~e^{i {\bfi q}\cdot{\bfi x}}. 
+\eeq
+Then $\hat{B}_{\ell = 0}(k_1,k_2, k_3)$ can be measured by calcuating the $I_{k_i}$s 
+with inverse FFTs and summing over in real space. 
+\ch{talk about the fourth-order interpolation scheme for $\delta$ and how it has} 
+
+\ch{paragraph on shot noise} 
 
 \begin{figure}
 \begin{center}
@@ -388,15 +427,17 @@ It's a pleasure to thank
 \section{Redshift-space Bispectrum} 
 \begin{figure}
 \begin{center}
-    \includegraphics[width=0.95\textwidth]{figs/haloBk_amp_001_05_rsd_comparison.pdf}
-    \caption{Comparison of the fiducial HADES simuluation real and redshift-space halo
-    bispectrum (blue and orange).}
+    \includegraphics[width=0.95\textwidth]{figs/haloBk_amp_kmax05_rsd_comparison.pdf}
+    \caption{Comparison of the fiducial HADES simuluations real and redshift-space halo
+    bispectrum for triangle configurations with $k_1, k_2, k_3 \leq k_{\rm max} = 0.5 h/{\rm Mpc}$ 
+    (blue and orange respectively). We mark equilateral triangle configurations (empty 
+    triangle marker) along with their side lengths $k$.
+    }
 \label{fig:cov_converge}
 \end{center}
 \end{figure}
 
 \section{Testing Convergence} 
-
 \begin{figure}
 \begin{center}
     \includegraphics[width=0.5\textwidth]{figs/quijote_Fisher_nmocks_001_05.pdf}
