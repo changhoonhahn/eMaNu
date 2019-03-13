@@ -135,15 +135,15 @@ using the ``particle method'', where neutrinos are described as a collisionless
 and pressureless fluid and therefore modeled as particles, same as 
 CDM~\citep{brandbyge2008,viel2010}. HADES also includes models with massless 
 neutrino and different values of $\sigma_8$ to examine the $\smnu-\sigma_8$ 
-degeneracy. The $\sigma_8$ values were chosen to match either the $\sigma_8$ 
-of the massive neutrino models computed with respect to the total matter 
-(CDM + baryons + $\nu$), $\sigma_8^m$, or the CDM + baryons, $\sigma_8^{c}$: 
+degeneracy. The $\sigma_8$ values were chosen to match either $\sigma_8^m$ or 
+$\sigma_8^{c}$, $\sigma_8$ computed with respect to total matter 
+(CDM + baryons + $\nu$) or CDM + baryons, of the massive neutrino models: 
 $\sigma_8 = 0.822, 0.818, 0.807$, and $0.798$. Each model has $100$ independent 
 realizations and we focus on the snapshots saved at $z = 0$. Halos closely 
 trace the CDM+baryon field rather than the total matter field and neutrinos 
 have negligible contribution to halo masses~\citep[\emph{e.g.}][]{ichiki2012, castorina2014, loverde2014, villaescusa-navarro2014}.
 Hence, dark matter halos are identified in each realization using the Friends-of-Friends 
-algorithm~\cite[FoF][]{davis1985} with linking length $b=0.2$ on the CDM + baryon
+algorithm~\cite[FoF;][]{davis1985} with linking length $b=0.2$ on the CDM + baryon
 distribution; only halos with masses $> 3.2\times 10^{13} h^{-1}M_\odot$ 
 are included. For further details on the HADES simulations, we refer readers 
 to~\cite{villaescusa-navarro2018}. 
@@ -167,7 +167,7 @@ to~\cite{villaescusa-navarro2018}.
                 & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.822 & 0.822 & 65.66 & 0      &100 \\ 
                 & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.818 & 0.818 & 65.66 & 0      &100 \\ 
                 & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.807 & 0.807 & 65.66 & 0      &100 \\ 
-                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.798 & 0.798 & 65.66 & 0      &100 \\ 
+                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.798 & 0.798 & 65.66 & 0      &100 \\[3pt]
     \hline \hline
     \multicolumn{11}{c}{Qujiote suite} \\ \hline
     Fiducial 	    & 0.0         & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 15,000 \\ 
@@ -183,7 +183,7 @@ to~\cite{villaescusa-navarro2018}.
     $n_s^+$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9824} & 0.834 & 0.834 & & & 500 \\ 
     $n_s^-$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9424} & 0.834 & 0.834 & & & 500 \\ 
     $\sigma_8^+$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.849} & \underline{0.849} & & & 500 \\ 
-    $\sigma_8^-$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.819} & \underline{0.819} & & & 500 \\ 
+    $\sigma_8^-$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.819} & \underline{0.819} & & & 500 \\[3pt]
     \hline
 \end{tabular} \label{tab:sims}
 \end{center}
@@ -257,7 +257,7 @@ where
 I_{k_i}({\bfi x}) = \int\limits_k {\rm d}^3q~\delta({\bfi q})~e^{i {\bfi q}\cdot{\bfi x}}. 
 \eeq
 At this point, we measure $\widehat{B}_{\ell = 0}(k_1,k_2, k_3)$ by calcuating the 
-$I_{k_i}$s with inverse FFTs and summing over in real space. {\ch maybe refer to a figure?}
+$I_{k_i}$s with inverse FFTs and summing over in real space. \ch{maybe refer to a figure?}
 
 \begin{figure}
 \begin{center}
