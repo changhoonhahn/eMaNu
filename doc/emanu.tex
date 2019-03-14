@@ -136,8 +136,8 @@ and pressureless fluid and therefore modeled as particles, same as
 CDM~\citep{brandbyge2008,viel2010}. HADES also includes models with massless 
 neutrino and different values of $\sigma_8$ to examine the $\smnu-\sigma_8$ 
 degeneracy. The $\sigma_8$ values were chosen to match either $\sigma_8^m$ or 
-$\sigma_8^{c}$, $\sigma_8$ computed with respect to total matter 
-(CDM + baryons + $\nu$) or CDM + baryons, of the massive neutrino models: 
+$\sigma_8^{c}$ --- $\sigma_8$ computed with respect to total matter 
+(CDM + baryons + $\nu$) or CDM + baryons --- of the massive neutrino models: 
 $\sigma_8 = 0.822, 0.818, 0.807$, and $0.798$. Each model has $100$ independent 
 realizations and we focus on the snapshots saved at $z = 0$. Halos closely 
 trace the CDM+baryon field rather than the total matter field and neutrinos 
@@ -187,7 +187,7 @@ to~\cite{villaescusa-navarro2018}.
     \hline
 \end{tabular} \label{tab:sims}
 \end{center}
-    {\bf Notes:} description of the table
+    {\bf Notes:} \ch{description of the table} 
 \end{table}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -195,10 +195,11 @@ to~\cite{villaescusa-navarro2018}.
 \begin{center}
 \includegraphics[width=0.9\textwidth]{figs/haloPlk_rsd_ratio.pdf}
     \caption{Impact of $\smnu$ and $\sig$ on the redshift-space halo power 
-    spectrum monopole and quadrupole. $\smnu$ and $\sig$ produce almost identical 
-    effects on halo clustering on small scales ($k > 0.1\hmpc$). This degeneracy 
-    can be partially broken through the quadrupole; however, {\em $\smnu$ and $\sig$ 
-    produce, within a few percent, almost the same effect on two-point clustering}.
+    spectrum monopole and quadrupole measured using the HADES simulation suite. 
+    $\smnu$ and $\sig$ produce almost identical effects on halo clustering on 
+    small scales ($k > 0.1\hmpc$). This degeneracy can be partially broken 
+    through the quadrupole; however, {\em $\smnu$ and $\sig$ produce almost 
+    the same effect on two-point clustering --- within a few percent}.
     }
 \label{fig:plk}
 \end{center}
@@ -257,7 +258,12 @@ where
 I_{k_i}({\bfi x}) = \int\limits_k {\rm d}^3q~\delta({\bfi q})~e^{i {\bfi q}\cdot{\bfi x}}. 
 \eeq
 At this point, we measure $\widehat{B}_{\ell = 0}(k_1,k_2, k_3)$ by calcuating the 
-$I_{k_i}$s with inverse FFTs and summing over in real space. \ch{maybe refer to a figure?}
+$I_{k_i}$s with inverse FFTs and summing over in real space. 
+
+We present the redshift-space halo bispectrum of the HADE simulations measured using the 
+estimator above in Figures~\ref{fig:bk_shape} and~\ref{fig:bk_amp}. Figure~\ref{fig:bk_shape}
+plot $B(k_1, k_2, k_3)$ as a function of $k_2/k_1$ and $k_3/k_1$, which describe the triangle 
+configuration 
 
 \begin{figure}
 \begin{center}

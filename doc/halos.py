@@ -1326,6 +1326,36 @@ def quijoteCov(rsd=True):
     return k1, k2, k3, cov
 
 
+def quijotePk_scalefactor(rsd=True, validate=False): 
+    ''' we have to scale the amplitude of P(k) so that we can invert the joint
+    P(k) + B(k) covariance matrix 
+    '''
+    # lets start with something stupid 
+    quij = quijoteBk('fiducial', rsd=rsd)  
+    i_k = quij['k1'] 
+    mu_pk = np.average(quij['p0k1'], axis=0)    # get average quijote pk 
+    mu_bk = np.average(quij['b123'], axis=0)    # get average quijote bk 
+
+    # only keep 
+    _, iuniq = np.unique(i_k, return_index=True) 
+    med_pkamp = np.median(mu_pk[iuniq]) # median pk amplitude
+    med_bkamp = np.median(mu_bk) # median bk amplitude 
+    print('median P(k) amplitude = %.3e' % med_pkamp) 
+    print('median B(k) amplitude = %.3e' % med_bkamp) 
+    scalefactor = med_bkamp / med_pkamp 
+    print('scale factor = %.3e' % scalefactor) 
+    if validate: 
+        fig = plt.figure(figsize=(20,5))
+        sub = fig.add_subplot(111)
+        sub.scatter(range(len(iuniq)), mu_pk[iuniq], c='C1') 
+        sub.scatter(range(len(iuniq)), scalefactor * mu_pk[iuniq], c='k') 
+        sub.scatter(range(len(iuniq), len(iuniq)+len(mu_bk)), mu_bk, c='k')
+        sub.set_xlim(0, len(iuniq)+len(mu_bk)) 
+        sub.set_yscale('log') 
+        ffig = os.path.join(UT.fig_dir(), 'quijotePk_scalefactor%s.png' % ['_real', ''][rsd])
+        fig.savefig(ffig, bbox_inches='tight') 
+    return scalefactor  
+
 # covariance matrices 
 def quijote_pkCov(kmax=0.5, rsd=True): 
     ''' plot the covariance matrix of the quijote fiducial 
@@ -1408,6 +1438,7 @@ def quijote_pkbkCov(kmax=0.5, rsd=True):
     iuniq[_iuniq] = True
     pklim = (iuniq & (i_k*kf <= kmax)) 
     pks = pks[:,pklim]
+    # powerspectrum amplitude has to be scaled 
     
     pbks = np.concatenate([pks, bks], axis=1) # joint data vector
 
@@ -2977,6 +3008,8 @@ if __name__=="__main__":
         compare_Bk_shape(krange=[0.01, kmax], rsd=True, nbin=31)
         compare_Qk(krange=[0.01, kmax], rsd=True)
 
+    quijotePk_scalefactor(rsd=True, validate=True)
+
     # covariance matrices
     for kmax in [0.5]: 
         continue 
@@ -2999,7 +3032,7 @@ if __name__=="__main__":
         #quijote_bkForecast_dmnu(rsd=rsd)
     # rsd 
     #compare_Pk_rsd(krange=[0.01, 0.5])
-    compare_Bk_rsd(kmax=0.5)
+    #compare_Bk_rsd(kmax=0.5)
     #compare_Qk_rsd(krange=[0.01, 0.5])
     
     #hades_dchi2(krange=[0.01, 0.5])
