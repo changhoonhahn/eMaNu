@@ -1290,7 +1290,8 @@ def quijoteBk(theta, rsd=True, flag=None):
     :return _bks: 
         dictionary that contains all the bispectrum data from quijote simulation
     '''
-    fbk = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_%s%s%s.hdf5' % (theta, ['.real', ''][rsd], [flag, ''][flag is None])) 
+    fbk = os.path.join(UT.dat_dir(), 'bispectrum', 
+            'quijote_%s%s%s.hdf5' % (theta, ['.real', ''][rsd], [flag, ''][flag is None])) 
     bks = h5py.File(fbk, 'r') 
 
     _bks = {}
@@ -2548,7 +2549,6 @@ def quijote_Forecast_freeMmin(obs, kmax=0.5, rsd=True, dmnu='fin'):
     _Finv = np.linalg.inv(_Fij) # invert fisher matrix 
     Finv = np.linalg.inv(Fij) # invert fisher matrix 
 
-
     #i_s8 = thetas.index('s8')
     #print('original sigma_s8 = %f' % np.sqrt(_Finv[i_s8,i_s8]))
     #print('w/ Mmin sigma_s8 = %f' % np.sqrt(Finv[i_s8,i_s8]))
@@ -2598,6 +2598,36 @@ def quijote_Forecast_freeMmin(obs, kmax=0.5, rsd=True, dmnu='fin'):
 ##################################################################
 # forecasts with fixed nbar 
 ##################################################################
+def quijote_bkCov_fixednbar(kmax=0.5, rsd=True): 
+    ''' plot the covariance matrix of the quijote fiducial 
+    bispectrum. 
+    '''
+    # read in B(k) of fiducial quijote simulation 
+    quij = quijoteBk('fiducial', rsd=rsd, flag='.fixed_nbar') # theta_fiducial 
+    bks = quij['b123'] + quij['b_sn']                   # shotnoise uncorrected B(k) 
+    i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
+
+    # impose k limit on bispectrum
+    kf = 2.*np.pi/1000. # fundmaentla mode
+    bklim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax))
+    ijl = UT.ijl_order(i_k[bklim], j_k[bklim], l_k[bklim], typ='GM') # order of triangles 
+    bks = bks[:,bklim][:,ijl] 
+
+    C_bk = np.cov(bks.T) # covariance matrix 
+    print('covariance matrix condition number = %.5e' % np.linalg.cond(C_bk)) 
+
+    # plot the covariance matrix 
+    fig = plt.figure(figsize=(10,8))
+    sub = fig.add_subplot(111)
+    cm = sub.pcolormesh(C_bk, norm=LogNorm(vmin=1e11, vmax=1e18))
+    cbar = fig.colorbar(cm, ax=sub) 
+    cbar.set_label(r'$B(k_1, k_2, k_3)$ covariance matrix, ${\bf C}_{B}$', fontsize=25, labelpad=10, rotation=90)
+    #sub.set_title(r'Quijote $B(k_1, k_2, k_3)$ Covariance', fontsize=25)
+    ffig = os.path.join(UT.fig_dir(), 'quijote_bkCov.fixed_nbar.kmax%s%s.png' % (str(kmax).replace('.', ''), ['_real', ''][rsd]))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+
 def quijote_dPk_fixednbar(theta, dmnu='fin'):
     ''' calculate shot noise uncorrected dP(k)/d theta using the paired 
     and fixed quijote simulations run on perturbed theta 
@@ -2694,6 +2724,7 @@ def quijote_fixednbar_derivative_comparison(obs, kmax=0.5):
             sub.plot(kf * i_k[klim], dobsdt[klim], c='C1', label=r'fixed $\bar{n}$') 
             sub.set_xscale('log') 
             sub.set_xlim(1.8e-2, 0.5) 
+            sub.set_ylabel(r"d$P$/d%s" % tt, fontsize=20) 
         elif obs == 'bk': 
             _dobsdt = quijote_dBk(tt, rsd=True, dmnu='fin') # original deriative 
             dobsdt = quijote_dBk_fixednbar(tt, dmnu='fin')  # fixed nbar 
@@ -2702,17 +2733,16 @@ def quijote_fixednbar_derivative_comparison(obs, kmax=0.5):
             sub.plot(range(np.sum(klim)), _dobsdt[klim], c='k', label='original') 
             sub.plot(range(np.sum(klim)), dobsdt[klim], c='C1', label=r'fixed $\bar{n}$') 
             sub.set_xlim(0, np.sum(klim))
-            sub.set_yscale("log") 
+            sub.set_yscale("symlog") 
+            sub.set_ylabel(r"d$B$/d%s" % tt, fontsize=20) 
         if i == 0: sub.legend(loc='upper right', fontsize=20) 
 
     bkgd = fig.add_subplot(111, frameon=False)
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
     if obs == 'pk': 
         bkgd.set_xlabel("$k$ [$h$/Mpc]", labelpad=10, fontsize=25) 
-        bkgd.set_ylabel(r"$dP(k)/d\theta$", labelpad=10, fontsize=25) 
     elif obs == 'bk': 
         bkgd.set_xlabel("triangle configuration", labelpad=10, fontsize=25) 
-        bkgd.set_ylabel(r"$dB/d\theta$", labelpad=10, fontsize=25) 
 
     ffig = os.path.join(UT.fig_dir(), 'quijote_fixednbar_d%s_comparison_kmax%.2f.png' % (obs, kmax))
     fig.savefig(ffig, bbox_inches='tight') 
@@ -2784,15 +2814,20 @@ def quijote_Forecast_fixednbar(obs, kmax=0.5, dmnu='fin'):
     '''
     # fisher matrix (Fij)
     if obs == 'pk': 
+        _Fij = quijote_pkFisher(kmax=kmax, dmnu=dmnu)
         Fij = quijote_pkFisher_fixednbar(kmax=kmax, dmnu=dmnu) 
     elif obs == 'bk': 
+        _Fij = quijote_bkFisher(kmax=kmax, dmnu=dmnu)
         Fij = quijote_bkFisher_fixednbar(kmax=kmax, dmnu=dmnu) 
-
+    
+    _Finv = np.linalg.inv(_Fij)
     Finv = np.linalg.inv(Fij) # invert fisher matrix 
     i_s8 = thetas.index('s8')
-    print('sigma_s8 = %f' % np.sqrt(Finv[i_s8,i_s8]))
+    print('original sigma_s8 = %f' % np.sqrt(_Finv[i_s8,i_s8]))
+    print('fixed nbar sigma_s8 = %f' % np.sqrt(Finv[i_s8,i_s8]))
     i_Mnu = thetas.index('Mnu')
-    print('sigma_Mnu = %f' % np.sqrt(Finv[i_Mnu,i_Mnu]))
+    print('original sigma_Mnu = %f' % np.sqrt(_Finv[i_Mnu,i_Mnu]))
+    print('fixed nbar sigma_Mnu = %f' % np.sqrt(Finv[i_Mnu,i_Mnu]))
 
     fig = plt.figure(figsize=(17, 15))
     for i in xrange(ntheta-1): 
@@ -2804,6 +2839,9 @@ def quijote_Forecast_fixednbar(obs, kmax=0.5, dmnu='fin'):
             sub = fig.add_subplot(ntheta-1, ntheta-1, (ntheta-1) * (j-1) + i + 1) 
 
             plotEllipse(Finv_sub, sub, theta_fid_ij=[theta_fid_i, theta_fid_j], color='C0')
+                
+            _Finv_sub = np.array([[_Finv[i,i], _Finv[i,j]], [_Finv[j,i], _Finv[j,j]]]) 
+            plotEllipse(_Finv_sub, sub, theta_fid_ij=[theta_fid_i, theta_fid_j], color='C1')
             
             sub.set_xlim(theta_lims[i])
             sub.set_ylim(theta_lims[j])
@@ -3548,13 +3586,13 @@ if __name__=="__main__":
             quijote_scaledpkbkCov(kmax=kmax, rsd=rsd) # condition number 3.26234e+11
 
     # fisher forecasts 
-    for rsd in [False]: #, False]: 
+    for rsd in [True]: #, False]: 
         for kmax in [0.5]: #[0.2, 0.3, 0.4, 0.5]: 
             for dmnu in ['fin']: #['p', 'pp', 'ppp', 'fin']: 
+                quijote_pbkForecast(kmax=kmax, rsd=rsd, dmnu=dmnu)
                 continue 
                 quijote_Forecast('pk', kmax=kmax, rsd=rsd, dmnu=dmnu)
                 quijote_Forecast('bk', kmax=kmax, rsd=rsd, dmnu=dmnu)
-                #quijote_pbkForecast(kmax=kmax, rsd=rsd, dmnu=dmnu)
         #quijote_Forecast_kmax('pk', rsd=rsd) 
         #quijote_Forecast_kmax('bk', rsd=rsd)
         #quijote_pkForecast_dmnu(rsd=rsd)
@@ -3579,14 +3617,16 @@ if __name__=="__main__":
 
     # Mmin is a free parameter
     for kmax in [0.2, 0.5]: 
-        continue
+        continue 
         print('kmax = %.1f' % kmax) 
         quijote_dbk_dMnu_dMmin(kmax=kmax, rsd=True, dmnu='fin')
         quijote_Forecast_freeMmin('pk', kmax=kmax, rsd=True, dmnu='fin')
         quijote_Forecast_freeMmin('bk', kmax=kmax, rsd=True, dmnu='fin')
     
     # fixed nbar forecasts 
-    for kmax in [0.2, 0.5]: 
+    #quijote_bkCov_fixednbar(kmax=0.5, rsd=True)
+    for kmax in [0.5]: 
+        continue 
         print('kmax = %.1f' % kmax) 
         quijote_fixednbar_derivative_comparison('pk', kmax=kmax)
         quijote_fixednbar_derivative_comparison('bk', kmax=kmax)
