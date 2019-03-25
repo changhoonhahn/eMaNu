@@ -2269,6 +2269,63 @@ def _quijote_pkbkCov_triangle(typ, krange=[0.01, 0.5]):
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
+# fisher matrix test
+def quijote_FisherTest(kmax=0.5, rsd=True, dmnu='fin', flag=None): 
+    ''' comparison of the computed fisher matrix from our method verses
+    the implementation in pydelfi
+    '''
+    for obs in ['pk', 'bk']:
+        # calculate covariance matrix (with shotnoise; this is the correct one) 
+        if obs == 'pk': 
+            quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag=flag) # theta_fiducial 
+            pks = quij['p0k1'] + 1e9/quij['Nhalos'][:,None] # uncorrect shotn oise 
+            i_k = quij['k1']
+
+            # impose k limit 
+            _, _iuniq = np.unique(i_k, return_index=True)
+            iuniq = np.zeros(len(i_k)).astype(bool) 
+            iuniq[_iuniq] = True
+            klim = (iuniq & (i_k*kf <= kmax)) 
+            i_k = i_k[klim]
+
+            C_fid = np.cov(pks[:,klim].T) 
+        elif 'bk' in obs: 
+            # read in full covariance matrix (with shotnoise; this is the correct one) 
+            i_k, j_k, l_k, C_fid = quijoteCov(rsd=rsd, flag=flag)
+            
+            # impose k limit 
+            if obs == 'bk': 
+                klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
+            elif obs == 'bk_equ': 
+                tri = (i_k == j_k) & (j_k == l_k) 
+                klim = (tri & (i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
+            elif obs == 'bk_squ': 
+                tri = (i_k == j_k) & (l_k == 3)
+                klim = (tri & (i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
+
+            i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim] 
+            C_fid = C_fid[:,klim][klim,:]
+
+        C_inv = np.linalg.inv(C_fid) # invert the covariance 
+        
+        dobs_dt = [] 
+        for par in thetas: # calculate the derivative of Bk along all the thetas 
+            if obs == 'pk': 
+                dobs_dti = quijote_dPk(par, rsd=rsd, dmnu=dmnu, flag=flag)
+            elif obs == 'bk': 
+                dobs_dti = quijote_dBk(par, rsd=rsd, dmnu=dmnu, flag=flag)
+            dobs_dt.append(dobs_dti[klim]) 
+        Fij = Forecast.Fij(dobs_dt, C_inv) # how we calculate Fij 
+    
+        npar = len(thetas)
+        Fij_delfi = np.zeros((npar, npar)) 
+        for a in range(npar):
+            for b in range(npar):
+                Fij_delfi[a,b] += 0.5*(np.dot(dobs_dt[a], np.dot(C_inv, dobs_dt[b])) + 
+                        np.dot(dobs_dt[b], np.dot(C_inv, dobs_dt[a])))
+        print('--- %s ---' % obs) 
+        print np.max(Fij-Fij_delfi)
+    return None 
 
 
 if __name__=="__main__": 
@@ -2293,10 +2350,10 @@ if __name__=="__main__":
     for rsd in [True]: #, False]: 
         for kmax in [0.5]: #[0.2, 0.3, 0.4, 0.5]: 
             for dmnu in ['fin']: #['p', 'pp', 'ppp', 'fin']: 
+                continue 
                 quijote_Forecast('pk', kmax=kmax, rsd=rsd, dmnu=dmnu)
                 quijote_Forecast('bk', kmax=kmax, rsd=rsd, dmnu=dmnu)
                 quijote_pbkForecast(kmax=kmax, rsd=rsd, dmnu=dmnu)
-                continue 
         #quijote_Forecast_kmax('pk', rsd=rsd) 
         #quijote_Forecast_kmax('bk', rsd=rsd)
         #quijote_Forecast_dmnu('pk', rsd=rsd)
@@ -2369,6 +2426,9 @@ if __name__=="__main__":
     #quijote_Forecast_Nfixedpair('bk', kmax=0.5, rsd=True, dmnu='fin')
 
     #quijotePk_scalefactor(rsd=True, validate=True)
+
+    # Fisher matrix computation test 
+    quijote_FisherTest(kmax=0.5, rsd=True, dmnu='fin')
 
     # rsd 
     #compare_Pk_rsd(krange=[0.01, 0.5])
