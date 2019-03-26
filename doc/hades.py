@@ -577,9 +577,9 @@ def compare_Bk_shape(kmax=0.5, rsd=True, nbin=31):
     fig.savefig(ffig, bbox_inches='tight') 
 
     # plot residual of the B(k) shape dependence 
-    fig = plt.figure(figsize=(25,6))
+    fig = plt.figure(figsize=(12,6))
     for i, mnu, bk in zip(range(len(mnus)), mnus, Bk_Mnu): 
-        sub = fig.add_subplot(2,4,i+1)
+        sub = fig.add_subplot(2,3,i+1)
         dbk = bk/Bk_fid - 1.
         dBQgrid = ePlots._BorQgrid(k3k1[klim], k2k1[klim], dbk[klim], counts[klim], x_bins, y_bins)
         if rsd: bplot = sub.pcolormesh(x_bins, y_bins, dBQgrid.T, vmin=0., vmax=0.15, cmap='RdBu')
@@ -588,8 +588,8 @@ def compare_Bk_shape(kmax=0.5, rsd=True, nbin=31):
         sub.set_xticklabels([]) 
         if i > 0: sub.set_yticklabels([]) 
 
-    for i, s8, bk in zip(range(len(sig8s)), sig8s, Bk_s8s): 
-        sub = fig.add_subplot(2,4,i+5)
+    for i, s8, bk in zip(range(len(sig8s)-1), sig8s, Bk_s8s): 
+        sub = fig.add_subplot(2,3,i+4)
         dbk = bk/Bk_fid - 1.
         dBQgrid = ePlots._BorQgrid(k3k1[klim], k2k1[klim], dbk[klim], counts[klim], x_bins, y_bins)
         if rsd: bplot = sub.pcolormesh(x_bins, y_bins, dBQgrid.T, vmin=0., vmax=0.15, cmap='RdBu')
@@ -1107,9 +1107,9 @@ if __name__=="__main__":
     for kmax in [0.5]: 
         #compare_Plk(kmax=0.5)
         #ratio_Plk(kmax=0.5) 
-        compare_Bk(kmax=kmax, rsd=True)
+        #compare_Bk(kmax=kmax, rsd=True)
         compare_Bk_shape(kmax=kmax, rsd=True, nbin=31)
-        compare_Qk(kmax=kmax, rsd=True)
+        #compare_Qk(kmax=kmax, rsd=True)
 
     #compare_Bk_SNuncorr(krange=[0.01, 0.5], rsd=True)
     #compare_Qk_SNuncorr(krange=[0.01, 0.5], rsd=True)

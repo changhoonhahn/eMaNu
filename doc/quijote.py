@@ -827,6 +827,7 @@ def quijote_Forecast_sigma_kmax(rsd=True, dmnu='fin'):
     for kmax in kmaxs: 
         Fij = quijote_Fisher('pk', kmax=kmax, rsd=rsd, dmnu=dmnu, validate=False) 
         Finv = np.linalg.inv(Fij) # invert fisher matrix 
+        print kmax, Fij[-1,-1], Finv[-1,-1]
         sigma_thetas_pk.append(np.sqrt(np.diag(Finv)))
         Fij = quijote_Fisher('bk', kmax=kmax, rsd=rsd, dmnu=dmnu, validate=False) 
         Finv = np.linalg.inv(Fij) # invert fisher matrix 
@@ -1029,7 +1030,32 @@ def quijote_FisherInfo(obs, kmax=0.5):
             Mij = np.dot(dmu_dt_i[:,None], dmu_dt_j[None,:]) + np.dot(dmu_dt_j[:,None], dmu_dt_i[None,:])
             Fij_i[i,j,:] = 0.5 * np.diag(np.dot(C_inv, Mij))
 
-    if obs == 'bk': 
+    if obs == 'pk': 
+        fig = plt.figure(figsize=(10,20))
+        sub = fig.add_subplot(len(thetas)+1,1,1)
+
+        sub.plot(i_k*kf, np.average(quij['p0k1'], axis=0)[klim], c='k')
+        sub.set_xscale('log') 
+        sub.set_xlim(0.018, 0.5)
+        sub.set_ylabel(r'$P(k)$', fontsize=25) 
+        sub.set_yscale('log') 
+
+        for i in range(len(thetas)): 
+            sub = fig.add_subplot(len(thetas)+1,1,i+2)
+            sub.plot(i_k*kf, np.ones(np.sum(klim)), c='k', ls='--') 
+            sub.plot(i_k*kf, Fij_i[i,i,:], c='C0', zorder=7)
+            sub.text(0.95, 0.9, theta_lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=30)
+            sub.set_xlim(0.018, 0.5)
+            sub.set_xscale('log') 
+        bkgd = fig.add_subplot(111, frameon=False)
+        bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+        bkgd.set_xlabel('$k_j$', fontsize=25) 
+        bkgd.set_ylabel(r'$F_{i,i}^j$', fontsize=30) 
+
+        ffig = os.path.join(UT.fig_dir(), 'quijote_Pk_FisherInfo.png')
+        fig.savefig(ffig, bbox_inches='tight') 
+
+    elif obs == 'bk': 
         fig = plt.figure(figsize=(20,20))
         sub = fig.add_subplot(len(thetas)+1,1,1)
 
@@ -2562,6 +2588,7 @@ if __name__=="__main__":
         #quijote_Forecast_dmnu('bk', rsd=rsd)
         #quijote_Forecast_sigma_kmax(rsd=rsd, dmnu='fin')
     #hades_dchi2(krange=[0.01, 0.5])
+    #quijote_FisherInfo('pk', kmax=0.5)
     quijote_FisherInfo('bk', kmax=0.5)
     
     # amplitude scaling factor is a free parameter
