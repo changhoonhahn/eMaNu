@@ -150,7 +150,7 @@ to~\cite{villaescusa-navarro2018}.
 
 \ch{describe quijote simulations} 
 \bitem 
-\item fixed-pair  
+\item describe fixed-pair and state that we tested the bispectrum for fiducial parameter
 \eitem
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -208,85 +208,6 @@ to~\cite{villaescusa-navarro2018}.
 \end{center}
 \end{figure}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Section   
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Bispectrum} \label{sec:bk} 
-We're interested in breaking parameter degeneracies that limit the constraining 
-power on $\smnu$ of two-point clustering analyses using three-point clustering 
-statistics --- \emph{i.e.} the bispectrum. In this section, we describe the 
-bispectrum estimator used throughout the paper. We focus on the bispectrum monopole 
-($\ell = 0$) and use an estimator that exploits Fast Fourier Transpforms (FFTs). 
-Our estimator is similar to the estimators described in \cite{scoccimarro2015,sefusatti2016}; 
-we also follow their formalism in our description below. Although \cite{sefusatti2016} 
-and \cite{scoccimarro2015} respectively describe estimators in redshift- and real-space,  
-since we focus on the bispectrum monopole, we note that there is no difference. 
-
-To measure the bispectrum of our halo catalogs, we begin by interpolating the halo
-positions to a grid, $\delta({\bfi x})$ and Fourier transforming the grid to get $\delta({\bfi k})$.
-We use a fourth-order interpolation to interlaced grids, which has advantageous anti-aliasing 
-properties~\citep{hockney1981,sefusatti2016} that allow unbias measurements up to the Nyquist 
-frequency. Then using $\delta({\bfi k})$, we measure the bispectrum monopole as 
-\beq \label{eq:bk} 
-\widehat{B}_{\ell = 0}(k_1,k_2, k_3) = \frac{1}{V_B} \int\limits_{k_1}{\rm d}^3q_1 \int\limits_{k_2}{\rm d}^3q_2 \int\limits_{k_3}{\rm d}^3q_3~\delta_{\rm D}({\bfi q_{123}})~\delta({\bfi q_1})~\delta({\bfi q_2})~\delta({\bfi q_3}) - B^{\rm SN}_{\ell = 0}
-\eeq
-$\delta_{\rm D}$ above is a Dirac delta function and hence $\delta_{\rm D}({\bfi q_{123}}) = \delta_{\rm D}({\bfi q_1} + {\bfi q_2} + {\bfi q_3})$ 
-ensures that the ${\bfi q}_i$ triplet actually form a closed triangle. Each of the integrals 
-above represent an integral over a spherical shell in $k$-space with radius $\delta k$ 
-centered at ${\bfi k}_i$ --- \emph{i.e.} 
-\beq
-\int_{k_i}{\rm d}^3q \equiv \int\limits_{k_i-\delta k/2}^{k_i+\delta k/2}{\rm d}q~q^2\int {\rm d}\Omega.
-\eeq
-$V_B$ is a normalization factor proportional to the number of triplets ${\bfi q_1}$, 
-${\bfi q_2}$, and ${\bfi q_3}$ that can be found in the triangle bin defined by 
-$k_1$, $k_2$, and $k_3$ with width $\delta k$: 
-\beq
-V_B = \int\limits_{k_1}{\rm d}^3q_1 \int\limits_{k_2}{\rm d}^3q_2 \int\limits_{k_3}{\rm d}^3q_3~\delta_{\rm D}({\bfi q_{123}})
-\eeq
-Lastly, $B^{\rm SN}_{\ell=0}$ is the correction for the Poisson shot noise, which 
-contributes due to the self-correlation of individual objects: 
-\beq \label{eq:bk_sn} 
-B^{\rm SN}_{\ell=0}(k_1, k_2, k_3) = \frac{1}{\bar{n}} \big(P_0(k_1) + P_0(k_2) + P_0(k_3) \big) + \frac{1}{\bar{n}^2}. 
-\eeq
-$\bar{n}$ is the number density of objects (halos) and $P_0$ is the powerspectrum monopole. 
-
-In order to evaluate the integrals in Eq.~\ref{eq:bk}, we take advantage of the plane-wave 
-representation of the Dirac delta function and rewrite the equation as
-\begin{align} \label{eq:bk2} 
-    \widehat{B}_{\ell = 0}(k_1,k_2, k_3) &= \frac{1}{V_B} \int\frac{{\rm d}^3x}{(2\pi)^3} \int\limits_{k_1}{\rm d}^3q_1 \int\limits_{k_2}{\rm d}^3q_2 \int\limits_{k_3}{\rm d}^3q_3~\delta({\bfi q_1})~\delta({\bfi q_2})~\delta({\bfi q_3})~e^{i{\bfi q_{123}}\cdot{\bfi x}} - B^{\rm SN}_{\ell = 0}\\ 
-    &= \frac{1}{V_B} \int\frac{{\rm d}^3x}{(2\pi)^3}\prod\limits_{i=1}^{3} I_{k_i}({\bfi x}) - B^{\rm SN}_{\ell = 0} 
-\end{align}
-where 
-\beq
-I_{k_i}({\bfi x}) = \int\limits_k {\rm d}^3q~\delta({\bfi q})~e^{i {\bfi q}\cdot{\bfi x}}. 
-\eeq
-At this point, we measure $\widehat{B}_{\ell = 0}(k_1,k_2, k_3)$ by calcuating the 
-$I_{k_i}$s with inverse FFTs and summing over in real space. 
-\ch{note the specifications of the bispectrum calculation; fft grid size etc} 
-
-We present the redshift-space halo bispectrum of the HADE simulations measured using 
-the estimator above in Figures~\ref{fig:bk_shape} and~\ref{fig:bk_amp}. In Figure~\ref{fig:bk_shape}, 
-we plot $B(k_1, k_2, k_3)$ as a function of $k_2/k_1$ and $k_3/k_1$, which describe the
-triangle configuration shape, for all configurations with $k_1, k_2, k_3 < k_{\rm max} = 0.5~h/{\rm Mpc}$. 
-In the upper panels, we present $B(k_1, k_2, k_3)$ of HADES models with 
-$\smnu = 0.0, 0.06, 0.10$, and $0.15\,\mathrm{eV}$; in the lower panels, we present
-$B(k_1, k_2, k_3)$ of HADES models with $\smnu 0.0$ eV and $\sig = 0.822, 0.818$, and 
-$0.807$. The top and bottom panels of the three right-most columns have matching $\sig$
-values (Section~\ref{sec:hades}). The $B(k_1, k_2, k_3)$ amplitude (colormap) in each 
-($k_2/k_1$, $k_3/k_1$) bin is average amplitude of all triangle configurations in the bin. 
-The upper left bin contains squeezed triangles ($k_1 = k_2 \gg k_3$); the upper right bin 
-contains equilateral triangles ($k_1 = k_2 = k_3$); and the bottom center bin contains 
-folded triangles ($k_1 = 2 k_2 = 2 k_3$). 
-
-Next, in Figure~\ref{fig:bk_amp}, we plot $B(k_1, k_2, k_3)$ for all possible triangle 
-configurations with $k_1, k_2, k_3 < k_{\rm max} = 0.5~h/{\rm Mpc}$ where we loop through 
-the configurations with $k_3$ in the inner most loop and $k_1$ in the outer most loop 
-satisfying $k_1 \leq k_2 \leq k_3$. In the top panel, we present $B(k_1, k_2, k_3)$ of 
-HADES models with $\smnu = 0.0, 0.06, 0.10$, and $0.15\,\mathrm{eV}$; in the lower panel, 
-we present $B(k_1, k_2, k_3)$ of HADES models with $\smnu 0.0$ eV and $\sig = 0.822, 0.818$, 
-and $0.807$. We zoom into triangle configurations with $k_1 = 0.113$, $0.226 \leq k_2 \leq 0.283$, 
-and $0.283 \leq k_3 \leq 0.377~h/{\rm Mpc}$ in the insets of the panels. 
-
 \begin{figure}
 \begin{center}
     \includegraphics[width=\textwidth]{figs/haloBk_shape_kmax05_rsd.pdf} 
@@ -322,11 +243,87 @@ and $0.283 \leq k_3 \leq 0.377~h/{\rm Mpc}$ in the insets of the panels.
 \end{center}
 \end{figure}
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Section   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Results} \label{sec:results} 
-\subsection{Breaking the $\smnu$-- $\sig$ degeneracy} \label{sec:mnusig}
+\section{Bispectrum} \label{sec:bk} 
+We're interested in breaking parameter degeneracies that limit the constraining 
+power on $\smnu$ of two-point clustering analyses using three-point clustering 
+statistics --- \emph{i.e.} the bispectrum. In this section, we describe the 
+bispectrum estimator used throughout the paper. We focus on the bispectrum monopole 
+($\ell = 0$) and use an estimator that exploits Fast Fourier Transpforms (FFTs). 
+Our estimator is similar to the estimators described in \cite{scoccimarro2015,sefusatti2016}; 
+we also follow their formalism in our description below. Although \cite{sefusatti2016} 
+and \cite{scoccimarro2015} respectively describe estimators in redshift- and real-space,  
+since we focus on the bispectrum monopole, we note that there is no difference. 
+
+To measure the bispectrum of our halo catalogs, we begin by interpolating the halo
+positions to a grid, $\delta({\bfi x})$ and Fourier transforming the grid to get $\delta({\bfi k})$.
+We use a fourth-order interpolation to interlaced grids, which has advantageous 
+anti-aliasing properties~\citep{hockney1981,sefusatti2016} that allow unbias measurements 
+up to the Nyquist frequency. Then using $\delta({\bfi k})$, we measure the bispectrum monopole as 
+\beq \label{eq:bk} 
+\widehat{B}_{\ell = 0}(k_1,k_2, k_3) = \frac{1}{V_B} \int\limits_{k_1}{\rm d}^3q_1 \int\limits_{k_2}{\rm d}^3q_2 \int\limits_{k_3}{\rm d}^3q_3~\delta_{\rm D}({\bfi q_{123}})~\delta({\bfi q_1})~\delta({\bfi q_2})~\delta({\bfi q_3}) - B^{\rm SN}_{\ell = 0}
+\eeq
+$\delta_{\rm D}$ above is a Dirac delta function and hence $\delta_{\rm D}({\bfi q_{123}}) = \delta_{\rm D}({\bfi q_1} + {\bfi q_2} + {\bfi q_3})$ 
+ensures that the ${\bfi q}_i$ triplet actually form a closed triangle. Each of the integrals 
+above represent an integral over a spherical shell in $k$-space with radius $\delta k$ 
+centered at ${\bfi k}_i$ --- \emph{i.e.} 
+\beq
+\int_{k_i}{\rm d}^3q \equiv \int\limits_{k_i-\delta k/2}^{k_i+\delta k/2}{\rm d}q~q^2\int {\rm d}\Omega.
+\eeq
+$V_B$ is a normalization factor proportional to the number of triplets ${\bfi q_1}$, 
+${\bfi q_2}$, and ${\bfi q_3}$ that can be found in the triangle bin defined by 
+$k_1$, $k_2$, and $k_3$ with width $\delta k$: 
+\beq
+V_B = \int\limits_{k_1}{\rm d}^3q_1 \int\limits_{k_2}{\rm d}^3q_2 \int\limits_{k_3}{\rm d}^3q_3~\delta_{\rm D}({\bfi q_{123}})
+\eeq
+Lastly, $B^{\rm SN}_{\ell=0}$ is the correction for the Poisson shot noise, which 
+contributes due to the self-correlation of individual objects: 
+\beq \label{eq:bk_sn} 
+B^{\rm SN}_{\ell=0}(k_1, k_2, k_3) = \frac{1}{\bar{n}} \big(P_0(k_1) + P_0(k_2) + P_0(k_3) \big) + \frac{1}{\bar{n}^2}. 
+\eeq
+$\bar{n}$ is the number density of objects (halos) and $P_0$ is the powerspectrum monopole. 
+
+In order to evaluate the integrals in Eq.~\ref{eq:bk}, we take advantage of the plane-wave 
+representation of the Dirac delta function and rewrite the equation as
+\begin{align} \label{eq:bk2} 
+    \widehat{B}_{\ell = 0}(k_1,k_2, k_3) &= \frac{1}{V_B} \int\frac{{\rm d}^3x}{(2\pi)^3} \int\limits_{k_1}{\rm d}^3q_1 \int\limits_{k_2}{\rm d}^3q_2 \int\limits_{k_3}{\rm d}^3q_3~\delta({\bfi q_1})~\delta({\bfi q_2})~\delta({\bfi q_3})~e^{i{\bfi q_{123}}\cdot{\bfi x}} - B^{\rm SN}_{\ell = 0}\\ 
+    &= \frac{1}{V_B} \int\frac{{\rm d}^3x}{(2\pi)^3}\prod\limits_{i=1}^{3} I_{k_i}({\bfi x}) - B^{\rm SN}_{\ell = 0} 
+\end{align}
+where 
+\beq
+I_{k_i}({\bfi x}) = \int\limits_k {\rm d}^3q~\delta({\bfi q})~e^{i {\bfi q}\cdot{\bfi x}}. 
+\eeq
+At this point, we measure $\widehat{B}_{\ell = 0}(k_1, k_2, k_3)$ by calcuating the 
+$I_{k_i}$s with inverse FFTs and summing over in real space. For $\widehat{B}_{\ell = 0}$
+measurements throughout the paper, we use $\delta({\bfi x})$ grids with $N_{\rm grid} = 360$ 
+and triangle configurations defined by $k_1, k_2, k_3$ bins of width 
+$\Delta k = 3 k_f = 0.01885~h/{\rm Mpc}$.
+
+We present the redshift-space halo bispectrum of the HADE simulations measured using 
+the estimator above in Figures~\ref{fig:bk_shape} and~\ref{fig:bk_amp}. In Figure~\ref{fig:bk_shape}, 
+we plot $B(k_1, k_2, k_3)$ as a function of $k_2/k_1$ and $k_3/k_1$, which describe the
+triangle configuration shape, for all configurations with $k_1, k_2, k_3 < k_{\rm max} = 0.5~h/{\rm Mpc}$. 
+In the upper panels, we present $B(k_1, k_2, k_3)$ of HADES models with 
+$\smnu = 0.0, 0.06, 0.10$, and $0.15\,\mathrm{eV}$; in the lower panels, we present
+$B(k_1, k_2, k_3)$ of HADES models with $\smnu 0.0$ eV and $\sig = 0.822, 0.818$, and 
+$0.807$. The top and bottom panels of the three right-most columns have matching $\sig$
+values (Section~\ref{sec:hades}). The $B(k_1, k_2, k_3)$ amplitude (colormap) in each 
+($k_2/k_1$, $k_3/k_1$) bin is average amplitude of all triangle configurations in the bin. 
+The upper left bin contains squeezed triangles ($k_1 = k_2 \gg k_3$); the upper right bin 
+contains equilateral triangles ($k_1 = k_2 = k_3$); and the bottom center bin contains 
+folded triangles ($k_1 = 2 k_2 = 2 k_3$). 
+
+Next, in Figure~\ref{fig:bk_amp}, we plot $B(k_1, k_2, k_3)$ for all possible triangle 
+configurations with $k_1, k_2, k_3 < k_{\rm max} = 0.5~h/{\rm Mpc}$ where we loop through 
+the configurations with $k_3$ in the inner most loop and $k_1$ in the outer most loop 
+satisfying $k_1 \leq k_2 \leq k_3$. In the top panel, we present $B(k_1, k_2, k_3)$ of 
+HADES models with $\smnu = 0.0, 0.06, 0.10$, and $0.15\,\mathrm{eV}$; in the lower panel, 
+we present $B(k_1, k_2, k_3)$ of HADES models with $\smnu 0.0$ eV and $\sig = 0.822, 0.818$, 
+and $0.807$. We zoom into triangle configurations with $k_1 = 0.113$, $0.226 \leq k_2 \leq 0.283$, 
+and $0.283 \leq k_3 \leq 0.377~h/{\rm Mpc}$ in the insets of the panels. 
 
 \begin{figure}
 \begin{center}
@@ -368,6 +365,18 @@ and $0.283 \leq k_3 \leq 0.377~h/{\rm Mpc}$ in the insets of the panels.
 \end{center}
 \end{figure}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Section   
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Results} \label{sec:results} 
+\subsection{Breaking the $\smnu$-- $\sig$ degeneracy} \label{sec:mnusig}
+\ch{Why do we care about $\smnu$ -- $\sig$ degeneracy?} 
+For the powerspectrum, the imprint of $\smnu$ and $\sig$ are degenerate 
+
+differ by $< 1\%$ (Figure~\ref{fig:plk})
+As Figure~\rf{fig:plk} and~\cite{villaescusa-navarro2018} 
+
+
 
 %\begin{figure}
 %\begin{center}
@@ -388,8 +397,6 @@ and $0.283 \leq k_3 \leq 0.377~h/{\rm Mpc}$ in the insets of the panels.
 %\end{center}
 %\end{figure}
 
-\subsection{Forecasts} \label{sec:forecasts}
-
 \begin{figure}
 \begin{center}
     \includegraphics[width=0.6\textwidth]{figs/quijote_bkCov_kmax05.png} 
@@ -405,46 +412,59 @@ and $0.283 \leq k_3 \leq 0.377~h/{\rm Mpc}$ in the insets of the panels.
 
 \begin{figure}
 \begin{center}
-    \includegraphics[width=\textwidth]{figs/quijote_pbkFisher_001_05.pdf}
-    \caption{Fisher forecast constraints on cosmological parameters from the 
+    \includegraphics[width=\textwidth]{figs/quijote_pbkFisher_freeMmin_dmnu_fin_kmax05.pdf}
+    \caption{Fisher forecast of cosmological parameter constraints using the 
     redshift-space halo power spectrum monopole (blue) and bispectrum (orange) 
-    derived using the Quijote simulation suite. For both the power spectrum 
+    derived using the Quijote simulation suite. \ch{something about $b'$ and $M_{\rm min}$}.
+    For both the power spectrum 
     and bispectrum constraints, we set $k_{\rm max} = 0.5~h/{\rm Mpc}$. The 
     contours mark the $68\%$ and $95\%$ confidence interals. The bispectrum 
     {\em substantially} improves constraints on all of the cosmological parameters 
     over the power spectrum. {\em For $\smnu$, the bispectrum improves the constraint
-    from $\sigma_{\smnu}{=}~0.279$ to $0.0258$ --- over an order of magnitude 
+    from $\sigma_{\smnu}{=}~0.319$ to $0.0239$ --- over an order of magnitude 
     improvement over the power spectrum}.}
 \label{fig:bk_fish}
 \end{center}
 \end{figure}
 
-
 \begin{figure}
 \begin{center}
-    \includegraphics[width=\textwidth]{figs/quijote_pkFisher_kmax.pdf} 
-    \caption{Fisher forecast constraints on cosmological parameters from the 
-    redshift-space halo power spectrum monopole for $k_{\rm max} = 0.2$ (green) 0.3 (orange), 
-    and $0.5~h/{\rm Mpc}$ (blue). The contours mark the $68\%$ (black dashed) and $95\%$ 
-    confidence intervals. The contours illustrate the degeneracy between $\smnu$ and $\sig$ 
-    we find  in the power spectrum comparisons of the HADES simulations (Figure~\ref{fig:plk}).}
+    \includegraphics[width=0.9\textwidth]{figs/quijote_Fisher_dmnu_fin_sigmakmax_freeMmin.pdf} 
+    \caption{$1\sigma$ Fisher forecast constraints on cosmological parameters as a function
+    of $k_{\rm max}$ using the redshift-space halo power spectrum monopole (blue) and 
+    bispectrum (orange). }
 \label{fig:pk_fish_kmax}
 \end{center}
 \end{figure}
 
+\subsection{Forecasts} \label{sec:forecasts}
 
-\begin{figure}
-\begin{center}
-    \includegraphics[width=\textwidth]{figs/quijote_bkFisher_kmax.pdf} 
-    \caption{Constraints on cosmological parameters from the redshift-space
-    halo bispectrum for $k_1, k_2, k_3 \leq k_{\rm max} = 0.2$ (green) 0.3 (orange), 
-    and $0.5~h/{\rm Mpc}$ (blue). The contours mark the $68\%$ (black dashed) and $95\%$ 
-    confidence intervals. As we find with the bispectrum comparisons of the HADES 
-    simulations (Section~\ref{sec:mnusig}, the bispectrum breaks the degeneracy 
-    with $\sig$. \ch{probably want to say more things}}
-\label{fig:bk_fish_kmax}
-\end{center}
-\end{figure}
+
+%\begin{figure}
+%\begin{center}
+%    \includegraphics[width=\textwidth]{figs/quijote_pkFisher_kmax.pdf} 
+%    \caption{Fisher forecast constraints on cosmological parameters from the 
+%    redshift-space halo power spectrum monopole for $k_{\rm max} = 0.2$ (green) 0.3 (orange), 
+%    and $0.5~h/{\rm Mpc}$ (blue). The contours mark the $68\%$ (black dashed) and $95\%$ 
+%    confidence intervals. The contours illustrate the degeneracy between $\smnu$ and $\sig$ 
+%    we find  in the power spectrum comparisons of the HADES simulations (Figure~\ref{fig:plk}).}
+%\label{fig:pk_fish_kmax}
+%\end{center}
+%\end{figure}
+%
+%
+%\begin{figure}
+%\begin{center}
+%    \includegraphics[width=\textwidth]{figs/quijote_bkFisher_kmax.pdf} 
+%    \caption{Constraints on cosmological parameters from the redshift-space
+%    halo bispectrum for $k_1, k_2, k_3 \leq k_{\rm max} = 0.2$ (green) 0.3 (orange), 
+%    and $0.5~h/{\rm Mpc}$ (blue). The contours mark the $68\%$ (black dashed) and $95\%$ 
+%    confidence intervals. As we find with the bispectrum comparisons of the HADES 
+%    simulations (Section~\ref{sec:mnusig}, the bispectrum breaks the degeneracy 
+%    with $\sig$. \ch{probably want to say more things}}
+%\label{fig:bk_fish_kmax}
+%\end{center}
+%\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Section   
