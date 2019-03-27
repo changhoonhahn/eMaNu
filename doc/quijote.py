@@ -1328,7 +1328,6 @@ def quijote_Fisher_freeMmin(obs, kmax=0.5, rsd=True, dmnu='fin'):
         i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
          
         # impose k limit on bispectrum
-        kf = 2.*np.pi/1000. # fundmaentla mode
         bklim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
         ijl = UT.ijl_order(i_k[bklim], j_k[bklim], l_k[bklim], typ='GM') # order of triangles 
         bks = bks[:,bklim][:,ijl] 
@@ -1424,6 +1423,48 @@ def quijote_Forecast_freeMmin(obs, kmax=0.5, rsd=True, dmnu='fin'):
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
+
+def quijote_Forecast_sigma_kmax_Mmin(rsd=True, dmnu='fin'):
+    ''' fisher forecast for quijote for different kmax values 
+    '''
+    kmaxs = [0.075, 0.085, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5] #np.arange(2, 15) * 2.*np.pi/1000. * 6 #np.linspace(0.1, 0.5, 20) 
+    # read in fisher matrix (Fij)
+    sigma_thetas_pk, sigma_thetas_bk = [], [] 
+    for kmax in kmaxs: 
+        Fij = quijote_Fisher_freeMmin('pk', kmax=kmax, rsd=rsd, dmnu=dmnu)
+        Finv = np.linalg.inv(Fij) # invert fisher matrix 
+        sigma_thetas_pk.append(np.sqrt(np.diag(Finv)))
+        Fij = quijote_Fisher_freeMmin('bk', kmax=kmax, rsd=rsd, dmnu=dmnu) 
+        Finv = np.linalg.inv(Fij) # invert fisher matrix 
+        sigma_thetas_bk.append(np.sqrt(np.diag(Finv)))
+        print('kmax=%.2f, Pk sig_theta = %f, Bk sig_theta = %f' % (kmax, sigma_thetas_pk[-1][5], sigma_thetas_bk[-1][5])) 
+    sigma_thetas_pk = np.array(sigma_thetas_pk)
+    sigma_thetas_bk = np.array(sigma_thetas_bk)
+    sigma_theta_lims = [(0, 0.1), (0., 0.08), (0., 0.8), (0, 0.8), (0., 0.12), (0., 0.8)]
+
+    fig = plt.figure(figsize=(15,8))
+    for i, theta in enumerate(thetas): 
+        sub = fig.add_subplot(2,len(thetas)/2,i+1) 
+        sub.plot(kmaxs, sigma_thetas_pk[:,i], c='C0') 
+        sub.plot(kmaxs, sigma_thetas_bk[:,i], c='C1') 
+        sub.set_xlim(0.075, 0.5)
+        sub.text(0.9, 0.9, theta_lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=30)
+        sub.set_ylim(sigma_theta_lims[i]) 
+        if i == 0: 
+            sub.text(0.5, 0.55, r"$P$", ha='left', va='bottom', color='C0', transform=sub.transAxes, fontsize=24)
+            sub.text(0.25, 0.3, r"$B$", ha='right', va='top', color='C1', transform=sub.transAxes, fontsize=24)
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    bkgd.set_xlabel(r'$k_{\rm max}$', fontsize=30) 
+    bkgd.set_ylabel(r'$\sigma_\theta$', fontsize=30) 
+
+    fig.subplots_adjust(wspace=0.2, hspace=0.15) 
+    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_Fisher_dmnu_%s_sigmakmax%s_freeMmin.pdf' % (dmnu, ['_real', ''][rsd]))
+    fig.savefig(ffig, bbox_inches='tight') 
+    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_Fisher_dmnu_%s_sigmakmax%s_freeMmin.png' % (dmnu, ['_real', ''][rsd]))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
 
 ##################################################################
 # forecasts with fixed nbar 
@@ -2589,7 +2630,7 @@ if __name__=="__main__":
         #quijote_Forecast_sigma_kmax(rsd=rsd, dmnu='fin')
     #hades_dchi2(krange=[0.01, 0.5])
     #quijote_FisherInfo('pk', kmax=0.5)
-    quijote_FisherInfo('bk', kmax=0.5)
+    #quijote_FisherInfo('bk', kmax=0.5)
     
     # amplitude scaling factor is a free parameter
     for kmax in [0.5]: 
@@ -2610,6 +2651,7 @@ if __name__=="__main__":
         quijote_Forecast_freeMmin('pk', kmax=kmax, rsd=True, dmnu='fin')
         quijote_Forecast_freeMmin('bk', kmax=kmax, rsd=True, dmnu='fin')
         quijote_Forecast_freeMmin('pbk', kmax=kmax, rsd=True, dmnu='fin')
+    quijote_Forecast_sigma_kmax_Mmin(rsd=True, dmnu='fin')
     
     # fixed nbar test
     #quijote_dPdthetas(dmnu='fin', flag='.fixed_nbar')
