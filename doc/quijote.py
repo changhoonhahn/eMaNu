@@ -559,6 +559,7 @@ def quijote_Fisher_freeMmin(obs, kmax=0.5, rsd=True, dmnu='fin'):
         iuniq[_iuniq] = True
         klim = (iuniq & (i_k*kf <= kmax)) 
         i_k = i_k[klim]
+        ndata = len(i_k) 
 
         C_fid = np.cov(pks[:,klim].T) 
 
@@ -577,6 +578,7 @@ def quijote_Fisher_freeMmin(obs, kmax=0.5, rsd=True, dmnu='fin'):
             klim = (tri & (i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
 
         i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim] 
+        ndata = len(i_k) 
         C_fid = C_fid[:,klim][klim,:]
     
     elif obs == 'pbk': 
@@ -598,6 +600,7 @@ def quijote_Fisher_freeMmin(obs, kmax=0.5, rsd=True, dmnu='fin'):
         pks = pks[:,pklim]
         
         pbks = np.concatenate([fscale_pk*pks, bks], axis=1) # joint data vector
+        ndata = len(pbks) 
         C_fid = np.cov(pbks.T) # covariance matrix 
 
     C_inv = np.linalg.inv(C_fid) # invert the covariance 
@@ -616,6 +619,7 @@ def quijote_Fisher_freeMmin(obs, kmax=0.5, rsd=True, dmnu='fin'):
             dbk_dti = quijote_dBk(par, rsd=rsd, dmnu=dmnu)
             dobs_dt.append(np.concatenate([fscale_pk * dpk_dti[pklim], dbk_dti[bklim]])) 
     Fij = Forecast.Fij(dobs_dt, C_inv) 
+    assert ndata > Fij.shape[0] 
     return Fij 
 
 
@@ -814,10 +818,9 @@ def quijote_Forecast_sigma_kmax_Mmin(rsd=True, dmnu='fin'):
 ##################################################################
 # forecasts without free Mmin and b' (defunct) 
 ##################################################################
-def quijote_Fisher(obs, kmax=0.5, rsd=True, dmnu='fin', flag=None, validate=False): 
+def quijote_Fisher(obs, kmax=0.5, rsd=True, dmnu='fin', flag=None, validate=False, eps=0.1): 
     ''' calculate fisher matrix for parameters ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu', 'Mmin']
     '''
-    kf = 2.*np.pi/1000. # fundmaentla mode
     # calculate covariance matrix (with shotnoise; this is the correct one) 
     if obs == 'pk': 
         quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag=flag) # theta_fiducial 
@@ -868,7 +871,8 @@ def quijote_Fisher(obs, kmax=0.5, rsd=True, dmnu='fin', flag=None, validate=Fals
         
         pbks = np.concatenate([fscale_pk*pks, bks], axis=1) # joint data vector
         C_fid = np.cov(pbks.T) # covariance matrix 
-
+    
+    if np.linalg.cond(C_fid) > 1e16: print('covariance matrix is ill-conditioned') 
     C_inv = np.linalg.inv(C_fid) # invert the covariance 
     
     dobs_dt = [] 
@@ -885,7 +889,11 @@ def quijote_Fisher(obs, kmax=0.5, rsd=True, dmnu='fin', flag=None, validate=Fals
             dobs_dt.append(np.concatenate([fscale_pk * dpk_dti[pklim], dbk_dti[bklim]])) 
 
     Fij = Forecast.Fij(dobs_dt, C_inv) 
-    
+    if np.linalg.cond(Fij) > 1e16: 
+        print('Fij is ill-conditioned') 
+        print np.diag(Fij).min() 
+        Fij += eps * np.eye(Fij.shape[0]) 
+        print('new Fij condition number = %f' % np.linalg.cond(Fij)) 
     if validate: 
         f_ij = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_%sFij.kmax%.2f%s%s.hdf5' % 
                 (obs, kmax, ['.real', ''][rsd], [flag, ''][flag is None]))
@@ -916,7 +924,10 @@ def quijote_Forecast(obs, kmax=0.5, rsd=True, dmnu='fin'):
         tuple specifying the kranges of k1, k2, k3 in the bispectrum
     '''
     Fij = quijote_Fisher(obs, kmax=kmax, rsd=rsd, dmnu=dmnu, validate=False) # fisher matrix (Fij)
-    Finv = np.linalg.inv(Fij) # invert fisher matrix 
+    if np.linalg.cond(Fij) > 1e16: 
+        Finv = np.linalg.pinv(Fij) # invert fisher matrix 
+    else: 
+        Finv = np.linalg.inv(Fij) # invert fisher matrix 
     
     i_s8 = thetas.index('s8')
     print('sigma_s8 = %f' % np.sqrt(Finv[i_s8,i_s8]))
@@ -1139,17 +1150,20 @@ def quijote_Forecast_kmax(obs, rsd=True, dmnu='fin'):
 def quijote_Forecast_sigma_kmax(rsd=True, dmnu='fin'):
     ''' fisher forecast for quijote for different kmax values 
     '''
-    kmaxs = [0.1, 0.125, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5] #np.arange(2, 15) * 2.*np.pi/1000. * 6 #np.linspace(0.1, 0.5, 20) 
+    kmaxs = [0.05, 0.075, 0.1, 0.125, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5] #np.arange(2, 15) * 2.*np.pi/1000. * 6 #np.linspace(0.1, 0.5, 20) 
     # read in fisher matrix (Fij)
     sigma_thetas_pk, sigma_thetas_bk = [], [] 
+    _sigma_thetas_pk, _sigma_thetas_bk = [], [] 
     for kmax in kmaxs: 
-        Fij = quijote_Fisher('pk', kmax=kmax, rsd=rsd, dmnu=dmnu, validate=False) 
+        Fij = quijote_Fisher('pk', kmax=kmax, rsd=rsd, dmnu=dmnu, validate=False, eps=0.01) 
         Finv = np.linalg.inv(Fij) # invert fisher matrix 
-        print kmax, Fij[-1,-1], Finv[-1,-1]
         sigma_thetas_pk.append(np.sqrt(np.diag(Finv)))
-        Fij = quijote_Fisher('bk', kmax=kmax, rsd=rsd, dmnu=dmnu, validate=False) 
+        Fij = quijote_Fisher('bk', kmax=kmax, rsd=rsd, dmnu=dmnu, validate=False, eps=0.01) 
         Finv = np.linalg.inv(Fij) # invert fisher matrix 
         sigma_thetas_bk.append(np.sqrt(np.diag(Finv)))
+        print('kmax=%.2f' % kmax)
+        print('Pk sig_theta = ', sigma_thetas_pk[-1])
+        print('Bk sig_theta = ', sigma_thetas_bk[-1]) 
     sigma_thetas_pk = np.array(sigma_thetas_pk)
     sigma_thetas_bk = np.array(sigma_thetas_bk)
     sigma_theta_lims = [(0, 0.1), (0., 0.08), (0., 0.8), (0, 0.8), (0., 0.12), (0., 0.8)]
@@ -1159,9 +1173,9 @@ def quijote_Forecast_sigma_kmax(rsd=True, dmnu='fin'):
         sub = fig.add_subplot(2,len(thetas)/2,i+1) 
         sub.plot(kmaxs, sigma_thetas_pk[:,i], c='C0') 
         sub.plot(kmaxs, sigma_thetas_bk[:,i], c='C1') 
-        sub.set_xlim(0.1, 0.5)
+        sub.set_xlim(0.05, 0.5)
         sub.text(0.9, 0.9, theta_lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=30)
-        sub.set_ylim(sigma_theta_lims[i]) 
+        sub.set_ylim(sigma_theta_lims[i][0], 3.*sigma_theta_lims[i][1]) 
         if i == 0: 
             sub.text(0.5, 0.55, r"$P$", ha='left', va='bottom', color='C0', transform=sub.transAxes, fontsize=24)
             sub.text(0.25, 0.3, r"$B$", ha='right', va='top', color='C1', transform=sub.transAxes, fontsize=24)
@@ -2583,21 +2597,21 @@ if __name__=="__main__":
         #quijote_Forecast_kmax('bk', rsd=rsd)
         #quijote_Forecast_dmnu('pk', rsd=rsd)
         #quijote_Forecast_dmnu('bk', rsd=rsd)
-        #quijote_Forecast_sigma_kmax(rsd=rsd, dmnu='fin')
+    #quijote_Forecast_sigma_kmax(rsd=True, dmnu='fin')
     #hades_dchi2(krange=[0.01, 0.5])
     #quijote_FisherInfo('pk', kmax=0.5)
     #quijote_FisherInfo('bk', kmax=0.5)
     
     # Mmin and scale factor b' are free parameters
     for kmax in [0.5]: 
+        continue 
         print('kmax = %.2f' % kmax) 
         quijote_pbkForecast_freeMmin(kmax=kmax, rsd=True, dmnu='fin')
-        continue 
         quijote_Forecast_freeMmin('pk', kmax=kmax, rsd=True, dmnu='fin')
         quijote_Forecast_freeMmin('bk', kmax=kmax, rsd=True, dmnu='fin')
         quijote_Forecast_freeMmin('pbk', kmax=kmax, rsd=True, dmnu='fin')
         quijote_dbk_dMnu_dMmin(kmax=kmax, rsd=True, dmnu='fin')
-    #quijote_Forecast_sigma_kmax_Mmin(rsd=True, dmnu='fin')
+    quijote_Forecast_sigma_kmax_Mmin(rsd=True, dmnu='fin')
    
     # fixed nbar test
     #quijote_dPdthetas(dmnu='fin', flag='.fixed_nbar')
@@ -2648,7 +2662,8 @@ if __name__=="__main__":
     #quijotePk_scalefactor(rsd=True, validate=True)
 
     # Fisher matrix computation test 
-    #quijote_FisherTest(kmax=0.5, rsd=True, dmnu='fin')
+    #for kmax in [0.05, 0.1, 0.2, 0.3, 0.4, 0.5]: 
+    #    quijote_FisherTest(kmax=kmax, rsd=True, dmnu='fin')
 
     # rsd 
     #compare_Pk_rsd(krange=[0.01, 0.5])
