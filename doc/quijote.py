@@ -135,7 +135,8 @@ def quijote_bkCov(kmax=0.5, rsd=True, flag=None):
     sub = fig.add_subplot(111)
     cm = sub.pcolormesh(C_bk, norm=LogNorm(vmin=1e11, vmax=1e18))
     cbar = fig.colorbar(cm, ax=sub) 
-    cbar.set_label(r'$B(k_1, k_2, k_3)$ covariance matrix, ${\bf C}_{B}$', fontsize=25, labelpad=10, rotation=90)
+    cbar.set_label(r'$\widehat{B}_0(k_1, k_2, k_3)$ covariance matrix, ${\bf C}_{B}$', 
+            fontsize=25, labelpad=10, rotation=90)
     #sub.set_title(r'Quijote $B(k_1, k_2, k_3)$ Covariance', fontsize=25)
     ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_bkCov_kmax%s%s%s.png' % 
             (str(kmax).replace('.', ''), ['_real', ''][rsd], [flag, ''][flag is None]))
@@ -776,7 +777,8 @@ def quijote_pbkForecast_freeMmin(kmax=0.5, rsd=True, dmnu='fin'):
 def quijote_Forecast_sigma_kmax_Mmin(rsd=True, dmnu='fin'):
     ''' fisher forecast for quijote for different kmax values 
     '''
-    kmaxs = [0.075, 0.1, 0.15, 0.16, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5] #np.arange(2, 15) * 2.*np.pi/1000. * 6 #np.linspace(0.1, 0.5, 20) 
+    #kmaxs = [0.075, 0.1, 0.15, 0.16, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5] 
+    kmaxs = [0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5] #np.arange(2, 15) * 2.*np.pi/1000. * 6 #np.linspace(0.1, 0.5, 20) 
     # read in fisher matrix (Fij)
     sigma_thetas_pk, sigma_thetas_bk = [], [] 
     for kmax in kmaxs: 
@@ -786,7 +788,9 @@ def quijote_Forecast_sigma_kmax_Mmin(rsd=True, dmnu='fin'):
         Fij = quijote_Fisher_freeMmin('bk', kmax=kmax, rsd=rsd, dmnu=dmnu) 
         Finv = np.linalg.inv(Fij) # invert fisher matrix 
         sigma_thetas_bk.append(np.sqrt(np.diag(Finv)))
-        print('kmax=%.2f, Pk sig_theta = %f, Bk sig_theta = %f' % (kmax, sigma_thetas_pk[-1][5], sigma_thetas_bk[-1][5])) 
+        print('kmax=%.2f' % kmax)
+        print('Pk sig_theta =', sigma_thetas_pk[-1][:]) 
+        print('Bk sig_theta =', sigma_thetas_bk[-1][:])
     sigma_thetas_pk = np.array(sigma_thetas_pk)
     sigma_thetas_bk = np.array(sigma_thetas_bk)
     sigma_theta_lims = [(0, 0.1), (0., 0.08), (0., 0.8), (0, 0.8), (0., 0.12), (0., 0.8)]
@@ -2571,9 +2575,9 @@ if __name__=="__main__":
     # covariance matrices
     for kmax in [0.5]: 
         for rsd in [True]:#, False]: 
+            quijote_bkCov(kmax=kmax, rsd=rsd) # condition number 1.73518e+08
             continue 
             quijote_pkCov(kmax=kmax, rsd=rsd) 
-            quijote_bkCov(kmax=kmax, rsd=rsd) # condition number 1.73518e+08
             quijote_pkbkCov(kmax=kmax, rsd=rsd) # condition number 1.74388e+08
     
     # deriatives 

@@ -347,7 +347,7 @@ def compare_Bk(kmax=0.5, rsd=True):
     bkgd = fig.add_subplot(111, frameon=False)
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
     bkgd.set_xlabel(r'triangle configurations', labelpad=15, fontsize=25) 
-    bkgd.set_ylabel('$B(k_1, k_2, k_3)$', labelpad=10, fontsize=25) 
+    bkgd.set_ylabel('$\widehat{B}_0(k_1, k_2, k_3)$', labelpad=10, fontsize=25) 
     fig.subplots_adjust(hspace=0.15)
 
     ffig = os.path.join(UT.doc_dir(), 'figs', 
@@ -383,7 +383,7 @@ def compare_Bk(kmax=0.5, rsd=True):
     bkgd = fig.add_subplot(111, frameon=False)
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
     bkgd.set_xlabel(r'triangle configurations', labelpad=15, fontsize=25) 
-    bkgd.set_ylabel('$(B(k_1, k_2, k_3) - B^\mathrm{(fid)})/B^\mathrm{(fid)}$', labelpad=15, fontsize=30) 
+    bkgd.set_ylabel('$(\widehat{B}_0(k_1, k_2, k_3) - \widehat{B}_0^\mathrm{fid})/\widehat{B}_0^\mathrm{fid}$', labelpad=15, fontsize=30) 
     fig.subplots_adjust(hspace=0.1)
     ffig = os.path.join(UT.doc_dir(), 'figs', 
             'haloBk_residual_kmax%s%s.pdf' % (str(kmax).replace('.', ''), ['', '_rsd'][rsd]))
@@ -558,7 +558,7 @@ def compare_Bk_shape(kmax=0.5, rsd=True, nbin=31):
         sub.text(0.05, 0.05, '0.0eV', ha='left', va='bottom', transform=sub.transAxes, fontsize=20)
         sub.text(0.975, 0.025, '$\sigma_8 = %.3f$' % sig8s[i], ha='right', va='bottom', 
                 transform=sub.transAxes, fontsize=20)
-        if i > 1: sub.set_yticklabels([]) 
+        if i > 0: sub.set_yticklabels([]) 
 
     bkgd = fig.add_subplot(111, frameon=False)
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
@@ -567,7 +567,7 @@ def compare_Bk_shape(kmax=0.5, rsd=True, nbin=31):
     fig.subplots_adjust(wspace=0.15, hspace=0.2, right=0.935)
     cbar_ax = fig.add_axes([0.95, 0.15, 0.0125, 0.7])
     cbar = fig.colorbar(bplot, cax=cbar_ax)
-    cbar.set_label('$B(k_1, k_2, k_3)$', rotation=90, fontsize=20)
+    cbar.set_label('$\widehat{B}_0(k_1, k_2, k_3)$', labelpad=10, rotation=90, fontsize=20)
     if not rsd: cbar.set_ticks([-1e6, 0., 1e6, 1e7, 1e8, 1e9]) 
     #cbar_ax = fig.add_axes([0.95, 0.125, 0.0125, 0.35])
     #cbar = fig.colorbar(dbplot, cax=cbar_ax)
@@ -577,7 +577,7 @@ def compare_Bk_shape(kmax=0.5, rsd=True, nbin=31):
     fig.savefig(ffig, bbox_inches='tight') 
 
     # plot residual of the B(k) shape dependence 
-    fig = plt.figure(figsize=(12,6))
+    fig = plt.figure(figsize=(13,6))
     for i, mnu, bk in zip(range(len(mnus)), mnus, Bk_Mnu): 
         sub = fig.add_subplot(2,3,i+1)
         dbk = bk/Bk_fid - 1.
@@ -605,10 +605,11 @@ def compare_Bk_shape(kmax=0.5, rsd=True, nbin=31):
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
     bkgd.set_xlabel('$k_3/k_1$', labelpad=10, fontsize=25)
     bkgd.set_ylabel('$k_2/k_1$', labelpad=5, fontsize=25)
-    fig.subplots_adjust(wspace=0.05, hspace=0.1, right=0.935)
+    fig.subplots_adjust(wspace=0.1, hspace=0.1, right=0.935)
     cbar_ax = fig.add_axes([0.95, 0.15, 0.0125, 0.7])
     cbar = fig.colorbar(bplot, cax=cbar_ax)
-    cbar.set_label('$(B(k_1, k_2, k_3) - B^\mathrm{(fid)})/B^\mathrm{(fid)}$', rotation=90, fontsize=20)
+    cbar.set_label(r'$\big(\widehat{B}_0(k_1, k_2, k_3) - \widehat{B}_0^\mathrm{fid} \big)/\widehat{B}_0^\mathrm{fid}$', 
+            labelpad=15, rotation=90, fontsize=20)
     ffig = os.path.join(UT.doc_dir(), 'figs', 'haloBk_dshape_kmax%s%s.pdf' % 
             (str(kmax).replace('.', ''), ['', '_rsd'][rsd]))
     fig.savefig(ffig, bbox_inches='tight') 
