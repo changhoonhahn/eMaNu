@@ -276,6 +276,7 @@ def compare_Bk(kmax=0.5, rsd=True):
     i_k, j_k, l_k = hades_i['k1'], hades_i['k2'], hades_i['k3']
     kf = 2.*np.pi/1000. 
     klim = ((i_k * kf <= kmax) & (j_k * kf <= kmax) & (l_k * kf <= kmax)) 
+    print np.sum(klim)
 
     i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim] 
 
@@ -1108,8 +1109,8 @@ if __name__=="__main__":
     for kmax in [0.5]: 
         #compare_Plk(kmax=0.5)
         #ratio_Plk(kmax=0.5) 
-        #compare_Bk(kmax=kmax, rsd=True)
-        compare_Bk_shape(kmax=kmax, rsd=True, nbin=31)
+        compare_Bk(kmax=kmax, rsd=True)
+        #compare_Bk_shape(kmax=kmax, rsd=True, nbin=31)
         #compare_Qk(kmax=kmax, rsd=True)
 
     #compare_Bk_SNuncorr(krange=[0.01, 0.5], rsd=True)

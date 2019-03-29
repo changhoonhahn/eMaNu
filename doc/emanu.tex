@@ -304,18 +304,19 @@ and triangle configurations defined by $k_1, k_2, k_3$ bins of width
 $\Delta k = 3 k_f = 0.01885~h/{\rm Mpc}$.
 
 We present the redshift-space halo bispectrum of the HADE simulations measured using 
-the estimator above in two representations: Figures~\ref{fig:bk_shape} and~\ref{fig:bk_amp}. 
-In Figure~\ref{fig:bk_shape}, we plot $\BOk(k_1, k_2, k_3)$ as a function of $k_2/k_1$ and $k_3/k_1$, 
-which describe the triangle configuration shape. We include all triangle configurations with 
-$k_1, k_2, k_3 < k_{\rm max} = 0.5~h/{\rm Mpc}$. The $\BOk$ in the upper
-panels are HADES models with $\smnu = 0.0$ (fiducial), $0.06, 0.10$, and $0.15\,\mathrm{eV}$; 
-$\BOk$ in the lower panels are  HADES models with $\smnu 0.0$ eV and $\sig = 0.822, 0.818$, 
-and $0.807$. The top and bottom panels of the three right-most columns have matching $\sig$ 
-values (Section~\ref{sec:hades}). The colormap amplitude in each ($k_2/k_1$, $k_3/k_1$) bin 
-is the weighted average $\BOk$ amplitude of all triangle configurations in the bin. In each 
-panel, the upper left bins contain squeezed triangles ($k_1 = k_2 \gg k_3$); the upper right 
-bins contain equilateral triangles ($k_1 = k_2 = k_3$); and the bottom center bins contain 
-folded triangles ($k_1 = 2 k_2 = 2 k_3$). 
+the estimator above in two ways: one that emphasizes the triangle shape dependence 
+(Figure~\ref{fig:bk_shape}) and the other that emphasizes the amplitude 
+(Figure~\ref{fig:bk_amp}). In Figure~\ref{fig:bk_shape}, we plot $\BOk(k_1, k_2, k_3)$ 
+as a function of $k_2/k_1$ and $k_3/k_1$, which describe the triangle configuration shape. 
+In each panel, the colormap in each ($k_2/k_1$, $k_3/k_1$) bin is the weighted average $\BOk$ amplitude 
+of all triangle configurations in the bin. The upper left bins contain squeezed triangles 
+($k_1 = k_2 \gg k_3$); the upper right bins contain equilateral triangles 
+($k_1 = k_2 = k_3$); and the bottom center bins contain folded triangles ($k_1 = 2 k_2 = 2 k_3$). 
+We include all possible triangle configurations with $k_1, k_2, k_3 < k_{\rm max} = 0.5~h/{\rm Mpc}$. 
+The $\BOk$ in the upper panels are HADES models with $\smnu = 0.0$ (fiducial), $0.06, 0.10$, 
+and $0.15\,\mathrm{eV}$; $\BOk$ in the lower panels are  HADES models with $\smnu 0.0$ eV and 
+$\sig = 0.822, 0.818$, and $0.807$. The top and bottom panels of the three right-most 
+columns have matching $\sig$ values (Section~\ref{sec:hades}).
 
 Next, in Figure~\ref{fig:bk_amp}, we plot $\BOk(k_1, k_2, k_3)$ for all possible triangle 
 configurations with $k_1, k_2, k_3 < k_{\rm max} = 0.5~h/{\rm Mpc}$ where we order the 
@@ -350,7 +351,7 @@ and $0.283 \leq k_3 \leq 0.377~h/{\rm Mpc}$ in the insets of the panels.
 \begin{center}
 \includegraphics[width=0.9\textwidth]{figs/haloBk_residual_kmax05_rsd.pdf}
     \caption{The impact of $\smnu$ and $\sig$ on the redshift-space halo bispectrum,
-    $\Delta \BOk/\BOk^\mathrm{fid}$, for all triangle configurations with 
+    $\Delta \BOk/\BOk^\mathrm{fid}$, for all $1898$ triangle configurations with 
     $k_1, k_2, k_3 \leq 0.5 h/{\rm Mpc}$. We compare $\Delta \BOk/\BOk^\mathrm{fid}$ 
     of the $\smnu = 0.06$ (top), $0.10$ (middle), and $0.15$ eV (bottom) HADES models
     to $\Delta \BOk/\BOk^\mathrm{fid}$ of $\smnu{=}~0.0$ eV $\sig{=}~0.822$, $0.818$, and 
@@ -358,9 +359,9 @@ and $0.283 \leq k_3 \leq 0.377~h/{\rm Mpc}$ in the insets of the panels.
     amplitude than the impact of $\sig$. For instance, $\smnu{=}~0.15\,\mathrm{eV}$ (red) 
     has a $\sim 5\%$ stronger impact on the bispectrum than $\smnu{=}~0.0$ eV  
     $\sig{=}~0.798$ (black) even though their powerspectrums only differ by $< 1\%$ 
-    (Figure~\ref{fig:plk}). Combined with the shape-dependence of Figure~\ref{fig:dbk_shape}, 
-    {\em the distinct imprint of $\smnu$ and $\sig$ on the redshift-space halo bispectrum 
-    illustrate that the bispectrum can break the degeneracy between $\smnu$ and $\sig$ 
+    (Figure~\ref{fig:plk}). Combined with the different shape-dependence (Figure~\ref{fig:dbk_shape}), 
+    {\em the distinct imprint of $\smnu$ on the bispectrum illustrate that the bispectrum 
+    can break the degeneracy between $\smnu$ and $\sig$ 
     that degrade constraints from two-point analyses}.
     }
 \label{fig:dbk_amp}
@@ -393,41 +394,74 @@ and $0.283 \leq k_3 \leq 0.377~h/{\rm Mpc}$ in the insets of the panels.
 \subsection{Breaking the $\smnu$-- $\sig$ degeneracy} \label{sec:mnusig}
 One major bottleneck of constraining $\smnu$ with the power spectrum alone is the 
 strong $\smnu$ -- $\sig$ degeneracy. The imprint of $\smnu$ and $\sig$ on the power 
-spectrum are degenerate and only differ by $< 1\%$ (see Figure~\ref{fig:plk} 
-and~\citealt{villaescusa-navarro2018}). The HADES suite have simulations with 
-different $\smnu = 0.0, 0.06, 0.10$, and $0.15$ eV along with $0.0$ eV simulations 
-that have matching $\sig^{c}$ --- $\sig{=}~0.822$, $0.818$, and $0.807$ 
-(Section~\ref{sec:hades} and Table~\ref{tab:sims}). They provide an ideal 
-set of simulations to separate the impact of $\smnu > 0.0$ eV and examine 
-the degeneracy between $\smnu$ and $\sig$. Hence, with bispectrum measurements 
-of these simulations (Figure~\ref{fig:bk_shape} and~\ref{fig:bk_amp}), we 
-can examine whether the bispectrum can break the $\smnu$ -- $\sig$ degeneracy. 
-Below, we present our bispectrum comparison of the HADES simulations and 
+spectrum are degenerate and for models with the same $\sig^c$, the power spectrum
+only differ by $< 1\%$ (see Figure~\ref{fig:plk} and~\citealt{villaescusa-navarro2018}). 
+The HADES suite, which has simulations with $\smnu = 0.0, 0.06, 0.10$, 
+and $0.15$ eV as well as $\smnu = 0.0$ eV simulations with matching $\sig^{c}$ --- 
+$\sig{=}~0.822$, $0.818$, and $0.807$ , provide an ideal set of simulations to 
+separate the impact of $\smnu > 0.0$ eV and examine the degeneracy between 
+$\smnu$ and $\sig$ (Section~\ref{sec:hades} and Table~\ref{tab:sims}). Hence, by 
+measuring bispectrum of these simulations (Figure~\ref{fig:bk_shape} and~\ref{fig:bk_amp}), 
+we can determine whether the bispectrum helps break the $\smnu$ -- $\sig$ 
+degeneracy. Below, we present our comparison of the HADES bispectrum and 
 illustrate that the bispectrum can significantly improve $\smnu$ constraints 
 by breaking the $\smnu$ -- $\sig$ degeneracy. 
 
-We begin by examining the triangle shape dependent imprint of $\smnu$ and 
-$\sig$ on the redshift-space halo bispectrum. In Figure~\ref{fig:dbk_shape}, 
+We begin by examining the triangle shape dependent imprint of $\smnu$ on the 
+redshift-space halo bispectrum versus $\sig$ alone. In Figure~\ref{fig:dbk_shape}, 
 we present the fractional residual, $(\Delta \BOk = \BOk - \BOk^{\rm fid})/\BOk^{\rm fid}$,
 as a function of $k_2/k_1$ and $k_3/k_1$ for $\smnu=0.06, 0.10$, and $0.15$ eV 
-in the upper panels and 0.0 eV $\sig{=}~0.822$, $0.818$, and $0.807$ in the bottom panels. The HADES
-simulations in the top and bottom panels of each column are aligned to 
-have matching $\sig^{c}$. \ch{describe the shape dependent impact of 
-$\smnu$ on the bispectrum, explain why the amplitude increases because of bias}. 
-More importantly, the top and bottom panels along each column illustrate the 
-significant difference in $\Delta \BOk/\BOk^{\rm fid}$ for $\smnu$ versus $\sig$. 
-\emph{$\smnu$ leaves a distinct imprint from $\sig$}. 
+in the upper panels and 0.0 eV $\sig{=}~0.822$, $0.818$, and $0.807$ in the 
+bottom panels. The simulations in the top and bottom panels of each column 
+have matching $\sig^{c}$. Overall as $\smnu$ increases, the bispectrum for
+increases for all triangle shapes (top panels). For triangle shapes close to 
+equilateral (upper right) and squeezed (upper left), the increase is significantly 
+larger. For $\smnu=0.15$ eV, the bispectrum is $\sim 15\%$ higher than 
+$\BOk^{\rm fid}$ for equilateral and squeezed triangles. Meanwhile, the 
+bispectrum increases by $\sim 8\%$ for folded triangles (lower center). 
 
-on elongated and isosceles triangles (bins along the 
-bottom left and bottom right edges, respectively) from $\sig$. 
+As $\sig$ increases, with $\smnu = 0.0$ eV fixed, the bispectrum increases 
+overall for all triangle shapes (bottom panels). However, the comparison of the
+top and bottom panels in each column reveals significant differences in 
+$\Delta \BOk/\BOk^{\rm fid}$ for $\smnu$ versus $\sig$ alone. Between 
+$\smnu=0.15$ eV and $0.0$ eV $\sig = 0.807$, there is an overall $\gtrsim 5\%$ 
+difference. In addition, the shape dependence of the $\Delta \BOk/\BOk^{\rm fid}$ 
+increase is different for $\smnu$ than $\sig$. This is particularly clear in 
+the differences between $0.1$ eV (top center panel) and 0.0 eV and $\sig=0.807$ 
+(bottom right panel): near equilateral triangles in the two panels have similar 
+$\Delta \BOk/\BOk^{\rm fid}$ while triangle shapes near the lower left edge from 
+the squeezed to folded triangles have significantly different $\Delta \BOk/\BOk^{\rm fid}$. 
+Hence, $\smnu$ leaves an imprint on the bispectrum with a distinct triangle 
+shape dependence than $\sig$ alone. In other words, unlike the power spectrum, 
+the triangle shape dependent impact of $\smnu$ on the bispectrum cannot be 
+replicated by varying $\sig$. 
 
+We next examine the amplitude of the $\smnu$ imprint on the redshift-space halo 
+bispectrum versus $\sig$ alone for all triangle configurations. We present 
+$\Delta \BOk/\BOk^{\rm fid}$ for all $1898$ possible triangle configurations 
+with $k_1, k_2, k_3 < k_{\rm max} = 0.5~h/{\rm Mpc}$ in Figure~\ref{fig:dbk_amp}. 
+We compare $\Delta \BOk/\BOk^{\rm fid}$ of the $\smnu = 0.06, 0.10$, and 
+$0.15$ eV HADES models to the $\Delta \BOk/\BOk^\mathrm{fid}$ of 
+$\smnu{=}~0.0$ eV $\sig{=}~0.822$, $0.818$, and $0.807$ models in the
+top, middle, and bottom panels, respectively. The comparison confirms the 
+overall amplitude difference between $\smnu$ and $\sig$ (Figure~\ref{fig:dbk_shape}). 
+For instance, $\smnu{=}~0.15\,\mathrm{eV}$ (red) has a $\sim 5\%$ stronger 
+impact on the bispectrum than $\smnu{=}~0.0$ eV $\sig{=}~0.798$ (black) 
+even though their power spectrums differ by $< 1\%$ (Figure~\ref{fig:plk}).
 
+The comparison in the panels of Figure~\ref{fig:dbk_amp} also reveal a difference 
+in the configuration dependence in $\Delta \BOk/\BOk^\mathrm{fid}$ of $\smnu$ 
+versus $\sig$. The triangle configurations are ordered by looping through $k_3$ 
+in the inner most loop and $k_1$ in the outer most loop such that $k_1 \leq k_2 \leq k_3$. 
+In this ordering, $k_1$ increases from left to right. So $\Delta \BOk/\BOk^\mathrm{fid}$ 
+of $\smnu$  has a smaller $k_1$ dependence than $\Delta \BOk/\BOk^\mathrm{fid}$ of 
+$\sig$. Combined with the different shape-dependence (Figure~\ref{fig:dbk_shape}), 
+the distinct imprint of $\smnu$ on the redshift-space halo bispectrum illustrates 
+that the bispectrum can break the degeneracy between $\smnu$ and $\sig$. Moreover
+it illustrates that by including the bispectrum, we can more precisely constrain 
+$\smnu$ than with the power spectrum alone. 
 
-{\em The imprint of $\smnu$ has an overall 
-distinct shape dependence on the bispectrum that cannot be replicated by 
-varying $\sig$}. 
-
-
+\ch{comparison to Ruggeri et al. (2018)} 
 
 \begin{figure}
 \begin{center}
