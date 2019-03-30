@@ -276,7 +276,6 @@ def compare_Bk(kmax=0.5, rsd=True):
     i_k, j_k, l_k = hades_i['k1'], hades_i['k2'], hades_i['k3']
     kf = 2.*np.pi/1000. 
     klim = ((i_k * kf <= kmax) & (j_k * kf <= kmax) & (l_k * kf <= kmax)) 
-    print np.sum(klim)
 
     i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim] 
 

@@ -461,7 +461,7 @@ that the bispectrum can break the degeneracy between $\smnu$ and $\sig$. Moreove
 it illustrates that by including the bispectrum, we can more precisely constrain 
 $\smnu$ than with the power spectrum alone. 
 
-\ch{comparison to Ruggeri et al. (2018)} 
+\ch{comparison to Ruggeri et al. (2018) and literature} 
 
 \begin{figure}
 \begin{center}
@@ -469,9 +469,11 @@ $\smnu$ than with the power spectrum alone.
     \caption{Covariance matrix of the redshift-space halo bispectrum estimated 
     using the 15,000 realizations of the Qujiote simulation suite at the fiducial 
     cosmology: $\Om{=}0.3175$, $\Ob{=}0.049$, $h{=}0.6711$, $n_s{=}0.9624$, $\sig{=}0.834$, 
-    and $\smnu{=}0.0$ eV. We include all triangle configurations with $k_1, k_2, k_3 < k_{\rm max} = 0.5~h/{\rm Mpc}$
-    and order the configurations (bins) in the same way as  Figures~\ref{fig:bk_amp} 
-    and~\ref{fig:dbk_amp}.
+    and $\smnu{=}0.0$ eV. We include all possible triangle configurations with 
+    $k_1, k_2, k_3 < k_{\rm max} = 0.5~h/{\rm Mpc}$ and order the configurations 
+    (bins) in the same way as Figures~\ref{fig:bk_amp} and~\ref{fig:dbk_amp}. We 
+    use the covariance matrix above for the Fisher forecasts of cosmological 
+    parameters, including $\smnu$, presented in Section~\ref{sec:forecasts}. 
     }
 \label{fig:bk_cov}
 \end{center}
@@ -504,14 +506,39 @@ $\smnu$ than with the power spectrum alone.
 \end{figure}
 
 \subsection{Forecasts} \label{sec:forecasts}
-\beq
-F_{ij} = \frac{1}{2}[C^{-1}C_{,i}C^{-1}C_{,j} + C^{-1} M_{ij}]
+We demonstrated in the previous section, using the HADES simulation, that 
+the bispectrum helps break the $\smnu$ -- $\sig$ degeneracy, a major 
+challenge in precisely constraining $\smnu$ with the power spectrum. 
+While this establishes the bispectrum as a promising probe for $\smnu$, 
+we are ultimately interested in determining the constraining power of the 
+bispectrum for an analysis that include cosmological parameters besides 
+$\sig$ --- \emph{i.e.} $\Omega_m$, $\Omega_b$, $h$, and $n_s$. Fortunately, 
+the Quijote suite of simulations is \emph{specifically} designed to answer 
+this question. \ch{Brief restatement of quijote simulation design for 
+Fisher forecasting.}
+
+\ch{a sentence or two on fisher forecasting. cite Jungman 1996a,b, Tegmark et al. 1997, dodelson 2003, heavens 2009}. 
+Fisher information matrix
+\beq 
+F_{i,j} = \bigg \langle \frac{\partial^2 \mathcal{L}}{\partial \theta_i \partial \theta_j} \bigg \rangle 
+\eeq
+\beq 
+F_{i,j} = \frac{1}{2}[C^{-1}C_{,i}C^{-1}C_{,j} + C^{-1} M_{i,j}]
 \eeq
 where
 \beq
-M_{ij} = m_{,i} m_{,j}^T + m_{,i}^T m_{,j}
+M_{i,j} = m_{,i} m_{,j}^T + m_{,i}^T m_{,j}
 \eeq
+We ignore the first term because of \cite{carron2013} so we're left with 
+\beq \label{eq:fisher}
+F_{i,j} = \frac{1}{2}\bfi{C}^{-1} \left( \frac{\partial B_0}{\partial \theta_i} \frac{\partial B_0}{\partial \theta_j}^T + \frac{\partial B_0}{\partial \theta_i}^T \frac{\partial B_0}{\partial \theta_j} \right).
+\eeq
+In Figure~\ref{fig:bk_cov}, we present the covariance matrix $\bfi{C}$, which we 
+estimate using the $15,000$ Quijote simulations at the fiducial cosmological 
+parameters (Table~\ref{tab:sim}). 
 
+
+\ch{mention the caveats of fisher forecasts} 
 
 %\begin{figure}
 %\begin{center}
