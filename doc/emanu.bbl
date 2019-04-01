@@ -48,6 +48,11 @@ Brandbyge, J., Hannestad, S., Haugb\o{}lle, T., \& Thomsen, B. 2008,
   \href{http://dx.doi.org/10.1088/1475-7516/2008/08/020}{\JournalTitle{Journal
   of Cosmology and Astro-Particle Physics}, 08, 020}
 
+\bibitem[{Carron(2013)}]{carron2013}
+Carron, J. 2013,
+  \href{http://dx.doi.org/10.1051/0004-6361/201220538}{\JournalTitle{Astronomy
+  \& Astrophysics}, 551, A88}
+
 \bibitem[{Castorina {et~al.}(2014)Castorina, Sefusatti, Sheth,
   {Villaescusa-Navarro}, \& Viel}]{castorina2014}
 Castorina, E., Sefusatti, E., Sheth, R.~K., {Villaescusa-Navarro}, F., \& Viel,
@@ -60,10 +65,27 @@ Davis, M., Efstathiou, G., Frenk, C.~S., \& White, S. D.~M. 1985,
   \href{http://dx.doi.org/10.1086/163168}{\JournalTitle{The Astrophysical
   Journal}, 292, 371}
 
+\bibitem[{Dodelson(2003)}]{dodelson2003}
+Dodelson, S. 2003, Modern Cosmology
+
+\bibitem[{Heavens(2009)}]{heavens2009}
+Heavens, A. 2009, \JournalTitle{arXiv:0906.0664 [astro-ph]},
+  \href{http://arxiv.org/abs/0906.0664}{{\sffamily arXiv:0906.0664 [astro-ph]}}
+
+\bibitem[{Hockney \& Eastwood(1981)}]{hockney1981}
+Hockney, R.~W., \& Eastwood, J.~W. 1981, Computer {{Simulation Using
+  Particles}}
+
 \bibitem[{Ichiki \& Takada(2012)}]{ichiki2012}
 Ichiki, K., \& Takada, M. 2012,
   \href{http://dx.doi.org/10.1103/PhysRevD.85.063521}{\JournalTitle{Physical
   Review D}, 85, 063521}
+
+\bibitem[{Jungman {et~al.}(1996)Jungman, Kamionkowski, Kosowsky, \&
+  Spergel}]{jungman1996}
+Jungman, G., Kamionkowski, M., Kosowsky, A., \& Spergel, D.~N. 1996,
+  \href{http://dx.doi.org/10.1103/PhysRevD.54.1332}{\JournalTitle{Physical
+  Review D}, 54, 1332}
 
 \bibitem[{LoVerde(2014)}]{loverde2014}
 LoVerde, M. 2014,
@@ -86,6 +108,16 @@ Sefusatti, E., Crocce, M., Scoccimarro, R., \& Couchman, H. M.~P. 2016,
 Springel, V. 2005,
   \href{http://dx.doi.org/10.1111/j.1365-2966.2005.09655.x}{\JournalTitle{Monthly
   Notices of the Royal Astronomical Society}, 364, 1105}
+
+\bibitem[{Tegmark {et~al.}(1997)Tegmark, Taylor, \& Heavens}]{tegmark1997a}
+Tegmark, M., Taylor, A.~N., \& Heavens, A.~F. 1997,
+  \href{http://dx.doi.org/10.1086/303939}{\JournalTitle{The Astrophysical
+  Journal}, 480, 22}
+
+\bibitem[{Verde(2010)}]{verde2010}
+Verde, L. 2010,
+  \href{http://dx.doi.org/10.1007/978-3-642-10598-2_4}{\JournalTitle{arXiv:0911.3105
+  [astro-ph]}, 800, 147}
 
 \bibitem[{Viel {et~al.}(2010)Viel, Haehnelt, \& Springel}]{viel2010}
 Viel, M., Haehnelt, M.~G., \& Springel, V. 2010,

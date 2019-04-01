@@ -38,12 +38,14 @@
 \newcommand{\sig}{\sigma_8} 
 \newcommand{\BOk}{\widehat{B}_0} 
 \newcommand{\hmpc}{\,h/\mathrm{Mpc}}
+\newcommand{\bfi}[1]{\textbf{\textit{#1}}}
+\newcommand{\parti}[1]{\frac{\partial #1}{\partial \theta_i}}
+\newcommand{\partj}[1]{\frac{\partial #1}{\partial \theta_j}}
 
 \newcommand{\specialcell}[2][c]{%
   \begin{tabular}[#1]{@{}c@{}}#2\end{tabular}}
 % text shih
 \newcommand{\foreign}[1]{\textsl{#1}}
-\newcommand{\bfi}[1]{\textbf{\textit{#1}}}
 \newcommand{\etal}{\foreign{et~al.}}
 \newcommand{\opcit}{\foreign{Op.~cit.}}
 \newcommand{\documentname}{\textsl{Article}}
@@ -506,36 +508,48 @@ $\smnu$ than with the power spectrum alone.
 \end{figure}
 
 \subsection{Forecasts} \label{sec:forecasts}
-We demonstrated in the previous section, using the HADES simulation, that 
+We demonstrate in the previous section with the HADES simulations, that 
 the bispectrum helps break the $\smnu$ -- $\sig$ degeneracy, a major 
 challenge in precisely constraining $\smnu$ with the power spectrum. 
-While this establishes the bispectrum as a promising probe for $\smnu$, 
+This establishes the bispectrum as a promising probe for $\smnu$. However, 
 we are ultimately interested in determining the constraining power of the 
-bispectrum for an analysis that include cosmological parameters besides 
-$\sig$ --- \emph{i.e.} $\Omega_m$, $\Omega_b$, $h$, and $n_s$. Fortunately, 
-the Quijote suite of simulations is \emph{specifically} designed to answer 
-this question. \ch{Brief restatement of quijote simulation design for 
-Fisher forecasting.}
+bispectrum for an analysis that include cosmological parameters beyond 
+$\sig$ --- \emph{i.e.} $\Om$, $\Ob$, $h$, and $n_s$. The Quijote 
+suite of simulations is \emph{specifically} designed to answer this question
+using Fisher matrix forecast. 
 
-\ch{a sentence or two on fisher forecasting. cite Jungman 1996a,b, Tegmark et al. 1997, dodelson 2003, heavens 2009}. 
-Fisher information matrix
+First, the Quijote suite includes $15,000$ realizations run at a fidicial 
+cosmology: $\smnu{=}0.0$eV, $\Om{=}0.3175, \Ob{=}0.049, n_s{=}0.9624, h{=}0.6711$, 
+and $\sig=0.834$ (see Table~\ref{tab:sims}. This allows us to robustly estimate 
+the covariance matrix of the bispectrum, $\bfi{C}$, which has ${\sim}1,800$ 
+triangle configurations (Figure~\ref{fig:bk_cov}). Second, the Quijote suite 
+includes $500$ fixed-pair realizations evaluated at $13$ cosmologies, each a 
+small step away from the fiducial cosmology parameter values along one 
+parameter (underlined values in Table~\ref{tab:sims}). These realizations allow us 
+to precisely estimate the derivatives of the bispectrum with respect to each 
+of the cosmological parameters. 
+
+Since their introduction to cosmology over two decades ago, Fisher Information 
+matrices have been ubiquitously used to forecast the constraining power of future 
+experiments~\citep{jungman1996,tegmark1997a,dodelson2003,heavens2009,verde2010}. 
+Defined as 
 \beq 
-F_{i,j} = \bigg \langle \frac{\partial^2 \mathcal{L}}{\partial \theta_i \partial \theta_j} \bigg \rangle 
+F_{ij} = - \bigg \langle \frac{\partial^2 \mathrm{ln} \mathcal{L}}{\partial \theta_i \partial \theta_j} \bigg \rangle,
 \eeq
-\beq 
-F_{i,j} = \frac{1}{2}[C^{-1}C_{,i}C^{-1}C_{,j} + C^{-1} M_{i,j}]
+where $\mathcal{L}$ is the likelihood, the Fisher matrix for the bispectrum can 
+be written as 
+\beq \label{eq:fullfish} 
+F_{ij} = \frac{1}{2}~\mathrm{Tr} \Bigg[\bfi{C}^{-1}\parti{C}\bfi{C}^{-1}\partj{C} + \bfi{C}^{-1} \left(\parti{\overline{B}_0}\partj{\overline{B}_0}^T + \parti{\overline{B}_0}^T \partj{\overline{B}_0} \right)\Bigg].
 \eeq
-where
-\beq
-M_{i,j} = m_{,i} m_{,j}^T + m_{,i}^T m_{,j}
-\eeq
-We ignore the first term because of \cite{carron2013} so we're left with 
+Since we assume that the $B_0$ likelihood is Gaussian, including the first 
+term in Eq.~\ref{eq:fullfish} runs the risk of incorrectly including information 
+from the covariance already included in the mean~\citep{carron2013}. We, therefore,
+conservatively neglect the first term and calculate the Fisher matrix as 
 \beq \label{eq:fisher}
-F_{i,j} = \frac{1}{2}\bfi{C}^{-1} \left( \frac{\partial B_0}{\partial \theta_i} \frac{\partial B_0}{\partial \theta_j}^T + \frac{\partial B_0}{\partial \theta_i}^T \frac{\partial B_0}{\partial \theta_j} \right).
+F_{ij} = \frac{1}{2}~\mathrm{Tr} \Bigg[\bfi{C}^{-1} \left(\parti{\overline{B}_0}\partj{\overline{B}_0}^T + \parti{\overline{B}_0}^T \partj{\overline{B}_0} \right)\Bigg].
 \eeq
-In Figure~\ref{fig:bk_cov}, we present the covariance matrix $\bfi{C}$, which we 
-estimate using the $15,000$ Quijote simulations at the fiducial cosmological 
-parameters (Table~\ref{tab:sim}). 
+With $\bfi{C}$ and $B_0$ derivatives along the cosmological parameters derived 
+directly from the Quijote simulations, calculating $F_{ij}$ is straightfoward. 
 
 
 \ch{mention the caveats of fisher forecasts} 
