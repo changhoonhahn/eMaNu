@@ -87,6 +87,14 @@ Jungman, G., Kamionkowski, M., Kosowsky, A., \& Spergel, D.~N. 1996,
   \href{http://dx.doi.org/10.1103/PhysRevD.54.1332}{\JournalTitle{Physical
   Review D}, 54, 1332}
 
+\bibitem[{Leauthaud {et~al.}(2012)Leauthaud, Tinker, Bundy, Behroozi, Massey,
+  Rhodes, George, Kneib, Benson, Wechsler, Busha, Capak, Cort\^es, Ilbert,
+  Koekemoer, Le~F\`evre, Lilly, McCracken, Salvato, Schrabback, Scoville,
+  Smith, \& Taylor}]{leauthaud2012a}
+Leauthaud, A., Tinker, J., Bundy, K., {et~al.} 2012,
+  \href{http://dx.doi.org/10.1088/0004-637X/744/2/159}{\JournalTitle{The
+  Astrophysical Journal}, 744, 159}
+
 \bibitem[{LoVerde(2014)}]{loverde2014}
 LoVerde, M. 2014,
   \href{http://dx.doi.org/10.1103/PhysRevD.90.083518}{\JournalTitle{Physical
@@ -104,6 +112,12 @@ Sefusatti, E., Crocce, M., Scoccimarro, R., \& Couchman, H. M.~P. 2016,
   \href{http://dx.doi.org/10.1093/mnras/stw1229}{\JournalTitle{Monthly Notices
   of the Royal Astronomical Society}, 460, 3624}
 
+\bibitem[{Sefusatti \& Scoccimarro(2005)}]{sefusatti2005}
+Sefusatti, E., \& Scoccimarro, R. 2005,
+  \href{http://dx.doi.org/10.1103/PhysRevD.71.063001}{\JournalTitle{Physical
+  Review D}, 71}, \href{http://arxiv.org/abs/astro-ph/0412626}{{\sffamily
+  arXiv:astro-ph/0412626}}
+
 \bibitem[{Springel(2005)}]{springel2005}
 Springel, V. 2005,
   \href{http://dx.doi.org/10.1111/j.1365-2966.2005.09655.x}{\JournalTitle{Monthly
@@ -113,6 +127,17 @@ Springel, V. 2005,
 Tegmark, M., Taylor, A.~N., \& Heavens, A.~F. 1997,
   \href{http://dx.doi.org/10.1086/303939}{\JournalTitle{The Astrophysical
   Journal}, 480, 22}
+
+\bibitem[{Tinker {et~al.}(2013)Tinker, Leauthaud, Bundy, George, Behroozi,
+  Massey, Rhodes, \& Wechsler}]{tinker2013}
+Tinker, J.~L., Leauthaud, A., Bundy, K., {et~al.} 2013,
+  \href{http://dx.doi.org/10.1088/0004-637X/778/2/93}{\JournalTitle{The
+  Astrophysical Journal}, 778, 93}
+
+\bibitem[{Vakili \& Hahn(2019)}]{vakili2019}
+Vakili, M., \& Hahn, C. 2019,
+  \href{http://dx.doi.org/10.3847/1538-4357/aaf1a1}{\JournalTitle{The
+  Astrophysical Journal}, 872, 115}
 
 \bibitem[{Verde(2010)}]{verde2010}
 Verde, L. 2010,
@@ -141,5 +166,18 @@ Viel, M., Haehnelt, M.~G., \& Springel, V. 2010,
 Zennaro, M., Bel, J., {Villaescusa-Navarro}, F., {et~al.} 2017,
   \href{http://dx.doi.org/10.1093/mnras/stw3340}{\JournalTitle{Monthly Notices
   of the Royal Astronomical Society}, 466, 3244}
+
+\bibitem[{Zentner {et~al.}(2016)Zentner, Hearin, van~den Bosch, Lange, \&
+  Villarreal}]{zentner2016}
+Zentner, A.~R., Hearin, A., van~den Bosch, F.~C., Lange, J.~U., \& Villarreal,
+  A. 2016, \JournalTitle{arXiv:1606.07817 [astro-ph]},
+  \href{http://arxiv.org/abs/1606.07817}{{\sffamily arXiv:1606.07817
+  [astro-ph]}}
+
+\bibitem[{Zheng {et~al.}(2005)Zheng, Berlind, Weinberg, Benson, Baugh, Cole,
+  Dav\'e, Frenk, Katz, \& Lacey}]{zheng2005}
+Zheng, Z., Berlind, A.~A., Weinberg, D.~H., {et~al.} 2005,
+  \href{http://dx.doi.org/10.1086/466510}{\JournalTitle{The Astrophysical
+  Journal}, 633, 791}
 
 \end{thebibliography}

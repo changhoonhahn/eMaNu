@@ -704,6 +704,8 @@ def quijote_pbkForecast_freeMmin(kmax=0.5, rsd=True, dmnu='fin'):
     pkFinv      = np.linalg.inv(pkFij) 
     bkFinv      = np.linalg.inv(bkFij) 
     #pbkFinv     = np.linalg.inv(pbkFij) 
+    print('sigma_theta P = ', np.sqrt(np.diag(pkFinv)))
+    print('sigma_theta B = ', np.sqrt(np.diag(bkFinv)))
 
     i_s8 = thetas.index('s8')
     print('sigma_s8 P = %f' % np.sqrt(pkFinv[i_s8,i_s8]))
@@ -2608,14 +2610,14 @@ if __name__=="__main__":
     
     # Mmin and scale factor b' are free parameters
     for kmax in [0.5]: 
-        continue 
         print('kmax = %.2f' % kmax) 
         quijote_pbkForecast_freeMmin(kmax=kmax, rsd=True, dmnu='fin')
+        continue 
         quijote_Forecast_freeMmin('pk', kmax=kmax, rsd=True, dmnu='fin')
         quijote_Forecast_freeMmin('bk', kmax=kmax, rsd=True, dmnu='fin')
         quijote_Forecast_freeMmin('pbk', kmax=kmax, rsd=True, dmnu='fin')
         quijote_dbk_dMnu_dMmin(kmax=kmax, rsd=True, dmnu='fin')
-    quijote_Forecast_sigma_kmax_Mmin(rsd=True, dmnu='fin')
+    #quijote_Forecast_sigma_kmax_Mmin(rsd=True, dmnu='fin')
    
     # fixed nbar test
     #quijote_dPdthetas(dmnu='fin', flag='.fixed_nbar')
