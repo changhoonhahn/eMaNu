@@ -734,7 +734,11 @@ def quijote_pbkForecast_freeMmin(kmax=0.5, rsd=True, dmnu='fin'):
 
     _thetas = thetas + ['Mmin', 'Amp'] 
     _theta_fid = {'Mnu': 0., 'Ob': 0.049, 'Om': 0.3175, 'h': 0.6711,  'ns': 0.9624,  's8': 0.834, 'Mmin':3.2, 'Amp': 1.} # fiducial theta 
-    _theta_lims = [(0.25, 0.385), (0.02, 0.08), (0.24, 1.1), (0.55, 1.375), (0.77, 0.898), (-0.45, 0.45), (2.7, 3.8), (0.8, 1.2)]
+    if kmax == 0.5: 
+        _theta_lims = [(0.25, 0.385), (0.02, 0.08), (0.24, 1.1), (0.55, 1.375), (0.77, 0.898), (-0.45, 0.45), (2.7, 3.8), (0.8, 1.2)]
+    else: 
+        _theta_lims = [(0.15, 0.475), (-0.03, 0.125), (-0.3, 1.7), (-0.05, 1.95), (0.65, 1.025), 
+                (-1.5, 1.5), (1.5, 4.8), (0.5, 1.5)]
     _theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$', r'$M_{\rm min}$', "$b'$"]
     
     fig = plt.figure(figsize=(17, 15))
@@ -836,7 +840,6 @@ def quijote_Forecast_sigma_kmax_Mmin(rsd=True, dmnu='fin'):
     ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_Fisher_dmnu_%s_sigmakmax%s_freeMmin.png' % (dmnu, ['_real', ''][rsd]))
     fig.savefig(ffig, bbox_inches='tight') 
     return None
-
 
 ##################################################################
 # forecasts with free Mmin, b', A_sn, and B_sn (shotnoise terms) 
@@ -972,6 +975,78 @@ def quijote_Forecast_freeMminSN(obs, kmax=0.5, rsd=True, dmnu='fin'):
                 sub.set_xticklabels([]) 
     fig.subplots_adjust(wspace=0.05, hspace=0.05) 
     ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_%sFisher_freeMminSN_dmnu_%s_kmax%.2f%s.png' % 
+            (obs, dmnu, kmax, ['_real', ''][rsd]))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+##################################################################
+# forecasts with free Mmin, b' + Planck prior 
+##################################################################
+def quijote_Forecast_freeMmin_Planck(obs, kmax=0.5, rsd=True, dmnu='fin'):
+    ''' fisher forecast for quijote observables where a scaling factor of the
+    amplitude and halo Mmin are added as free parameters plus Planck priors 
+    
+    :param kmax: (default: 0.5) 
+        kmax of the analysis 
+    '''
+    # read in planck prior fisher (order is Om, Ob, h, ns, s8 and Mnu) 
+    _Fij_planck = np.load(os.path.join(UT.dat_dir(), 'Planck_2018_s8.npy'))
+
+    # fisher matrix (Fij)
+    _Fij    = quijote_Fisher_freeMmin(obs, kmax=kmax, rsd=rsd, dmnu=dmnu)          # original 
+    Fij     = quijote_Fisher_freeMmin(obs, kmax=kmax, rsd=rsd, dmnu=dmnu)   # w/ free Mmin 
+    Fij_planck = np.zeros_like(Fij)
+    Fij_planck[:6,:6] = _Fij_planck.copy() 
+    Fij     += Fij_planck
+
+    _Finv   = np.linalg.inv(_Fij) # invert fisher matrix 
+    Finv    = np.linalg.inv(Fij) # invert fisher matrix 
+
+    i_s8 = thetas.index('s8')
+    #print('original sigma_s8 = %f' % np.sqrt(_Finv[i_s8,i_s8]))
+    #print('w/ Mmin sigma_s8 = %f' % np.sqrt(Finv[i_s8,i_s8]))
+    i_Mnu = thetas.index('Mnu')
+    print('original sigma_Mnu = %f' % np.sqrt(_Finv[i_Mnu,i_Mnu]))
+    print('w/ Mmin sigma_Mnu = %f' % np.sqrt(Finv[i_Mnu,i_Mnu]))
+
+    _thetas = thetas + ['Mmin', 'Amp'] 
+    _theta_fid = {'Mnu': 0., 'Ob': 0.049, 'Om': 0.3175, 'h': 0.6711,  'ns': 0.9624,  's8': 0.834, 'Mmin':3.2, 'Amp': 1.} # fiducial theta 
+    if 'bk_' in obs: 
+        _theta_lims = [(0.1, 0.5), (0.0, 0.2), (0.0, 1.3), (0.4, 1.6), (0.0, 2.), (-1., 1.), (2.8, 3.6), (0.8, 1.2)]
+    elif obs == 'pk' and kmax <= 0.2:
+        _theta_lims = [(0.1, 0.5), (0.0, 0.15), (0.0, 1.6), (0., 2.), (0.5, 1.3), (0, 2.), (1., 5.), (0.4, 1.6)]
+    else: 
+        _theta_lims = [(0.25, 0.385), (0.02, 0.08), (0.3, 1.1), (0.6, 1.3), (0.8, 0.88), (-0.4, 0.4), (2.8, 3.6), (0.8, 1.2)]
+    _theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$', r'$M_{\rm min}$', "$b'$"]
+    
+    fig = plt.figure(figsize=(17, 15))
+    for i in xrange(ntheta+1): 
+        for j in xrange(i+1, ntheta+2): 
+            # sub inverse fisher matrix 
+            Finv_sub = np.array([[Finv[i,i], Finv[i,j]], [Finv[j,i], Finv[j,j]]]) 
+            # plot the ellipse
+            sub = fig.add_subplot(ntheta+1, ntheta+1, (ntheta+1) * (j-1) + i + 1) 
+            Forecast.plotEllipse(Finv_sub, sub, 
+                    theta_fid_ij=[_theta_fid[_thetas[i]], _theta_fid[_thetas[j]]], color='C0')
+            #if j < ntheta:
+            #    _Finv_sub = np.array([[_Finv[i,i], _Finv[i,j]], [_Finv[j,i], _Finv[j,j]]]) 
+            #    Forecast.plotEllipse(_Finv_sub, sub, 
+            #            theta_fid_ij=[_theta_fid[_thetas[i]], _theta_fid[_thetas[j]]], color='C1')
+            sub.set_xlim(_theta_lims[i])
+            sub.set_ylim(_theta_lims[j])
+            if i == 0:   
+                sub.set_ylabel(_theta_lbls[j], fontsize=30) 
+            else: 
+                sub.set_yticks([])
+                sub.set_yticklabels([])
+            
+            if j == ntheta+1: 
+                sub.set_xlabel(_theta_lbls[i], labelpad=10, fontsize=30) 
+            else: 
+                sub.set_xticks([])
+                sub.set_xticklabels([]) 
+    fig.subplots_adjust(wspace=0.05, hspace=0.05) 
+    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_%sFisher_freeMmin_dmnu_%s_kmax%.2f%s_Planck2018.png' % 
             (obs, dmnu, kmax, ['_real', ''][rsd]))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
@@ -2851,8 +2926,8 @@ if __name__=="__main__":
             quijote_pkbkCov(kmax=kmax, rsd=rsd) # condition number 1.74388e+08
         # deriatives 
 
-    quijote_dPdthetas(dmnu='fin')
-    quijote_dBdthetas(dmnu='fin')
+    #quijote_dPdthetas(dmnu='fin')
+    #quijote_dBdthetas(dmnu='fin')
     #for tt in ['s8', 'Mnu', 'Mmin']: 
     #    quijote_P_theta(tt)
     #    quijote_B_theta(tt, kmax=0.5)
@@ -2877,7 +2952,7 @@ if __name__=="__main__":
     #quijote_FisherInfo('bk', kmax=0.5)
     
     # Mmin and scale factor b' are free parameters
-    for kmax in [0.5]: 
+    for kmax in [0.2]:#, 0.5]: 
         #quijote_pbkForecast_freeMmin(kmax=kmax, rsd=True, dmnu='p')
         #quijote_pbkForecast_freeMmin(kmax=kmax, rsd=True, dmnu='pp')
         #quijote_pbkForecast_freeMmin(kmax=kmax, rsd=True, dmnu='ppp')
@@ -2891,9 +2966,17 @@ if __name__=="__main__":
         quijote_dbk_dMnu_dMmin(kmax=kmax, rsd=True, dmnu='fin')
     #quijote_Forecast_sigma_kmax_Mmin(rsd=True, dmnu='p')
 
+    # planck prior: 
+    #quijote_Forecast_freeMmin_Planck('pk', kmax=0.5, rsd=True, dmnu='fin')
+    quijote_Forecast_freeMmin_Planck('bk', kmax=0.5, rsd=True, dmnu='p')
+    quijote_Forecast_freeMmin_Planck('bk', kmax=0.5, rsd=True, dmnu='pp')
+    quijote_Forecast_freeMmin_Planck('bk', kmax=0.5, rsd=True, dmnu='ppp')
+    quijote_Forecast_freeMmin_Planck('bk', kmax=0.5, rsd=True, dmnu='fin')
+    quijote_Forecast_freeMmin_Planck('bk', kmax=0.5, rsd=True, dmnu='fin0')
 
     # free SN parameter test: 
     for kmax in [0.5]: 
+        continue 
         print("free b', Mmin, Asn, Bsn")
         quijote_Forecast_freeMminSN('pk', kmax=kmax, rsd=True, dmnu='fin')
         quijote_Forecast_freeMminSN('bk', kmax=kmax, rsd=True, dmnu='fin')
