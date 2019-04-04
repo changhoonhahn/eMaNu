@@ -63,7 +63,7 @@
 
 \begin{document}\sloppy\sloppypar\frenchspacing 
 
-\title{Breaking $\smnu$ Parameter Degeneracies with the Bispectrum} 
+\title{Constraining $\smnu$ with the Bispectrum I: Breaking Parameter Degeneracies} 
 \date{\texttt{DRAFT~---~\githash~---~\gitdate~---~NOT READY FOR DISTRIBUTION}}
 
 \newcounter{affilcounter}
@@ -114,6 +114,8 @@ statistics such as the bispectrum and 3PCF...
 
 In Section blah 
 
+\ch{List plans for paper 2}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Section   
@@ -151,10 +153,57 @@ distribution; only halos with masses $> 3.2\times 10^{13} h^{-1}M_\odot$
 are included. For further details on the HADES simulations, we refer readers 
 to~\cite{villaescusa-navarro2018}. 
 
-\ch{describe quijote simulations} 
-\bitem 
-\item describe fixed-pair and state that we tested the bispectrum for fiducial parameter
-\eitem
+In addition to HADES, we use simulations from the Quijote simulation suite, a
+set of 23,000 $N$-body simulations that in total contain more than 3.3 trillion 
+($3.3\times10^{12}$) particles over a volume of $23000 (h^{-1}{\rm Gpc})^3$. 
+These simulations were constructed to quantify the information content of 
+different cosmological observables using Fisher matrix forecasting~(\emph{e.g.} 
+Section~\ref{sec:forecasts}). They are therefore designed to accurately calculate 
+the covariance matrices of observables and the derivatives of observables with 
+respect to cosmological parameters. The suite considers 6 cosmological parameters: 
+$\Om$, $\Ob$, $h$, $n_s$, $\sig$, and $\smnu$.
+
+To calculate covariance matrices, Quijote includes 15,000 $N$-body simulations 
+run at a fiducial cosmology ($\Om{=}0.3175$, $\Ob{=}0.049$, $h{=}0.6711$, 
+$n_s{=}0.9624$, $\sig{=}0.834$, and $\smnu{=}0.0$ eV). It also includes sets 
+of 500 $N$-body simulations run at different cosmologies where only one parameter 
+is varied from the fiducial cosmology at a time for the derivatives. Along $\Om$, 
+$\Ob$, $h$, $n_s$, and $\sig$, the fiducial cosmology is adjusted by either a 
+small step above and below the fiducial value. Along $\smnu$, because the 
+derivative of certain observable with respect to $\smnu$ is noisy, Quijote 
+includes sets of 500 simulations for $\smnu = 0.1$, 0.2, and 0.4 eV. In 
+Table~\ref{tab:sims}, we list the cosmologies included in the Quijote suite. 
+
+The intial conditions for all Quijote simulations were generated at $z=127$ using 
+2LPT for simulations with massless neutrinos and the Zel’dovich approximation for 
+massive neutrinos. Like HADES, the initial conditions of simulations with massive
+neutrinos take their scale-dependent growth factors/rates into account using the
+\cite{zennaro2017a} method. From the initial conditions, all of the simulations 
+follow the gravitational evolution of $512^3$ dark matter particles, and $512^3$ 
+neutrino particles (for massive neutrino models), to $z=0$. The simulations run
+at the fiducial cosmology for covariance matrix estimation are standard $N$-body 
+simulations. However, the rest are paired fixed simulations, which greatly reduce 
+cosmic variance without introducing bias for a large set of 
+statistics~\citep{angulo2016,pontzen2016,villaescusa-navarro2018}. We confirm that the 
+paired fixed simulations do not introduce any bias for the redshift-space halo 
+bispectrum (the observable we considered in this paper). For further details on 
+the Quijote simulations, we refer readers to Villaescusa-Navarro et al. (in 
+preparation). 
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.9\textwidth]{figs/haloPlk_rsd_ratio.pdf}
+    \caption{Impact of $\smnu$ and $\sig$ on the redshift-space halo power 
+    spectrum monopole and quadrupole measured using the HADES simulation suite. 
+    $\smnu$ and $\sig$ produce almost identical effects on halo clustering on 
+    small scales ($k > 0.1\hmpc$). This degeneracy can be partially broken 
+    through the quadrupole; however, {\em $\smnu$ and $\sig$ produce almost 
+    the same effect on two-point clustering --- within a few percent}.
+    }
+\label{fig:plk}
+\end{center}
+\end{figure}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % simulation table
@@ -196,20 +245,6 @@ to~\cite{villaescusa-navarro2018}.
     {\bf Notes:} \ch{description of the table} 
 \end{table}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{figure}
-\begin{center}
-\includegraphics[width=0.9\textwidth]{figs/haloPlk_rsd_ratio.pdf}
-    \caption{Impact of $\smnu$ and $\sig$ on the redshift-space halo power 
-    spectrum monopole and quadrupole measured using the HADES simulation suite. 
-    $\smnu$ and $\sig$ produce almost identical effects on halo clustering on 
-    small scales ($k > 0.1\hmpc$). This degeneracy can be partially broken 
-    through the quadrupole; however, {\em $\smnu$ and $\sig$ produce almost 
-    the same effect on two-point clustering --- within a few percent}.
-    }
-\label{fig:plk}
-\end{center}
-\end{figure}
 
 \begin{figure}
 \begin{center}
@@ -300,7 +335,9 @@ where
 I_{k_i}({\bfi x}) = \int\limits_k {\rm d}^3q~\delta({\bfi q})~e^{i {\bfi q}\cdot{\bfi x}}. 
 \eeq
 At this point, we measure $\widehat{B}_{\ell = 0}(k_1, k_2, k_3)$ by calcuating the 
-$I_{k_i}$s with inverse FFTs and summing over in real space. For $\widehat{B}_{\ell = 0}$
+$I_{k_i}$s with inverse FFTs and summing over in real space.\footnote{The code that we use to 
+evaluate $\widehat{B}_{\ell = 0}$ is publicly available at \url{https://github.com/changhoonhahn/pySpectrum}}
+For $\widehat{B}_{\ell = 0}$
 measurements throughout the paper, we use $\delta({\bfi x})$ grids with $N_{\rm grid} = 360$ 
 and triangle configurations defined by $k_1, k_2, k_3$ bins of width 
 $\Delta k = 3 k_f = 0.01885~h/{\rm Mpc}$.
@@ -545,20 +582,20 @@ challenge in precisely constraining $\smnu$ with the power spectrum.
 This establishes the bispectrum as a promising probe for $\smnu$. However, 
 we are ultimately interested in determining the constraining power of the 
 bispectrum for an analysis that include cosmological parameters beyond 
-$\sig$ --- \emph{i.e.} $\Om$, $\Ob$, $h$, and $n_s$. The Quijote 
+$\smnu$ and $\sig$--- \emph{i.e.} $\Om$, $\Ob$, $h$, and $n_s$. The Quijote 
 suite of simulations is \emph{specifically} designed to answer this question
-using Fisher matrix forecast. 
+using Fisher matrix forecast.
 
 First, the Quijote suite includes $15,000$ realizations run at a fidicial 
 cosmology: $\smnu{=}0.0$eV, $\Om{=}0.3175, \Ob{=}0.049, n_s{=}0.9624, h{=}0.6711$, 
 and $\sig=0.834$ (see Table~\ref{tab:sims}. This allows us to robustly estimate 
 the covariance matrix of the bispectrum, $\bfi{C}$, which has ${\sim}1,800$ 
 triangle configurations (Figure~\ref{fig:bk_cov}). Second, the Quijote suite 
-includes $500$ fixed-pair realizations evaluated at $13$ cosmologies, each a 
-small step away from the fiducial cosmology parameter values along one 
-parameter (underlined values in Table~\ref{tab:sims}). These realizations allow us 
-to precisely estimate the derivatives of the bispectrum with respect to each 
-of the cosmological parameters. 
+includes $500$ fixed-pair realizations evaluated at $13$ different cosmologies,
+each a small step away from the fiducial cosmology parameter values along one 
+parameter (Section~\ref{sec:hades} and~Table~\ref{tab:sims}). These realizations 
+allow us to precisely estimate the derivatives of the bispectrum with respect 
+to each of the cosmological parameters.
 
 Since their introduction to cosmology over two decades ago, Fisher Information 
 matrices have been ubiquitously used to forecast the constraining power of future 
@@ -580,7 +617,24 @@ conservatively neglect the first term and calculate the Fisher matrix,
 F_{ij} = \frac{1}{2}~\mathrm{Tr} \Bigg[\bfi{C}^{-1} \left(\parti{\overline{B}_0}\partj{\overline{B}_0}^T + \parti{\overline{B}_0}^T \partj{\overline{B}_0} \right)\Bigg],
 \eeq
 directly with $\bfi{C}$ and $\partial B_0/\partial \theta_i$ along each cosmological 
-parameter from the Quijote simulations. 
+parameter from the Quijote simulations. For $\Om$, $\Ob$, $h$, $n_s$, and $\sig$, 
+we calculate 
+\beq
+\frac{\partial \overline{B}_0}{\partial \theta_i} \approx \frac{\overline{B}_0(\theta_i^{+})-\overline{B}_0(\theta_i^{-})}{\theta_i^+ - \theta_i^-}. 
+\eeq
+Meanwhile, for $\smnu$, where the fiducial value is 0.0 eV and we cannot have 
+negative $\smnu$, we use the Quijote simulations at $\smnu^+$, $\smnu^{++}$, 
+$\smnu^{+++}=0.1, 0.2, 0.4$ eV (Table~\ref{tab:sims}) to compute: 
+\beq
+\frac{\partial \overline{B}_0}{\partial \smnu} \approx \frac{-21\overline{B}_0(\smnu^{\rm fid}) + 
+32 \overline{B}_0(\smnu^{+}) - 12 \overline{B}_0(\smnu^{++}) + \overline{B}_0(\smnu^{+++})}{1.2}. 
+\eeq
+By using these $N$-body simulations, instead of analytic methods (\emph{e.g.} 
+perturbation theory), we exploit the accuracy of numerical simulations in the 
+nonlinear regime and rely on fewer assumptions and approximations. 
+\ch{something about quanity the information content of the bispectrum in the nonlinear regime unprecedented.} 
+We discuss subtle details of the bispectrum derivatives in Appendix~\ref{sec:deriv} and 
+discuss tests of convegence in Appendix~\ref{sec:converge}. 
 
 We present the constraints on $\smnu$ and other cosmological parameters 
 $\{\Om, \Ob, h, n_s, \sig\}$ derived from the redshift-space halo bispectrum 
@@ -593,8 +647,12 @@ parameters $b'$, a free amplitude scaling factor, and $M_{\rm min}$, the halo
 mass limit. These parameters serve as a simplistic bias model and by marginalizing 
 over them we ensure that our Fisher constraints do not include extra constraining 
 power from the difference in bias/number density in the different Quijote 
-cosmologies used to calculate $\partial B_0/\partial \theta_i$. In Table~\ref{tab:forecast}, 
-we list the parameter constraints for $P_0(k < k_{\rm max}=0.5~h/{\rm Mpc})$ and
+cosmologies used to calculate $\partial \overline{B}_0/\partial \theta_i$. $b'$ is a 
+multiplicative factor so $\partial \overline{B}_0/\partial b' = \overline{B}_0$.
+Meanwhile, we numerically estimate $\partial \overline{B}_0/\partial M_{\rm min}$ 
+using $\overline{B}_0$ evaluated at $M_{\rm min}{=}3.3$ and 
+$3.1\times10^{13}h^{-1}M_\odot$, with all other parameters fixed. In Table~\ref{tab:forecast}, we list the 
+parameter constraints for $P_0(k < k_{\rm max}=0.5~h/{\rm Mpc})$ and
 $B_0(k_1, k_2, k_3 < k_{\rm max}=0.5~h/{\rm Mpc})$.
 
 The bispectrum substantially improves constraints on all of the parameters 
@@ -602,8 +660,8 @@ over the power spectrum (Figure~\ref{fig:bk_fish} and Table~\ref{tab:forecast}).
 More precisely, the bispectrum improves the marginalized $\Om$, $\Ob$, $h$, 
 $n_s$, and $\sig$ constraints by factors of $\sim$4, 11, 10, 10, and 3 with 
 respect to their power spectrum constraints. {\em For $\smnu$, the bispectrum 
-improves the constraint from $\sigma_{\smnu}{=}~0.319$ to $0.0239$ eV --- over an order of
-magnitude improvement over the power spectrum}.
+improves the constraint from $\sigma_{\smnu}{=}~0.319$ to $0.0239$ eV --- over 
+an order of magnitude improvement over the power spectrum}.
 
 Even at lower $k_{\rm max} < 0.5~h/{\rm Mpc}$, the bispectrum significantly 
 improves cosmological parameter constraints. We compare the marginalized 
@@ -612,20 +670,27 @@ a function of $k_{\rm max}$ for $B_0$ (orange) and $P_0$ (blue) in Figure~\ref{f
 \ch{write this once we have to updated powerspectrum calculations}. 
 
 discussing the results  
-\ch{emphasize that this is only for a 1 Gpc box so our constraints will be so much better} 
-\ch{how does the bispectrum do so much better? --- \emph{i.e.} triangles that contribute 
-most fisher information} 
+\bitem 
+\item emphasize that this is only for a 1 Gpc box so our constraints will be so much better
+\item how does the bispectrum do so much better? --- \emph{i.e.} triangles that contribute 
+    most fisher information
+\item redshift-space helps us out (refer to appendix) 
+\eitem 
 
 The results above definitively show that the bispectrum has significant 
 constraining power in the weakly nonlinear regime ($k > 0.1~h/{\rm Mpc}$) 
 beyond the power spectrum. Our results also demonstrated the potential of 
 the bispectrum in constraining $\smnu$ (an order of magnitude improvement over 
-$P_0$). However, a number of assumptions were made in deriving the parameter
-constraints we present above. Below we underline a few caveats. First, the 
-parameter constraints were derived using the Fisher matrix. This assumes 
-\ch{mention the caveats of fisher forecasts}. 
-\ch{emphasize the lack of bananas in the contours}. \ch{something about how 
-Fisher forecasts should have a $10\%$ wiggle room}. 
+$P_0$). Below, we underline a few caveats of the results we present above. 
+First, the parameter constraints were derived using the Fisher matrix. This 
+assumes 
+\bitem
+\item mention the caveats of fisher forecasts
+\item emphasize the lack of bananas in the contours
+\item convergence concerns (refer to appendix) 
+\item $\smnu$ dependence of derivatives along $\smnu$. (refer to appendix) 
+\item take Fisher forecasts with a grain of salt 
+\eitem 
 
 Another caveat is that our parameter constraints were derived using the power 
 spectrum and bispectrum of halo in a periodic box. We do not consider a 
@@ -649,13 +714,16 @@ through $b'$ and $M_{\rm min}$, this is insufficient to describe how galaxies
 occupy halos. A more realistic bias model such as a halo occupation distribution 
 (HOD) model involve extra parameters that describe the distribution of central 
 and satellite galaxies in halos~\citep[\emph{e.g.}][]{zheng2005,leauthaud2012a,tinker2013,zentner2016,vakili2019}. 
+\ch{maybe something about Uros and Nick's model involving a lot of parameters.}
 Marginalizing over these extra parameters, will likely reduce the constraining 
 power at high $k$. Even if the constraining power at high $k$ is reduced, the
 bispectrum still offers significant improvements over the power spectrum at 
-$k_{\rm max} \sim 0.2$. Furthermore, jointly analyzing power spectrum and 
-bispectrum will help constrain these extra bias parameters. In Hahn et al. 
-(in preparation), we will include a realistic HOD model and determine the 
-constraining power of a joint galaxy power spectrum and bispectrum analysis. 
+$k_{\rm max} \sim 0.2$. Jointly analyzing power spectrum and bispectrum will 
+help constrain these extra bias parameters. Furthermore, we again emphasize that
+the constraints we present in this paper is for a $1h^{-1}{\rm Gpc}$ box. In 
+Hahn et al. (in preparation), we will include a realistic HOD model and quantify 
+the information content and constraining power of a joint galaxy power spectrum 
+and bispectrum analysis. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Section   
@@ -670,11 +738,12 @@ It's a pleasure to thank
     Shirley Ho, 
     Emmaneul Schaan, 
     David N.~Spergel, 
-    Benjamin D.~Wandelt
+    and Benjamin D.~Wandelt
+    for valuable discussions and comments. 
 
 
 \appendix
-\section{Redshift-space Bispectrum} 
+
 \begin{figure}
 \begin{center}
     \includegraphics[width=0.95\textwidth]{figs/haloBk_amp_kmax05_rsd_comparison.pdf}
@@ -683,11 +752,15 @@ It's a pleasure to thank
     (blue and orange respectively). We mark equilateral triangle configurations (empty 
     triangle marker) along with their side lengths $k$.
     }
-\label{fig:cov_converge}
+\label{fig:real_vs_rsd}
 \end{center}
 \end{figure}
+\section{Redshift-space Bispectrum} 
 
-\section{Testing Convergence} 
+\section{Fisher Forecast Derivatives} \label{sec:deriv}
+here's how we take derivatives
+
+\section{Testing Convergence} \label{sec:converge}
 \begin{figure}
 \begin{center}
     \includegraphics[width=0.5\textwidth]{figs/quijote_Fisher_nmocks_001_05.pdf}
