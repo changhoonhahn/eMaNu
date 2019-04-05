@@ -180,15 +180,15 @@ massive neutrinos. Like HADES, the initial conditions of simulations with massiv
 neutrinos take their scale-dependent growth factors/rates into account using the
 \cite{zennaro2017a} method. From the initial conditions, all of the simulations 
 follow the gravitational evolution of $512^3$ dark matter particles, and $512^3$ 
-neutrino particles (for massive neutrino models), to $z=0$. The simulations run
-at the fiducial cosmology for covariance matrix estimation are standard $N$-body 
-simulations. However, the rest are paired fixed simulations, which greatly reduce 
-cosmic variance without introducing bias for a large set of 
-statistics~\citep{angulo2016,pontzen2016,villaescusa-navarro2018}. We confirm that the 
-paired fixed simulations do not introduce any bias for the redshift-space halo 
-bispectrum (the observable we considered in this paper). For further details on 
-the Quijote simulations, we refer readers to Villaescusa-Navarro et al. (in 
-preparation). 
+neutrino particles (for massive neutrino models), to $z=0$ using {\sc Gadget-III}
+TreePM+SPH code (same as HADES). The simulations run at the fiducial cosmology for 
+covariance matrix estimation are standard $N$-body simulations. However, the rest 
+are paired fixed simulations, which greatly reduce cosmic variance without introducing 
+bias for a large set of statistics~\citep{angulo2016,pontzen2016,villaescusa-navarro2018}. 
+We confirm that the paired fixed simulations do not introduce any bias for the 
+redshift-space halo bispectrum (the observable we consider in this paper). For 
+further details on the Quijote simulations, we refer readers to 
+Villaescusa-Navarro et al. (in preparation). 
 
 \begin{figure}
 \begin{center}
@@ -242,7 +242,13 @@ preparation).
     \hline
 \end{tabular} \label{tab:sims}
 \end{center}
-    {\bf Notes:} \ch{description of the table} 
+    {\bf Top}: The HADES suite includes sets of 100 $N$-body simulations with degenerate massive neutrinos 
+    of $\smnu = $ 0.06, 0.10, and 0.15 eV as well as sets of simulations with massless neutrino and 
+    $\sigma_8 = $ 0.822, 0.818, 0.807, and 0.798 to examine the $\smnu-\sigma_8$ degeneracy. 
+    {\bf Bottom}: The Quijote suite includes 15,000 $N$-body simulations at the fiducial cosmology 
+    to accurately estimate the covariance matrices. It also includes sets of 500 paired fixed simulations 
+    at different cosmologies, where only one parameter is varied from the fiducial value (underlined), 
+    to estimate derivatives of observables along the cosmological parameters.
 \end{table}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -520,21 +526,32 @@ $\smnu$ than with the power spectrum alone.
 
 \begin{figure}
 \begin{center}
-    \includegraphics[width=\textwidth]{figs/quijote_pbkFisher_freeMmin_dmnu_fin_kmax05.pdf}
+    \includegraphics[width=\textwidth]{figs/quijote_pbkFisher_freeMmin_dmnu_fin_kmax02.pdf}
     \caption{Fisher matrix constraints for $\smnu$ and other cosmological parameters 
     for the redshift-space halo bispectrum monopole (orange). For comparison, we 
     include Fisher parameter constraints for the redshift-space halo powerspectrum monopole 
     in blue. The contours mark the $68\%$ and $95\%$ confidence interals. We set 
-    $k_{\rm max} = 0.5~h/{\rm Mpc}$ for both power spectrum and bispectrum. We 
+    $k_{\rm max} = 0.2~h/{\rm Mpc}$ for both power spectrum and bispectrum. We 
     include in our forecasts $b'$ and $M_{\rm min}$, a free amplitude scaling factor
     and halo mass limit, respectively. They serve as a simplistic bias model and we 
     marginalize over them to that our constraints do not include extra constraining 
     power from the difference in bias/number density in the different Quijote cosmologies.
     The bispectrum {\em substantially} improves constraints on all of the cosmological parameters 
     over the power spectrum. {\em For $\smnu$, the bispectrum improves the constraint
-    from $\sigma_{\smnu}{=}~0.319$ to $0.0239$ eV --- over an order of magnitude 
-    improvement over the power spectrum}.}
+    from $\sigma_{\smnu}{=}~1.163$ to $0.112$ eV --- an order of magnitude improvement 
+    over the power spectrum}.}
 \label{fig:bk_fish}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=\textwidth]{figs/quijote_pbkFisher_freeMmin_dmnu_fin_kmax05.pdf}
+    \caption{Same as Figure~\ref{fig:bk_fish} but for $k_{\rm max} = 0.5~h/{\rm Mpc}$.
+    Again, the bispectrum substantially improves constraints on all cosmological parameters 
+    over the power spectrum. {\em For $\smnu$, the bispectrum improves $\sigma_{\smnu}$ from 
+    $0.319$ to $0.0239$ eV --- over an order of magnitude improvement over the power spectrum}.}
+\label{fig:bk_fish_kmax}
 \end{center}
 \end{figure}
 
@@ -542,7 +559,8 @@ $\smnu$ than with the power spectrum alone.
 % forecast table
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{table}
-    \caption{Cosmological parameter constraints from the redshift-space halo power spectrum (top) and bispectrum (bottom).} 
+    \caption{Cosmological parameter constraints from the redshift-space halo power spectrum (top) and bispectrum (bottom) 
+    for different values of $k_{\rm max}$.} 
 \begin{center} 
     \begin{tabular}{cccccccccc} \toprule
          & $k_{\rm max}$ & $\smnu$ & $\Omega_m$ & $\Omega_b$ & $h$ & $n_s$ & $\sig$ & $b'$ & $M_{\rm min}$ \\
@@ -618,13 +636,13 @@ F_{ij} = \frac{1}{2}~\mathrm{Tr} \Bigg[\bfi{C}^{-1} \left(\parti{\overline{B}_0}
 \eeq
 directly with $\bfi{C}$ and $\partial B_0/\partial \theta_i$ along each cosmological 
 parameter from the Quijote simulations. For $\Om$, $\Ob$, $h$, $n_s$, and $\sig$, 
-we calculate 
+we estimate 
 \beq
 \frac{\partial \overline{B}_0}{\partial \theta_i} \approx \frac{\overline{B}_0(\theta_i^{+})-\overline{B}_0(\theta_i^{-})}{\theta_i^+ - \theta_i^-}. 
 \eeq
 Meanwhile, for $\smnu$, where the fiducial value is 0.0 eV and we cannot have 
 negative $\smnu$, we use the Quijote simulations at $\smnu^+$, $\smnu^{++}$, 
-$\smnu^{+++}=0.1, 0.2, 0.4$ eV (Table~\ref{tab:sims}) to compute: 
+$\smnu^{+++}=0.1, 0.2, 0.4$ eV (Table~\ref{tab:sims}) to estimate: 
 \beq
 \frac{\partial \overline{B}_0}{\partial \smnu} \approx \frac{-21\overline{B}_0(\smnu^{\rm fid}) + 
 32 \overline{B}_0(\smnu^{+}) - 12 \overline{B}_0(\smnu^{++}) + \overline{B}_0(\smnu^{+++})}{1.2}. 
@@ -633,14 +651,14 @@ By using these $N$-body simulations, instead of analytic methods (\emph{e.g.}
 perturbation theory), we exploit the accuracy of numerical simulations in the 
 nonlinear regime and rely on fewer assumptions and approximations. 
 \ch{something about quanity the information content of the bispectrum in the nonlinear regime unprecedented.} 
-We discuss subtle details of the bispectrum derivatives in Appendix~\ref{sec:deriv} and 
+We discuss subtleties of the bispectrum derivatives in Appendix~\ref{sec:deriv} and 
 discuss tests of convegence in Appendix~\ref{sec:converge}. 
 
 We present the constraints on $\smnu$ and other cosmological parameters 
 $\{\Om, \Ob, h, n_s, \sig\}$ derived from the redshift-space halo bispectrum 
-Fisher matrix (Eq.~\ref{eq:fisher}) in Figure~\ref{fig:bk_fish}. For comparison, 
-we include Fisher constraints of the parameters for the redshift-space halo 
-power spectrum monopole in blue. The contours mark the $68\%$ and $95\%$ 
+Fisher matrix (Eq.~\ref{eq:fisher}) in Figures~\ref{fig:bk_fish} and~\ref{fig:bk_fish_kmax}. 
+We include Fisher constraints for the redshift-space halo power spectrum 
+monopole in blue for comparison. The contours mark the $68\%$ and $95\%$ 
 confidence interals. For both the power spectrum and bispectrum, we set 
 $k_{\rm max} = 0.5~h/{\rm Mpc}$. We also include in our Fisher cosntraints, 
 parameters $b'$, a free amplitude scaling factor, and $M_{\rm min}$, the halo 
