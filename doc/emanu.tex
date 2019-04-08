@@ -83,7 +83,8 @@
 \affil{Center for Cosmology and Particle Physics, Department of Physics, New York University, NY 10003, New York, USA}
 
 \begin{abstract}
-    abstract
+    Some intro sentences about neutrinos. We investigate whether the bispectrum, blah 
+    We present the first $N$-body simulation based Fisher matrix forecast of cosmological parameters () using the bispectrum. 
 \end{abstract}
 
 \keywords{
@@ -378,7 +379,7 @@ and $0.283 \leq k_3 \leq 0.377~h/{\rm Mpc}$ in the insets of the panels.
     \caption{The shape dependence of the $\smnu$ and $\sig$ imprint on 
     the redshift-space halo bispectrum, $\Delta \BOk/\BOk^\mathrm{fid}$. 
     We align the $\smnu{=}~0.06, 0.10$, and $0.15\,\mathrm{eV}$ HADES models 
-    in the upper panels with $\smnu{=}~0.0$ eV $\sig{=}~0.822$, $0.818$, and $0.807$ 
+    in the upper panels with $\smnu{=}~0.0$~eV $\sig{=}~0.822$, $0.818$, and $0.807$ 
     models on the bottom such that the top and bottom panels in each column 
     have matching $\sig^{c}$, which produce mostly degenerate imprints on the 
     redshift-space power spectrum. The difference between the top and bottom 
@@ -455,15 +456,23 @@ by breaking the $\smnu$ -- $\sig$ degeneracy.
 We begin by examining the triangle shape dependent imprint of $\smnu$ on the 
 redshift-space halo bispectrum versus $\sig$ alone. In Figure~\ref{fig:dbk_shape}, 
 we present the fractional residual, $(\Delta \BOk = \BOk - \BOk^{\rm fid})/\BOk^{\rm fid}$,
-as a function of $k_2/k_1$ and $k_3/k_1$ for $\smnu=0.06, 0.10$, and $0.15$ eV 
-in the upper panels and 0.0 eV $\sig{=}~0.822$, $0.818$, and $0.807$ in the 
+as a function of $k_2/k_1$ and $k_3/k_1$ for $\smnu=0.06, 0.10$, and $0.15$~eV 
+in the upper panels and 0.0~eV $\sig{=}~0.822$, $0.818$, and $0.807$ in the 
 bottom panels. The simulations in the top and bottom panels of each column 
-have matching $\sig^{c}$. Overall as $\smnu$ increases, the bispectrum for
-increases for all triangle shapes (top panels). For triangle shapes close to 
-equilateral (upper right) and squeezed (upper left), the increase is significantly 
-larger. For $\smnu=0.15$ eV, the bispectrum is $\sim 15\%$ higher than 
-$\BOk^{\rm fid}$ for equilateral and squeezed triangles. Meanwhile, the 
-bispectrum increases by $\sim 8\%$ for folded triangles (lower center). 
+have matching $\sig^{c}$. Overall as $\smnu$ increases, the bispectrum increases 
+for all triangle shapes (top panels). This increase is due to halo 
+bias~\citep[][; see also Figure~\ref{fig:plk}]{villaescusa-navarro2018}. We 
+impose a fixed $M_{\rm lim}$ on our halos so lower values of $\sig$ translate 
+to a larger halo bias, which boosts the amplitude of the bispectrum. Within the 
+overall increase in amplitude, however, equilateral triangles (upper left) have 
+the largest increase. For $\smnu=0.15$ eV, the bispectrum is $\sim 15\%$ higher 
+than $\BOk^{\rm fid}$ for equilateral triangles. Meanwhile, the bispectrum increases 
+by $\sim 8\%$ for folded triangles for 0.15~eV (lower center). The noticeable 
+difference in $\Delta \BOk/\BOk^{\rm fid}$ between equilateral and squeezed 
+triangles (upper left) is roughly consistent with the comparison in Figure 7 
+of~\cite{ruggeri2018}. They, however, fix $A_s$ in their simulations and 
+measure the real-space halo bispectrum so we refrain from any detailed 
+comparisons. 
 
 As $\sig$ increases, with $\smnu = 0.0$ eV fixed, the bispectrum increases 
 overall for all triangle shapes (bottom panels). However, the comparison of the
@@ -489,24 +498,24 @@ We compare $\Delta \BOk/\BOk^{\rm fid}$ of the $\smnu = 0.06, 0.10$, and
 $0.15$ eV HADES models to the $\Delta \BOk/\BOk^\mathrm{fid}$ of 
 $\smnu{=}~0.0$ eV $\sig{=}~0.822$, $0.818$, and $0.807$ models in the
 top, middle, and bottom panels, respectively. The comparison confirms the 
-overall amplitude difference between $\smnu$ and $\sig$ (Figure~\ref{fig:dbk_shape}). 
+difference in overall amplitude of varying $\smnu$ and $\sig$ (Figure~\ref{fig:dbk_shape}). 
 For instance, $\smnu{=}~0.15\,\mathrm{eV}$ (red) has a $\sim 5\%$ stronger 
 impact on the bispectrum than $\smnu{=}~0.0$ eV $\sig{=}~0.798$ (black) 
 even though their power spectrums differ by $< 1\%$ (Figure~\ref{fig:plk}).
 
 The comparison in the panels of Figure~\ref{fig:dbk_amp} also reveal a difference 
-in the configuration dependence in $\Delta \BOk/\BOk^\mathrm{fid}$ of $\smnu$ 
+in the configuration dependence in $\Delta \BOk/\BOk^\mathrm{fid}$ between $\smnu$ 
 versus $\sig$. The triangle configurations are ordered by looping through $k_3$ 
 in the inner most loop and $k_1$ in the outer most loop such that $k_1 \leq k_2 \leq k_3$. 
-In this ordering, $k_1$ increases from left to right. So $\Delta \BOk/\BOk^\mathrm{fid}$ 
-of $\smnu$  has a smaller $k_1$ dependence than $\Delta \BOk/\BOk^\mathrm{fid}$ of 
-$\sig$. Combined with the different shape-dependence (Figure~\ref{fig:dbk_shape}), 
-the distinct imprint of $\smnu$ on the redshift-space halo bispectrum illustrates 
-that the bispectrum can break the degeneracy between $\smnu$ and $\sig$. Moreover
-it illustrates that by including the bispectrum, we can more precisely constrain 
-$\smnu$ than with the power spectrum alone. 
-
-\ch{comparison to Ruggeri et al. (2018) and literature} 
+In this ordering, $k_1$ increases from left to right. $\Delta \BOk/\BOk^\mathrm{fid}$ 
+of $\smnu$ expectedly increases with $k_1$: for small $k_1$ (on large scales), 
+neutrinos behave like CDM and therefore the impact is reduced. However, 
+$\Delta \BOk/\BOk^\mathrm{fid}$ of $\smnu$ has a smaller $k_1$ dependence than 
+$\Delta \BOk/\BOk^\mathrm{fid}$ of $\sig$. Combined with the different shape-dependence
+(Figure~\ref{fig:dbk_shape}), the distinct imprint of $\smnu$ on the redshift-space 
+halo bispectrum illustrates that the bispectrum can break the degeneracy between 
+$\smnu$ and $\sig$. Moreover it illustrates that by including the bispectrum, we 
+can more precisely constrain $\smnu$ than with the power spectrum alone. 
 
 \begin{figure}
 \begin{center}
