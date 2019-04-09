@@ -34,7 +34,7 @@
 \newcommand{\Om}{\Omega_{\rm m}} 
 \newcommand{\Ob}{\Omega_{\rm b}} 
 \newcommand{\OL}{\Omega_\Lambda}
-\newcommand{\smnu}{\sum m_\nu}
+\newcommand{\smnu}{M_\nu}
 \newcommand{\sig}{\sigma_8} 
 \newcommand{\BOk}{\widehat{B}_0} 
 \newcommand{\hmpc}{\,h/\mathrm{Mpc}}
@@ -83,8 +83,19 @@
 \affil{Center for Cosmology and Particle Physics, Department of Physics, New York University, NY 10003, New York, USA}
 
 \begin{abstract}
-    Some intro sentences about neutrinos. We investigate whether the bispectrum, blah 
+    Massive neutrinos suppress the growth of structure below their free-streaming scale and leave an 
+    imprint on large-scale structure. Measuring this imprint allows us to constrain the sum of neutrino 
+    masses, $\smnu$, a key ingredient for particle physics beyond the Standard Model. However, 
+    degeneracies with cosmological parameters limit the constraining power of standard two-point clustering 
+    statistics --- \emph{i.e.} the powerspectrum. In this work, we investigate whether we can break 
+    these parameter degerancies and tightly constrain $\smnu$ with the next higher-order correlation 
+    function, the bispectrum. We first examine the degeneracy between $\smnu$ and $\sig$ using $800$ 
+    $N$-body simulations from the HADES suite and demonstrate that the redshift-space halo bispectrum 
+    helps break this degeneracy. Next, we quantify the information content of the redshift-space halo 
+    bispectrum in a Fisher matrix forecast that includes 
+
     We present the first $N$-body simulation based Fisher matrix forecast of cosmological parameters () using the bispectrum. 
+    %The combination of the three probes yield very tight constraints, allowing to place a ∼ 5σ bound on the minimum sum of the neutrino masses with a volume of just 1 (h−1Gpc)3 without CMB priors.
 \end{abstract}
 
 \keywords{
@@ -97,7 +108,6 @@ very brief into on neutrinos
 
 Brief intro on the impact of massive active neutrinos on the matter powerspectrum 
 and how that's detectable with CMB and LSS
-
 
 Quick summary of current constraints and where they come from. Talk about the 
 CMB-LSS lever arm. The degeneracy between As and tau and how that's a bottleneck
@@ -116,7 +126,6 @@ statistics such as the bispectrum and 3PCF...
 In Section blah 
 
 \ch{List plans for paper 2}
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Section   
@@ -212,34 +221,34 @@ Villaescusa-Navarro et al. (in preparation).
 \begin{table}
 \caption{Specifications of the HADES and Quijote simulation suites.} 
 \begin{center}
-\begin{tabular}{ccccccccccc} \toprule
-    Name  &$\smnu$ & $\Omega_m$ & $\Omega_b$ & $h$ & $n_s$ & $\sigma^m_8$ & $\sigma^c_8$ & $m_{\rm cdm}$ & $m_\nu$ & realizations \\
-      &({\footnotesize eV}) & & & & & & & ({\footnotesize $10^{10}h^{-1}M_\odot$}) & ({\footnotesize $10^{10}h^{-1}M_\odot$}) & \\[3pt] \hline\hline
-    \multicolumn{11}{c}{HADES suite} \\ \hline
-    Fiducial    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.833 & 0.833 & 65.66 & 0      &100 \\ 
-                & 0.06  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.819 & 0.822 & 65.36 & 29.57  &100 \\ 
-                & 0.10  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.809 & 0.815 & 65.16 & 49.28  &100 \\ 
-                & 0.15  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.798 & 0.806 & 64.92 & 73.95  &100 \\ 
-                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.822 & 0.822 & 65.66 & 0      &100 \\ 
-                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.818 & 0.818 & 65.66 & 0      &100 \\ 
-                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.807 & 0.807 & 65.66 & 0      &100 \\ 
-                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.798 & 0.798 & 65.66 & 0      &100 \\[3pt]
+\begin{tabular}{ccccccccc} \toprule
+    Name  &$\smnu$ & $\Omega_m$ & $\Omega_b$ & $h$ & $n_s$ & $\sigma^m_8$ & $\sigma^c_8$ & realizations \\
+      &({\footnotesize eV}) & & & & & ({\footnotesize $10^{10}h^{-1}M_\odot$}) & ({\footnotesize $10^{10}h^{-1}M_\odot$}) & \\[3pt] \hline\hline
+    \multicolumn{9}{c}{HADES suite} \\ \hline
+    Fiducial    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.833 & 0.833 & 100 \\ 
+                & 0.06  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.819 & 0.822 & 100 \\ 
+                & 0.10  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.809 & 0.815 & 100 \\ 
+                & 0.15  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.798 & 0.806 & 100 \\ 
+                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.822 & 0.822 & 100 \\ 
+                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.818 & 0.818 & 100 \\ 
+                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.807 & 0.807 & 100 \\ 
+                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.798 & 0.798 & 100 \\[3pt]
     \hline \hline
-    \multicolumn{11}{c}{Qujiote suite} \\ \hline
-    Fiducial 	    & 0.0         & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 15,000 \\ 
-    $\smnu^+$       & \underline{0.1}   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
-    $\smnu^{++}$    & \underline{0.2}   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
-    $\smnu^{+++}$   & \underline{0.4}   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
-    $\Omega_m^+$    & 0.0   & \underline{ 0.3275} & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
-    $\Omega_m^-$    & 0.0   & \underline{ 0.3075} & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
-    $\Omega_b^+$    & 0.0   & 0.3175 & \underline{0.050} & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
-    $\Omega_b^-$    & 0.0   & 0.3175 & \underline{0.048} & 0.6711 & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
-    $h^+$           & 0.0   & 0.3175 & 0.049 & \underline{0.6911} & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
-    $h^-$           & 0.0   & 0.3175 & 0.049 & \underline{0.6511} & 0.9624 & 0.834 & 0.834 & & & 500 \\ 
-    $n_s^+$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9824} & 0.834 & 0.834 & & & 500 \\ 
-    $n_s^-$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9424} & 0.834 & 0.834 & & & 500 \\ 
-    $\sigma_8^+$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.849} & \underline{0.849} & & & 500 \\ 
-    $\sigma_8^-$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.819} & \underline{0.819} & & & 500 \\[3pt]
+    \multicolumn{9}{c}{Qujiote suite} \\ \hline
+    Fiducial 	    & 0.0         & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 15,000 \\ 
+    $\smnu^+$       & \underline{0.1}   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
+    $\smnu^{++}$    & \underline{0.2}   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
+    $\smnu^{+++}$   & \underline{0.4}   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
+    $\Omega_m^+$    & 0.0   & \underline{ 0.3275} & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
+    $\Omega_m^-$    & 0.0   & \underline{ 0.3075} & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
+    $\Omega_b^+$    & 0.0   & 0.3175 & \underline{0.050} & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
+    $\Omega_b^-$    & 0.0   & 0.3175 & \underline{0.048} & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
+    $h^+$           & 0.0   & 0.3175 & 0.049 & \underline{0.6911} & 0.9624 & 0.834 & 0.834 & 500 \\ 
+    $h^-$           & 0.0   & 0.3175 & 0.049 & \underline{0.6511} & 0.9624 & 0.834 & 0.834 & 500 \\ 
+    $n_s^+$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9824} & 0.834 & 0.834 & 500 \\ 
+    $n_s^-$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9424} & 0.834 & 0.834 & 500 \\ 
+    $\sigma_8^+$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.849} & \underline{0.849} & 500 \\ 
+    $\sigma_8^-$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.819} & \underline{0.819} & 500 \\[3pt]
     \hline
 \end{tabular} \label{tab:sims}
 \end{center}
@@ -646,13 +655,13 @@ F_{ij} = \frac{1}{2}~\mathrm{Tr} \Bigg[\bfi{C}^{-1} \left(\parti{\overline{B}_0}
 directly with $\bfi{C}$ and $\partial B_0/\partial \theta_i$ along each cosmological 
 parameter from the Quijote simulations. For $\Om$, $\Ob$, $h$, $n_s$, and $\sig$, 
 we estimate 
-\beq
+\beq \label{eq:dbkdt} 
 \frac{\partial \overline{B}_0}{\partial \theta_i} \approx \frac{\overline{B}_0(\theta_i^{+})-\overline{B}_0(\theta_i^{-})}{\theta_i^+ - \theta_i^-}. 
 \eeq
 Meanwhile, for $\smnu$, where the fiducial value is 0.0 eV and we cannot have 
 negative $\smnu$, we use the Quijote simulations at $\smnu^+$, $\smnu^{++}$, 
 $\smnu^{+++}=0.1, 0.2, 0.4$ eV (Table~\ref{tab:sims}) to estimate: 
-\beq
+\beq \label{eq:dbkdmnu} 
 \frac{\partial \overline{B}_0}{\partial \smnu} \approx \frac{-21\overline{B}_0(\smnu^{\rm fid}) + 
 32 \overline{B}_0(\smnu^{+}) - 12 \overline{B}_0(\smnu^{++}) + \overline{B}_0(\smnu^{+++})}{1.2}. 
 \eeq
@@ -660,8 +669,8 @@ By using these $N$-body simulations, instead of analytic methods (\emph{e.g.}
 perturbation theory), we exploit the accuracy of numerical simulations in the 
 nonlinear regime and rely on fewer assumptions and approximations. 
 \ch{something about quanity the information content of the bispectrum in the nonlinear regime unprecedented.} 
-We discuss subtleties of the bispectrum derivatives in Appendix~\ref{sec:deriv} and 
-discuss tests of convegence in Appendix~\ref{sec:converge}. 
+We discuss subtleties of the bispectrum derivatives in Appendix~\ref{sec:numerical} and 
+discuss tests of convegence in Appendix~\ref{sec:numerical}. 
 
 We present the constraints on $\smnu$ and other cosmological parameters 
 $\{\Om, \Ob, h, n_s, \sig\}$ derived from the redshift-space halo bispectrum 
@@ -768,7 +777,6 @@ It's a pleasure to thank
     and Benjamin D.~Wandelt
     for valuable discussions and comments. 
 
-
 \appendix
 
 \begin{figure}
@@ -782,28 +790,102 @@ It's a pleasure to thank
 \label{fig:real_vs_rsd}
 \end{center}
 \end{figure}
-\section{Redshift-space Bispectrum} 
+\section{Redshift-space Halo Bispectrum} 
+\ch{do we want to keep this section?} 
 
-\section{Fisher Forecast Derivatives} \label{sec:deriv}
-here's how we take derivatives
+\section{Fisher Forecasts using $N$-body simulations} \label{sec:numerical}
+The two key elements in calculating the Fisher matrices we use in our forecasts
+are the bispectrum covariance matrix ($\bfi{C}$; Figure~\ref{fig:bk_cov}) and 
+the derivatives of the bispectrum along the cosmological and nuisance parameters, 
+$\partial B_0/\partial \theta_i$ (Section~\ref{sec:forecasts}). We compute 
+both these elements directly using the $N$-body simulations of the Quijote suite 
+(Section~\ref{sec:hades}). This takes advantage of the $N$-body simulations and 
+allows us to accurately quantify the constraining power of the bispectrum that 
+come from the nonlinear regime. However, to trust our forecast, we must ensure that 
+both $\bfi{C}$ has converged and that the numerical calculated 
+$\partial B_0/\partial \theta_i$ do not introduce any biases. Below, we tests 
+the convergence of $\bfi{C}$ and $\partial B_0/\partial \theta_i$ and discuss
+some of the subtleties and caveats of numerically calculating $\partial B_0/\partial \theta_i$ 
+from the Quijote simulations. 
 
-\section{Testing Convergence} \label{sec:converge}
+To estimate $\bfi{C}$, we use 15,000 Quijote $N$-body simulations at the 
+fiducial cosmology. This is a \emph{significantly} larger number of simulations 
+than previous bispectrum analyses; however, we also consider a larger number
+of triangle configurations --- $1898$ triangles out to $k_{\rm max} = 0.5~h/{\rm Mpc}$. 
+For reference, the recent \cite{gil-marin2017} analysis used 2048 simulations 
+to estimate the covariance matrix of the bispectrum with $825$ configurations. 
+We, therefore, check the convergence of $\bfi{C}$ by varying $N_{\rm fid}$, 
+the number of simulations used to estimate $\bfi{C}$, and examining whether 
+this significantly impacts the Fisher parameter constraints. We present 
+$\sigma_\theta(N_{\rm fid})/\sigma_\theta(N_{\rm fid} = 15,000)$, the ratio of 
+the 1$\sigma$ Fisher constraint for $\theta = \Om$, $\Ob$, $h$, $n_s$, $\sig$, 
+and $\smnu$ calculated with $N_{\rm fid}$ over the constraint calculated with 
+$N_{\rm fid} = 15,000$, as a function of $N_{\rm fid}$ (Figure~\ref{fig:converge} 
+left panel). The 1$\sigma$ Fisher constraints on the parameters 
+vary by $<10\%$ for $N_{\rm fid} > 7000$; in fact, the constraints vary by 
+$<1\%$ for $N_{\rm fid} > 14,000$. Hence, we conclude that we have a sufficient 
+number of simulations to estimate the bispectrum $\bfi{C}$ and our forecasts 
+are robust to the convergence of $\bfi{C}$. 
+
+We estimate $\partial B_0/\partial \theta_i$ numerically using 13 sets of 
+$N_{\rm fp} = 500$ fixed paired simulations~(Table~\ref{tab:sims}). To check 
+the convergence of $\partial B_0/\partial \theta_i$ and its impact on our forecast 
+we present the ratio of the 1$\sigma$ Fisher constraint for $\theta$ calculated 
+using $N_{\rm fp}$ simulations over the constraint calculated with $N_{\rm fp} = 500$, 
+$\sigma_\theta(N_{\rm fp})/\sigma_\theta(N_{\rm fp} = 500)$, as a function of 
+$N_{\rm fp}$ (Figure~\ref{fig:converge} right panel). Unlike $\sigma_\theta(N_{\rm fid})$, 
+$\sigma_\theta(N_{\rm fp})$ depend significantly on $\theta$. For instance, 
+$\sigma_\theta$ for $\sig$ and $\Om$ vary by $< 10\%$ for $N_{\rm fp} > 300$ 
+and $< 2\%$ for $N_{\rm fp} > 450$. $\sigma_\theta$ for the other parameter 
+vary significantly more. Nonetheless, for $N_{\rm fp} > 400$ and $450$ they vary by 
+$< 10$ and $5\%$, respectively. Hence we conclude that the derivatives have 
+sufficiently converged and robust for our forecasts.
+
+For $\Om$, $\Ob$, $h$, $n_s$, $\sig$, and $M_{\rm lim}$ we estimate 
+$\partial B_0/\partial \theta_i$ using a centered difference approximation 
+(Eq.~\ref{eq:dbkdt}). However, for $\smnu$, where we cannot have values below 
+0.0 eV, we cannot estimate the derivative with the same method. If we use the 
+forward difference approximation, 
+\beq 
+\frac{\partial \overline{B}_0}{\partial \smnu} \approx \frac{\overline{B}_0(\smnu^{\rm fid}+\delta \smnu) - \overline{B}_0(\smnu^{\rm fid})}{\delta \smnu}, 
+\eeq
+the error goes as $\mathcal{O}(\delta \smnu)$. Instead, we use Eq.\ref{eq:dbkdmnu} 
+which provides a $\mathcal{O}(\delta \smnu^2)$ order approximation. In our 
+$\partial B_0/\partial \smnu$ approximation, we use the Quijote simulations at 
+$\smnu^{+}$, $\smnu^{++}$, and $\smnu^{+++}$. However, if we exclude the simulations
+at $\smnu^{+++}$, the $\sigma_{\smnu} = 0.112$ and $0.0238$ eV constraints for 
+$k_{\rm max} = 0.2$ and $0.5~h/{\rm Mpc}$ from Section~\ref{sec:forecasts} increase 
+to $\sigma_{\smnu} = 0.125$ and $0.0288$ eV. Constraints from the power spectrum 
+also increase so the relative improvement from the bispectrum remains roughly the 
+same.
+\ch{talk about how derivative at $\smnu = 0.0$~eV is larger?} 
+
+
 \begin{figure}
 \begin{center}
-    \includegraphics[width=0.5\textwidth]{figs/quijote_Fisher_nmocks_001_05.pdf}
-    \caption{}
-\label{fig:cov_converge}
+    \includegraphics[width=0.9\textwidth]{figs/quijote_Fisher_convergence_dmnu_fin_kmax05.pdf}
+    \caption{{\bf Left}: The ratio of the 1$\sigma$ Fisher constraint for $\theta=\Om$, 
+    $\Ob$, $h$, $n_s$, $\sig$, and $\smnu$ calculated using $N_{\rm fid}$ Quijote 
+    simulations over the constraint calculated with all 15,000 simulations, 
+    $\sigma_\theta(N_{\rm fid})/\sigma_\theta(N_{\rm fid} = 15,000)$, as a 
+    function of $N_{\rm fid}$. The $N_{\rm fid}$ simulations are used to estimate 
+    $\bfi{C}$ used to calculate the Fisher matrix~(Eq.~\ref{eq:fisher}). The Fisher
+    parameter constraints vary by $<10$ and $1\%$ for $N_{\rm fid} > 7000$ and 
+    $14,000$, respectively. 
+    {\bf Right}: The ratio of the 1$\sigma$ Fisher constraint for $\theta$ 
+    calculated using  $N_{\rm fp}$ simulations over the constraint calculated with 
+    all 500 fixed paired simulations, $\sigma_\theta(N_{\rm fp})/\sigma_\theta(N_{\rm fp} = 500)$, 
+    as a function of $N_{\rm fp}$. The $N_{\rm fp}$ fixed paired simulations are 
+    used to numerically estimate $\partial B_0/\partial \theta_i$ in Eq.~\ref{eq:fisher}. 
+    Although $\sigma_\theta(N_{\rm fp})/\sigma_\theta(N_{\rm fp} = 500)$ vary among 
+    the parameters, for $N_{\rm fp} > 400$ and $450$ they vary by $< 10$ and $5\%$, 
+    respectively. Hence, {\em we have a sufficient number of simulations to estimate 
+    $\bfi{C}$ and the derivatives of the bipsectrum and our forecasts are robust to 
+    their convergence.} 
+    }
+\label{fig:converge}
 \end{center}
 \end{figure}
-
-\begin{figure}
-\begin{center}
-    \includegraphics[width=0.5\textwidth]{figs/quijote_Fisher_dBk_nmocks_001_05.pdf} 
-    \caption{}
-\label{fig:dbk_converge}
-\end{center}
-\end{figure}
-
 \bibliographystyle{yahapj}
 \bibliography{emanu} 
 \end{document}
