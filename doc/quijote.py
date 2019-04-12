@@ -1709,6 +1709,87 @@ def quijote_FisherInfo(obs, kmax=0.5):
         fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
+##################################################################
+# forecasts at Mnu = 0.1 eV 
+##################################################################
+def Cov_gauss(Mnu=0.0, validate=False): 
+    ''' Get the Gaussian part of the bispectrum covariance matrix 
+    from the power spectrum using Eq. 19 of Sefusatti et al (2006) 
+    '''
+    if Mnu == 0.0:  
+        quij = Obvs.quijoteBk('fiducial', rsd=True)  
+    elif Mnu == 0.1:  
+        quij = Obvs.quijoteBk('Mnu_p', rsd=True)  
+    
+    kf = 2.*np.pi/1000.
+    i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3'] 
+    p0k1 = np.average(quij['p0k1'] + 1e9/quij['Nhalos'][:,None], axis=0)
+    p0k2 = np.average(quij['p0k2'] + 1e9/quij['Nhalos'][:,None], axis=0)
+    p0k3 = np.average(quij['p0k3'] + 1e9/quij['Nhalos'][:,None], axis=0)
+    counts = quij['counts'] 
+    C_B = np.identity(len(i_k)) / counts * (2.*np.pi)**3 / kf**3 * p0k1 * p0k2 * p0k3 
+
+    if validate:
+        bks = quij['b123'] + quij['b_sn']
+        _, _, _, C_fid = quijoteCov(rsd=True)
+                
+        # impose k limit 
+        klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
+        C_fid = C_fid[:,klim][klim,:]
+        C_B = C_B[:,klim][klim,:] 
+        
+        ijl = UT.ijl_order(i_k[klim], j_k[klim], l_k[klim], typ='GM') # order of triangles 
+        C_B = C_B[ijl,:][:,ijl]
+        C_fid = C_fid[ijl,:][:,ijl]
+    
+        print np.diag(C_fid)/np.diag(C_B)
+        return None
+    else: 
+        return i_k, j_k, l_k, C_B
+     
+
+def quijote_bkFisher_gaussCov(kmax=0.5, Mnu_fid=0.0, dmnu='fin'): 
+    ''' calculate fisher matrix for parameters ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu', 'Mmin']
+    with Gaussian B covariance  
+    '''
+    # read in full GAUSSIAN covariance matrix 
+    i_k, j_k, l_k, C_fid = Cov_gauss(Mnu=Mnu_fid)
+    #print np.diag(C_fid)[:10]
+        
+    klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
+
+    ndata = np.sum(klim) 
+    C_fid = C_fid[:,klim][klim,:]
+    C_inv = np.linalg.inv(C_fid) # invert the covariance 
+    
+    dobs_dt = [] 
+    for par in thetas: # calculate the derivative of Bk along all the thetas 
+        dobs_dti = quijote_dBk(par, rsd=rsd, dmnu=dmnu)
+        dobs_dt.append(dobs_dti[klim])
+    Fij = Forecast.Fij(dobs_dt, C_inv) 
+    return Fij 
+
+
+def quijote_bkForecast_gaussCov(kmax=0.5, Mnu_fid=0.0, dmnu='fin'):
+    ''' fisher forecast for quijote observables where a scaling factor of the
+    amplitude and halo Mmin are added as free parameters. This is the default 
+    set-up!
+    
+    :param kmax: (default: 0.5) 
+        kmax of the analysis 
+    '''
+    print thetas
+    # fisher matrix (Fij)
+    Fij     = quijote_bkFisher_gaussCov(kmax=kmax, Mnu_fid=Mnu_fid, dmnu=dmnu)   # w/ free Mmin 
+    Finv    = np.linalg.inv(Fij[4:6,4:6]) # invert fisher matrix 
+    if Mnu_fid == 0.0: 
+        _Fij     = quijote_Fisher_freeMmin('bk', kmax=kmax, rsd=True, dmnu=dmnu)   # w/ free Mmin 
+        _Finv   = np.linalg.inv(_Fij[4:6,4:6]) # invert fisher matrix 
+        print 'fiducial', np.sqrt(np.diag(_Finv))
+        print 'fiducial', np.sqrt(_Fij[5,5]**(-1))
+    print 'gauss C', np.sqrt(np.diag(Finv))
+    print 'gauss C', np.sqrt(Fij[5,5]**(-1))
+    return None
 
 ##################################################################
 # forecasts with fixed nbar 
@@ -3184,9 +3265,9 @@ if __name__=="__main__":
             quijote_pkCov(kmax=kmax, rsd=rsd) 
             quijote_bkCov(kmax=kmax, rsd=rsd) # condition number 1.73518e+08
             quijote_pkbkCov(kmax=kmax, rsd=rsd) # condition number 1.74388e+08
-        # deriatives 
 
-    quijote_dPdthetas(dmnu='fin')
+    # deriatives 
+    #quijote_dPdthetas(dmnu='fin')
     #quijote_dBdthetas(dmnu='fin')
     #for tt in ['s8', 'Mnu', 'Mmin']: 
     #    quijote_P_theta(tt)
@@ -3213,8 +3294,8 @@ if __name__=="__main__":
     
     # Mmin and scale factor b' are free parameters
     for kmax in [0.5]: 
-        print('kmax = %.2f' % kmax) 
-        quijote_Forecast_freeMmin('pk', kmax=kmax, rsd=True, dmnu='fin')
+        #print('kmax = %.2f' % kmax) 
+        #quijote_Forecast_freeMmin('pk', kmax=kmax, rsd=True, dmnu='fin')
         #quijote_Forecast_freeMmin('bk', kmax=kmax, rsd=True, dmnu='fin')
         #quijote_pbkForecast_freeMmin(kmax=kmax, rsd=True, dmnu='fin')
         continue 
@@ -3268,6 +3349,11 @@ if __name__=="__main__":
     #    quijote_Forecast_SNuncorr('bk', kmax=0.5, rsd=rsd, dmnu='fin')
     #quijote_nbars()
 
+    print '--- fiducial 0.0eV ---'
+    kmax = 0.1 
+    quijote_bkForecast_gaussCov(kmax=kmax, Mnu_fid=0.0, dmnu='fin')
+    print '--- fiducial 0.1eV ---'
+    quijote_bkForecast_gaussCov(kmax=kmax, Mnu_fid=0.1, dmnu='pp')
     # quijote pair fixed test  
     #quijote_pairfixed_test(kmax=0.5)
         
