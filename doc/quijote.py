@@ -1734,18 +1734,27 @@ def Cov_gauss(Mnu=0.0, validate=False):
         _, _, _, C_fid = quijoteCov(rsd=True)
                 
         # impose k limit 
+        kmax = 0.5
         klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
-        C_fid = C_fid[:,klim][klim,:]
-        C_B = C_B[:,klim][klim,:] 
-        
         ijl = UT.ijl_order(i_k[klim], j_k[klim], l_k[klim], typ='GM') # order of triangles 
-        C_B = C_B[ijl,:][:,ijl]
+
+        C_fid = C_fid[:,klim][klim,:]
+        _C_B = C_B[:,klim][klim,:] 
+        
+        _C_B = _C_B[ijl,:][:,ijl]
         C_fid = C_fid[ijl,:][:,ijl]
-    
-        print np.diag(C_fid)/np.diag(C_B)
-        return None
-    else: 
-        return i_k, j_k, l_k, C_B
+        fig = plt.figure(figsize=(10,5))
+        sub = fig.add_subplot(111)
+        sub.plot(range(np.sum(klim)), np.diag(_C_B)/np.diag(C_fid), c='C0')
+        sub.plot(range(np.sum(klim)), np.ones(np.sum(klim)), c='k', ls='--') 
+        sub.set_xlabel('configurations', fontsize=25) 
+        sub.set_xlim(0., np.sum(klim))
+        sub.set_ylabel('(Gaussian %.1f eV)/(Quijote 0.0 eV)' % Mnu, fontsize=25) 
+        sub.set_ylim(0., 1.2) 
+
+        ffig = os.path.join(UT.fig_dir(), 'Cov_Bk_gauss.%.1feV.png' % Mnu)
+        fig.savefig(ffig, bbox_inches='tight') 
+    return i_k, j_k, l_k, C_B
      
 
 def quijote_bkFisher_gaussCov(kmax=0.5, Mnu_fid=0.0, dmnu='fin'): 
@@ -3348,10 +3357,13 @@ if __name__=="__main__":
     #    quijote_Forecast_SNuncorr('pk', kmax=0.5, rsd=rsd, dmnu='fin')
     #    quijote_Forecast_SNuncorr('bk', kmax=0.5, rsd=rsd, dmnu='fin')
     #quijote_nbars()
+    Cov_gauss(Mnu=0.0, validate=True)
+    Cov_gauss(Mnu=0.1, validate=True)
 
     print '--- fiducial 0.0eV ---'
     kmax = 0.1 
     quijote_bkForecast_gaussCov(kmax=kmax, Mnu_fid=0.0, dmnu='fin')
+    quijote_bkForecast_gaussCov(kmax=kmax, Mnu_fid=0.0, dmnu='fin0')
     print '--- fiducial 0.1eV ---'
     quijote_bkForecast_gaussCov(kmax=kmax, Mnu_fid=0.1, dmnu='pp')
     # quijote pair fixed test  
