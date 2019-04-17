@@ -316,7 +316,7 @@ def quijote_dBk(theta, rsd=True, dmnu='fin', flag=None):
     return dBk
 
 
-def quijote_dPdthetas(dmnu='fin', flag=None):
+def quijote_dPdthetas(dmnu='fin', flag=None, ratio=False):
     ''' Compare the derivatives of the powerspectrum 
     '''
     # fiducial P0(k)  
@@ -337,6 +337,7 @@ def quijote_dPdthetas(dmnu='fin', flag=None):
 
     for tt, lbl in zip(_thetas, _theta_lbls): 
         dpdt = quijote_dPk(tt, rsd=True, dmnu=dmnu, flag=flag)
+        if ratio: dpdt = dpdt/pk_fid
         if dpdt[klim].min() < 0: 
             sub.plot(i_k[klim] * kf, np.abs(dpdt[klim]), ls='--', label='-'+lbl) 
         else: 
@@ -347,19 +348,20 @@ def quijote_dPdthetas(dmnu='fin', flag=None):
     sub.set_xscale('log') 
     sub.set_xlim(1.8e-2, 0.5) 
     sub.set_ylabel(r'$|{\rm d}P/d\theta|$', fontsize=25) 
-    sub.set_yscale('log') 
-    sub.set_ylim(1e2, 1e6) 
-    ffig = os.path.join(UT.fig_dir(), 'quijote_dPdthetas.%s%s.png' % (dmnu, [flag, ''][flag is None]))
+    if not ratio: 
+        sub.set_yscale('log') 
+        sub.set_ylim(1e2, 1e6) 
+    ffig = os.path.join(UT.fig_dir(), 'quijote_dPdthetas.%s%s%s.png' % (dmnu, [flag, ''][flag is None], ['', '.ratio'][ratio]))
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
 
-def quijote_dBdthetas(kmax=0.5, dmnu='fin', flag=None):
+def quijote_dBdthetas(kmax=0.5, dmnu='fin', flag=None, ratio=False):
     ''' Compare the derivatives of the bispectrum 
     '''
     # fiducial P0(k)  
     quij = Obvs.quijoteBk('fiducial', rsd=True, flag=flag)
-    pk_fid = np.average(quij['p0k1'], axis=0) 
+    bk_fid = np.average(quij['b123'], axis=0) 
     i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
     kf = 2.*np.pi/1000.
 
@@ -376,6 +378,7 @@ def quijote_dBdthetas(kmax=0.5, dmnu='fin', flag=None):
         _theta_lbls = theta_lbls + ['$b_1$']
     for tt, lbl in zip(_thetas, _theta_lbls): 
         dpdt = quijote_dBk(tt, rsd=True, dmnu=dmnu, flag=flag)
+        if ratio: dpdt = dpdt/bk_fid
         if dpdt[klim].mean() < 0: 
             sub.plot(range(np.sum(klim)), np.abs(dpdt[klim]), label='-'+lbl) 
         else: 
@@ -384,9 +387,13 @@ def quijote_dBdthetas(kmax=0.5, dmnu='fin', flag=None):
     sub.legend(loc='upper right', ncol=2, fontsize=15, frameon=True) 
     sub.set_xlabel('triangle configuration', fontsize=25) 
     sub.set_xlim(0, np.sum(klim)) 
-    sub.set_ylabel(r'$|{\rm d}B/d\theta|$', fontsize=25) 
-    sub.set_yscale('log') 
-    ffig = os.path.join(UT.fig_dir(), 'quijote_dBdthetas.%s%s.png' % (dmnu, [flag, ''][flag is None])) 
+    if not ratio: 
+        sub.set_ylabel(r'$|{\rm d}B/d\theta|$', fontsize=25) 
+        sub.set_yscale('log') 
+    else: 
+        sub.set_ylabel(r'$|{\rm d}B/d\theta|/B$', fontsize=25) 
+        sub.set_ylim(-0.9, 25) 
+    ffig = os.path.join(UT.fig_dir(), 'quijote_dBdthetas.%s%s%s.png' % (dmnu, [flag, ''][flag is None], ['', '.ratio'][ratio]))
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
@@ -3266,6 +3273,65 @@ def _quijote_Fishertest(kmax):
     return None 
 
 
+def _ChanBlot_SN(): 
+    ''' calculate SN as a function of kmax  using Eq. (47) in 
+    Chan & Blot (2017). 
+    '''
+    quij = Obvs.quijoteBk('fiducial') # fiducial 
+    k_f = 2.*np.pi/1000. 
+    i_k, l_k, j_k = quij['k1'], quij['k2'], quij['k3'] 
+    _, _iuniq = np.unique(i_k, return_index=True)
+    iuniq = np.zeros(len(i_k)).astype(bool) 
+    iuniq[_iuniq] = True
+    # get the signals
+    bk = np.average(quij['b123'], axis=0) 
+    pk = np.average(quij['p0k1'], axis=0) 
+    
+    # uncorrected for shot noise  
+    bksn = quij['b123'] + quij['b_sn']
+    pksn = quij['p0k1'] + 1e9 / quij['Nhalos'][:,None]
+
+    kmaxs = np.linspace(0.04, 0.7, 10) 
+    SN_B, SN_P = [], [] 
+    for kmax in kmaxs: 
+        # k limit 
+        bklim = ((i_k*k_f <= kmax) & (j_k*k_f <= kmax) & (l_k*k_f <= kmax)) 
+        pklim = (iuniq & (i_k*k_f <= kmax)) 
+
+        C_bk = np.cov(bksn[:,bklim].T) # calculate the B covariance
+        Ci_B = np.linalg.inv(C_bk) 
+        C_pk = np.cov(pksn[:,pklim].T) # calculate the P covariance  
+        Ci_P = np.linalg.inv(C_pk) 
+        
+        print np.matmul(Ci_B, bk[bklim]).shape 
+        print np.matmul(Ci_P, pk[pklim]).shape 
+        SN_B.append(np.sqrt(np.matmul(bk[bklim].T, np.matmul(Ci_B, bk[bklim]))))
+        SN_P.append(np.sqrt(np.matmul(pk[pklim].T, np.matmul(Ci_P, pk[pklim]))))
+
+    cb_p_kmax = np.array([0.04869675251658636, 0.06760829753919823, 0.07673614893618194, 0.08609937521846012, 0.10592537251772895, 0.11415633046188466, 0.1341219935405372, 0.14288939585111032, 0.1612501027337743, 0.17080477200597086, 0.18728370830175495, 0.19838096568365063, 0.21134890398366477, 0.22908676527677735, 0.25703957827688645, 0.3037386091946106, 0.3823842536581126, 0.44668359215096326, 0.5339492735741767, 0.6760829753919819, 0.8511380382023763, 0.9828788730000325, 1.1481536214968824]) 
+    cb_p_sn = np.array([9.554281212853747, 14.56687309222178, 16.512840354510395, 18.506604023110235, 21.462641346777612, 22.20928889966336, 24.054044983627143, 24.329804200374014, 25.176195307362626, 25.756751569612643, 25.756751569612643, 26.052030872682657, 25.756751569612643, 26.35069530242852, 26.35069530242852, 26.35069530242852, 26.35069530242852, 26.65278366645541, 26.35069530242852, 26.65278366645541, 26.65278366645541, 26.65278366645541, 27.2673896573547]) 
+
+    cb_b_kmax = np.array([0.03845917820453539, 0.05754399373371572, 0.07629568911615335, 0.09495109992021988, 0.11415633046188466, 0.1333521432163325, 0.15310874616820308, 0.17179083871575893, 0.19164610627353873, 0.21134890398366477, 0.2277718241857323, 0.24688801049062103, 0.26607250597988114, 0.2834653633489668, 0.3054921113215514, 0.325461783498046,  0.3487385841352186]) 
+    cb_b_sn = np.array([2.027359157379195,3.5440917014545286,5.1041190104348715,6.338408101544683,7.023193813563101,7.8711756484503095,8.33282150847736,8.922674486302233,9.233078642191177,9.445990941294742,9.886657856152153,10,10.230597298425085,10.347882416158368,10.707867049863955,10.707867049863955,10.830623660351296]) 
+
+    fig = plt.figure(figsize=(6,5)) 
+    sub = fig.add_subplot(111)
+    sub.plot(kmaxs, SN_B, c='k', label='B') 
+    sub.plot(cb_b_kmax, cb_b_sn, c='k', ls='--') 
+    sub.plot(kmaxs, SN_P, c='C0', label='P') 
+    sub.plot(cb_p_kmax, cb_p_sn, c='C0', ls='--', label='Chan and Blot 2017') 
+    sub.legend(loc='lower right', fontsize=15) 
+    sub.set_xlabel(r'$k_{\rm max}$ [$h$/Mpc]', fontsize=20) 
+    sub.set_xscale('log')
+    sub.set_xlim(3e-2, 2.) 
+    sub.set_ylabel(r'S/N', fontsize=20) 
+    sub.set_yscale('log') 
+    sub.set_ylim(0.5, 3e2) 
+    ffig = os.path.join(UT.fig_dir(), '_ChanBlot_SN.png')
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+
 if __name__=="__main__": 
     # covariance matrices
     for kmax in [0.5]: 
@@ -3276,8 +3342,10 @@ if __name__=="__main__":
             quijote_pkbkCov(kmax=kmax, rsd=rsd) # condition number 1.74388e+08
 
     # deriatives 
-    #quijote_dPdthetas(dmnu='fin')
-    #quijote_dBdthetas(dmnu='fin')
+    quijote_dPdthetas(dmnu='fin')
+    quijote_dPdthetas(dmnu='fin', ratio=True)
+    quijote_dBdthetas(dmnu='fin')
+    quijote_dBdthetas(dmnu='fin', ratio=True)
     #for tt in ['s8', 'Mnu', 'Mmin']: 
     #    quijote_P_theta(tt)
     #    quijote_B_theta(tt, kmax=0.5)
@@ -3357,15 +3425,19 @@ if __name__=="__main__":
     #    quijote_Forecast_SNuncorr('pk', kmax=0.5, rsd=rsd, dmnu='fin')
     #    quijote_Forecast_SNuncorr('bk', kmax=0.5, rsd=rsd, dmnu='fin')
     #quijote_nbars()
-    Cov_gauss(Mnu=0.0, validate=True)
-    Cov_gauss(Mnu=0.1, validate=True)
 
-    print '--- fiducial 0.0eV ---'
-    kmax = 0.1 
-    quijote_bkForecast_gaussCov(kmax=kmax, Mnu_fid=0.0, dmnu='fin')
-    quijote_bkForecast_gaussCov(kmax=kmax, Mnu_fid=0.0, dmnu='fin0')
-    print '--- fiducial 0.1eV ---'
-    quijote_bkForecast_gaussCov(kmax=kmax, Mnu_fid=0.1, dmnu='pp')
+    #_ChanBlot_SN()
+
+    # gaussian covariance at 0.1 tests
+    #Cov_gauss(Mnu=0.0, validate=True)
+    #Cov_gauss(Mnu=0.1, validate=True)
+
+    #print '--- fiducial 0.0eV ---'
+    #kmax = 0.1 
+    #quijote_bkForecast_gaussCov(kmax=kmax, Mnu_fid=0.0, dmnu='fin')
+    #quijote_bkForecast_gaussCov(kmax=kmax, Mnu_fid=0.0, dmnu='fin0')
+    #print '--- fiducial 0.1eV ---'
+    #quijote_bkForecast_gaussCov(kmax=kmax, Mnu_fid=0.1, dmnu='pp')
     # quijote pair fixed test  
     #quijote_pairfixed_test(kmax=0.5)
         
