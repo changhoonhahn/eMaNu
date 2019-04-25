@@ -1,0 +1,11 @@
+import numpy as np
+import sys,os
+
+
+k, Pk0 = np.loadtxt('0.00eV.txt',  unpack=True)
+k, Pk1 = np.loadtxt('0.025eV.txt', unpack=True)
+k, Pk2 = np.loadtxt('0.050eV.txt', unpack=True)
+k, Pk3 = np.loadtxt('0.075eV.txt', unpack=True)
+k, Pk4 = np.loadtxt('0.100eV.txt', unpack=True)
+k, Pk5 = np.loadtxt('0.125eV.txt', unpack=True)
+
