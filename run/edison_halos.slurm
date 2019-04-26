@@ -18,7 +18,7 @@ source activate nbdkt
 #   srun -n 1 -c 24 python /global/homes/c/chahah/projects/eMaNu/run/halos.py mneut 24 $mneut 1 100 4
 #done 
 
-for sig8 in 0.818 0.807 0.798 0.822; do  
+for sig8 in 0.822 0.818 0.807 0.798; do  
     echo " --- sigma8_c="$sig8" --- " 
     srun -n 1 -c 24 python /global/homes/c/chahah/projects/eMaNu/run/halos.py sig8 24 $sig8 1 100 4
 done 

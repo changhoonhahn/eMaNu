@@ -89,6 +89,43 @@ def quijote_hdf5(subdir):
     return None 
 
 
+def quijote_Pk_hdf5(subdir): 
+    ''' write out quijote powerspectrum transferred from cca server to hdf5 
+    file for fast and easier access in the future. 
+
+    :param subdir: 
+        name of subdirectory which also describes the run.
+    '''
+    dir_quij = os.path.join(UT.dat_dir(), 'quijote', 'bispectra', 'powerspectra', subdir) 
+    fpks = os.listdir(dir_quij) 
+    npk = len(fpks) 
+    print('%i bispectrum files in /%s' % (npk, subdir))  
+    
+    # check the number of bispectrum
+    if subdir == 'fiducial': assert npk == 15000, "not the right number of files"
+    elif 'Mmin' in subdir: assert npk == 1000, "not the right number of files" 
+    else: assert npk == 500, "not the right number of files"
+    
+    # load in all the files 
+    for i, fpk in enumerate(fpks):
+        k, _p0k, _p_sn, cnts = np.loadtxt(
+                os.path.join(dir_quij, fpk), unpack=True, usecols=range(4)) 
+        if i == 0: 
+            p0k = np.zeros((npk, len(k))) # monopole
+            psn = np.zeros(npk)           # shot noise 
+        p0k[i,:] = _p0k
+        psn[i] = _p_sn[0] 
+
+    # save to hdf5 file 
+    f = h5py.File(os.path.join(UT.dat_dir(), 'quijote', 'bispectra', 'quijote_Pk_%s.hdf5' % subdir), 'w') 
+    f.create_dataset('k', data=k)
+    f.create_dataset('p0k', data=p0k) 
+    f.create_dataset('p_sn', data=psn) 
+    f.create_dataset('counts', data=cnts) 
+    f.close()
+    return None 
+
+
 def quijote_Cov_full(shotnoise=True): 
     ''' calculate the *full* covariance of the fiducial quijote bispectra
 
@@ -550,12 +587,16 @@ def quijote_avgBk_forEma():
 
 if __name__=="__main__": 
     # write to hdf5 
-    #for sub in ['Mnu_pp', 'Mnu_ppp', 'Ob_m', 'Ob_p', 'Om_m', 'Om_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p']: #['Mnu_p']:  
-    #    quijote_hdf5(sub)
+    for sub in ['Mmin_m', 'Mmin_p']: #['Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'Ob_m', 'Ob_p', 'Om_m', 'Om_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p']:
+        print('---%s---' % sub) 
+        quijote_Pk_hdf5(sub) 
+        continue 
+        quijote_hdf5(sub)
     #quijote_hdf5('fiducial') 
+    #quijote_Pk_hdf5('fiducial') 
     #quijote_Cov_full(shotnoise=True)   
     #quijote_Cov_full(shotnoise=False)   
-    quijote_avgBk_forEma()
+    #quijote_avgBk_forEma()
 
     # check along parameter axis
     #for par in ['Mnu', 'Ob', 'Om', 'h', 'ns', 's8']: 
