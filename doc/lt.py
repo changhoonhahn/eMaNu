@@ -36,7 +36,7 @@ def compare_dPmdMnu():
 
     fig = plt.figure(figsize=(8,8))
     sub = fig.add_subplot(111)
-    for n in [5]: 
+    for n in [3,4,5]: 
         dPm = dPmdMnu(k, npoints=n) 
         sub.plot(k, np.abs(dPm), lw=0.75, label='w/ %i points' % n) 
     sub.plot(k_paco, np.abs(dPm_paco), c='k', lw=0.75, ls='--', label="Paco's") 
@@ -48,7 +48,7 @@ def compare_dPmdMnu():
     sub.set_xlim(1e-3, 10.) 
     sub.set_ylabel(r'$|dP_m/d M_\nu|$', fontsize=20) 
     sub.set_yscale('log') 
-    sub.set_ylim(1e-1, 1e4) 
+    sub.set_ylim(1e-1, 1e5) 
     fig.savefig(os.path.join(UT.fig_dir(), 'dPmdMnu.class.png'), bbox_inches='tight') 
     return None 
 
@@ -359,6 +359,7 @@ def _Pm_Mnu_paco(mnu):
     k, pmk = np.loadtxt(fpaco, unpack=True, usecols=[0,1]) 
     return k ,pmk 
 
+
 if __name__=="__main__": 
     compare_Pm()
-    compare_dPmdMnu()
+    #compare_dPmdMnu()

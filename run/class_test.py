@@ -38,10 +38,10 @@ def _Pm():
                 #'A_s': 2.13e-9, 
                 'k_pivot': 0.05*h, 
                 'sigma8': 0.834,
-                'N_eff': 0.00641, # don't change this.
+                'N_eff': 2.0328, # don't change this.
                 'N_ncdm': 1, 
-                'deg_ncdm': 3.0, 
-                'm_ncdm': mnu/3., #eV
+                'deg_ncdm': 1.0, 
+                'm_ncdm': mnu, #eV
                 'P_k_max_1/Mpc':10.0, 
                 'z_pk': 0. 
                 }
@@ -51,9 +51,9 @@ def _Pm():
 
         # read in Paco's Pm(k) 
         if mnu in [0.025, 0.05, 0.075, 0.10, 0.125]: 
-            fpaco = os.path.join(UT.dat_dir(), 'CAMB_test', '%.3feV.txt' % mnu)
+            fpaco = os.path.join(UT.dat_dir(), 'paco', '%.3feV.txt' % mnu)
         elif mnu == 0.0: 
-            fpaco = os.path.join(UT.dat_dir(), 'CAMB_test', '0.00eV.txt')
+            fpaco = os.path.join(UT.dat_dir(), 'paco', '0.00eV.txt')
         k_paco, pmk_paco = np.loadtxt(fpaco, unpack=True, usecols=[0,1])
     
         pmk = np.array([cosmo.pk_lin(k*h, 0.)*h**3 for k in k_paco]) 
