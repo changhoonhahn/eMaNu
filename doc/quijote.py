@@ -82,21 +82,16 @@ def quijoteCov(rsd=True, flag=None):
     return k1, k2, k3, cov
 
 # covariance matrices 
-def quijote_pkCov(kmax=0.5, rsd=True, flag=None): 
+def quijote_pkCov(kmax=0.5): 
     ''' plot the covariance matrix of the quijote fiducial 
     bispectrum. 
     '''
     # read in P(k) 
-    quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag=flag) # theta_fiducial 
-    pks = quij['p0k1'] + 1e9 / quij['Nhalos'][:,None]   # shotnoise uncorrected P(k) 
-    i_k = quij['k1']
+    quij = Obvs.quijoteP0k('fiducial') # theta_fiducial 
+    pks = quij['p0k'] + quij['p_sn'][:,None] # shotnoise uncorrected P(k) 
      
     # impose k limit on powerspectrum 
-    kf = 2.*np.pi/1000. # fundmaentla mode
-    _, _iuniq = np.unique(i_k, return_index=True)
-    iuniq = np.zeros(len(i_k)).astype(bool) 
-    iuniq[_iuniq] = True
-    pklim = (iuniq & (i_k*kf <= kmax)) 
+    pklim = (quij['k'] <= kmax)
     pks = pks[:,pklim]
     
     C_pk = np.cov(pks.T) # covariance matrix 
@@ -109,8 +104,7 @@ def quijote_pkCov(kmax=0.5, rsd=True, flag=None):
     cm = sub.pcolormesh(C_pk, norm=LogNorm(vmin=1e3, vmax=1e8))
     cbar = fig.colorbar(cm, ax=sub) 
     sub.set_title(r'Quijote $P(k)$ Covariance', fontsize=25)
-    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_pkCov_kmax%s%s%s.png' % 
-            (str(kmax).replace('.', ''), ['_real', ''][rsd], [flag, ''][flag is None]))
+    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_pkCov_kmax%s.png' % str(kmax).replace('.', ''))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
@@ -145,28 +139,27 @@ def quijote_bkCov(kmax=0.5, rsd=True, flag=None):
     return None 
 
 
-def quijote_pkbkCov(kmax=0.5, rsd=True): 
+def quijote_pkbkCov(kmax=0.5): 
     ''' plot the covariance matrix of the quijote fiducial bispectrum and powerspectrum. 
     '''
-    # read in P(k) and B(k) 
-    quij = Obvs.quijoteBk('fiducial', rsd=rsd) # theta_fiducial 
+    # read in P(k) 
+    quij = Obvs.quijoteP0k('fiducial') # theta_fiducial 
+    pks = quij['p0k'] + quij['p_sn'][:,None] # shotnoise uncorrected P(k) 
+    # impose k limit on powerspectrum 
+    pklim = (quij['k'] <= kmax)
+    pks = pks[:,pklim]
+
+    # read in B(k) 
+    quij = Obvs.quijoteBk('fiducial', rsd=True) # theta_fiducial 
     bks = quij['b123'] + quij['b_sn']                   # shotnoise uncorrected B(k) 
-    pks = quij['p0k1'] + 1e9 / quij['Nhalos'][:,None]   # shotnoise uncorrected P(k) 
     i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
-     
     # impose k limit on bispectrum
     kf = 2.*np.pi/1000. # fundmaentla mode
     bklim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
     ijl = UT.ijl_order(i_k[bklim], j_k[bklim], l_k[bklim], typ='GM') # order of triangles 
     bks = bks[:,bklim][:,ijl] 
-    # impose k limit on powerspectrum 
-    _, _iuniq = np.unique(i_k, return_index=True)
-    iuniq = np.zeros(len(i_k)).astype(bool) 
-    iuniq[_iuniq] = True
-    pklim = (iuniq & (i_k*kf <= kmax)) 
-    pks = pks[:,pklim]
     
-    pbks = np.concatenate([fscale_pk*pks, bks], axis=1) # joint data vector
+    pbks = np.concatenate([fscale_pk * pks, bks], axis=1) # joint data vector
 
     C_pbk = np.cov(pbks.T) # covariance matrix 
     print('covariance matrix condition number = %.5e' % np.linalg.cond(C_pbk)) 
@@ -177,15 +170,14 @@ def quijote_pkbkCov(kmax=0.5, rsd=True):
     cm = sub.pcolormesh(C_pbk, norm=LogNorm(vmin=1e5, vmax=1e18))
     cbar = fig.colorbar(cm, ax=sub) 
     sub.set_title(r'Quijote $P(k)$ and $B(k_1, k_2, k_3)$ Covariance', fontsize=25)
-    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_pbkCov_kmax%s%s.png' % 
-            (str(kmax).replace('.', ''), ['_real', ''][rsd]))
+    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_pbkCov_kmax%s.png' % str(kmax).replace('.', ''))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
 
 # fisher derivatives
-def quijote_dPk(theta, rsd=True, dmnu='fin', flag=None):
-    ''' calculate d P(k)/d theta using the paired and fixed quijote simulations
+def quijote_dPk(theta, dmnu='fin'):
+    ''' calculate d P0(k)/d theta using the paired and fixed quijote simulations
     run on perturbed theta 
 
     :param theta: 
@@ -195,8 +187,8 @@ def quijote_dPk(theta, rsd=True, dmnu='fin', flag=None):
     if theta == 'Mnu': 
         Pks = [] # read in the bispectrum a Mnu+, Mnu++, Mnu+++
         for tt in ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']: 
-            quij = Obvs.quijoteBk(tt, rsd=rsd, flag=flag)
-            Pks.append(np.average(quij['p0k1'], axis=0))
+            quij = Obvs.quijoteP0k(tt)
+            Pks.append(np.average(quij['p0k'], axis=0))
         Pk_fid, Pk_p, Pk_pp, Pk_ppp = Pks 
 
         h_p, h_pp, h_ppp = quijote_thetas['Mnu']
@@ -212,38 +204,29 @@ def quijote_dPk(theta, rsd=True, dmnu='fin', flag=None):
         elif dmnu == 'fin': 
             dPk = (-21 * Pk_fid + 32 * Pk_p - 12 * Pk_pp + Pk_ppp)/(1.2) # finite difference coefficient
     elif theta == 'Mmin': 
-        Pks = [] # read in the bispectrum for fiducial, Mmin+, Mmin++ 
-        for tt in ['fiducial', 'Mmin_p', 'Mmin_pp']: 
-            quij = Obvs.quijoteBk(tt, rsd=rsd, flag=flag)
-            Pks.append(np.average(quij['p0k1'], axis=0))
-        Pk_fid, Pk_p, Pk_pp = Pks 
-    
-        # step sizes 
-        h_p = 0.1 # 3.3 x10^14 - 3.2 x10^14
-        h_pp = 0.2 # 3.3 x10^14 - 3.2 x10^14 
+        h = 0.2 # 3.3 - 3.1 x 10^13 Msun 
 
-        # take the derivatives 
-        if dmnu == 'p': 
-            dPk = (Pk_p - Pk_fid)/h_p 
-        elif dmnu in ['pp', 'ppp']: 
-            dPk = (Pk_pp - Pk_fid)/h_pp
-        else: 
-            dPk = (-15. * Pk_fid + 20. * Pk_p - 5. * Pk_pp) # finite difference coefficient
+        quij = Obvs.quijoteP0k('Mmin_m') 
+        Pk_m = np.average(quij['p0k'], axis=0) # Pk at Mmin- = 3.1x10^13 Msun
+        quij = Obvs.quijoteP0k('Mmin_p') 
+        Pk_p = np.average(quij['p0k'], axis=0) # Pk at Mmin- = 3.3x10^13 Msun
+        
+        dPk = (Pk_p - Pk_m) / h # take the derivatives 
     elif theta == 'Amp': 
         # amplitude of P(k) is a free parameter
-        quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag=flag)
-        dPk = np.average(quij['p0k1'], axis=0)
+        quij = Obvs.quijoteP0k('fiducial')
+        dPk = np.average(quij['p0k'], axis=0)
     elif theta == 'Asn' : 
         # constant shot noise term is a free parameter
-        quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag=flag)
-        dPk = np.ones(quij['p0k1'].shape[1]) 
+        quij = Obvs.quijoteP0k('fiducial')
+        dPk = np.ones(quij['p0k'].shape[1]) 
     else: 
         h = quijote_thetas[theta][1] - quijote_thetas[theta][0]
         
-        quij = Obvs.quijoteBk(theta+'_m', rsd=rsd, flag=flag)
-        Pk_m = np.average(quij['p0k1'], axis=0) # Covariance matrix tt- 
-        quij = Obvs.quijoteBk(theta+'_p', rsd=rsd, flag=flag)
-        Pk_p = np.average(quij['p0k1'], axis=0) # Covariance matrix tt+ 
+        quij = Obvs.quijoteP0k(theta+'_m')
+        Pk_m = np.average(quij['p0k'], axis=0) # Covariance matrix tt- 
+        quij = Obvs.quijoteP0k(theta+'_p')
+        Pk_p = np.average(quij['p0k'], axis=0) # Covariance matrix tt+ 
         
         dPk = (Pk_p - Pk_m) / h # take the derivatives 
     return dPk
@@ -277,21 +260,13 @@ def quijote_dBk(theta, rsd=True, dmnu='fin', flag=None):
         elif dmnu == 'fin': 
             dBk = (-21. * Bk_fid + 32. * Bk_p - 12. * Bk_pp + Bk_ppp)/1.2 # finite difference coefficient
     elif theta == 'Mmin': 
-        Bks = [] # read in the bispectrum at fiducial, Mmin+, Mmin++
-        for tt in ['fiducial', 'Mmin_p', 'Mmin_pp']: 
-            quij = Obvs.quijoteBk(tt, rsd=rsd, flag=flag)
-            Bks.append(np.average(quij['b123'], axis=0))
-        Bk_fid, Bk_p, Bk_pp = Bks 
-
-        # take the derivatives 
-        h_p = 0.1 # 3.3 x10^14 - 3.2 x10^14
-        h_pp = 0.2 # 3.3 x10^14 - 3.2 x10^14 
-        if dmnu == 'p': 
-            dBk = (Bk_p - Bk_fid) / h_p 
-        elif dmnu in ['pp', 'ppp']: 
-            dBk = (Bk_pp - Bk_fid) / h_pp
-        else: 
-            dBk = (-3. * Bk_fid + 4. * Bk_p - Bk_pp)/0.2 # finite difference coefficient
+        h = 0.2 # 3.3x10^13 - 3.1x10^13 Msun 
+        quij = Obvs.quijoteBk('Mmin_m')
+        Bk_m = np.average(quij['b123'], axis=0) # Covariance matrix tt- 
+        quij = Obvs.quijoteBk('Mmin_p')
+        Bk_p = np.average(quij['b123'], axis=0) # Covariance matrix tt+ 
+        
+        dBk = (Bk_p - Bk_m) / h # take the derivatives 
     elif theta == 'Amp': 
         # amplitude scaling is a free parameter
         quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag=flag)
@@ -316,32 +291,26 @@ def quijote_dBk(theta, rsd=True, dmnu='fin', flag=None):
     return dBk
 
 
-def quijote_dPdthetas(dmnu='fin', flag=None, ratio=False):
+def quijote_dPdthetas(dmnu='fin', ratio=False):
     ''' Compare the derivatives of the powerspectrum 
     '''
+    _thetas = thetas + ['Amp', 'Mmin', 'Asn'] 
+    _theta_lbls = theta_lbls + ['$b_1$', r'$M_{\rm min}$', r'$A_{\rm SN}$']
+
     # fiducial P0(k)  
-    quij = Obvs.quijoteBk('fiducial', rsd=True, flag=flag)
-    pk_fid = np.average(quij['p0k1'], axis=0) 
-    i_k = quij['k1']
-    kf = 2.*np.pi/1000.
-    klim = (kf * i_k < 0.5)
+    quij = Obvs.quijoteP0k('fiducial')
+    pk_fid = np.average(quij['p0k'], axis=0) 
+    klim = (quij['k'] < 0.5)
 
     fig = plt.figure(figsize=(7,8))
     sub = fig.add_subplot(111)
-    if flag is None:
-        _thetas = thetas + ['Amp', 'Mmin', 'Asn'] 
-        _theta_lbls = theta_lbls + ['$b_1$', r'$M_{\rm min}$', r'$A_{\rm SN}$']
-    else: 
-        _thetas = thetas + ['Amp'] 
-        _theta_lbls = theta_lbls + ['$b_1$']
-
     for tt, lbl in zip(_thetas, _theta_lbls): 
-        dpdt = quijote_dPk(tt, rsd=True, dmnu=dmnu, flag=flag)
+        dpdt = quijote_dPk(tt, dmnu=dmnu)
         if ratio: dpdt = dpdt/pk_fid
         if dpdt[klim].min() < 0: 
-            sub.plot(i_k[klim] * kf, np.abs(dpdt[klim]), ls='--', label='-'+lbl) 
+            sub.plot(quij['k'][klim], np.abs(dpdt[klim]), ls='--', label='-'+lbl) 
         else: 
-            sub.plot(i_k[klim] * kf, dpdt[klim], label=lbl) 
+            sub.plot(quij['k'][klim], dpdt[klim], label=lbl) 
 
     sub.legend(loc='upper right', ncol=2, fontsize=15) 
     sub.set_xlabel('$k$', fontsize=25) 
@@ -351,7 +320,7 @@ def quijote_dPdthetas(dmnu='fin', flag=None, ratio=False):
     if not ratio: 
         sub.set_yscale('log') 
         sub.set_ylim(1e2, 1e6) 
-    ffig = os.path.join(UT.fig_dir(), 'quijote_dPdthetas.%s%s%s.png' % (dmnu, [flag, ''][flag is None], ['', '.ratio'][ratio]))
+    ffig = os.path.join(UT.fig_dir(), 'quijote_dPdthetas.%s%s.png' % (dmnu, ['', '.ratio'][ratio]))
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
@@ -398,40 +367,34 @@ def quijote_dBdthetas(kmax=0.5, dmnu='fin', flag=None, ratio=False):
     return None
 
 
-def quijote_P_theta(theta, flag=None): 
+def quijote_P_theta(theta): 
     ''' Compare the quijote powerspectrum evaluated along theta axis  
     '''
     # fiducial P0(k)  
-    quij = Obvs.quijoteBk('fiducial', rsd=True, flag=flag)
-    pk_fid = np.average(quij['p0k1'], axis=0) 
-    i_k = quij['k1']
-    kf = 2.*np.pi/1000.
-    klim = (kf * i_k < 0.5)
+    quij = Obvs.quijoteP0k('fiducial')
+    pk_fid = np.average(quij['p0k'], axis=0) 
+    klim = (quij['k'] < 0.5)
 
     pks = [] 
     if theta == 'Mnu': 
         for tt in ['Mnu_p', 'Mnu_pp', 'Mnu_ppp']: 
-            _quij = Obvs.quijoteBk(tt, rsd=True, flag=flag)
-            pks.append(np.average(_quij['p0k1'], axis=0)) 
-    elif theta == 'Mmin': 
-        for tt in ['Mmin_p', 'Mmin_pp']: 
-            _quij = Obvs.quijoteBk(tt, rsd=True, flag=flag)
-            pks.append(np.average(_quij['p0k1'], axis=0)) 
+            _quij = Obvs.quijoteP0k(tt)
+            pks.append(np.average(_quij['p0k'], axis=0)) 
     else: 
         for tt in ['_m', '_p']:
-            _quij = Obvs.quijoteBk(theta+tt, rsd=True, flag=flag)
-            pks.append(np.average(_quij['p0k1'], axis=0)) 
+            _quij = Obvs.quijoteP0k(theta+tt) 
+            pks.append(np.average(_quij['p0k'], axis=0)) 
 
-    quijote_thetas['Mmin'] = [3.2, 3.3]
+    quijote_thetas['Mmin'] = [3.1, 3.3]
     _thetas = thetas + ['Mmin'] 
     _theta_lbls = theta_lbls + [r'$M_{\rm min}$']  
 
     fig = plt.figure(figsize=(7,8))
     sub = fig.add_subplot(111)
-    sub.plot(i_k[klim] * kf, np.ones(np.sum(klim)), c='k', ls='--')
+    sub.plot(quij['k'][klim], np.ones(np.sum(klim)), c='k', ls='--')
     for tt, pk in zip(quijote_thetas[theta], pks): 
         print('%s = %f' % (theta, tt))
-        sub.plot(i_k[klim] * kf, pk[klim]/pk_fid[klim], label='%s=%.2f' % 
+        sub.plot(quij['k'][klim], pk[klim]/pk_fid[klim], label='%s=%.2f' % 
                 (_theta_lbls[_thetas.index(theta)], tt))
 
     sub.legend(loc='upper right', ncol=2, fontsize=15) 
@@ -441,7 +404,7 @@ def quijote_P_theta(theta, flag=None):
     sub.set_ylabel(r'$P(k)/P_{\rm fid}$ along $\theta$', fontsize=25) 
     sub.set_ylim(0.9, 1.1) 
 
-    ffig = os.path.join(UT.fig_dir(), 'quijote_P_%s%s.png' % (theta, [flag, ''][flag is None]))
+    ffig = os.path.join(UT.fig_dir(), 'quijote_P_%s.png' % theta)
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
@@ -461,10 +424,6 @@ def quijote_B_theta(theta, kmax=0.5, flag=None):
     bks = [] 
     if theta == 'Mnu': 
         for tt in ['Mnu_p', 'Mnu_pp', 'Mnu_ppp']: 
-            _quij = Obvs.quijoteBk(tt, rsd=True, flag=flag)
-            bks.append(np.average(_quij['b123'], axis=0)) 
-    elif theta == 'Mmin': 
-        for tt in ['Mmin_p', 'Mmin_pp']: 
             _quij = Obvs.quijoteBk(tt, rsd=True, flag=flag)
             bks.append(np.average(_quij['b123'], axis=0)) 
     else: 
@@ -3335,20 +3294,19 @@ def _ChanBlot_SN():
 if __name__=="__main__": 
     # covariance matrices
     for kmax in [0.5]: 
-        for rsd in [True]:#, False]: 
-            continue 
-            quijote_pkCov(kmax=kmax, rsd=rsd) 
-            quijote_bkCov(kmax=kmax, rsd=rsd) # condition number 1.73518e+08
-            quijote_pkbkCov(kmax=kmax, rsd=rsd) # condition number 1.74388e+08
+        continue
+        quijote_pkCov(kmax=kmax)        # condition number 4.38605e+05
+        quijote_pkbkCov(kmax=kmax)      # condition number 1.74845e+08
+        quijote_bkCov(kmax=kmax, rsd=True) # condition number 1.73518e+08
 
     # deriatives 
-    quijote_dPdthetas(dmnu='fin')
-    quijote_dPdthetas(dmnu='fin', ratio=True)
+    #quijote_dPdthetas(dmnu='fin')
+    #quijote_dPdthetas(dmnu='fin', ratio=True)
     quijote_dBdthetas(dmnu='fin')
     quijote_dBdthetas(dmnu='fin', ratio=True)
-    #for tt in ['s8', 'Mnu', 'Mmin']: 
-    #    quijote_P_theta(tt)
-    #    quijote_B_theta(tt, kmax=0.5)
+    for tt in ['s8', 'Mnu', 'Mmin']: 
+        quijote_P_theta(tt)
+        quijote_B_theta(tt, kmax=0.5)
     #quijote_B_relative_error(kmax=0.5)
 
     # fisher forecasts 
@@ -3403,7 +3361,6 @@ if __name__=="__main__":
         quijote_Forecast_freeMminSN('bk', kmax=kmax, rsd=True, dmnu='fin')
    
     # fixed nbar test
-    #quijote_dPdthetas(dmnu='fin', flag='.fixed_nbar')
     #quijote_dBdthetas(dmnu='fin', flag='.fixed_nbar')
     #for tt in ['s8', 'Mnu']: 
     #    quijote_P_theta(tt, flag='.fixed_nbar')
