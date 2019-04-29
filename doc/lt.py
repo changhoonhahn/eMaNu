@@ -36,12 +36,12 @@ def compare_dPmdMnu():
 
     fig = plt.figure(figsize=(8,8))
     sub = fig.add_subplot(111)
-    for n in [3,4,5]: 
+    for n in [3,4,5, 'quijote']: 
         dPm = dPmdMnu(k, npoints=n) 
-        sub.plot(k, np.abs(dPm), lw=0.75, label='w/ %i points' % n) 
+        sub.plot(k, np.abs(dPm), lw=0.75, label='w/ %s points' % str(n)) 
     sub.plot(k_paco, np.abs(dPm_paco), c='k', lw=0.75, ls='--', label="Paco's") 
     sub.plot(k_ema, np.abs(dPm_ema), c='k', lw=0.75, ls=':', label="Ema's") 
-    sub.plot(k, np.abs(dPm_pema), c='k', lw=0.75, ls='-.', label="pseudo Ema's") 
+    #sub.plot(k, np.abs(dPm_pema), c='k', lw=0.75, ls='-.', label="pseudo Ema's") 
     sub.legend(loc='upper right', fontsize=15) 
     sub.set_xlabel('$k$', fontsize=20) 
     sub.set_xscale('log') 
@@ -126,30 +126,34 @@ def dPmdMnu(k, npoints=5):
     if npoints == 1: 
         mnus = [0.0, 0.025]
         coeffs = [-1., 1.]
-        fdenom = 1.
+        fdenom = 1. * 0.025
     elif npoints == 2:  
         mnus = [0.0, 0.025, 0.05]
         coeffs = [-3., 4., -1.]
-        fdenom = 2.
+        fdenom = 2. * 0.025
     elif npoints == 3:  
         mnus = [0.0, 0.025, 0.05, 0.075]
         coeffs = [-11., 18., -9., 2.]
-        fdenom = 6.
+        fdenom = 6. * 0.025
     elif npoints == 4:  
         mnus = [0.0, 0.025, 0.05, 0.075, 0.1]
         coeffs = [-25., 48., -36., 16., -3.]
-        fdenom = 12.
+        fdenom = 12.* 0.025
     elif npoints == 5:  
         mnus = [0.0, 0.025, 0.05, 0.075, 0.1, 0.125]
         coeffs = [-137., 300., -300., 200., -75., 12.]
-        fdenom = 60.
+        fdenom = 60.* 0.025
+    elif npoints == 'quijote': 
+        mnus = [0.0, 0.1, 0.2, 0.4]
+        coeffs = [-21., 32., -12., 1.]
+        fdenom = 1.2 
     else: 
         raise ValueError
     
     dPm = np.zeros(len(k))
     for mnu, coeff in zip(mnus, coeffs): 
         dPm += coeff * _Pm_Mnu(mnu, k) 
-    dPm /= fdenom * 0.025
+    dPm /= fdenom 
     return dPm 
 
 
