@@ -119,6 +119,40 @@ def compare_Pm():
     return None 
 
 
+def compare_dPdthetas():
+    ''' Plot the derivatives of Pm w.r.t. to the different parameters 
+    '''
+    thetas = ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu'] 
+    theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
+
+    k = np.logspace(-3., 1, 200) 
+    dpdts = []  
+    for tt in thetas:  
+        if tt != 'Mnu': 
+            dpdts.append(dPmdtheta(tt, k)) 
+        else: 
+            dpdts.append(dPmdMnu(k, npoints=5)) 
+
+    fig = plt.figure(figsize=(7,8))
+    sub = fig.add_subplot(111)
+
+    for dpdt, lbl in zip(dpdts, theta_lbls): 
+        if dpdt.min() < 0: 
+            sub.plot(k, np.abs(dpdt), ls=':', label=lbl) 
+        else: 
+            sub.plot(k, dpdt, label=lbl) 
+
+    sub.legend(loc='upper right', ncol=2, fontsize=15) 
+    sub.set_xlabel('$k$', fontsize=25) 
+    sub.set_xscale('log') 
+    sub.set_xlim(1.8e-2, 0.5) 
+    sub.set_ylabel(r'$|{\rm d}P_m/d\theta|$', fontsize=25) 
+    sub.set_yscale('log') 
+    ffig = os.path.join(UT.fig_dir(), 'dPmdthetas.class.png')
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
+
+
 def dPmdMnu(k, npoints=5): 
     '''calculate derivatives of the linear theory matter power spectrum  
     at 0.0 eV using npoints different points 
@@ -192,6 +226,66 @@ def _Pm_Mnu(mnu, karr):
                 'P_k_max_1/Mpc':20.0, 
                 'z_pk': 0.
                 }
+    cosmo = Class()
+    cosmo.set(params) 
+    cosmo.compute() 
+    pmk = np.array([cosmo.pk_lin(k*h, 0.)*h**3 for k in karr]) 
+    return pmk 
+
+
+def dPmdtheta(theta, k): 
+    ''' derivative of Pm w.r.t. to theta 
+    '''
+    h_dict = {'Ob': 0.002, 'Om': 0.02, 'h': 0.04, 'ns': 0.04, 's8': 0.03} 
+    h = h_dict[theta]
+    Pm_m = _Pm_theta('%s_m' % theta, k) 
+    Pm_p = _Pm_theta('%s_p' % theta, k) 
+    return (Pm_p - Pm_m)/h 
+
+
+def _Pm_theta(theta, karr): 
+    ''' linear theory matter power spectrum with fiducial parameters except theta for k 
+    '''
+    h = 0.6711 
+    assert 'Mnu' not in theta 
+    # fiducial LCDM 
+    params = {
+            'output': 'mPk', 
+            'Omega_cdm': 0.3175 - 0.049,
+            'Omega_b': 0.049, 
+            'Omega_k': 0.0, 
+            'h': h, 
+            'n_s': 0.9624, 
+            'k_pivot': 0.05, 
+            'sigma8': 0.834,
+            'N_eff': 3.046, 
+            'P_k_max_1/Mpc':20.0, 
+            'z_pk': 0.
+            }
+    if theta == 'Ob_m': 
+        params['Omega_b'] = 0.048
+    elif theta == 'Ob_p': 
+        params['Omega_b'] = 0.050
+    elif theta == 'Om_m': 
+        params['Omega_cdm'] = 0.3075 - 0.049
+    elif theta == 'Om_p': 
+        params['Omega_cdm'] = 0.3275 - 0.049
+    elif theta == 'h_m': 
+        params['h'] = 0.6911
+        h = 0.6911
+    elif theta == 'h_p':
+        params['h'] = 0.6511
+        h = 0.6511
+    elif theta == 'ns_m': 
+        params['n_s'] = 0.9424
+    elif theta == 'ns_p': 
+        params['n_s'] = 0.9824
+    elif theta == 's8_m': 
+        params['sigma8'] = 0.819
+    elif theta == 's8_p': 
+        params['sigma8'] = 0.849
+    else: 
+        raise ValueError
     cosmo = Class()
     cosmo.set(params) 
     cosmo.compute() 
@@ -365,5 +459,6 @@ def _Pm_Mnu_paco(mnu):
 
 
 if __name__=="__main__": 
-    compare_Pm()
+    #compare_Pm()
     #compare_dPmdMnu()
+    compare_dPdthetas() 
