@@ -40,10 +40,10 @@ def compare_dPmdMnu():
     for i_n, n in enumerate([3, 4, 5]): 
         k_ema, dPm_ema = _dPmdMnu_ema(npoints=n)
         sub.plot(k_ema, dPm_ema, lw=0.75, ls=':', label="Ema's %i pts" % n) 
-    for i_n, n in enumerate([1, 2, 3]):#, 4]): 
+    for i_n, n in enumerate([1, 2, 3, 4, 5, 'quijote']): 
         k_class, dPm_class = _dPmdMnu_class(npoints=n)
-        sub.plot(k_class, dPm_class, c='C%i' % i_n, lw=1, ls='-', label="hi prec. CLASS %i pts" % n) 
-    sub.plot(k_paco, dPm_paco, c='r', lw=0.75, ls='-', label="Paco's") 
+        sub.plot(k_class, dPm_class, c='C%i' % i_n, lw=1, ls='-', label="hi prec. CLASS %s pts" % str(n))
+    sub.plot(k_paco, dPm_paco, c='r', lw=0.75, ls='--', label="Paco's") 
     sub.legend(loc='lower left', fontsize=15) 
     sub.set_xlabel('$k$', fontsize=20) 
     sub.set_xscale('log') 
@@ -55,10 +55,46 @@ def compare_dPmdMnu():
     return None 
 
 
+def compare_dPmdMnu_0p1eV(): 
+    ''' compare the d P_m(k) / d Mnu at 0.1eV among the various calculations.
+    finite differences
+    '''
+    fig = plt.figure(figsize=(8,8))
+    sub = fig.add_subplot(111)
+    # ema's derivatve
+    _, Pm_ema_m =_Pm_Mnu_ema(0.075) 
+    k, Pm_ema_p =_Pm_Mnu_ema(0.125) 
+    dPm_ema = (Pm_ema_p - Pm_ema_m)/0.05
+    sub.plot(k, dPm_ema, lw=1, ls=':', label="Ema's") 
+    # paco's derivative
+    _, Pm_paco_m =_Pm_Mnu_paco(0.075) 
+    k, Pm_paco_p =_Pm_Mnu_paco(0.125) 
+    dPm_paco = (Pm_paco_p - Pm_paco_m)/0.05
+    sub.plot(k, dPm_paco, lw=1, ls='--', label="Paco's") 
+    # class derivative
+    _, Pm_class_m = _Pm_Mnu_class(0.075) 
+    k, Pm_class_p = _Pm_Mnu_class(0.125) 
+    dPm_class = (Pm_class_p - Pm_class_m)/0.05
+    sub.plot(k, dPm_class, lw=1, ls='-', label="CLASS (0.075, 0.125)") 
+    # class derivative
+    _, Pm_class_m = _Pm_Mnu_class(0.0) 
+    k, Pm_class_p = _Pm_Mnu_class(0.2) 
+    dPm_class = (Pm_class_p - Pm_class_m)/0.2
+    sub.plot(k, dPm_class, lw=1, ls='-', label="CLASS (0.0, 0.2)") 
+    sub.legend(loc='lower left', fontsize=15) 
+    sub.set_xlabel('$k$', fontsize=20) 
+    sub.set_xscale('log') 
+    sub.set_xlim(1e-3, 10.) 
+    sub.set_ylabel(r'$dP_m/d M_\nu$ at 0.1eV', fontsize=20) 
+    sub.set_yscale('symlog') 
+    #sub.set_ylim(1e-1, 1e5) 
+    fig.savefig(os.path.join(UT.fig_dir(), 'dPmdMnu_0.1eV.class.png'), bbox_inches='tight') 
+    return None 
+
 def compare_Pm(): 
     ''' compare linear theory P_m(k) 
     '''
-    mnus = [0.0, 0.025, 0.05, 0.075]#, 0.1, 0.125]
+    mnus = [0.0, 0.025, 0.05, 0.075, 0.1, 0.125]
 
     fig = plt.figure(figsize=(8,8))
     sub = fig.add_subplot(111)
@@ -67,7 +103,7 @@ def compare_Pm():
         k_paco, Pm_paco = _Pm_Mnu_paco(mnu)
         k_class, Pm_class = _Pm_Mnu_class(mnu) 
         sub.plot(k_class, k_class * Pm_class * 0.6**i_nu, 
-                lw=0.5, c='k', ls='--', label=["CLASS hi prec.", None][bool(i_nu)]) 
+                lw=0.5, label=["CLASS hi prec.", None][bool(i_nu)]) 
         sub.plot(k_ema, k_ema * Pm_ema * 0.6**i_nu, 
                 lw=1, c='k', ls=':', label=["Ema's", None][bool(i_nu)]) 
         sub.plot(k_paco, k_paco * Pm_paco * 0.6**i_nu, 
@@ -267,23 +303,27 @@ def _dPmdMnu_class(npoints=5):
     if npoints == 1: 
         mnus = [0.0, 0.025]
         coeffs = [-1., 1.]
-        fdenom = 1.
+        fdenom = 1. * 0.025
     elif npoints == 2:  
         mnus = [0.0, 0.025, 0.05]
         coeffs = [-3., 4., -1.]
-        fdenom = 2.
+        fdenom = 2. * 0.025
     elif npoints == 3:  
         mnus = [0.0, 0.025, 0.05, 0.075]
         coeffs = [-11., 18., -9., 2.]
-        fdenom = 6.
+        fdenom = 6. * 0.025
     elif npoints == 4:  
         mnus = [0.0, 0.025, 0.05, 0.075, 0.1]
         coeffs = [-25., 48., -36., 16., -3.]
-        fdenom = 12.
+        fdenom = 12. * 0.025
     elif npoints == 5:  
         mnus = [0.0, 0.025, 0.05, 0.075, 0.1, 0.125]
         coeffs = [-137., 300., -300., 200., -75., 12.]
-        fdenom = 60.
+        fdenom = 60. * 0.025
+    elif npoints == 'quijote': 
+        mnus = [0.0, 0.1, 0.2, 0.4]
+        coeffs = [-21., 32., -12., 1.]
+        fdenom = 1.2 
     else: 
         raise ValueError
     
@@ -291,7 +331,7 @@ def _dPmdMnu_class(npoints=5):
         k, pmk = _Pm_Mnu_class(mnu) 
         if i == 0: dPm = np.zeros(len(k))
         dPm += coeff * pmk 
-    dPm /= fdenom * 0.025
+    dPm /= fdenom
     return k, dPm 
 
 
@@ -311,6 +351,10 @@ def _Pm_Mnu_class(mnu):
         fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p1eV_pk.dat')
     elif mnu == 0.125: 
         fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p125eV_pk.dat')
+    elif mnu == 0.2: 
+        fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p2eV_pk.dat')
+    elif mnu == 0.4: 
+        fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p4eV_pk.dat')
     k, pmk = np.loadtxt(fema, unpack=True, skiprows=4, usecols=[0,1]) 
     return k, pmk 
 
@@ -546,5 +590,6 @@ if __name__=="__main__":
     compare_Pm()
     compare_PmMnu_PmLCDM()
     compare_dPmdMnu()
+    compare_dPmdMnu_0p1eV()
     #compare_dPdthetas() 
     #CovP_gauss()
