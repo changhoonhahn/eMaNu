@@ -39,16 +39,16 @@ def compare_dPmdMnu():
     #    sub.plot(k, np.abs(dPm), lw=0.75, label='w/ %s points' % str(n)) 
     for i_n, n in enumerate([3, 4, 5]): 
         k_ema, dPm_ema = _dPmdMnu_ema(npoints=n)
-        sub.plot(k_ema, dPm_ema, lw=0.75, ls=':', label="Ema's %i point" % n) 
-    for i_n, n in enumerate([1, 2, 3, 4]): 
+        sub.plot(k_ema, dPm_ema, lw=0.75, ls=':', label="Ema's %i pts" % n) 
+    for i_n, n in enumerate([1, 2, 3]):#, 4]): 
         k_class, dPm_class = _dPmdMnu_class(npoints=n)
-        sub.plot(k_class, dPm_class, c='k', lw=0.75, ls='-', label=["hi prec. CLASS", None][bool(i_n)]) 
+        sub.plot(k_class, dPm_class, c='C%i' % i_n, lw=1, ls='-', label="hi prec. CLASS %i pts" % n) 
     sub.plot(k_paco, dPm_paco, c='r', lw=0.75, ls='-', label="Paco's") 
-    sub.legend(loc='upper right', fontsize=15) 
+    sub.legend(loc='lower left', fontsize=15) 
     sub.set_xlabel('$k$', fontsize=20) 
     sub.set_xscale('log') 
     sub.set_xlim(1e-3, 10.) 
-    sub.set_ylabel(r'$|dP_m/d M_\nu|$', fontsize=20) 
+    sub.set_ylabel(r'$dP_m/d M_\nu$', fontsize=20) 
     sub.set_yscale('symlog') 
     #sub.set_ylim(1e-1, 1e5) 
     fig.savefig(os.path.join(UT.fig_dir(), 'dPmdMnu.class.png'), bbox_inches='tight') 
@@ -58,7 +58,7 @@ def compare_dPmdMnu():
 def compare_Pm(): 
     ''' compare linear theory P_m(k) 
     '''
-    mnus = [0.0, 0.025]#, 0.05, 0.075, 0.1, 0.125]
+    mnus = [0.0, 0.025, 0.05, 0.075]#, 0.1, 0.125]
 
     fig = plt.figure(figsize=(8,8))
     sub = fig.add_subplot(111)
@@ -87,7 +87,6 @@ def compare_Pm():
         k_ema, Pm_ema = _Pm_Mnu_ema(mnu) 
         k_class, Pm_class = _Pm_Mnu_class(mnu) 
         _Pm_ema = np.interp(k_class, k_ema, Pm_ema) # ema's Pm
-        print _Pm_ema / Pm_class
         sub.plot(k_class, _Pm_ema / Pm_class, lw=1, c='C%i' % i_nu, label="Ema's %.3feV" % mnu) 
     sub.plot(k_class, np.ones(len(k_class)), lw=1, c='k')
     sub.legend(loc='upper right', fontsize=15) 
@@ -172,16 +171,12 @@ def compare_dPdthetas():
     return None
 
 
-def CovP_gauss(): 
-    ''' calculate the Gaussian covariance of the matter powerspectrum 
+def _PmFij(tt_i, tt_j): 
+    ''' calculate fisher matrix for Pm
     '''
-    kf = 2.*np.pi/1000.
-
-    _pk = Obvs.quijoteP0k('fiducial') 
-    karr, counts = _pk['k'], _pk['counts'] 
-    Pm = _Pm_theta('fiducial', karr)
-    C_P = 2. * np.identity(len(karr)) / counts * (2.*np.pi)**2 / kf**2 * Pm **2
-    print np.diag(C_P) 
+    # get d Pm(k) / d thetas
+    k_i, dpdtti = dPmdtheta_class(tt_i) 
+    k_j, dpdttj = dPmdtheta_class(tt_i) 
     return None 
 
 
@@ -550,6 +545,6 @@ def _Pm_Mnu_paco(mnu):
 if __name__=="__main__": 
     compare_Pm()
     compare_PmMnu_PmLCDM()
-    #compare_dPmdMnu()
+    compare_dPmdMnu()
     #compare_dPdthetas() 
     #CovP_gauss()
