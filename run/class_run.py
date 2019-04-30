@@ -27,8 +27,10 @@ def script_Pm_theta(theta):
         pass 
     elif theta == 'Ob_m': 
         params['Omega_b'] = 0.048
+        params['Omega_cdm'] = 0.3175 - 0.048
     elif theta == 'Ob_p': 
         params['Omega_b'] = 0.050
+        params['Omega_cdm'] = 0.3175 - 0.050
     elif theta == 'Om_m': 
         params['Omega_cdm'] = 0.3075 - 0.049
     elif theta == 'Om_p': 
