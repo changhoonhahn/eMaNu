@@ -8,6 +8,7 @@ import numpy as np
 from classy import Class
 # --- eMaNu --- 
 from emanu import util as UT
+from emanu import obvs as Obvs
 # --- plotting --- 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -31,24 +32,25 @@ def compare_dPmdMnu():
     k = np.logspace(-3., 1, 500) 
     # read in paco's calculations 
     k_paco, dPm_paco = np.loadtxt(os.path.join(UT.dat_dir(), 'paco', 'der_Pkmm_dMnu.txt'), unpack=True, usecols=[0,5]) 
-    k_ema, dPm_ema = _dPmdMnu_ema(npoints=5)
-    dPm_pema = _dPmdMnu_pema(k, npoints=5) 
-
     fig = plt.figure(figsize=(8,8))
     sub = fig.add_subplot(111)
-    for n in [3,4,5, 'quijote']: 
-        dPm = dPmdMnu(k, npoints=n) 
-        sub.plot(k, np.abs(dPm), lw=0.75, label='w/ %s points' % str(n)) 
-    sub.plot(k_paco, np.abs(dPm_paco), c='k', lw=0.75, ls='--', label="Paco's") 
-    sub.plot(k_ema, np.abs(dPm_ema), c='k', lw=0.75, ls=':', label="Ema's") 
-    #sub.plot(k, np.abs(dPm_pema), c='k', lw=0.75, ls='-.', label="pseudo Ema's") 
+    #for n in [3,4,5, 'quijote']: 
+    #    dPm = dPmdMnu(k, npoints=n) 
+    #    sub.plot(k, np.abs(dPm), lw=0.75, label='w/ %s points' % str(n)) 
+    for i_n, n in enumerate([3, 4, 5]): 
+        k_ema, dPm_ema = _dPmdMnu_ema(npoints=n)
+        sub.plot(k_ema, dPm_ema, lw=0.75, ls=':', label="Ema's %i point" % n) 
+    for i_n, n in enumerate([1, 2, 3, 4]): 
+        k_class, dPm_class = _dPmdMnu_class(npoints=n)
+        sub.plot(k_class, dPm_class, c='k', lw=0.75, ls='-', label=["hi prec. CLASS", None][bool(i_n)]) 
+    sub.plot(k_paco, dPm_paco, c='r', lw=0.75, ls='-', label="Paco's") 
     sub.legend(loc='upper right', fontsize=15) 
     sub.set_xlabel('$k$', fontsize=20) 
     sub.set_xscale('log') 
     sub.set_xlim(1e-3, 10.) 
     sub.set_ylabel(r'$|dP_m/d M_\nu|$', fontsize=20) 
-    sub.set_yscale('log') 
-    sub.set_ylim(1e-1, 1e5) 
+    sub.set_yscale('symlog') 
+    #sub.set_ylim(1e-1, 1e5) 
     fig.savefig(os.path.join(UT.fig_dir(), 'dPmdMnu.class.png'), bbox_inches='tight') 
     return None 
 
@@ -56,28 +58,20 @@ def compare_dPmdMnu():
 def compare_Pm(): 
     ''' compare linear theory P_m(k) 
     '''
-    k = np.logspace(-3., 1, 500) 
+    mnus = [0.0, 0.025]#, 0.05, 0.075, 0.1, 0.125]
 
     fig = plt.figure(figsize=(8,8))
     sub = fig.add_subplot(111)
-    Pms, Pms_ema, Pms_pema,Pms_paco = [], [], [], [] 
-    for i_nu, mnu in enumerate([0.0, 0.025, 0.05, 0.075, 0.1, 0.125]): 
-        k_ema, Pm_ema = _Pm_Mnu_ema(mnu) # ema's Pm
-        Pm_pema = _Pm_Mnu_pema(mnu, k) 
+    for i_nu, mnu in enumerate(mnus): 
+        k_ema, Pm_ema = _Pm_Mnu_ema(mnu) 
         k_paco, Pm_paco = _Pm_Mnu_paco(mnu)
-        Pm = _Pm_Mnu(mnu, k) 
-        sub.plot(k, k * Pm * 0.6**i_nu, 
-                lw=1, c='C%i' % i_nu, label='%.3feV' % mnu) 
+        k_class, Pm_class = _Pm_Mnu_class(mnu) 
+        sub.plot(k_class, k_class * Pm_class * 0.6**i_nu, 
+                lw=0.5, c='k', ls='--', label=["CLASS hi prec.", None][bool(i_nu)]) 
         sub.plot(k_ema, k_ema * Pm_ema * 0.6**i_nu, 
                 lw=1, c='k', ls=':', label=["Ema's", None][bool(i_nu)]) 
         sub.plot(k_paco, k_paco * Pm_paco * 0.6**i_nu, 
                 lw=0.5, c='k', ls='--', label=["Paco's", None][bool(i_nu)]) 
-
-        Pms.append(Pm) 
-        Pms_ema.append(Pm_ema) 
-        Pms_pema.append(Pm_pema) 
-        Pms_paco.append(Pm_paco) 
-
     sub.legend(loc='upper right', fontsize=15) 
     sub.set_xlabel('$k$', fontsize=20) 
     sub.set_xscale('log') 
@@ -89,33 +83,58 @@ def compare_Pm():
 
     fig = plt.figure(figsize=(8,8))
     sub = fig.add_subplot(211)
-    for i_nu, mnu in enumerate([0.0, 0.025, 0.05, 0.075, 0.1, 0.125]): 
-        Pm_ema = np.interp(k, k_ema, Pms_ema[i_nu]) # ema's Pm
-        Pm_pema = Pms_pema[i_nu] # ema's Pm
-        Pm = Pms[i_nu] 
-        sub.plot(k, Pm_ema / Pm, lw=1, c='C%i' % i_nu, label="Ema's %.3feV" % mnu) 
-        sub.plot(k, Pm_pema / Pm, lw=1, c='C%i' % i_nu, ls=':') 
-    sub.plot(k, np.ones(len(k)), lw=1, c='k')
+    for i_nu, mnu in enumerate(mnus): 
+        k_ema, Pm_ema = _Pm_Mnu_ema(mnu) 
+        k_class, Pm_class = _Pm_Mnu_class(mnu) 
+        _Pm_ema = np.interp(k_class, k_ema, Pm_ema) # ema's Pm
+        print _Pm_ema / Pm_class
+        sub.plot(k_class, _Pm_ema / Pm_class, lw=1, c='C%i' % i_nu, label="Ema's %.3feV" % mnu) 
+    sub.plot(k_class, np.ones(len(k_class)), lw=1, c='k')
     sub.legend(loc='upper right', fontsize=15) 
     sub.set_xscale('log') 
     sub.set_xlim(1e-3, 10.) 
-    sub.set_ylabel(r'$P_m(k)$ ratio', fontsize=20) 
     sub.set_ylim(0.98, 1.02) 
 
     sub = fig.add_subplot(212)
-    for i_nu, mnu in enumerate([0.0, 0.025, 0.05, 0.075, 0.1, 0.125]): 
-        Pm_paco = np.interp(k, k_paco, Pms_paco[i_nu]) # paco's Pm
-        Pm = Pms[i_nu] 
-        sub.plot(k, Pm_paco / Pm, 
+    for i_nu, mnu in enumerate(mnus): 
+        k_paco, Pm_paco = _Pm_Mnu_paco(mnu) 
+        k_class, Pm_class = _Pm_Mnu_class(mnu) 
+        _Pm_paco = np.interp(k_class, k_paco, Pm_paco) # ema's Pm
+        sub.plot(k_class, _Pm_paco / Pm_class, 
                 lw=1, c='C%i' % i_nu, label="Paco's %.3feV" % mnu) 
-    sub.plot(k, np.ones(len(k)), lw=1, c='k')
+    sub.plot(k_class, np.ones(len(k_class)), lw=1, c='k')
+    sub.legend(loc='upper right', fontsize=15) 
+    sub.set_xscale('log') 
+    sub.set_xlim(1e-3, 10.) 
+    sub.set_ylabel(r'$P_m(k)/P^{\rm CLASS~hi.prec.}_m$ ratio', fontsize=20) 
+    sub.set_ylim(0.98, 1.02) 
+    fig.savefig(os.path.join(UT.fig_dir(), 'Pm_Mnu.class.ratio.png'), bbox_inches='tight') 
+    return None 
+
+
+def compare_PmMnu_PmLCDM(): 
+    ''' compare (P_m(k) Mnu > 0)/(P_m(k) LCDM) 
+    '''
+    mnus = [0.025, 0.05, 0.075, 0.1, 0.125] 
+    k_fid, Pm_fid = _Pm_Mnu_class(0.) 
+    k_ema_fid, Pm_ema_fid = _Pm_Mnu_ema(0.) 
+
+    fig = plt.figure(figsize=(8,8))
+    sub = fig.add_subplot(111)
+    for i_nu, mnu in enumerate(mnus): 
+        k_ema, Pm_ema = _Pm_Mnu_ema(mnu) 
+        k_class, Pm_class = _Pm_Mnu_class(mnu) 
+        sub.plot(k_class, Pm_class / Pm_fid, 
+                lw=0.5, c='C%i' % i_nu, label=["CLASS hi prec.", None][bool(i_nu)]) 
+        sub.plot(k_ema, Pm_ema / Pm_ema_fid, 
+                lw=1, c='C%i' % i_nu, ls=':', label=["Ema's", None][bool(i_nu)]) 
     sub.legend(loc='upper right', fontsize=15) 
     sub.set_xlabel('$k$', fontsize=20) 
     sub.set_xscale('log') 
-    sub.set_xlim(1e-3, 10.) 
-    sub.set_ylabel(r'$P_m(k)$ ratio', fontsize=20) 
-    sub.set_ylim(0.98, 1.02) 
-    fig.savefig(os.path.join(UT.fig_dir(), 'Pm_Mnu.class.ratio.png'), bbox_inches='tight') 
+    sub.set_xlim(1e-6, 1.) 
+    #sub.set_yscale('log') 
+    sub.set_ylim(0.8, 1.2) 
+    fig.savefig(os.path.join(UT.fig_dir(), 'Pm_Mnu_Pm_LCDM.class.png'), bbox_inches='tight') 
     return None 
 
 
@@ -145,12 +164,25 @@ def compare_dPdthetas():
     sub.legend(loc='upper right', ncol=2, fontsize=15) 
     sub.set_xlabel('$k$', fontsize=25) 
     sub.set_xscale('log') 
-    sub.set_xlim(1.8e-2, 0.5) 
+    sub.set_xlim(1e-2, 1.) 
     sub.set_ylabel(r'$|{\rm d}P_m/d\theta|$', fontsize=25) 
     sub.set_yscale('log') 
     ffig = os.path.join(UT.fig_dir(), 'dPmdthetas.class.png')
     fig.savefig(ffig, bbox_inches='tight') 
     return None
+
+
+def CovP_gauss(): 
+    ''' calculate the Gaussian covariance of the matter powerspectrum 
+    '''
+    kf = 2.*np.pi/1000.
+
+    _pk = Obvs.quijoteP0k('fiducial') 
+    karr, counts = _pk['k'], _pk['counts'] 
+    Pm = _Pm_theta('fiducial', karr)
+    C_P = 2. * np.identity(len(karr)) / counts * (2.*np.pi)**2 / kf**2 * Pm **2
+    print np.diag(C_P) 
+    return None 
 
 
 def dPmdMnu(k, npoints=5): 
@@ -233,6 +265,61 @@ def _Pm_Mnu(mnu, karr):
     return pmk 
 
 
+def _dPmdMnu_class(npoints=5): 
+    '''calculate derivatives of the linear theory matter power spectrum  
+    at 0.0 eV using npoints different points with high precision CLASS outputs 
+    '''
+    if npoints == 1: 
+        mnus = [0.0, 0.025]
+        coeffs = [-1., 1.]
+        fdenom = 1.
+    elif npoints == 2:  
+        mnus = [0.0, 0.025, 0.05]
+        coeffs = [-3., 4., -1.]
+        fdenom = 2.
+    elif npoints == 3:  
+        mnus = [0.0, 0.025, 0.05, 0.075]
+        coeffs = [-11., 18., -9., 2.]
+        fdenom = 6.
+    elif npoints == 4:  
+        mnus = [0.0, 0.025, 0.05, 0.075, 0.1]
+        coeffs = [-25., 48., -36., 16., -3.]
+        fdenom = 12.
+    elif npoints == 5:  
+        mnus = [0.0, 0.025, 0.05, 0.075, 0.1, 0.125]
+        coeffs = [-137., 300., -300., 200., -75., 12.]
+        fdenom = 60.
+    else: 
+        raise ValueError
+    
+    for i, mnu, coeff in zip(range(len(mnus)), mnus, coeffs): 
+        k, pmk = _Pm_Mnu_class(mnu) 
+        if i == 0: dPm = np.zeros(len(k))
+        dPm += coeff * pmk 
+    dPm /= fdenom * 0.025
+    return k, dPm 
+
+
+def _Pm_Mnu_class(mnu): 
+    ''' linear theory matter power spectrum with fiducial parameters and input Mnu
+    high precision calculation from CLASS 
+    '''
+    if mnu == 0.0: 
+        fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0eV_pk.dat')
+    elif mnu == 0.025: 
+        fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p025eV_pk.dat')
+    elif mnu == 0.05: 
+        fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p05eV_pk.dat')
+    elif mnu == 0.075: 
+        fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p075eV_pk.dat')
+    elif mnu == 0.1: 
+        fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p1eV_pk.dat')
+    elif mnu == 0.125: 
+        fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p125eV_pk.dat')
+    k, pmk = np.loadtxt(fema, unpack=True, skiprows=4, usecols=[0,1]) 
+    return k, pmk 
+
+
 def dPmdtheta(theta, k): 
     ''' derivative of Pm w.r.t. to theta 
     '''
@@ -262,7 +349,9 @@ def _Pm_theta(theta, karr):
             'P_k_max_1/Mpc':20.0, 
             'z_pk': 0.
             }
-    if theta == 'Ob_m': 
+    if theta == 'fiducial': 
+        pass 
+    elif theta == 'Ob_m': 
         params['Omega_b'] = 0.048
     elif theta == 'Ob_p': 
         params['Omega_b'] = 0.050
@@ -459,6 +548,8 @@ def _Pm_Mnu_paco(mnu):
 
 
 if __name__=="__main__": 
-    #compare_Pm()
+    compare_Pm()
+    compare_PmMnu_PmLCDM()
     #compare_dPmdMnu()
-    compare_dPdthetas() 
+    #compare_dPdthetas() 
+    #CovP_gauss()
