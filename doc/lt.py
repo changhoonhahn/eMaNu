@@ -145,7 +145,7 @@ def compare_Pm():
     sub.set_ylim(0.98, 1.02) 
     
     sub = fig.add_subplot(313)
-    for i_nu, mnu in enumerate(mnus[:3]): 
+    for i_nu, mnu in enumerate(mnus): 
         Pm_paco = LT._Pm_Mnu(mnu, k_arr, flag='cb') 
         Pm_class= LT._Pm_Mnu(mnu, k_arr) 
         sub.plot(k_arr, Pm_paco / Pm_class, lw=1, c='C%i' % i_nu) 
@@ -246,29 +246,109 @@ def compare_dPmdns():
     return None 
 
 
+def compare_dlogPmcbdMnu(): 
+    ''' compare linear theory d P(k) / d theta 
+    '''
+    k_arr = np.logspace(-4, 1, 500)
+
+    dPm = LT.dPmdMnu(k_arr, log=True, npoints='0.1eV') 
+    dPcb = LT.dPmdMnu(k_arr, log=True, npoints='0.1eV', flag='cb') 
+    
+    dPm_ema = LT.dPmdMnu(k_arr, log=True, npoints='0.1eV', flag='ema') 
+    dPcb_ema = LT.dPmdMnu(k_arr, log=True, npoints='0.1eV', flag='ema_cb') 
+
+    fig = plt.figure(figsize=(8,4))
+    sub = fig.add_subplot(121)
+    sub.plot([1e-4, 1.], [0, 0], c='k', ls='--') 
+    sub.plot(k_arr, dPm, c='C0', label='m') 
+    sub.plot(k_arr, dPcb, c='C1', label='cb') 
+    sub.plot(k_arr, dPm_ema, c='C0', ls=':', label='ema m') 
+    sub.plot(k_arr, dPcb_ema, c='C1', ls=':', label='ema cb') 
+    sub.legend(loc='best', fontsize=15) 
+    sub.set_xlabel('$k$', fontsize=20) 
+    sub.set_xscale('log') 
+    sub.set_xlim(1e-4, 1.) 
+    sub.set_ylabel(r'$d\log P/d M_\nu$ at 0.1eV', fontsize=20) 
+    sub = fig.add_subplot(122)
+    sub.plot([1e-4, 1.], [0, 0], c='k', ls='--') 
+    sub.plot(k_arr, k_arr**2*dPm**2, c='C0', label='m') 
+    sub.plot(k_arr, k_arr**2*dPcb**2, c='C1', label='cb') 
+    sub.plot(k_arr, k_arr**2*dPm_ema**2, c='C0', ls=':', label='ema m') 
+    sub.plot(k_arr, k_arr**2*dPcb_ema**2, c='C1', ls=':', label='ema cb') 
+    sub.set_xlabel('$k$', fontsize=20) 
+    sub.set_xscale('log') 
+    sub.set_xlim(1e-4, 1.) 
+    sub.set_ylabel(r'$k^2(d\log P/d M_\nu)^2$ at 0.1eV', fontsize=20) 
+    sub.set_yscale('log') 
+    fig.subplots_adjust(wspace=0.4) 
+    fig.savefig(os.path.join(UT.fig_dir(), 'dlogPmcbdMnu.class.png'), bbox_inches='tight') 
+    return None 
+
+
 def compare_PmMnu_PmLCDM(): 
     ''' compare (P_m(k) Mnu > 0)/(P_m(k) LCDM) 
     '''
     mnus = [0.025, 0.05, 0.075, 0.1, 0.125] 
-    k_arr = np.logspace(-6, 1, 700)
+    k_arr = np.logspace(-5, 1, 700)
 
+    #Pm_paco_fid = LT._Pm_Mnu(0., k_arr, flag='paco') 
     Pm_ema_fid = LT._Pm_Mnu(0., k_arr, flag='ema') 
     Pm_fid = LT._Pm_Mnu(0., k_arr) 
 
-    fig = plt.figure(figsize=(8,8))
-    sub = fig.add_subplot(111)
+    fig = plt.figure(figsize=(10,5))
+    sub = fig.add_subplot(121)
     for i_nu, mnu in enumerate(mnus): 
         Pm_ema      = LT._Pm_Mnu(mnu, k_arr, flag='ema') 
+        #Pm_paco     = LT._Pm_Mnu(mnu, k_arr, flag='paco') 
         Pm_class    = LT._Pm_Mnu(mnu, k_arr) 
-        sub.plot(k_arr, Pm_class / Pm_fid, 
-                lw=0.5, c='C%i' % i_nu, label=["CLASS hi prec.", None][bool(i_nu)]) 
-        sub.plot(k_arr, Pm_ema / Pm_ema_fid, 
+
+        f_ema   = np.median((Pm_ema / Pm_ema_fid)[:10])
+        f_class = np.median((Pm_class / Pm_fid)[:10])
+        sub.plot(k_arr, Pm_class / Pm_fid / f_class, 
+                lw=0.5, c='C%i' % i_nu, label=["CLASS", None][bool(i_nu)]) 
+        #sub.plot(k_arr, Pm_paco / Pm_paco_fid, 
+        #        lw=1, c='C%i' % i_nu, ls='--', label=["Paco's", None][bool(i_nu)]) 
+        sub.plot(k_arr, Pm_ema / Pm_ema_fid /f_ema, 
                 lw=1, c='C%i' % i_nu, ls=':', label=["Ema's", None][bool(i_nu)]) 
+        #if mnu == 0.125: 
+        #    print mnu / 93.14 / 0.6711**2 / 0.3175 * 8.
+        #    print (np.mean((Pm_class / Pm_fid)[:10]) - np.mean((Pm_class / Pm_fid)[-10:]))
+        #    print (np.mean((Pm_ema / Pm_ema_fid)[:5]) - np.mean((Pm_ema / Pm_ema_fid)[-5:]))
+        
+        #sub.plot([1e-6, 1e1], [np.median((Pm_class / Pm_fid)[:10]), np.median((Pm_class / Pm_fid)[:10])], c='k', ls=':') 
+        fnu = mnu / (93.14 * 0.6711**2) / 0.3175
+        #sub.plot([1e-6, 1e1], [1. - 8.*fnu, 1. - 8.*fnu], c='k', ls=':', lw=0.5) 
+        sub.plot([1e-6, 1e1], [0.915, 0.915]) 
+        sub.plot([1e-6, 1e1], [0.915, 0.915]) 
+        sub.plot([1e-6, 1e1], [0.915, 0.915]) 
+        sub.plot([1e-6, 1e1], [0.915, 0.915]) 
+
     sub.legend(loc='upper right', fontsize=15) 
     sub.set_xlabel('$k$', fontsize=20) 
     sub.set_xscale('log') 
-    sub.set_xlim(1e-6, 1.) 
-    sub.set_ylim(0.8, 1.2) 
+    sub.set_xlim(1e-5, 10.) 
+    sub.set_ylim(0.9, 1.02) 
+    
+    Pm_ema_fid = LT._Pm_Mnu(0., k_arr, flag='ema_cb') 
+    Pm_fid = LT._Pm_Mnu(0., k_arr, flag='cb') 
+    sub = fig.add_subplot(122)
+    for i_nu, mnu in enumerate(mnus): 
+        Pm_ema      = LT._Pm_Mnu(mnu, k_arr, flag='ema_cb') 
+        Pm_class    = LT._Pm_Mnu(mnu, k_arr, flag='cb') 
+        
+        f_ema   = np.median((Pm_ema / Pm_ema_fid)[:10])
+        f_class = np.median((Pm_class / Pm_fid)[:10])
+
+        sub.plot(k_arr, Pm_class / Pm_fid / f_class, lw=0.5, c='C%i' % i_nu) 
+        sub.plot(k_arr, Pm_ema / Pm_ema_fid / f_ema, lw=1, c='C%i' % i_nu, ls=':') 
+
+        #sub.plot([1e-6, 1e1], [np.median((Pm_class / Pm_fid)[:10]), np.median((Pm_class / Pm_fid)[:10])], c='k', ls=':') 
+        fnu = mnu / 93.14 / 0.6711**2 / 0.3175
+        sub.plot([1e-6, 1e1], [1. - 6.*fnu, 1. - 6.*fnu], c='k', ls=':', lw=0.5) 
+    sub.set_xlabel('$k$', fontsize=20) 
+    sub.set_xscale('log') 
+    sub.set_xlim(1e-5, 10.) 
+    sub.set_ylim(0.9, 1.02) 
     fig.savefig(os.path.join(UT.fig_dir(), 'Pm_Mnu_Pm_LCDM.class.png'), bbox_inches='tight') 
     return None 
 
@@ -310,19 +390,23 @@ def LT_sigma_kmax(npoints=5, flag=None):
     thetas = ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu']
     theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
 
-    kmaxs = np.pi/500. * 3 * np.arange(1, 28) 
+    kmaxs = np.pi/500. * 3 * np.array([1, 5, 10, 15, 20, 28])# np.arange(1, 28) 
     sigma_thetas = []
+    sigma_ii = [] 
     for i_k, kmax in enumerate(kmaxs): 
         Fij =  LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints=npoints, flag=flag) 
         sigma_thetas.append(np.sqrt(np.diag(np.linalg.inv(Fij))))
-        print sigma_thetas[-1]
+        sigma_ii.append(1./np.sqrt(np.diag(Fij)))
+        #print sigma_thetas[-1]
     sigma_thetas = np.array(sigma_thetas)
-    sigma_theta_lims = [(1e-2, 10.), (1e-3, 10.), (1e-2, 50), (1e-2, 50.), (1e-2, 50.), (1e-2, 50.)]
+    sigma_ii = np.array(sigma_ii)
+    sigma_theta_lims = [(1e-3, 10.), (1e-3, 10.), (1e-3, 50), (1e-3, 50.), (1e-3, 50.), (1e-3, 50.)]
 
     fig = plt.figure(figsize=(15,8))
     for i, theta in enumerate(thetas): 
         sub = fig.add_subplot(2,len(thetas)/2,i+1) 
         sub.plot(kmaxs, sigma_thetas[:,i], c='k', ls='-') 
+        sub.plot(kmaxs, sigma_ii[:,i], c='k', ls=':') 
         sub.set_xlim(0.005, 0.5)
         sub.text(0.9, 0.9, theta_lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=30)
         sub.set_ylim(sigma_theta_lims[i]) 
@@ -335,11 +419,13 @@ def LT_sigma_kmax(npoints=5, flag=None):
     bkgd.set_ylabel(r'$1\sigma$ constraint on $\theta$', labelpad=10, fontsize=28) 
 
     fig.subplots_adjust(wspace=0.2, hspace=0.15) 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 'LT_sigma_kmax.png')
+    if flag is not None: 
+        ffig = os.path.join(UT.doc_dir(), 'figs', 'LT_sigma_kmax_%s.png' % flag)
+    else: 
+        ffig = os.path.join(UT.doc_dir(), 'figs', 'LT_sigma_kmax.png')
     fig.savefig(ffig, bbox_inches='tight') 
-
-    fdat = os.path.join(UT.dat_dir(), 'LT_sigma_kmax.dat')
-    np.savetxt(fdat, sigma_thetas, delimiter='\t') 
+    #fdat = os.path.join(UT.dat_dir(), 'LT_sigma_kmax.dat')
+    #np.savetxt(fdat, sigma_thetas, delimiter='\t') 
     return None
 
 
@@ -381,10 +467,64 @@ def LT_s8Mnu_kmax(npoints=5):
     return None
 
 
+def LT_sigma_kmax_cb_m():
+    ''' 
+    '''
+    thetas = ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu']
+    theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
+
+    kmaxs = np.pi/500. * 3 * np.array([1, 5, 10, 15, 20, 28])# np.arange(1, 28) 
+    sigma_m, sigma_cb = [], [] 
+    sigma_ii_m, sigma_ii_cb = [], [] 
+    for i_k, kmax in enumerate(kmaxs): 
+        Fij =  LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints='0.1eV', flag='ema') 
+        sigma_m.append(np.sqrt(np.diag(np.linalg.inv(Fij))))
+        Fij =  LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints='0.1eV', flag='ema_cb') 
+        sigma_cb.append(np.sqrt(np.diag(np.linalg.inv(Fij))))
+
+        Fij =  LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints='0.1eV', flag='ema') 
+        sigma_ii_m.append(1./np.sqrt(np.diag(Fij)))
+        Fij =  LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints='0.1eV', flag='ema_cb') 
+        sigma_ii_cb.append(1./np.sqrt(np.diag(Fij)))
+    sigma_m = np.array(sigma_m)
+    sigma_cb = np.array(sigma_cb)
+    sigma_ii_m = np.array(sigma_ii_m)
+    sigma_ii_cb = np.array(sigma_ii_cb)
+    sigma_theta_lims = [(1e-3, 10.), (1e-3, 10.), (1e-3, 50), (1e-3, 50.), (1e-3, 50.), (1e-3, 50.)]
+
+    fig = plt.figure(figsize=(15,8))
+    for i, theta in enumerate(thetas): 
+        sub = fig.add_subplot(2,len(thetas)/2,i+1) 
+        sub.plot(kmaxs, sigma_m[:,i], c='k', ls='-') 
+        sub.plot(kmaxs, sigma_cb[:,i], c='k', ls=':') 
+
+        sub.plot(kmaxs, sigma_ii_m[:,i], c='C1', ls='-') 
+        sub.plot(kmaxs, sigma_ii_cb[:,i], c='C1', ls=':') 
+        sub.set_xlim(0.005, 0.5)
+        sub.text(0.9, 0.9, theta_lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=30)
+        sub.set_ylim(sigma_theta_lims[i]) 
+        sub.set_yscale('log') 
+        if i == 0: 
+            sub.text(0.5, 0.35, r"$P^{\rm lin}_m$", ha='left', va='bottom', color='k', transform=sub.transAxes, fontsize=24)
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    bkgd.set_xlabel(r'$k_{\rm max}$', fontsize=28) 
+    bkgd.set_ylabel(r'$1\sigma$ constraint on $\theta$', labelpad=10, fontsize=28) 
+
+    fig.subplots_adjust(wspace=0.2, hspace=0.15) 
+    ffig = os.path.join(UT.doc_dir(), 'figs', 'LT_sigma_kmax_cb_m.png')
+    fig.savefig(ffig, bbox_inches='tight') 
+    #fdat = os.path.join(UT.dat_dir(), 'LT_sigma_kmax.dat')
+    #np.savetxt(fdat, sigma_thetas, delimiter='\t') 
+    return None
+
+
 if __name__=="__main__": 
-    compare_Pm()
+    #compare_Pm()
     #compare_Pm_ns()
     #compare_dPmdns() 
+    #compare_dlogPmcbdMnu()
+    LT_sigma_kmax_cb_m()
     #compare_PmMnu_PmLCDM()
     #compare_dPmdMnu()
     #compare_dPmdMnu_0p1eV()
@@ -397,4 +537,7 @@ if __name__=="__main__":
     #Fij_ema = np.array([[5533.04, 73304.8], [73304.8, 1.05542e6]])
     #print np.sqrt(np.diag(np.linalg.inv(Fij_ema)))[::-1]
     #LT_sigma_kmax()
+    #LT_sigma_kmax(npoints='0.1eV', flag='cb')
+    #LT_sigma_kmax(npoints='0.1eV', flag='ema')
+    #LT_sigma_kmax(npoints='0.1eV', flag='ema_cb')
     #LT_s8Mnu_kmax(npoints='0.1eV')

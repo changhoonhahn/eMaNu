@@ -211,3 +211,106 @@ def _Pm_Mnu(mnu, karr, flag=None):
         return fpmk(karr) 
     else: 
         raise NotImplementedError
+
+
+def dfgdtheta(theta, npoints=5, flag=None): 
+    ''' derivative of growth factor w.r.t. to theta 
+    '''
+    if theta == 'Mnu': 
+        return dfgdMnu(npoints=npoints, flag=flag) 
+    else:
+        h_dict = {'Ob': 0.002, 'Om': 0.02, 'h': 0.04, 'ns': 0.04, 's8': 0.03} 
+        h = h_dict[theta]
+        fg_m = fgrowth_theta('%s_m' % theta) 
+        fg_p = fgrowth_theta('%s_p' % theta) 
+        return (fg_p - fg_m)/h 
+
+
+def dfgdMnu(npoints=5, flag=None) 
+    if npoints == 1: 
+        mnus = [0.0, 0.025]
+        coeffs = [-1., 1.]
+        fdenom = 1. * 0.025
+    elif npoints == 2:  
+        mnus = [0.0, 0.025, 0.05]
+        coeffs = [-3., 4., -1.]
+        fdenom = 2. * 0.025
+    elif npoints == 3:  
+        mnus = [0.0, 0.025, 0.05, 0.075]
+        coeffs = [-11., 18., -9., 2.]
+        fdenom = 6. * 0.025
+    elif npoints == 4:  
+        mnus = [0.0, 0.025, 0.05, 0.075, 0.1]
+        coeffs = [-25., 48., -36., 16., -3.]
+        fdenom = 12.* 0.025
+    elif npoints == 5:  
+        mnus = [0.0, 0.025, 0.05, 0.075, 0.1, 0.125]
+        coeffs = [-137., 300., -300., 200., -75., 12.]
+        fdenom = 60.* 0.025
+    elif npoints == 'quijote': 
+        mnus = [0.0, 0.1, 0.2, 0.4]
+        coeffs = [-21., 32., -12., 1.]
+        fdenom = 1.2 
+    elif npoints == '0.1eV':
+        mnus = [0.075, 0.125]
+        coeffs = [-1., 1.]
+        fdenom = 0.05 
+    else: 
+        raise ValueError
+    
+    dfg = np.zeros(len(k))
+    for i, mnu, coeff in zip(range(len(mnus)), mnus, coeffs): 
+        fg = fgrowth_Mnu(mnu, flag=flag) 
+        dfg += coeff * fg 
+    dfg /= fdenom 
+    return dfg
+
+
+def fgrowth_Mnu(mnu, flag=None): 
+    ''' given theta read in growth factor at z=0 from CLASS background file
+    '''
+    if flag is None: 
+        if mnu == 0.0: 
+            fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0eV_background.dat')
+        elif mnu == 0.025: 
+            fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p025eV_background.dat')
+        elif mnu == 0.05: 
+            fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p05eV_background.dat')
+        elif mnu == 0.075: 
+            fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p075eV_background.dat')
+        elif mnu == 0.1: 
+            fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p1eV_background.dat')
+        elif mnu == 0.125: 
+            fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p125eV_background.dat')
+        elif mnu == 0.2: 
+            fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p2eV_background.dat')
+        elif mnu == 0.4: 
+            fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p4eV_background.dat')
+    elif flag == 'ema': 
+        if mnu == 0.0: 
+            fema = os.path.join(UT.dat_dir(), 'ema', 'HADES_0p00eV_z1_background.dat')
+        elif mnu == 0.025: 
+            fema = os.path.join(UT.dat_dir(), 'ema', 'HADES_0p025eV_z1_background.dat')
+        elif mnu == 0.05: 
+            fema = os.path.join(UT.dat_dir(), 'ema', 'HADES_0p05eV_z1_background.dat')
+        elif mnu == 0.075: 
+            fema = os.path.join(UT.dat_dir(), 'ema', 'HADES_0p075eV_z1_background.dat')
+        elif mnu == 0.1: 
+            fema = os.path.join(UT.dat_dir(), 'ema', 'HADES_0p10eV_z1_background.dat')
+        elif mnu == 0.125: 
+            fema = os.path.join(UT.dat_dir(), 'ema', 'HADES_0p125eV_z1_background.dat')
+    else: 
+        raise NotImplementedError
+    fgs = np.loadtxt(fema, unpack=True, skiprows=4, usecols=[15]) 
+    return fgs[-1]
+
+
+def fgrowth_theta(theta): 
+    ''' given theta read in growth factor at z=0 from CLASS background file
+    '''
+    if theta not in ['Ob_m', 'Ob_p', 'Om_m', 'Om_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p',
+            'fid_As', 'ns_m_As', 'ns_p_As' ]: 
+        raise ValueError 
+    f = os.path.join(UT.dat_dir(), 'lt', 'output', '%s_background.dat' % theta)
+    fgs = np.loadtxt(f, unpack=True, skiprows=4, usecols=[15]) 
+    return fgs[-1]

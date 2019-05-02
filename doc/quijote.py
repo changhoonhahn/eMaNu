@@ -340,31 +340,34 @@ def quijote_dPdthetas_LT(dmnu='fin'):
     klin = np.logspace(-5, 1, 400)
     pm_fid = LT._Pm_Mnu(0., klin) 
 
-    fig = plt.figure(figsize=(7,8))
-    sub = fig.add_subplot(111)
+    fig = plt.figure(figsize=(12,8))
     for i_tt, tt, lbl in zip(range(len(thetas)), thetas, theta_lbls): 
+        sub = fig.add_subplot(2,3,i_tt+1)
         dpdt = quijote_dPk(tt, dmnu=dmnu)
         dpdt = dpdt/pk_fid
-        sub.plot(quij['k'][klim], dpdt[klim], lw=1, c='C%i' % i_tt, label=lbl) 
-        sub.plot(quij['k'][klim], -dpdt[klim], lw=1, c='C%i' % i_tt) 
+        sub.plot(quij['k'][klim], dpdt[klim], lw=1, c='C%i' % i_tt, label=r'$P_h$') 
 
-        dpmdt = LT.dPmdtheta(tt, klin, log=True, npoints='quijote') 
-        sub.plot(klin, dpmdt, c='C%i' % i_tt, lw=1, ls='--')
         if tt == 'Mnu': 
-            dpmdt = LT.dPmdtheta(tt, klin, log=True, npoints='0.1eV', flag='cb') 
-            sub.plot(klin, dpmdt, c='C%i' % i_tt, lw=2, ls=':')
-            sub.plot(klin, -dpmdt, c='C%i' % i_tt, lw=2, ls=':')
-    
-    #sub.plot([1e-3, 1e1], [1e-1, 1e-1], c='k', ls='--') 
-    sub.plot([0.5, 0.5], [-5e1, 5e1], c='k', ls='--') 
-
-    sub.legend(loc='upper right', ncol=2, fontsize=15) 
-    sub.set_xlabel('$k$', fontsize=25) 
-    sub.set_xscale('log') 
-    sub.set_xlim(1.e-5, 10) 
-    sub.set_ylabel(r'${\rm d}\log P/{\rm d} \theta$', fontsize=25) 
-    sub.set_yscale('symlog', linthreshy=1e-1) 
-    sub.set_ylim(-5e1, 5e1) 
+            dpmdt = LT.dPmdtheta(tt, klin, log=True, npoints='quijote') 
+            sub.plot(klin, dpmdt, c='C%i' % i_tt, lw=1, ls='--', label='$P_m$')
+            dpmdt = LT.dPmdtheta(tt, klin, log=True, npoints='quijote', flag='cb') 
+            sub.plot(klin, dpmdt, c='C%i' % i_tt, lw=2, ls=':', label='$P_{cb}$')
+        elif tt in ['h', 's8']: 
+            dpmdt = LT.dPmdtheta(tt, klin, log=True, npoints='quijote') 
+            sub.plot(klin, -dpmdt, c='C%i' % i_tt, lw=1, ls='--', label='$-P_m$')
+        else: 
+            dpmdt = LT.dPmdtheta(tt, klin, log=True, npoints='quijote') 
+            sub.plot(klin, dpmdt, c='C%i' % i_tt, lw=1, ls='--', label='$P_m$')
+        sub.legend(loc='lower left', fontsize=15) 
+        sub.set_xscale('log') 
+        sub.set_xlim(1.e-5, 10) 
+        sub.set_yscale('symlog', linthreshy=1e-1) 
+        sub.set_ylim(-5e1, 8e1) 
+        sub.text(0.05, 0.95, lbl, ha='left', va='top', transform=sub.transAxes, fontsize=25)
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.set_xlabel('$k$', fontsize=25) 
+    bkgd.set_ylabel(r'${\rm d}\log P/{\rm d} \theta$', labelpad=10, fontsize=25) 
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
     ffig = os.path.join(UT.fig_dir(), 'quijote_dPdthetas_LT.%s.ratio.png' % dmnu)
     fig.savefig(ffig, bbox_inches='tight') 
     return None
@@ -383,31 +386,24 @@ def quijote_dPdMnu_LT(dmnu='fin'):
 
     fig = plt.figure(figsize=(7,8))
     sub = fig.add_subplot(111)
-    for i_tt, tt, lbl in zip(range(len(thetas)), ['Mnu'], theta_lbls): 
-        dpdt = quijote_dPk(tt, dmnu=dmnu)
-        dpdt = dpdt/pk_fid
-        #sub.plot(quij['k'][klim], dpdt[klim]**2, lw=1, c='C%i' % i_tt, label=lbl) 
+    dpdt = quijote_dPk('Mnu', dmnu=dmnu)
+    dpdt = dpdt/pk_fid
+    sub.plot(quij['k'][klim], dpdt[klim], lw=1, c='C0', label=r'$P_h$') 
 
-        dpmdt = LT.dPmdtheta(tt, klin, log=True)# '0.1eV') 
-        sub.plot(klin, dpmdt, c='C%i' % i_tt, lw=1, ls='--')
-        if tt == 'Mnu': 
-            dpmdt = LT.dPmdtheta(tt, klin, log=True, flag='cb')#, npoints='0.1eV') 
-            sub.plot(klin, dpmdt, c='C%i' % i_tt, lw=2, ls=':')
+    dpmdt = LT.dPmdtheta('Mnu', klin, log=True, npoints='quijote') 
+    sub.plot(klin, dpmdt, c='k', lw=1, ls='--', label=r'$P_m$')
+    dpmdt = LT.dPmdtheta('Mnu', klin, log=True, flag='cb', npoints='quijote') 
+    sub.plot(klin, dpmdt, c='k', lw=1, ls=':', label=r'$P_{cb}$')
     
-    #sub.plot([1e-3, 1e1], [1e-1, 1e-1], c='k', ls='--') 
-    sub.plot([0.5, 0.5], [-5e1, 5e1], c='k', ls='--') 
-
     sub.legend(loc='upper right', ncol=2, fontsize=15) 
     sub.set_xlabel('$k$', fontsize=25) 
     sub.set_xscale('log') 
     sub.set_xlim(1.e-5, 10) 
     sub.set_ylabel(r'${\rm d}\log P/{\rm d} \theta$', fontsize=25) 
-    #sub.set_yscale('symlog', linthreshy=1e-1) 
-    sub.set_ylim(-0.1, 1e0) 
+    sub.set_ylim(-0.1, 0.8) 
     ffig = os.path.join(UT.fig_dir(), 'quijote_dPdMnu_LT.%s.ratio.png' % dmnu)
     fig.savefig(ffig, bbox_inches='tight') 
     return None
-
 
 
 def quijote_dBdthetas(kmax=0.5, dmnu='fin', flag=None, ratio=False):
@@ -3555,7 +3551,7 @@ if __name__=="__main__":
             quijote_bkCov(kmax=kmax, rsd=True) # condition number 1.73518e+08
     '''
     # deriatives 
-    #quijote_dPdthetas_LT(dmnu='fin')
+    quijote_dPdthetas_LT(dmnu='fin')
     quijote_dPdMnu_LT(dmnu='fin')
     '''
         quijote_dPdthetas(dmnu='fin')
