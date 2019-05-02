@@ -147,6 +147,90 @@ def compare_Pm():
     return None 
 
 
+def compare_Pm_ns(): 
+    ''' compare linear theory P_m(k) 
+    '''
+    k_arr = np.logspace(-4, 1, 500)
+    Pm_fid = LT._Pm_Mnu(0.0, k_arr) 
+    Pm_fid_As = LT._Pm_theta('fid_As', k_arr) 
+
+    fig = plt.figure(figsize=(8,10))
+    sub = fig.add_subplot(211)
+    sub.plot(k_arr, Pm_fid, c='k', lw=1, label='$n_s=0.9624$') 
+    Pm = LT._Pm_theta('ns_m', k_arr) 
+    sub.plot(k_arr, Pm, lw=1, label='$n_s=0.9424$') 
+    Pm = LT._Pm_theta('ns_p', k_arr) 
+    sub.plot(k_arr, Pm, lw=1, label='$n_s=0.9824$') 
+    Pm = LT._Pm_theta('ns_m_As', k_arr) 
+    sub.plot(k_arr, Pm, lw=1, label='$n_s=0.9424$; fixed $A_s$') 
+    Pm = LT._Pm_theta('ns_p_As', k_arr) 
+    sub.plot(k_arr, Pm, lw=1, label='$n_s=0.9824$; fixed $A_s$') 
+    sub.legend(loc='upper right', fontsize=15) 
+    sub.set_xlabel('$k$', fontsize=20) 
+    sub.set_xscale('log') 
+    sub.set_xlim(1e-3, 1.) 
+    sub.set_ylabel(r'$P_m(k)$', fontsize=20) 
+    sub.set_yscale('log') 
+    sub.set_ylim(5e1, 1e5) 
+
+    sub = fig.add_subplot(212)
+    Pm = LT._Pm_theta('ns_m', k_arr) 
+    sub.plot(k_arr, Pm/Pm_fid, lw=1, label='$n_s=0.9424$') 
+    sub.plot(k_arr, k_arr**-0.02, ls=':', c='k') 
+
+    Pm = LT._Pm_theta('ns_p', k_arr) 
+    sub.plot(k_arr, Pm/Pm_fid, lw=1, label='$n_s=0.9824$') 
+    sub.plot(k_arr, k_arr**0.02, ls=':', c='k') 
+    
+    Pm = LT._Pm_theta('ns_m_As', k_arr) 
+    print (Pm/k_arr**0.9424)[:10]
+    sub.plot(k_arr, Pm/Pm_fid_As, lw=1, label='$n_s=0.9424$; fixed $A_s$') 
+    Pm = LT._Pm_theta('ns_p_As', k_arr) 
+    print (Pm/k_arr**0.9824)[:10]
+    sub.plot(k_arr, Pm/Pm_fid_As, lw=1, label='$n_s=0.9824$; fixed $A_s$') 
+    sub.legend(loc='upper right', fontsize=15) 
+    sub.set_xlabel('$k$', fontsize=20) 
+    sub.set_xscale('log') 
+    sub.set_xlim(1e-3, 1.) 
+    sub.set_ylabel(r'$P_m/P^{\rm fid}_m$', fontsize=20) 
+    sub.set_ylim(0.8, 1.2) 
+    fig.savefig(os.path.join(UT.fig_dir(), 'Pm_ns.class.png'), bbox_inches='tight') 
+    return None 
+
+
+def compare_dPmdns(): 
+    ''' compare linear theory P_m(k) 
+    '''
+    k_arr = np.logspace(-4, 1, 500)
+    Pm_fid = LT._Pm_Mnu(0.0, k_arr) 
+
+    fig = plt.figure(figsize=(8,5))
+    sub = fig.add_subplot(111)
+    Pm_m = LT._Pm_theta('ns_m', k_arr) 
+    Pm_p = LT._Pm_theta('ns_p', k_arr) 
+    sub.plot(k_arr, (Pm_p - Pm_m)/0.04/Pm_fid, label='numerical') 
+    dpm = LT.dPmdtheta('ns', k_arr, log=False) 
+    sub.plot(k_arr, dpm/Pm_fid, ls=':', label='no log') 
+    dpm = LT.dPmdtheta('ns', k_arr, log=True) 
+    sub.plot(k_arr, dpm, ls='-.', label='log') 
+
+    Pm_fid_As = LT._Pm_theta('fid_As', k_arr) 
+    Pm_m_As = LT._Pm_theta('ns_m_As', k_arr) 
+    Pm_p_As = LT._Pm_theta('ns_p_As', k_arr) 
+    sub.plot(k_arr, (Pm_p_As - Pm_m_As)/0.04/Pm_fid_As, label='fixed $A_s$') 
+
+    sub.plot(k_arr, np.log(k_arr), ls='--', label='$\log(k)$')
+    sub.legend(loc='upper left', fontsize=15) 
+    sub.set_xlabel('$k$', fontsize=20) 
+    sub.set_xscale('log') 
+    sub.set_xlim(1e-4, 1.) 
+    sub.set_ylabel(r'$dP_m(k)/dn_s/P_m$', fontsize=20) 
+    #sub.set_yscale('log') 
+    #sub.set_ylim(5e1, 1e5) 
+    fig.savefig(os.path.join(UT.fig_dir(), 'dPmdns.class.png'), bbox_inches='tight') 
+    return None 
+
+
 def compare_PmMnu_PmLCDM(): 
     ''' compare (P_m(k) Mnu > 0)/(P_m(k) LCDM) 
     '''
@@ -283,11 +367,13 @@ def LT_s8Mnu_kmax(npoints=5):
 
 
 if __name__=="__main__": 
-    compare_Pm()
-    compare_PmMnu_PmLCDM()
-    compare_dPmdMnu()
-    compare_dPmdMnu_0p1eV()
-    compare_dPdthetas() 
+    #compare_Pm()
+    compare_Pm_ns()
+    compare_dPmdns() 
+    #compare_PmMnu_PmLCDM()
+    #compare_dPmdMnu()
+    #compare_dPmdMnu_0p1eV()
+    #compare_dPdthetas() 
     #for npoints in ['0.1eV', 'paco', 'ema0.1eV']: #[5, '0.1eV', 'ema0.1eV']:#, 'quijote', '0.1eV', 'paco', 'ema']: 
     #    Fij =  _Fij_Pm(np.logspace(-2, 2, 100), kmax=0.5, npoints=npoints, thetas=['s8', 'Mnu']) 
     #    print '----', npoints, '----'  

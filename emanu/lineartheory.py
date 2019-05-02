@@ -50,7 +50,8 @@ def dPmdtheta(theta, k, log=False, npoints=5, flag=None):
 def _Pm_theta(theta, karr): 
     ''' linear theory matter power spectrum with fiducial parameters except theta for k 
     '''
-    if theta not in ['fiducial', 'Ob_m', 'Ob_p', 'Om_m', 'Om_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p']: 
+    if theta not in ['Ob_m', 'Ob_p', 'Om_m', 'Om_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p',
+            'fid_As', 'ns_m_As', 'ns_p_As' ]: 
         raise ValueError 
     f = os.path.join(UT.dat_dir(), 'lt', 'output', '%s_pk.dat' % theta)
     k, pmk = np.loadtxt(f, unpack=True, skiprows=4, usecols=[0,1]) 
