@@ -120,8 +120,8 @@ def compare_Pm():
     sub.set_ylim(1e1, 1e3) 
     fig.savefig(os.path.join(UT.fig_dir(), 'Pm_Mnu.class.png'), bbox_inches='tight') 
 
-    fig = plt.figure(figsize=(8,8))
-    sub = fig.add_subplot(211)
+    fig = plt.figure(figsize=(8,12))
+    sub = fig.add_subplot(311)
     for i_nu, mnu in enumerate(mnus): 
         Pm_ema  = LT._Pm_Mnu(mnu, k_arr, flag='ema') 
         Pm_class= LT._Pm_Mnu(mnu, k_arr) 
@@ -133,7 +133,7 @@ def compare_Pm():
     sub.set_ylim(0.98, 1.02) 
     sub.set_ylabel(r'$P^{\rm ema}_m(k)/P^{\rm CLASS}_m$ ratio', fontsize=20) 
 
-    sub = fig.add_subplot(212)
+    sub = fig.add_subplot(312)
     for i_nu, mnu in enumerate(mnus): 
         Pm_paco = LT._Pm_Mnu(mnu, k_arr, flag='paco') 
         Pm_class= LT._Pm_Mnu(mnu, k_arr) 
@@ -141,7 +141,22 @@ def compare_Pm():
     sub.plot(k_arr, np.ones(len(k_arr)), lw=1, c='k')
     sub.set_xscale('log') 
     sub.set_xlim(1e-3, 10.) 
-    sub.set_ylabel(r'$P^{\rm ema}_m(k)/P^{\rm CLASS}_m$ ratio', fontsize=20) 
+    sub.set_ylabel(r'$P^{\rm paco}_m(k)/P^{\rm CLASS}_m$ ratio', fontsize=20) 
+    sub.set_ylim(0.98, 1.02) 
+    
+    sub = fig.add_subplot(313)
+    for i_nu, mnu in enumerate(mnus[:3]): 
+        Pm_paco = LT._Pm_Mnu(mnu, k_arr, flag='cb') 
+        Pm_class= LT._Pm_Mnu(mnu, k_arr) 
+        sub.plot(k_arr, Pm_paco / Pm_class, lw=1, c='C%i' % i_nu) 
+        Pm_paco = LT._Pm_Mnu(mnu, k_arr, flag='ema_cb') 
+        Pm_class= LT._Pm_Mnu(mnu, k_arr, flag='ema') 
+        sub.plot(k_arr, Pm_paco / Pm_class, lw=1, ls='--', c='C%i' % i_nu, label=r'$P^{\rm ema}_{\rm cb}/P^{\rm ema}_m$') 
+        if i_nu == 0: sub.legend(loc='lower right', fontsize=20) 
+    sub.plot(k_arr, np.ones(len(k_arr)), lw=1, c='k')
+    sub.set_xscale('log') 
+    sub.set_xlim(1e-3, 10.) 
+    sub.set_ylabel(r'$P_{\rm cb}(k)/P^{\rm CLASS}_m$ ratio', fontsize=20) 
     sub.set_ylim(0.98, 1.02) 
     fig.savefig(os.path.join(UT.fig_dir(), 'Pm_Mnu.class.ratio.png'), bbox_inches='tight') 
     return None 
@@ -367,9 +382,9 @@ def LT_s8Mnu_kmax(npoints=5):
 
 
 if __name__=="__main__": 
-    #compare_Pm()
-    compare_Pm_ns()
-    compare_dPmdns() 
+    compare_Pm()
+    #compare_Pm_ns()
+    #compare_dPmdns() 
     #compare_PmMnu_PmLCDM()
     #compare_dPmdMnu()
     #compare_dPmdMnu_0p1eV()

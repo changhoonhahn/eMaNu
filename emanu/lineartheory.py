@@ -171,6 +171,28 @@ def _Pm_Mnu(mnu, karr, flag=None):
         k, pmk = np.loadtxt(fema, unpack=True, skiprows=4, usecols=[0,1]) 
         fpmk = interp1d(k, pmk, kind='cubic') 
         return fAs * fpmk(karr) 
+    elif flag == 'ema_cb': 
+        if mnu == 0.0: 
+            fema = os.path.join(UT.dat_dir(), 'lt', 'output', 'HADES_0p00eV_z1_pk.dat')
+            fAs = 0.9818992345104124**2
+        elif mnu == 0.025: 
+            fema = os.path.join(UT.dat_dir(), 'lt', 'output', 'HADES_0p025eV_z1_pk_cb.dat')
+            fAs = 0.9879232989481492**2
+        elif mnu == 0.05: 
+            fema = os.path.join(UT.dat_dir(), 'lt', 'output', 'HADES_0p05eV_z1_pk_cb.dat')
+            fAs = 0.9961075140612549**2
+        elif mnu == 0.075: 
+            fema = os.path.join(UT.dat_dir(), 'lt', 'output', 'HADES_0p075eV_z1_pk_cb.dat')
+            fAs = 1.00415885618811**2
+        elif mnu == 0.1: 
+            fema = os.path.join(UT.dat_dir(), 'lt', 'output', 'HADES_0p10eV_z1_pk_cb.dat')
+            fAs = 1.0123494887789048**2
+        elif mnu == 0.125: 
+            fema = os.path.join(UT.dat_dir(), 'lt', 'output', 'HADES_0p125eV_z1_pk_cb.dat')
+            fAs = 1.0205994937246368**2
+        k, pmk = np.loadtxt(fema, unpack=True, skiprows=4, usecols=[0,1]) 
+        fpmk = interp1d(k, pmk, kind='cubic') 
+        return fAs * fpmk(karr) 
     elif flag == 'paco': 
         if mnu == 0.0: 
             fpaco = os.path.join(UT.dat_dir(), 'paco', '0.00eV.txt')

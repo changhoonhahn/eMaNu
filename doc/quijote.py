@@ -329,7 +329,7 @@ def quijote_dPdthetas(dmnu='fin', ratio=False):
     return None
 
 
-def quijote_dPdthetas_LT(dmnu='fin', ratio=False):
+def quijote_dPdthetas_LT(dmnu='fin'):
     ''' Compare the derivatives of the powerspectrum also with linear theory
     '''
     # fiducial P0(k)  
@@ -337,39 +337,77 @@ def quijote_dPdthetas_LT(dmnu='fin', ratio=False):
     pk_fid = np.average(quij['p0k'], axis=0) 
     klim = (quij['k'] < 0.5)
 
-    klin = np.logspace(-3, 1, 400)
+    klin = np.logspace(-5, 1, 400)
     pm_fid = LT._Pm_Mnu(0., klin) 
 
     fig = plt.figure(figsize=(7,8))
     sub = fig.add_subplot(111)
     for i_tt, tt, lbl in zip(range(len(thetas)), thetas, theta_lbls): 
         dpdt = quijote_dPk(tt, dmnu=dmnu)
-        if ratio: dpdt = dpdt/pk_fid
-        if dpdt[klim].min() < 0: 
-            sub.plot(quij['k'][klim], np.abs(dpdt[klim]), c='C%i' % i_tt, label='-'+lbl) 
-        else: 
-            sub.plot(quij['k'][klim], dpdt[klim], c='C%i' % i_tt, label=lbl) 
+        dpdt = dpdt/pk_fid
+        sub.plot(quij['k'][klim], dpdt[klim], lw=1, c='C%i' % i_tt, label=lbl) 
+        sub.plot(quij['k'][klim], -dpdt[klim], lw=1, c='C%i' % i_tt) 
 
-        dpmdt = LT.dPmdtheta(tt, klin)  
-        if ratio: dpmdt = LT.dPmdtheta(tt, klin, log=True) 
-        sub.plot(klin, np.abs(dpmdt), c='C%i' % i_tt, lw=0.75, ls=':')
+        dpmdt = LT.dPmdtheta(tt, klin, log=True, npoints='quijote') 
+        sub.plot(klin, dpmdt, c='C%i' % i_tt, lw=1, ls='--')
+        if tt == 'Mnu': 
+            dpmdt = LT.dPmdtheta(tt, klin, log=True, npoints='0.1eV', flag='cb') 
+            sub.plot(klin, dpmdt, c='C%i' % i_tt, lw=2, ls=':')
+            sub.plot(klin, -dpmdt, c='C%i' % i_tt, lw=2, ls=':')
     
-    sub.plot(klin, np.abs(np.log(klin)), c='k', ls='--')
+    #sub.plot([1e-3, 1e1], [1e-1, 1e-1], c='k', ls='--') 
+    sub.plot([0.5, 0.5], [-5e1, 5e1], c='k', ls='--') 
 
     sub.legend(loc='upper right', ncol=2, fontsize=15) 
     sub.set_xlabel('$k$', fontsize=25) 
     sub.set_xscale('log') 
-    sub.set_xlim(1.e-3, 0.5) 
-    if ratio: sub.set_ylabel(r'$|{\rm d}P/d\theta/P|$', fontsize=25) 
-    else: sub.set_ylabel(r'$|{\rm d}P/d\theta|$', fontsize=25) 
-    if not ratio: 
-        sub.set_yscale('log') 
-        sub.set_ylim(1e2, 1e6) 
-    else: 
-        sub.set_ylim(0., 10) 
-    ffig = os.path.join(UT.fig_dir(), 'quijote_dPdthetas_LT.%s%s.png' % (dmnu, ['', '.ratio'][ratio]))
+    sub.set_xlim(1.e-5, 10) 
+    sub.set_ylabel(r'${\rm d}\log P/{\rm d} \theta$', fontsize=25) 
+    sub.set_yscale('symlog', linthreshy=1e-1) 
+    sub.set_ylim(-5e1, 5e1) 
+    ffig = os.path.join(UT.fig_dir(), 'quijote_dPdthetas_LT.%s.ratio.png' % dmnu)
     fig.savefig(ffig, bbox_inches='tight') 
     return None
+
+
+def quijote_dPdMnu_LT(dmnu='fin'):
+    ''' Compare the derivatives of the powerspectrum also with linear theory
+    '''
+    # fiducial P0(k)  
+    quij = Obvs.quijoteP0k('fiducial')
+    pk_fid = np.average(quij['p0k'], axis=0) 
+    klim = (quij['k'] < 0.5)
+
+    klin = np.logspace(-5, 1, 400)
+    pm_fid = LT._Pm_Mnu(0., klin) 
+
+    fig = plt.figure(figsize=(7,8))
+    sub = fig.add_subplot(111)
+    for i_tt, tt, lbl in zip(range(len(thetas)), ['Mnu'], theta_lbls): 
+        dpdt = quijote_dPk(tt, dmnu=dmnu)
+        dpdt = dpdt/pk_fid
+        #sub.plot(quij['k'][klim], dpdt[klim]**2, lw=1, c='C%i' % i_tt, label=lbl) 
+
+        dpmdt = LT.dPmdtheta(tt, klin, log=True)# '0.1eV') 
+        sub.plot(klin, dpmdt, c='C%i' % i_tt, lw=1, ls='--')
+        if tt == 'Mnu': 
+            dpmdt = LT.dPmdtheta(tt, klin, log=True, flag='cb')#, npoints='0.1eV') 
+            sub.plot(klin, dpmdt, c='C%i' % i_tt, lw=2, ls=':')
+    
+    #sub.plot([1e-3, 1e1], [1e-1, 1e-1], c='k', ls='--') 
+    sub.plot([0.5, 0.5], [-5e1, 5e1], c='k', ls='--') 
+
+    sub.legend(loc='upper right', ncol=2, fontsize=15) 
+    sub.set_xlabel('$k$', fontsize=25) 
+    sub.set_xscale('log') 
+    sub.set_xlim(1.e-5, 10) 
+    sub.set_ylabel(r'${\rm d}\log P/{\rm d} \theta$', fontsize=25) 
+    #sub.set_yscale('symlog', linthreshy=1e-1) 
+    sub.set_ylim(-0.1, 1e0) 
+    ffig = os.path.join(UT.fig_dir(), 'quijote_dPdMnu_LT.%s.ratio.png' % dmnu)
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
+
 
 
 def quijote_dBdthetas(kmax=0.5, dmnu='fin', flag=None, ratio=False):
@@ -3517,7 +3555,8 @@ if __name__=="__main__":
             quijote_bkCov(kmax=kmax, rsd=True) # condition number 1.73518e+08
     '''
     # deriatives 
-    quijote_dPdthetas_LT(dmnu='fin', ratio=True)
+    #quijote_dPdthetas_LT(dmnu='fin')
+    quijote_dPdMnu_LT(dmnu='fin')
     '''
         quijote_dPdthetas(dmnu='fin')
         quijote_dPdthetas(dmnu='fin', ratio=True)
