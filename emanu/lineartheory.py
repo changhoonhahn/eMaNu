@@ -226,7 +226,7 @@ def dfgdtheta(theta, npoints=5, flag=None):
         return (fg_p - fg_m)/h 
 
 
-def dfgdMnu(npoints=5, flag=None) 
+def dfgdMnu(npoints=5, flag=None):
     if npoints == 1: 
         mnus = [0.0, 0.025]
         coeffs = [-1., 1.]
@@ -258,7 +258,7 @@ def dfgdMnu(npoints=5, flag=None)
     else: 
         raise ValueError
     
-    dfg = np.zeros(len(k))
+    dfg = 0.
     for i, mnu, coeff in zip(range(len(mnus)), mnus, coeffs): 
         fg = fgrowth_Mnu(mnu, flag=flag) 
         dfg += coeff * fg 
@@ -314,3 +314,16 @@ def fgrowth_theta(theta):
     f = os.path.join(UT.dat_dir(), 'lt', 'output', '%s_background.dat' % theta)
     fgs = np.loadtxt(f, unpack=True, skiprows=4, usecols=[15]) 
     return fgs[-1]
+
+
+def dPrsdbdtheta(theta, b, karr, Prsdb, npoints=5, flag=None):  
+    ''' get derivative d P / d theta w/ bias b and RSD 
+    '''
+    Pcb = _Pm_Mnu(0.0, karr, flag='cb') # fiducial Pcb = Pm  
+    dlogPcb = dPmdtheta(theta, karr, log=True, npoints=npoints, flag='cb')
+
+    fg = fgrowth_Mnu(0.0, flag=flag) # fiducial f_growth 
+    dfg = dfgdtheta(theta, npoints=npoints, flag=flag)
+
+    dPrsdb = Prsdb * dlogPcb + (2./3. * b + 0.4 * fg) * dfg * Pcb 
+    return dPrsdb

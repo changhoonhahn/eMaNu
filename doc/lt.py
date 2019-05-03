@@ -50,6 +50,7 @@ def compare_dPmdMnu():
     sub.set_xlim(1e-3, 10.) 
     sub.set_ylabel(r'$dP_m/d M_\nu$', fontsize=20) 
     sub.set_yscale('symlog') 
+    sub.set_ylim(-1e4, 2e4) 
     fig.savefig(os.path.join(UT.fig_dir(), 'dPmdMnu.class.png'), bbox_inches='tight') 
     return None 
 
@@ -88,7 +89,7 @@ def compare_dPmdMnu_0p1eV():
     sub.set_xlim(1e-3, 10.) 
     sub.set_ylabel(r'$dP_m/d M_\nu$ at 0.1eV', fontsize=20) 
     sub.set_yscale('symlog') 
-    #sub.set_ylim(1e-1, 1e5) 
+    sub.set_ylim(-1e4, 2e4) 
     fig.savefig(os.path.join(UT.fig_dir(), 'dPmdMnu_0.1eV.class.png'), bbox_inches='tight') 
     return None 
 
@@ -385,7 +386,7 @@ def compare_dPdthetas():
 
 
 def LT_sigma_kmax(npoints=5, flag=None):
-    ''' 
+    ''' linear theory Pm forecasts as a function of kmax 
     '''
     thetas = ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu']
     theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
@@ -405,14 +406,13 @@ def LT_sigma_kmax(npoints=5, flag=None):
     fig = plt.figure(figsize=(15,8))
     for i, theta in enumerate(thetas): 
         sub = fig.add_subplot(2,len(thetas)/2,i+1) 
-        sub.plot(kmaxs, sigma_thetas[:,i], c='k', ls='-') 
-        sub.plot(kmaxs, sigma_ii[:,i], c='k', ls=':') 
+        sub.plot(kmaxs, sigma_thetas[:,i], c='k', ls='-', label='$P_m$ forecast') 
+        sub.plot(kmaxs, sigma_ii[:,i], c='k', ls=':', label='$P_m$ unmarginalized') 
         sub.set_xlim(0.005, 0.5)
         sub.text(0.9, 0.9, theta_lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=30)
         sub.set_ylim(sigma_theta_lims[i]) 
         sub.set_yscale('log') 
-        if i == 0: 
-            sub.text(0.5, 0.35, r"$P^{\rm lin}_m$", ha='left', va='bottom', color='k', transform=sub.transAxes, fontsize=24)
+        if i == 0: sub.legend(loc='lower right', fontsize=15) 
     bkgd = fig.add_subplot(111, frameon=False)
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
     bkgd.set_xlabel(r'$k_{\rm max}$', fontsize=28) 
@@ -420,12 +420,10 @@ def LT_sigma_kmax(npoints=5, flag=None):
 
     fig.subplots_adjust(wspace=0.2, hspace=0.15) 
     if flag is not None: 
-        ffig = os.path.join(UT.doc_dir(), 'figs', 'LT_sigma_kmax_%s.png' % flag)
+        ffig = os.path.join(UT.fig_dir(), 'LT_sigma_kmax.npoints%s.%s.png' % (str(npoints), flag))
     else: 
-        ffig = os.path.join(UT.doc_dir(), 'figs', 'LT_sigma_kmax.png')
+        ffig = os.path.join(UT.fig_dir(), 'LT_sigma_kmax.npoints%s.png' % (str(npoints)))
     fig.savefig(ffig, bbox_inches='tight') 
-    #fdat = os.path.join(UT.dat_dir(), 'LT_sigma_kmax.dat')
-    #np.savetxt(fdat, sigma_thetas, delimiter='\t') 
     return None
 
 
@@ -441,9 +439,6 @@ def LT_s8Mnu_kmax(npoints=5):
         Fij =  LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints=npoints, thetas=thetas) 
         sigma_thetas.append(np.sqrt(np.diag(np.linalg.inv(Fij))))
     sigma_thetas = np.array(sigma_thetas)
-    #sigma_theta_lims = [(0, 0.1), (0., 0.08), (0., 0.8), (0, 0.8), (0., 0.12), (0., 0.8)]
-    #sigma_theta_lims = [(0, 0.2), (0., 0.2), (0., 2.), (0, 2.), (0., 1.), (0., 2.)]
-    #sigma_theta_lims = [(0, 10.), (0., 10.), (0., 10.), (0, 10.), (0., 10.), (0., 10.)]
     sigma_theta_lims = [(1e-3, 50.), (1e-2, 50.)]
 
     fig = plt.figure(figsize=(10,5))
@@ -468,7 +463,7 @@ def LT_s8Mnu_kmax(npoints=5):
 
 
 def LT_sigma_kmax_cb_m():
-    ''' 
+    ''' compare linear theory forecasts for Pm and Pcb
     '''
     thetas = ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu']
     theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
@@ -477,14 +472,14 @@ def LT_sigma_kmax_cb_m():
     sigma_m, sigma_cb = [], [] 
     sigma_ii_m, sigma_ii_cb = [], [] 
     for i_k, kmax in enumerate(kmaxs): 
-        Fij =  LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints='0.1eV', flag='ema') 
+        Fij =  LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints=5) 
         sigma_m.append(np.sqrt(np.diag(np.linalg.inv(Fij))))
-        Fij =  LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints='0.1eV', flag='ema_cb') 
+        Fij =  LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints=5, flag='cb') 
         sigma_cb.append(np.sqrt(np.diag(np.linalg.inv(Fij))))
 
-        Fij =  LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints='0.1eV', flag='ema') 
+        Fij =  LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints=5) 
         sigma_ii_m.append(1./np.sqrt(np.diag(Fij)))
-        Fij =  LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints='0.1eV', flag='ema_cb') 
+        Fij =  LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints=5, flag='cb') 
         sigma_ii_cb.append(1./np.sqrt(np.diag(Fij)))
     sigma_m = np.array(sigma_m)
     sigma_cb = np.array(sigma_cb)
@@ -495,27 +490,24 @@ def LT_sigma_kmax_cb_m():
     fig = plt.figure(figsize=(15,8))
     for i, theta in enumerate(thetas): 
         sub = fig.add_subplot(2,len(thetas)/2,i+1) 
-        sub.plot(kmaxs, sigma_m[:,i], c='k', ls='-') 
-        sub.plot(kmaxs, sigma_cb[:,i], c='k', ls=':') 
+        sub.plot(kmaxs, sigma_m[:,i], c='k', ls='-', label='$P_m$') 
+        sub.plot(kmaxs, sigma_cb[:,i], c='k', ls=':', label='$P_{cb}$') 
 
-        sub.plot(kmaxs, sigma_ii_m[:,i], c='C1', ls='-') 
-        sub.plot(kmaxs, sigma_ii_cb[:,i], c='C1', ls=':') 
+        sub.plot(kmaxs, sigma_ii_m[:,i], c='C1', ls='-', label='$P_m$ unmargin.') 
+        sub.plot(kmaxs, sigma_ii_cb[:,i], c='C1', ls=':', label='$P_{cb}$ unargmin.') 
         sub.set_xlim(0.005, 0.5)
         sub.text(0.9, 0.9, theta_lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=30)
         sub.set_ylim(sigma_theta_lims[i]) 
         sub.set_yscale('log') 
-        if i == 0: 
-            sub.text(0.5, 0.35, r"$P^{\rm lin}_m$", ha='left', va='bottom', color='k', transform=sub.transAxes, fontsize=24)
+        if i == 0: sub.legend(loc='lower right', frameon=True, fontsize=15) 
     bkgd = fig.add_subplot(111, frameon=False)
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
     bkgd.set_xlabel(r'$k_{\rm max}$', fontsize=28) 
     bkgd.set_ylabel(r'$1\sigma$ constraint on $\theta$', labelpad=10, fontsize=28) 
 
     fig.subplots_adjust(wspace=0.2, hspace=0.15) 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 'LT_sigma_kmax_cb_m.png')
+    ffig = os.path.join(UT.fig_dir(), 'LT_sigma_kmax_cb_m.png')
     fig.savefig(ffig, bbox_inches='tight') 
-    #fdat = os.path.join(UT.dat_dir(), 'LT_sigma_kmax.dat')
-    #np.savetxt(fdat, sigma_thetas, delimiter='\t') 
     return None
 
 
@@ -524,7 +516,6 @@ if __name__=="__main__":
     #compare_Pm_ns()
     #compare_dPmdns() 
     #compare_dlogPmcbdMnu()
-    LT_sigma_kmax_cb_m()
     #compare_PmMnu_PmLCDM()
     #compare_dPmdMnu()
     #compare_dPmdMnu_0p1eV()
@@ -537,6 +528,7 @@ if __name__=="__main__":
     #Fij_ema = np.array([[5533.04, 73304.8], [73304.8, 1.05542e6]])
     #print np.sqrt(np.diag(np.linalg.inv(Fij_ema)))[::-1]
     #LT_sigma_kmax()
+    LT_sigma_kmax_cb_m()
     #LT_sigma_kmax(npoints='0.1eV', flag='cb')
     #LT_sigma_kmax(npoints='0.1eV', flag='ema')
     #LT_sigma_kmax(npoints='0.1eV', flag='ema_cb')
