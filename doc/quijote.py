@@ -866,7 +866,8 @@ def quijote_Forecast_sigma_kmax_Mmin(rsd=True, dmnu='fin'):
     '''
     #kmaxs = [np.pi/500.*6, np.pi/500.*9, 0.075, 0.1, 0.15, 0.16, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5] 
     #kmaxs = [0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5] #np.arange(2, 15) * 2.*np.pi/1000. * 6 #np.linspace(0.1, 0.5, 20) 
-    kmaxs = np.pi/500. * 3 * np.arange(1, 28) 
+    #kmaxs = np.pi/500. * 3 * np.arange(1, 28) 
+    kmaxs = np.pi/500. * 3 * np.array([1, 5, 10, 15, 20, 27]) #np.arange(1, 28) 
     
     print(', '.join([str(tt) for tt in thetas]))
 
@@ -918,11 +919,11 @@ def quijote_Forecast_sigma_kmax_Mmin(rsd=True, dmnu='fin'):
         sub.plot(kmaxs, sigma_thetas_bk[:,i], c='C1', ls='-') 
         if theta == 'Mnu': 
             sub.plot(kmaxs, sigma_thetas_Pm[:,i], c='k', ls='--', label=r"$P^{\rm lin.}_{m}$") 
-            sub.plot(kmaxs, sigma_thetas_Pm[:,i], c='k', ls=':', label=r"$P^{\rm lin.}_{cb}$") 
+            sub.plot(kmaxs, sigma_thetas_Pcb[:,i], c='k', ls=':', label=r"$P^{\rm lin.}_{cb}$") 
             sub.legend(loc='lower left', fontsize=15) 
         #sub.plot(kmaxs[wellcond_pk], sigma_thetas_pk[wellcond_pk,i], c='C0', ls='-') 
         #sub.plot(kmaxs[wellcond_bk], sigma_thetas_bk[wellcond_bk,i], c='C1', ls='-') 
-        sub.set_xlim(0.005, 0.5)
+        sub.set_xlim(0.05, 0.5)
         sub.text(0.9, 0.9, theta_lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=30)
         sub.set_ylim(sigma_theta_lims[i]) 
         sub.set_yscale('log') 
@@ -973,25 +974,28 @@ def quijote_Forecast_Fii_kmax_Mmin(rsd=True, dmnu='fin'):
     Fii_bk = np.array(Fii_bk)
     sig_bk = np.array(sig_bk)
     Fii_pm = np.array(Fii_pm)
+    Fii_pcb = np.array(Fii_pcb)
     sigma_theta_lims = [(1e-3, 1.), (1e-3, 1.), (1e-3, 2), (1e-3, 2.), (1e-3, 1.), (1e-2, 10.)]
 
     fig = plt.figure(figsize=(15,8))
     for i, theta in enumerate(thetas): 
         sub = fig.add_subplot(2,len(thetas)/2,i+1) 
-        sub.plot(kmaxs, Fii_pk[:,i], c='C0', ls='-') 
-        sub.plot(kmaxs, Fii_bk[:,i], c='C1', ls='-') 
+        sub.plot(kmaxs, Fii_pk[:,i], c='C0', ls='-', label='P') 
+        sub.plot(kmaxs, Fii_bk[:,i], c='C1', ls='-', label='B') 
         sub.plot(kmaxs, sig_pk[:,i], c='C0', ls=':', label='Full Fisher') 
         sub.plot(kmaxs, sig_bk[:,i], c='C1', ls=':') 
-        sub.plot(kmaxs, Fii_pm[:,i], c='k', ls='-', label='$P_m$') 
-        sub.plot(kmaxs, Fii_pcb[:,i], c='k', ls=':', label='$P_{cb}$') 
+        if theta == 'Mnu': 
+            sub.plot(kmaxs, Fii_pm[:,i], c='k', ls='-', label='$P_m$') 
+            sub.plot(kmaxs, Fii_pcb[:,i], c='k', ls=':', label='$P_{cb}$') 
+            sub.legend(loc='best', fontsize=15) 
         sub.set_xlim(0.005, 0.5)
         sub.text(0.9, 0.9, theta_lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=30)
         sub.set_ylim(sigma_theta_lims[i]) 
         sub.set_yscale('log') 
         if i == 0: 
             sub.legend(loc='best', fontsize=15) 
-            sub.text(0.5, 0.35, r"$P$", ha='left', va='bottom', color='C0', transform=sub.transAxes, fontsize=24)
-            sub.text(0.25, 0.2, r"$B$", ha='right', va='top', color='C1', transform=sub.transAxes, fontsize=24)
+            #sub.text(0.5, 0.35, r"$P$", ha='left', va='bottom', color='C0', transform=sub.transAxes, fontsize=24)
+            #sub.text(0.25, 0.2, r"$B$", ha='right', va='top', color='C1', transform=sub.transAxes, fontsize=24)
             #sub.text(0.3, 0.45, r"$P^{\rm lin.}_{m}$", ha='left', va='bottom', color='k', transform=sub.transAxes, fontsize=24)
 
     bkgd = fig.add_subplot(111, frameon=False)
@@ -3534,6 +3538,8 @@ if __name__=="__main__":
     ''' 
     # default fisher forecasts
     # Mmin and scale factor b' are free parameters
+    #quijote_Forecast_Fii_kmax_Mmin(rsd=True, dmnu='fin')
+    quijote_Forecast_sigma_kmax_Mmin(rsd=True, dmnu='fin')
     '''
         for kmax in [0.5]: 
             print('default fisher forecast; kmax = %.2f' % kmax) 
@@ -3542,8 +3548,6 @@ if __name__=="__main__":
             quijote_pbkForecast_freeMmin(kmax=kmax, rsd=True, dmnu='fin')
             #quijote_dbk_dMnu_dMmin(kmax=kmax, rsd=True, dmnu='fin')
     '''
-    quijote_Forecast_Fii_kmax_Mmin(rsd=True, dmnu='fin')
-    quijote_Forecast_sigma_kmax_Mmin(rsd=True, dmnu='fin')
     # fisher forecasts (defunct) 
     '''
         for rsd in [True]: #, False]: 
@@ -3557,7 +3561,6 @@ if __name__=="__main__":
             quijote_Forecast_dmnu('bk', rsd=rsd)
         quijote_Forecast_sigma_kmax(rsd=False, dmnu='fin')
     '''
-    #hades_dchi2(krange=[0.01, 0.5])
     #quijote_FisherInfo('pk', kmax=0.5)
     #quijote_FisherInfo('bk', kmax=0.5)
     
@@ -3606,23 +3609,12 @@ if __name__=="__main__":
         #quijote_Forecast_SNuncorr('bk', kmax=0.5, rsd=True, dmnu='fin')
         quijote_Forecast_sigma_kmax_SNuncorr(rsd=True, dmnu='fin')
     '''
-    #quijote_nbars()
-    #_ChanBlot_SN()
-
-    # test forecast at 0.1eV 
-    #quijote_dPdthetas_non0eV()
-    #quijote_dBdthetas_non0eV(kmax=0.2)
-
-    #Cov_gauss(Mnu=0.0, validate=True)
-    #Cov_gauss(Mnu=0.1, validate=True)
-    #print '--- fiducial 0.0eV ---'
-    #kmax = 0.1 
-    #quijote_bkForecast_gaussCov(kmax=kmax, Mnu_fid=0.0, dmnu='fin')
-    #quijote_bkForecast_gaussCov(kmax=kmax, Mnu_fid=0.0, dmnu='fin0')
-    #print '--- fiducial 0.1eV ---'
-    #quijote_bkForecast_gaussCov(kmax=kmax, Mnu_fid=0.1, dmnu='pp')
-    #quijote_Forecast_sigma_kmax_gaussCov(dmnu='fin')
-    #quijote_Forecast_s8mnu_kmax_gaussCov(dmnu='fin')
+    # calculations 
+    '''
+        #quijote_nbars()
+        #_ChanBlot_SN()
+        #hades_dchi2(krange=[0.01, 0.5])
+    '''
     # --- fisher matrix test --- 
     '''
         for kmax in [0.05, 0.1, 0.2, 0.3, 0.4, 0.5]: 
