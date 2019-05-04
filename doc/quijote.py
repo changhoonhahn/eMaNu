@@ -351,7 +351,7 @@ def quijote_dPdthetas(dmnu='fin', log=False):
     return None
 
 
-def quijote_dPdthetas_LT(dmnu='fin'):
+def quijote_dlogPdthetas_LT(dmnu='fin'):
     ''' Compare the derivatives of the powerspectrum also with linear theory
     '''
     # fiducial P0(k)  
@@ -390,7 +390,7 @@ def quijote_dPdthetas_LT(dmnu='fin'):
     bkgd.set_xlabel('$k$', fontsize=25) 
     bkgd.set_ylabel(r'${\rm d}\log P/{\rm d} \theta$', labelpad=10, fontsize=25) 
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-    ffig = os.path.join(UT.fig_dir(), 'quijote_dPdthetas_LT.%s.ratio.png' % dmnu)
+    ffig = os.path.join(UT.fig_dir(), 'quijote_dlogPdthetas_LT.%s.png' % dmnu)
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
@@ -496,7 +496,6 @@ def quijote_dlogPBdMnu():
     quij = Obvs.quijoteP0k('fiducial')
     pk_fid = np.average(quij['p0k'], axis=0) 
     k_pk = quij['k'] 
-    pklim = (k_pk < 0.5)
     # fiducial B(k)  
     quij = Obvs.quijoteBk('fiducial', rsd=True)
     bk_fid = np.average(quij['b123'], axis=0) 
@@ -513,11 +512,11 @@ def quijote_dlogPBdMnu():
     sub0 = plt.subplot(gs0[0,0])
     for dmnu, lbl, c in zip(dmnus, dmnus_lbls, colors): 
         dpk = quijote_dPk('Mnu', dmnu=dmnu, log=True) 
-        sub0.plot(k_pk[pklim], dpk[pklim], c=c, label=lbl) 
+        sub0.plot(k_pk, dpk, c=c, label=lbl) 
     sub0.legend(loc='upper left', fontsize=15) 
     sub0.set_xlabel('$k$', fontsize=25) 
     sub0.set_xscale('log') 
-    sub0.set_xlim(1.8e-2, 0.5) 
+    sub0.set_xlim(5e-3, 1.0) 
     sub0.set_xticks([0.02, 0.1, 0.5])
     sub0.set_xticklabels([0.02, 0.1, 0.5])
     sub0.set_ylabel(r'${\rm d}\log P_0(k)/{\rm d} M_\nu$', fontsize=25) 
@@ -1350,7 +1349,7 @@ def quijote_Fisher_Nmock(obs, nmock, kmax=0.5, rsd=True, dmnu='fin'):
     C_inv = np.linalg.inv(C_fid) # invert the covariance 
     
     dobs_dt = [] 
-    for par in thetas: # calculate the derivative of Bk along all the thetas 
+    for par in thetas+['Mmin', 'Amp']: # calculate the derivative of Bk along all the thetas 
         if obs == 'pk': dobs_dti = quijote_dPk(par, dmnu=dmnu)
         elif 'bk' in obs: dobs_dti = quijote_dBk(par, rsd=rsd, dmnu=dmnu)
         dobs_dt.append(dobs_dti[klim])
@@ -1457,7 +1456,7 @@ def quijote_Fisher_Nfixedpair(obs, nfp, kmax=0.5, rsd=True, dmnu='fin'):
     C_inv = np.linalg.inv(C_fid) # invert the covariance 
     
     dobs_dt = [] 
-    for par in thetas: # calculate the derivative of Bk along all the thetas 
+    for par in thetas+['Mmin', 'Amp']: # calculate the derivative of Bk along all the thetas 
         if obs == 'pk': 
             dobs_dti = quijote_dPk(par, dmnu=dmnu, Nfp=nfp)
         elif obs == 'bk': 
@@ -2556,6 +2555,102 @@ def fixednbar_Pk():
     return None 
 
 
+def quijote_dPk_fixednbar(theta, dmnu='fin', log=False):
+    ''' calculate d P0(k)/d theta using the paired and fixed quijote simulations
+    run on perturbed theta 
+
+    :param theta: 
+        string that specifies the parameter to take the 
+        derivative by. 
+    '''
+    c_dpk = 0.
+    if theta == 'Mnu': 
+        tts = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
+        if dmnu == 'p': 
+            coeffs = [-1., 1., 0., 0.]
+            h = 0.1
+        elif dmnu == 'pp': 
+            coeffs = [-1., 0., 1., 0.]
+            h = 0.2
+        elif dmnu == 'ppp': 
+            coeffs = [-1., 0., 0., 1.]
+            h = 0.4
+        elif dmnu == 'fin0': 
+            coeffs = [-3., 4., -1., 0.] # finite difference coefficient
+            h = 0.2
+        elif dmnu == 'fin': 
+            coeffs = [-21., 32., -12., 1.] # finite difference coefficient
+            h = 1.2
+    else: 
+        tts = [theta+'_m', theta+'_p'] 
+        coeffs = [-1., 1.] 
+        h = quijote_thetas[theta][1] - quijote_thetas[theta][0]
+
+    for i_tt, tt, coeff in zip(range(len(tts)), tts, coeffs): 
+        quij = Obvs.quijoteBk(tt, flag='.fixed_nbar') # read P0k 
+        if i_tt == 0: dpk = np.zeros(quij['p0k1'].shape[1]) 
+        _pk = np.average(quij['p0k1'], axis=0)  
+
+        if log: _pk = np.log(_pk) # log 
+
+        dpk += coeff * _pk 
+    return dpk / h
+
+
+def quijote_dPdthetas_LT_fixednbar(dmnu='fin'):
+    ''' Compare the derivatives of the powerspectrum also with linear theory
+    '''
+    # fiducial P0(k)  
+    quij = Obvs.quijoteP0k('fiducial')
+    pk_fid = np.average(quij['p0k'], axis=0) 
+    phlim = (quij['k'] < 0.5) 
+
+    klin = np.logspace(-5, 1, 400)
+    pm_fid = LT._Pm_Mnu(0., klin) 
+    
+    quij_fn = Obvs.quijoteBk('fiducial')
+    i_k = quij_fn['k1'] 
+    _, _iuniq = np.unique(i_k, return_index=True)
+    iuniq = np.zeros(len(i_k)).astype(bool) 
+    iuniq[_iuniq] = True
+    klim = (iuniq) 
+    k_fn = np.pi/500. * i_k[klim]
+
+    fig = plt.figure(figsize=(12,8))
+    for i_tt, tt, lbl in zip(range(len(thetas)), thetas, theta_lbls): 
+        sub = fig.add_subplot(2,3,i_tt+1)
+        dpdt = quijote_dPk(tt, dmnu=dmnu, log=True)
+        sub.plot(quij['k'][phlim], dpdt[phlim], lw=1, c='k', label=r'$P_h$') 
+
+        dpdt_fn = quijote_dPk_fixednbar(tt, dmnu=dmnu, log=True)  # fixed nbar 
+        sub.plot(k_fn, dpdt_fn[klim], lw=1, c='k', ls='--', label=r'$P_h$ fixed $\bar{n}$')  
+
+        if tt == 'Mnu': 
+            dpmdt = LT.dPmdtheta(tt, klin, log=True, npoints='quijote') 
+            sub.plot(klin, dpmdt, c='C%i' % i_tt, lw=1, ls='--', label='$P_m$')
+            dpmdt = LT.dPmdtheta(tt, klin, log=True, npoints='quijote', flag='cb') 
+            sub.plot(klin, dpmdt, c='C%i' % i_tt, lw=2, ls=':', label='$P_{cb}$')
+            sub.legend(loc='lower left', fontsize=15) 
+        elif tt in ['h', 's8']: 
+            dpmdt = LT.dPmdtheta(tt, klin, log=True, npoints='quijote') 
+            sub.plot(klin, -dpmdt, c='C%i' % i_tt, lw=1, ls='--', label='$-P_m$')
+        else: 
+            dpmdt = LT.dPmdtheta(tt, klin, log=True, npoints='quijote') 
+            sub.plot(klin, dpmdt, c='C%i' % i_tt, lw=1, ls='--', label='$P_m$')
+        sub.set_xscale('log') 
+        sub.set_xlim(1.e-5, 10) 
+        sub.set_yscale('symlog', linthreshy=1e-1) 
+        sub.set_ylim(-5e1, 8e1) 
+        sub.text(0.95, 0.95, lbl, ha='right', va='top', transform=sub.transAxes, fontsize=25)
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.set_xlabel('$k$', fontsize=25) 
+    bkgd.set_ylabel(r'${\rm d}\log P/{\rm d} \theta$', labelpad=10, fontsize=25) 
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    ffig = os.path.join(UT.fig_dir(), 'quijote_dlogPdthetas_LT_fixednbar.%s.png' % dmnu)
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
+
+
 def quijote_bkCov_fixednbar(kmax=0.5, rsd=True): 
     ''' plot the covariance matrix of the quijote fiducial 
     bispectrum. 
@@ -3578,12 +3673,13 @@ if __name__=="__main__":
             quijote_bkCov(kmax=kmax, rsd=True) # condition number 1.73518e+08
     '''
     # deriatives 
+    #quijote_dPdthetas_LT_fixednbar(dmnu='fin')
+    quijote_dlogPBdMnu()
     '''
         quijote_dPdthetas(dmnu='fin', log=False)
         quijote_dPdthetas(dmnu='fin', log=True)
         quijote_dBdthetas(dmnu='fin', log=False)
         quijote_dBdthetas(dmnu='fin', log=True)
-        quijote_dlogPBdMnu()
         for tt in ['s8', 'Mnu', 'Mmin']: 
             quijote_P_theta(tt)
             quijote_B_theta(tt, kmax=0.5)
@@ -3593,8 +3689,8 @@ if __name__=="__main__":
     ''' 
     # default fisher forecasts
     # Mmin and scale factor b' are free parameters
-    quijote_Forecast_Fii_kmax_Mmin(rsd=True, dmnu='fin')
-    quijote_Forecast_sigma_kmax_Mmin(rsd=True, dmnu='fin')
+    #quijote_Forecast_Fii_kmax_Mmin(rsd=True, dmnu='fin')
+    #quijote_Forecast_sigma_kmax_Mmin(rsd=True, dmnu='fin')
     #quijote_Forecast_sigma_kmax_Mmin(rsd=True, dmnu='fin0')
     #quijote_Forecast_sigma_kmax_Mmin(rsd=True, dmnu='p')
     '''
@@ -3622,9 +3718,9 @@ if __name__=="__main__":
     #quijote_FisherInfo('bk', kmax=0.5)
     
     # --- convergence tests ---  
-    quijote_dlogPBdtheta_Nfixedpair(kmax=0.5, dmnu='fin')
+    #quijote_Forecast_convergence('bk', kmax=0.5, rsd=True, dmnu='fin')
     '''
-        quijote_Forecast_convergence('bk', kmax=0.5, rsd=True, dmnu='fin')
+        quijote_dlogPBdtheta_Nfixedpair(kmax=0.5, dmnu='fin')
     ''' 
     # --- quijote pair fixed test ---
     '''
