@@ -1309,7 +1309,6 @@ def quijote_Forecast_freeMmin_Planck(obs, kmax=0.5, rsd=True, dmnu='fin'):
 ##################################################################
 # convergence tests
 ##################################################################
-
 def quijote_Fisher_Nmock(obs, nmock, kmax=0.5, rsd=True, dmnu='fin'): 
     ''' calculate fisher matrix for parameters ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu', 'Mmin']
     '''
@@ -1465,6 +1464,74 @@ def quijote_Fisher_Nfixedpair(obs, nfp, kmax=0.5, rsd=True, dmnu='fin'):
 
     Fij = Forecast.Fij(dobs_dt, C_inv) 
     return Fij 
+
+
+def quijote_Fij_convergence(obs, kmax=0.5, rsd=True, dmnu='fin'): 
+    ''' check the convergence of Fisher matrix terms when we calculate the covariance 
+    matrix or derivatives using different number of mocks. 
+    '''
+    ij_pairs = [] 
+    ij_pairs_str = [] 
+    nthetas = len(thetas) 
+    for i in xrange(nthetas): 
+        for j in xrange(i, nthetas): 
+            ij_pairs.append((i,j))
+            ij_pairs_str.append(','.join([theta_lbls[i], theta_lbls[j]]))
+    ij_pairs = np.array(ij_pairs) 
+
+    print('--- Nmock test ---' ) 
+    # convegence of covariance matrix 
+    nmocks = [1000, 3000, 5000, 7000, 9000, 11000, 13000, 14000, 15000]
+    # read in fisher matrix (Fij)
+    Fijs = []
+    for nmock in nmocks: 
+        Fijs.append(quijote_Fisher_Nmock(obs, nmock, kmax=kmax, rsd=rsd, dmnu=dmnu)) 
+    Fijs = np.array(Fijs) 
+
+    fig = plt.figure(figsize=(12,15))
+    sub = fig.add_subplot(121) 
+    for _i, ij in enumerate(ij_pairs): 
+        sub.fill_between([1000, 15000], [1.-_i*0.3-0.05, 1.-_i*0.3-0.05], [1.-_i*0.3+0.05, 1.-_i*0.3+0.05],
+                color='k', linewidth=0, alpha=0.25) 
+        sub.plot([1000, 15000], [1.-_i*0.3, 1.-_i*0.3], c='k', ls='--', lw=1) 
+        _Fij = np.array([Fijs[ik][ij[0],ij[1]] for ik in range(len(nmocks))]) 
+        sub.plot(nmocks, _Fij/_Fij[-1] - _i*0.3) 
+    #ij_str = ','.join([theta_lbls[ii].strip('$'), theta_lbls[ij].strip('$')]) 
+    sub.set_ylabel(r'$F_{ij}(N_{\rm fid})/F_{ij}(N_{\rm fid}=15,000)$', fontsize=25)
+    sub.set_ylim([1. - 0.3*len(ij_pairs), 1.3]) 
+    sub.set_yticks([1. - 0.3 * ii for ii in range(len(ij_pairs))])
+    sub.set_yticklabels(ij_pairs_str) 
+    sub.set_xlabel(r"$N_{\rm fid}$ Quijote simulations", labelpad=10, fontsize=25) 
+    sub.set_xlim([3000, 15000]) 
+
+
+    print('--- Nfp test ---' ) 
+    # convergence of derivatives 
+    nfps = [100, 200, 300, 350, 375, 400, 425, 450, 475, 500]
+    # read in fisher matrix (Fij)
+    Fijs = []
+    for nfp in nfps: 
+        Fijs.append(quijote_Fisher_Nfixedpair(obs, nfp, kmax=kmax, rsd=rsd, dmnu=dmnu))
+    Fijs = np.array(Fijs) 
+
+    sub = fig.add_subplot(122)
+    for _i, ij in enumerate(ij_pairs): 
+        sub.fill_between([100, 500], [1.-_i*0.3-0.05, 1.-_i*0.3-0.05], [1.-_i*0.3+0.05, 1.-_i*0.3+0.05],
+                color='k', linewidth=0, alpha=0.25) 
+        sub.plot([100., 500.], [1.-_i*0.3, 1.-_i*0.3], c='k', ls='--', lw=1) 
+        _Fij = np.array([Fijs[ik][ij[0],ij[1]] for ik in range(len(nfps))]) 
+        sub.plot(nfps, _Fij/_Fij[-1] - _i*0.3)
+    sub.set_ylabel(r'$F_{ij}(N_{\rm fp})/F_{ij}(N_{\rm fp}=500)$', fontsize=25)
+    sub.set_ylim([1.-0.3*len(ij_pairs), 1.3]) 
+    sub.set_yticks([1. - 0.3 * ii for ii in range(len(ij_pairs))])
+    sub.set_yticklabels(ij_pairs_str) 
+    sub.set_xlabel(r"$N_{\rm fp}$ Quijote simulations", labelpad=10, fontsize=25) 
+    sub.set_xlim([100, 500]) 
+    fig.subplots_adjust(wspace=0.4) 
+    ffig = os.path.join(UT.fig_dir(), 'quijote_%sFij_convergence_dmnu_%s_kmax%s%s.png' % 
+            (obs, dmnu, str(kmax).replace('.', ''), ['_real', ''][rsd]))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
 
 
 def quijote_Forecast_convergence(obs, kmax=0.5, rsd=True, dmnu='fin'): 
@@ -2538,25 +2605,6 @@ def Pk_fixednbar():
     iuniq = np.zeros(len(i_k)).astype(bool) 
     iuniq[_iuniq] = True
 
-    fig = plt.figure(figsize=(5,5))
-    sub = fig.add_subplot(111) 
-    sub.plot(kf*i_k[iuniq], np.average(quij_fid['p0k1'], axis=0)[iuniq],
-            c='k', ls=':', label=r'$\sigma^{\rm fid}_8$')
-    sub.plot(kf*i_k[iuniq], np.average(quij_s8p['p0k1'], axis=0)[iuniq], 
-            c='C0', label=r'$\sigma^{+}_8$')
-    sub.plot(kf*i_k[iuniq], np.average(quij_s8m['p0k1'], axis=0)[iuniq], 
-            c='C1', label=r'$\sigma^{-}_8$')
-    sub.plot(klin, 1.8**2*pm_fid, c='k') 
-    sub.legend(loc='upper right', fontsize=20) 
-    sub.set_xlabel('k [$h$/Mpc]', fontsize=25) 
-    sub.set_xlim(1e-2, 1) 
-    sub.set_xscale("log") 
-    sub.set_ylabel(r'$P_0$', fontsize=25) 
-    sub.set_yscale('log') 
-    sub.set_ylim(1e2, 1.5e5) 
-    ffig = os.path.join(UT.fig_dir(), 'Pk_fixednbar.png')
-    fig.savefig(ffig, bbox_inches='tight') 
-    
     # ratio 
     fig = plt.figure(figsize=(5,5))
     sub = fig.add_subplot(111) 
@@ -2808,7 +2856,7 @@ def quijote_Forecast_fixednbar(obs, kmax=0.5, dmnu='fin'):
         tuple specifying the kranges of k1, k2, k3 in the bispectrum
     '''
     # fisher matrix (Fij)
-    _Fij = quijote_Fisher(obs, kmax=kmax, dmnu=dmnu)
+    _Fij = quijote_Fisher_freeMmin(obs, kmax=kmax, dmnu=dmnu)
     Fij = quijote_Fisher_fixednbar(obs, kmax=kmax, dmnu=dmnu) 
     _Finv = np.linalg.inv(_Fij)
     Finv = np.linalg.inv(Fij) # invert fisher matrix 
@@ -2848,6 +2896,14 @@ def quijote_Forecast_fixednbar(obs, kmax=0.5, dmnu='fin'):
             else: 
                 sub.set_xticks([])
                 sub.set_xticklabels([]) 
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.fill_between([],[],[], color='C0', label=r'fiducial') 
+    bkgd.fill_between([],[],[], color='C1', label=r'fixed $\bar{n}$') 
+    bkgd.legend(loc='upper right', bbox_to_anchor=(0.875, 0.775), fontsize=25)
+    bkgd.text(0.8, 0.61, r'$k_{\rm max} = %.1f$; $z=0.$' % kmax, ha='right', va='bottom', 
+            transform=bkgd.transAxes, fontsize=25)
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
     fig.subplots_adjust(wspace=0.05, hspace=0.05) 
     ffig = os.path.join(UT.fig_dir(), 'quijote_%s_fixednbar_Fisher_kmax%.2f.png' % (obs, kmax))
     fig.savefig(ffig, bbox_inches='tight') 
@@ -2987,6 +3043,82 @@ def quijote_Forecast_sigma_kmax_fixednbar(dmnu='fin'):
     fig.subplots_adjust(wspace=0.2, hspace=0.15) 
     ffig = os.path.join(UT.doc_dir(), 'figs', 
             'quijote_Fisher_dmnu_%s_sigmakmax_fixednbar.png' % dmnu)
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
+
+
+def quijote_Forecast_sigmatheta_kmax_fixednbar(tts, dmnu='fin'):
+    ''' fisher forecast for quijote for different kmax values 
+    '''
+    #kmaxs = np.pi/500. * 3 * np.arange(1, 28) 
+    kmaxs = np.pi/500. * 3 * np.array([3, 5, 10, 15, 20, 27]) 
+
+    klin = np.logspace(-5, 2, 500)
+    print(', '.join([str(tt) for tt in thetas]))
+    
+    i_tts = np.zeros(len(thetas)).astype(bool) 
+    for tt in tts: i_tts[thetas.index(tt)] = True
+
+    # read in fisher matrix (Fij)
+    sig_pk, sig_bk, sig_Pm, sig_Pcb = [], [], [], [] 
+    for i_k, kmax in enumerate(kmaxs): 
+        # linear theory Pm 
+        Fij = LT.Fij_Pm(klin, kmax=kmax, npoints=5) 
+        Fij = Fij[:,i_tts][i_tts,:]
+        Finv = np.linalg.inv(Fij) # invert fisher matrix 
+        sig_Pm.append(np.sqrt(np.diag(Finv)))
+        print('kmax=%.3f ---' %  kmax) 
+        print('pm: %s' % ', '.join(['%.2e' % fii for fii in np.diag(Fij)[:6]])) 
+        # linear theory Pcb
+        Fij = LT.Fij_Pm(klin, kmax=kmax, npoints=5, flag='cb') 
+        Fij = Fij[:,i_tts][i_tts,:]
+        Finv = np.linalg.inv(Fij) # invert fisher matrix 
+        sig_Pcb.append(np.sqrt(np.diag(Finv)))
+        print('pcb: %s' % ', '.join(['%.2e' % fii for fii in np.diag(Fij)[:6]])) 
+
+        Fij = quijote_Fisher_fixednbar('pk', kmax=kmax, dmnu=dmnu)
+        Fij = Fij[:,i_tts][i_tts,:]
+        Finv = np.linalg.inv(Fij) # invert fisher matrix 
+        sig_pk.append(np.sqrt(np.diag(Finv)))
+        print('pk: %s' % ', '.join(['%.2e' % fii for fii in np.diag(Fij)[:6]])) 
+
+        Fij = quijote_Fisher_fixednbar('bk', kmax=kmax, dmnu=dmnu) 
+        Fij = Fij[:,i_tts][i_tts,:]
+        Finv = np.linalg.inv(Fij) # invert fisher matrix 
+        sig_bk.append(np.sqrt(np.diag(Finv)))
+        print('bk: %s' % ', '.join(['%.2e' % fii for fii in np.diag(Fij)[:6]])) 
+    sig_pk = np.array(sig_pk)
+    sig_bk = np.array(sig_bk)
+    sig_Pm = np.array(sig_Pm)
+    sig_Pcb = np.array(sig_Pcb)
+    sigma_theta_lims = np.array([(5e-3, 5.), (1e-3, 5.), (1e-2, 50), (1e-2, 20.), (1e-2, 50.), (1e-2, 1e3)])[i_tts]
+    _lbls = np.array(theta_lbls)[i_tts]
+
+    fig = plt.figure(figsize=(15,8))
+    for i, theta in enumerate(tts): 
+        sub = fig.add_subplot(2,len(thetas)/2,i+1) 
+        sub.plot(kmaxs, sig_pk[:,i], c='C0', ls='-') 
+        sub.plot(kmaxs, sig_bk[:,i], c='C1', ls='-') 
+        sub.plot(kmaxs, sig_Pm[:,i], c='k', ls='--', label=r"$P^{\rm lin.}_{m}$") 
+        sub.plot(kmaxs, sig_Pcb[:,i], c='k', ls=':', label=r"$P^{\rm lin.}_{cb}$") 
+        if theta == 'Mnu': sub.legend(loc='lower left', fontsize=15) 
+        sub.set_xlim(0.05, 0.5)
+        sub.text(0.9, 0.9, _lbls[i], ha='right', va='top', 
+                transform=sub.transAxes, fontsize=30)
+        sub.set_ylim(sigma_theta_lims[i]) 
+        sub.set_yscale('log') 
+        if i == 0: 
+            sub.text(0.5, 0.35, r"$P$", ha='left', va='bottom', color='C0', transform=sub.transAxes, fontsize=24)
+            sub.text(0.25, 0.2, r"$B$", ha='right', va='top', color='C1', transform=sub.transAxes, fontsize=24)
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    bkgd.set_xlabel(r'$k_{\rm max}$', fontsize=28) 
+    bkgd.set_ylabel(r'$1\sigma$ constraint on $\theta$', labelpad=10, fontsize=28) 
+
+    fig.subplots_adjust(wspace=0.2, hspace=0.15) 
+    ffig = os.path.join(UT.fig_dir(),  
+            'quijote_Fisher_dmnu_%s_sigmakmax_fixednbar.%s.png' % (dmnu, ''.join(tts)))
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
@@ -3930,6 +4062,8 @@ if __name__=="__main__":
     #quijote_FisherInfo('bk', kmax=0.5)
     
     # --- convergence tests ---  
+    quijote_Fij_convergence('pk', kmax=0.5, rsd=True, dmnu='fin')
+    quijote_Fij_convergence('bk', kmax=0.5, rsd=True, dmnu='fin')
     #quijote_Forecast_convergence('bk', kmax=0.5, rsd=True, dmnu='fin')
     '''
         quijote_dlogPBdtheta_Nfixedpair(kmax=0.5, dmnu='fin')
@@ -3952,17 +4086,18 @@ if __name__=="__main__":
             quijote_Forecast_freeMminSN('bk', kmax=kmax, rsd=True, dmnu='fin')
     '''
     # fixed nbar test
-    Pk_fixednbar()
     #quijote_Forecast_Fii_kmax_fixednbar(dmnu='fin')
-    #quijote_Forecast_sigma_kmax_fixednbar(dmnu='fin')
+    ##quijote_Forecast_sigma_kmax_fixednbar(dmnu='fin')
+    #quijote_Forecast_sigmatheta_kmax_fixednbar([thetas[0]]+thetas[2:4]+[thetas[5]], dmnu='fin')
     ''' 
+        quijote_Forecast_fixednbar('pk', kmax=0.2, dmnu='fin')
+        quijote_Forecast_fixednbar('bk', kmax=0.2, dmnu='fin')
+        Pk_fixednbar()
         #for tt in ['s8', 'Mnu']: 
         #    quijote_P_theta(tt, flag='.fixed_nbar')
         #    quijote_B_theta(tt, kmax=0.5, flag='.fixed_nbar')
         #quijote_pkCov(kmax=kmax, rsd=rsd, flag='.fixed_nbar') 
         #quijote_bkCov(kmax=kmax, rsd=rsd, flag='.fixed_nbar') 
-        quijote_Forecast_fixednbar('pk', kmax=0.5, dmnu='fin')
-        quijote_Forecast_fixednbar('bk', kmax=0.5, dmnu='fin')
     '''
     # SN uncorrected forecasts 
     '''
