@@ -385,6 +385,133 @@ def compare_dPdthetas():
     return None
 
 
+def compare_dlogPdthetas_fixAs():
+    ''' Plot the derivatives of Pm w.r.t. to the different parameters 
+    '''
+    thetas = ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu'] 
+    theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8/A_s$', r'$M_\nu$']
+
+    k = np.logspace(-4., 1, 500) 
+    dpdts, dpdts_fixAs = [], [] 
+
+    fig = plt.figure(figsize=(12,8))
+    for i_tt, tt, lbl in zip(range(len(thetas)), thetas, theta_lbls): 
+        dpm = LT.dPmdtheta(tt, k, log=True, npoints='quijote')
+        if tt == 'Mnu':
+            dpm_cb = LT.dPmdtheta(tt, k, log=True, npoints='quijote', flag='cb')
+            dpm_fixAs = LT.dPmdtheta(tt, k, log=True, npoints='quijote', flag='fixAs')
+            dpm_fixAs_cb = LT.dPmdtheta(tt, k, log=True, npoints='quijote', flag='fixAs_cb')
+        elif tt != 's8':
+            dpm_fixAs = LT.dPmdtheta(tt, k, log=True, npoints='quijote', flag='fixAs')
+        else:
+            dpm_fixAs = LT.dPmdtheta('As', k, log=True, npoints='quijote', flag='fixAs')
+        
+        sub = fig.add_subplot(2,3,i_tt+1)
+        sub.plot(k, np.zeros(len(k)), c='k', ls='--') 
+        sub.plot(k, dpm, c='C%i' % i_tt, lw=1, ls='-', label='$P_m$')
+        sub.plot(k, dpm_fixAs, c='C%i' % i_tt, lw=1, ls='--', label='$P_m$ fix. $A_s$')
+        if tt == 'Mnu':
+            sub.plot(k, dpm_cb, c='k', lw=1, ls='-', label='$P_{cb}$')
+            sub.plot(k, dpm_fixAs_cb, c='k', lw=1, ls=':', label='$P_{cb}$ fix. $A_s$')
+    
+        if i_tt == 5: sub.legend(loc='best', fontsize=15) 
+        sub.set_xscale('log') 
+        sub.set_xlim(1e-3, 10.) 
+        #sub.set_yscale('symlog', linthreshy=1e-1) 
+        sub.text(0.05, 0.95, lbl, ha='left', va='top', transform=sub.transAxes, fontsize=25)
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.set_xlabel('$k$', fontsize=25) 
+    bkgd.set_ylabel(r'${\rm d}\log P/{\rm d} \theta$', labelpad=10, fontsize=25) 
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    ffig = os.path.join(UT.fig_dir(), 'dlogPmdthetas.fixAs.class.png')
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
+
+
+def compare_P(): 
+    ''' Comparison of the P(theta_fid), P(theta+), P(theta-) for LT Pm and halo P
+    '''
+    thetas = ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu'] 
+    theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
+
+    klin = np.logspace(-5, 1, 400)
+    LT_fid = LT._Pm_Mnu(0., klin) 
+    LT_fid_fixAs = LT._Pm_Mnu(0., klin, flag='fixAs') 
+
+    fig = plt.figure(figsize=(12,8))
+    for _i, theta in enumerate(thetas): 
+        if theta == 'Mmin': 
+            pass 
+        elif theta == 's8': 
+            LT_p = LT._Pm_theta(theta+'_p', klin)
+            LT_m = LT._Pm_theta(theta+'_m', klin)
+        elif theta != 'Mnu': 
+            LT_p = LT._Pm_theta(theta+'_p', klin)
+            LT_m = LT._Pm_theta(theta+'_m', klin)
+            LT_p_fixAs = LT._Pm_theta(theta+'_p', klin, flag='fixAs') 
+            LT_m_fixAs = LT._Pm_theta(theta+'_m', klin, flag='fixAs') 
+        else: 
+            LT_p = LT._Pm_Mnu(0.1, klin)
+            LT_pp = LT._Pm_Mnu(0.2, klin)
+            LT_ppp = LT._Pm_Mnu(0.4, klin)
+
+            LT_cb_p = LT._Pm_Mnu(0.1, klin, flag='cb')
+            LT_cb_pp = LT._Pm_Mnu(0.2, klin, flag='cb')
+            LT_cb_ppp = LT._Pm_Mnu(0.4, klin, flag='cb')
+            
+            LT_p_fixAs = LT._Pm_Mnu(0.1, klin, flag='fixAs')
+            LT_pp_fixAs = LT._Pm_Mnu(0.2, klin, flag='fixAs')
+            LT_ppp_fixAs = LT._Pm_Mnu(0.4, klin, flag='fixAs')
+    
+            LT_cb_p_fixAs = LT._Pm_Mnu(0.1, klin, flag='fixAs_cb')
+            LT_cb_pp_fixAs = LT._Pm_Mnu(0.2, klin, flag='fixAs_cb')
+            LT_cb_ppp_fixAs = LT._Pm_Mnu(0.4, klin, flag='fixAs_cb')
+
+        sub = fig.add_subplot(2,3,_i+1) 
+        sub.plot(klin, np.ones(len(klin)), c='k', ls='--')
+        if theta == 's8': 
+            sub.plot(klin, LT_p/LT_fid, c='C0', ls='-')
+            sub.plot(klin, LT_m/LT_fid, c='C1', ls='-')
+        elif theta == 'Mnu': 
+            i_tt = thetas.index(theta)
+            sub.plot(klin, LT_p/LT_fid, c='C0',   lw=0.5, ls='-', label=r'LT')
+            sub.plot(klin, LT_pp/LT_fid, c='C1',  lw=0.5, ls='-')
+            sub.plot(klin, LT_ppp/LT_fid, c='C2', lw=0.5, ls='-')
+            sub.plot(klin, LT_cb_p/LT_fid, c='C0', ls='--', label=r'LT$_{cb}$')
+            sub.plot(klin, LT_cb_pp/LT_fid, c='C1', ls='--')
+            sub.plot(klin, LT_cb_ppp/LT_fid, c='C2', ls='--')
+
+            sub.plot(klin, LT_p_fixAs/LT_fid_fixAs, c='C0',   lw=0.5, ls=':', label=r'LT fix.$A_s$')
+            sub.plot(klin, LT_pp_fixAs/LT_fid_fixAs, c='C1',  lw=0.5, ls=':')
+            sub.plot(klin, LT_ppp_fixAs/LT_fid_fixAs, c='C2', lw=0.5, ls=':')
+            
+            sub.plot(klin, LT_cb_p_fixAs/LT_fid_fixAs, c='C0',   lw=0.5, ls='-.', label=r'LT$_{cb}$ fix.$A_s$')
+            sub.plot(klin, LT_cb_pp_fixAs/LT_fid_fixAs, c='C1',  lw=0.5, ls='-.')
+            sub.plot(klin, LT_cb_ppp_fixAs/LT_fid_fixAs, c='C2', lw=0.5, ls='-.')
+            sub.legend(loc='best', ncol=2, fontsize=10) 
+            sub.set_ylim(0.8, 1.3)  
+        else:  
+            sub.plot(klin, LT_p/LT_fid, c='C0', ls='-.', label=r'LT$^+$')
+            sub.plot(klin, LT_m/LT_fid, c='C1', ls='-', label=r'LT$^-$')
+            
+            sub.plot(klin, LT_p_fixAs/LT_fid_fixAs, c='C0', ls=':', lw=0.5)
+            sub.plot(klin, LT_m_fixAs/LT_fid_fixAs, c='C1', ls=':', lw=0.5)
+
+        if _i == 0: sub.legend(loc='best', ncol=2, fontsize=15) 
+        sub.set_xlim(1e-2, 1) 
+        sub.set_xscale("log") 
+        i_tt = thetas.index(theta)
+        sub.text(0.05, 0.05, theta_lbls[i_tt], ha='left', va='bottom', transform=sub.transAxes, fontsize=25)
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.set_xlabel('k [$h$/Mpc]', fontsize=25) 
+    bkgd.set_ylabel(r'$P_0/P^{\rm fid}_0$', labelpad=10, fontsize=25) 
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    ffig = os.path.join(UT.fig_dir(), 'compare_Pklin.thetas.ratio.png')
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+
 def LT_sigma_kmax(npoints=5, flag=None):
     ''' linear theory Pm forecasts as a function of kmax 
     '''
@@ -423,6 +550,104 @@ def LT_sigma_kmax(npoints=5, flag=None):
         ffig = os.path.join(UT.fig_dir(), 'LT_sigma_kmax.npoints%s.%s.png' % (str(npoints), flag))
     else: 
         ffig = os.path.join(UT.fig_dir(), 'LT_sigma_kmax.npoints%s.png' % (str(npoints)))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
+
+
+def LT_sigma_kmax_fixAs():
+    ''' linear theory Pm forecasts as a function of kmax for when s8 is fixed or As is fixed
+    '''
+    thetas = ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu']
+    theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$ or $A_s$', r'$M_\nu$']
+
+    kmaxs = np.pi/500. * 3 * np.arange(1, 28) 
+    sig_m, sig_cb, sig_m_fA, sig_cb_fA = [], [], [], [] 
+    for i_k, kmax in enumerate(kmaxs): 
+        Fij =  LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints='quijote') 
+        sig_m.append(np.sqrt(np.diag(np.linalg.inv(Fij))))
+        Fij =  LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints='quijote', flag='cb') 
+        sig_cb.append(np.sqrt(np.diag(np.linalg.inv(Fij))))
+        Fij =  LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints='quijote', 
+                thetas=['Om', 'Ob', 'h', 'ns', 'As', 'Mnu'], flag='fixAs') 
+        sig_m_fA.append(np.sqrt(np.diag(np.linalg.inv(Fij))))
+        Fij =  LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints='quijote',
+                thetas=['Om', 'Ob', 'h', 'ns', 'As', 'Mnu'], flag='fixAs_cb') 
+        sig_cb_fA.append(np.sqrt(np.diag(np.linalg.inv(Fij))))
+    sig_m = np.array(sig_m)
+    sig_cb = np.array(sig_cb)
+    sig_m_fA = np.array(sig_m_fA)
+    sig_cb_fA = np.array(sig_cb_fA)
+
+    sigma_theta_lims = [(1e-3, 10.), (1e-3, 10.), (1e-3, 50), (1e-3, 50.), (1e-3, 50.), (1e-3, 50.)]
+
+    fig = plt.figure(figsize=(15,8))
+    for i, theta in enumerate(thetas): 
+        sub = fig.add_subplot(2,len(thetas)/2,i+1) 
+        sub.plot(kmaxs, sig_m[:,i], c='C0', ls='-', label='$P_m$') 
+        sub.plot(kmaxs, sig_cb[:,i], c='C1', ls='-', label='$P_{cb}$') 
+        sub.plot(kmaxs, sig_m_fA[:,i], c='C2', ls='-', label='$P_m$ fix. $A_s$') 
+        sub.plot(kmaxs, sig_cb_fA[:,i], c='C3', ls='-', label='$P_{cb}$ fix. $A_s$') 
+        sub.set_xlim(0.005, 0.5)
+        sub.text(0.9, 0.9, theta_lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=20)
+        sub.set_ylim(sigma_theta_lims[i]) 
+        sub.set_yscale('log') 
+        if i == 0: sub.legend(loc='best', fontsize=15) 
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    bkgd.set_xlabel(r'$k_{\rm max}$', fontsize=28) 
+    bkgd.set_ylabel(r'margainalized $\sigma_\theta$', labelpad=10, fontsize=28) 
+
+    fig.subplots_adjust(wspace=0.2, hspace=0.15) 
+    ffig = os.path.join(UT.fig_dir(), 'LT_sigma_kmax.fixAs.png')
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
+
+
+def LT_s8Mnu_kmax_fixAs():
+    ''' linear theory Pm forecasts as a function of kmax for when s8 is fixed or As is fixed
+    '''
+    thetas = ['s8', 'Mnu']
+    theta_lbls = [r'$\sigma_8$ or $A_s$', r'$M_\nu$']
+
+    kmaxs = np.pi/500. * 3 * np.array([1, 5, 10, 15, 20, 28])# np.arange(1, 28) 
+    sig_m, sig_cb, sig_m_fA, sig_cb_fA = [], [], [], [] 
+    for i_k, kmax in enumerate(kmaxs): 
+        Fij =  LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints='quijote') 
+        sig_m.append(np.sqrt(np.diag(np.linalg.inv(Fij[4:,4:]))))
+        Fij =  LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints='quijote', flag='cb') 
+        sig_cb.append(np.sqrt(np.diag(np.linalg.inv(Fij[4:,4:]))))
+        Fij =  LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints='quijote', 
+                thetas=['Om', 'Ob', 'h', 'ns', 'As', 'Mnu'], flag='fixAs') 
+        sig_m_fA.append(np.sqrt(np.diag(np.linalg.inv(Fij[4:,4:]))))
+        Fij =  LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints='quijote',
+                thetas=['Om', 'Ob', 'h', 'ns', 'As', 'Mnu'], flag='fixAs_cb') 
+        sig_cb_fA.append(np.sqrt(np.diag(np.linalg.inv(Fij[4:,4:]))))
+    sig_m = np.array(sig_m)
+    sig_cb = np.array(sig_cb)
+    sig_m_fA = np.array(sig_m_fA)
+    sig_cb_fA = np.array(sig_cb_fA)
+
+    sigma_theta_lims = [(1e-3, 50.), (1e-3, 50.)]
+
+    fig = plt.figure(figsize=(8,4))
+    for i, theta in enumerate(thetas): 
+        sub = fig.add_subplot(1,2,i+1) 
+        sub.plot(kmaxs, sig_m[:,i], c='C0', ls='-', label='$P_m$') 
+        sub.plot(kmaxs, sig_cb[:,i], c='C1', ls='-', label='$P_{cb}$') 
+        sub.plot(kmaxs, sig_m_fA[:,i], c='C2', ls='-', label='$P_m$ fix. $A_s$') 
+        sub.plot(kmaxs, sig_cb_fA[:,i], c='C3', ls='-', label='$P_{cb}$ fix. $A_s$') 
+        sub.set_xlim(0.005, 0.5)
+        sub.text(0.9, 0.9, theta_lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=20)
+        sub.set_ylim(sigma_theta_lims[i]) 
+        sub.set_yscale('log') 
+        if i == 0: sub.legend(loc='best', fontsize=15) 
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    bkgd.set_xlabel(r'$k_{\rm max}$', fontsize=28) 
+    bkgd.set_ylabel(r'margainalized $\sigma_\theta$', labelpad=10, fontsize=28) 
+
+    fig.subplots_adjust(wspace=0.2, hspace=0.15) 
+    ffig = os.path.join(UT.fig_dir(), 'LT_s8Mnu_kmax.fixAs.png')
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
@@ -514,6 +739,8 @@ def LT_sigma_kmax_cb_m():
 if __name__=="__main__": 
     #compare_Pm()
     #compare_Pm_ns()
+    #compare_P()
+    #compare_dlogPdthetas_fixAs()
     #compare_dPmdns() 
     #compare_dlogPmcbdMnu()
     #compare_PmMnu_PmLCDM()
@@ -528,7 +755,9 @@ if __name__=="__main__":
     #Fij_ema = np.array([[5533.04, 73304.8], [73304.8, 1.05542e6]])
     #print np.sqrt(np.diag(np.linalg.inv(Fij_ema)))[::-1]
     #LT_sigma_kmax()
-    LT_sigma_kmax_cb_m()
+    #LT_sigma_kmax_fixAs()
+    LT_s8Mnu_kmax_fixAs()
+    #LT_sigma_kmax_cb_m()
     #LT_sigma_kmax(npoints='0.1eV', flag='cb')
     #LT_sigma_kmax(npoints='0.1eV', flag='ema')
     #LT_sigma_kmax(npoints='0.1eV', flag='ema_cb')

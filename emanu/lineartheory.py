@@ -37,23 +37,26 @@ def dPmdtheta(theta, k, log=False, npoints=5, flag=None):
     if theta == 'Mnu': 
         return dPmdMnu(k, npoints=npoints, log=log, flag=flag) 
     else:
-        h_dict = {'Ob': 0.002, 'Om': 0.02, 'h': 0.04, 'ns': 0.04, 's8': 0.03} 
+        h_dict = {'Ob': 0.002, 'Om': 0.02, 'h': 0.04, 'ns': 0.04, 's8': 0.03, 'As': 0.4} 
         h = h_dict[theta]
-        Pm_m = _Pm_theta('%s_m' % theta, k) 
-        Pm_p = _Pm_theta('%s_p' % theta, k) 
+        Pm_m = _Pm_theta('%s_m' % theta, k, flag=flag) 
+        Pm_p = _Pm_theta('%s_p' % theta, k, flag=flag) 
         if not log: 
             return (Pm_p - Pm_m)/h 
         else: # dlnP/dtheta
             return (np.log(Pm_p) - np.log(Pm_m))/h
 
 
-def _Pm_theta(theta, karr): 
+def _Pm_theta(theta, karr, flag=None): 
     ''' linear theory matter power spectrum with fiducial parameters except theta for k 
     '''
-    if theta not in ['Ob_m', 'Ob_p', 'Om_m', 'Om_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p',
-            'fid_As', 'ns_m_As', 'ns_p_As' ]: 
+    _thetas = ['Ob_m', 'Ob_p', 'Om_m', 'Om_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p', 'As_m', 'As_p'] 
+    if theta not in _thetas: 
         raise ValueError 
-    f = os.path.join(UT.dat_dir(), 'lt', 'output', '%s_pk.dat' % theta)
+    if flag in ['fixAs', 'fixAs_cb']: 
+        f = os.path.join(UT.dat_dir(), 'lt', 'output', '%s_fixAs_pk.dat' % theta)
+    else: 
+        f = os.path.join(UT.dat_dir(), 'lt', 'output', '%s_pk.dat' % theta)
     k, pmk = np.loadtxt(f, unpack=True, skiprows=4, usecols=[0,1]) 
     fpmk = interp1d(k, pmk, kind='cubic') 
     return fpmk(karr) 
@@ -146,6 +149,34 @@ def _Pm_Mnu(mnu, karr, flag=None):
             fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p2eV_pk_cb.dat')
         elif mnu == 0.4: 
             fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p4eV_pk_cb.dat')
+        k, pmk = np.loadtxt(fema, unpack=True, skiprows=4, usecols=[0,1]) 
+        fpmk = interp1d(k, pmk, kind='cubic') 
+        return fpmk(karr)
+    elif flag == 'fixAs': 
+        if mnu == 0.0: 
+            fema = os.path.join(UT.dat_dir(), 'lt', 'output', 'fid_fixAs_pk.dat')
+        elif mnu == 0.1: 
+            fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p1eV_fixAs_pk.dat')
+        elif mnu == 0.2: 
+            fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p2eV_fixAs_pk.dat')
+        elif mnu == 0.4: 
+            fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p4eV_fixAs_pk.dat')
+        else: 
+            raise NotImplementedError
+        k, pmk = np.loadtxt(fema, unpack=True, skiprows=4, usecols=[0,1]) 
+        fpmk = interp1d(k, pmk, kind='cubic') 
+        return fpmk(karr)
+    elif flag == 'fixAs_cb': 
+        if mnu == 0.0: 
+            fema = os.path.join(UT.dat_dir(), 'lt', 'output', 'fid_fixAs_pk.dat')
+        elif mnu == 0.1: 
+            fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p1eV_fixAs_pk_cb.dat')
+        elif mnu == 0.2: 
+            fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p2eV_fixAs_pk_cb.dat')
+        elif mnu == 0.4: 
+            fema = os.path.join(UT.dat_dir(), 'lt', 'output', '0p4eV_fixAs_pk_cb.dat')
+        else: 
+            raise NotImplementedError
         k, pmk = np.loadtxt(fema, unpack=True, skiprows=4, usecols=[0,1]) 
         fpmk = interp1d(k, pmk, kind='cubic') 
         return fpmk(karr)
