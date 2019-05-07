@@ -373,7 +373,7 @@ def quijote_dBdthetas_fixednbar(dmnu='fin'):
     return None
 
 
-def quijote_Fisher_fixednbar(obs, kmax=0.5, dmnu='fin', fhartlap=True, s8corr=True): 
+def quijote_Fisher_fixednbar(obs, kmax=0.5, dmnu='fin', fhartlap=True, s8corr=True, bSN=False): 
     ''' calculate fisher matrix for parameters ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu']
     with fixed nbar 
     '''
@@ -407,7 +407,9 @@ def quijote_Fisher_fixednbar(obs, kmax=0.5, dmnu='fin', fhartlap=True, s8corr=Tr
     C_inv = f_hartlap * np.linalg.inv(C_fid) # invert the covariance 
     
     dobs_dt = [] 
-    for par in thetas:#+['Amp']: # calculate the derivative of Bk along all the thetas 
+    if bSN: _thetas = thetas +['Amp', 'Asn']
+    else: _thetas = thetas 
+    for par in _thetas: # calculate the derivative of Bk along all the thetas 
         if obs == 'pk': 
             dobs_dti = quijote_dPk_fixednbar(par, dmnu=dmnu, s8corr=s8corr) 
         elif obs == 'bk': 
@@ -418,7 +420,7 @@ def quijote_Fisher_fixednbar(obs, kmax=0.5, dmnu='fin', fhartlap=True, s8corr=Tr
 
 
 def quijote_Forecast_fixednbar(obs, kmax=0.5, dmnu='fin'):
-    ''' fisher forecast for quijote 
+    ''' fisher forecast for quijote where we impose fixed nbar 
     
     :param krange: (default: [0.01, 0.5]) 
         tuple specifying the kranges of k1, k2, k3 in the bispectrum
@@ -478,6 +480,139 @@ def quijote_Forecast_fixednbar(obs, kmax=0.5, dmnu='fin'):
     return None
 
 
+# sigma_theta(kmax) tests
+def quijote_Forecast_Fii_kmax_fixednbar(dmnu='fin', s8corr=False):
+    ''' 1/sqrt(Fii) as a function of kmax 
+    '''
+    #kmaxs = np.pi/500. * 3 * np.arange(3, 28) 
+    kmaxs = np.pi/500. * 3 * np.array([3, 5, 10, 15, 20, 27]) 
+    
+    klin = np.logspace(-5, 2, 500)
+    print(', '.join([str(tt) for tt in thetas]))
+    # read in fisher matrix (Fij)
+    Fii_pk, Fii_bk, Fii_pm, Fii_pcb = [], [], [], [] 
+    for i_k, kmax in enumerate(kmaxs): 
+        print('kmax=%.3f ---' %  kmax) 
+        # linear theory Pm 
+        Fij = LT.Fij_Pm(klin, kmax=kmax, npoints=5) 
+        Fii_pm.append(1./np.sqrt(np.diag(Fij)))
+        Fij = LT.Fij_Pm(klin, kmax=kmax, npoints=5, flag='cb') 
+        Fii_pcb.append(1./np.sqrt(np.diag(Fij)))
+        print('pm: %s' % ', '.join(['%.2e' % fii for fii in np.diag(Fij)[:6]])) 
+        Fij = quijote_Fisher_fixednbar('pk', kmax=kmax, dmnu=dmnu)
+        Fii_pk.append(1./np.sqrt(np.diag(Fij)))
+        print('pk: %s' % ', '.join(['%.2e' % fii for fii in np.diag(Fij)[:6]])) 
+        Fij = quijote_Fisher_fixednbar('bk', kmax=kmax, dmnu=dmnu) 
+        Fii_bk.append(1./np.sqrt(np.diag(Fij)))
+        print('bk: %s' % ', '.join(['%.2e' % fii for fii in np.diag(Fij)[:6]])) 
+    Fii_pk = np.array(Fii_pk)
+    Fii_bk = np.array(Fii_bk)
+    Fii_pm = np.array(Fii_pm)
+    Fii_pcb = np.array(Fii_pcb)
+    sigma_theta_lims = [(1e-4, 1.), (1e-4, 1.), (1e-3, 2), (1e-3, 2.), (1e-4, 1.), (5e-3, 10.)]
+
+    fig = plt.figure(figsize=(15,8))
+    for i, theta in enumerate(thetas): 
+        sub = fig.add_subplot(2,len(thetas)/2,i+1) 
+        plt_ph, = sub.plot(kmaxs, Fii_pk[:,i], c='C0')
+        plt_bh, = sub.plot(kmaxs, Fii_bk[:,i], c='C1') 
+        plt_pm, = sub.plot(kmaxs, Fii_pm[:,i], c='k', ls='-') 
+        plt_pc, = sub.plot(kmaxs, Fii_pcb[:,i], c='k', ls=':') 
+        if i == 0: sub.legend([plt_ph, plt_bh], [r'$P_h$ fix. $\bar{n}$', r'$B_h$ fix. $\bar{n}$'], loc='upper left', fontsize=15) 
+        if theta == 'Mnu': sub.legend([plt_pm, plt_bc], [r'$P_m$', r'$P_{cb}$'], loc='upper left', fontsize=15) 
+        sub.set_xlim(0.005, 0.5)
+        sub.text(0.95, 0.95, theta_lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=25)
+        sub.set_ylim(sigma_theta_lims[i]) 
+        sub.set_yscale('log') 
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    bkgd.set_xlabel(r'$k_{\rm max}$', fontsize=28) 
+    bkgd.set_ylabel(r'unmarginalized $\sigma_\theta$ $(1/\sqrt{F_{i,i}})$', labelpad=10, fontsize=28) 
+    fig.subplots_adjust(wspace=0.2, hspace=0.15) 
+    ffig = os.path.join(UT.fig_dir(), 'quijote_Fii_dmnu_%s_kmax_fixednbar.png' % dmnu)
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
+
+
+def quijote_Forecast_sigmatheta_kmax_fixednbar(tts=['Om', 'Ob', 'h', 'ns', 's8', 'Mnu'], dmnu='fin', 
+        s8corr=False, bSN=False):
+    ''' fisher forecast for quijote for different kmax values 
+    '''
+    kmaxs = np.pi/500. * 3 * np.array([3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 28]) 
+
+    klin = np.logspace(-5, 2, 500)
+    
+    i_tts = np.zeros(len(thetas)).astype(bool) 
+    for tt in tts: i_tts[thetas.index(tt)] = True
+    if bSN: 
+        _i_tts = np.zeros(len(thetas)+2).astype(bool) 
+        for tt in tts: _i_tts[thetas.index(tt)] = True
+        _i_tts[-2] = True
+        _i_tts[-1] = True
+    else: _i_tts = i_tts
+
+    # read in fisher matrix (Fij)
+    sig_pk, sig_pm, sig_pcb, _sig_pk = [], [], [], []
+    for i_k, kmax in enumerate(kmaxs): 
+        pmFij = LT.Fij_Pm(klin, kmax=kmax, npoints=5) # linear theory Pm 
+        if 'Mnu' in tts: pcbFij = LT.Fij_Pm(klin, kmax=kmax, npoints=5, flag='cb') # LT Pcb 
+        pkFij = quijote_Fisher_fixednbar('pk', kmax=kmax, dmnu=dmnu, s8corr=s8corr, bSN=bSN) # halo P(k)
+        if s8corr or bSN: _pkFij = quijote_Fisher_fixednbar('pk', kmax=kmax, dmnu=dmnu, s8corr=False, bSN=False) # fiducial halo P
+
+        sig_pm.append(np.sqrt(np.diag(np.linalg.inv(pmFij[:,i_tts][i_tts,:]))))
+        if 'Mnu' in tts: sig_pcb.append(np.sqrt(np.diag(np.linalg.inv(pcbFij[:,i_tts][i_tts,:]))))
+        sig_pk.append(np.sqrt(np.diag(np.linalg.inv(pkFij[:,_i_tts][_i_tts,:]))))
+        if s8corr or bSN: _sig_pk.append(np.sqrt(np.diag(np.linalg.inv(_pkFij[:,i_tts][i_tts,:]))))
+
+    sig_pk = np.array(sig_pk)
+    sig_pm = np.array(sig_pm)
+    if 'Mnu' in tts: sig_pcb = np.array(sig_pcb)
+    if s8corr or bSN: _sig_pk = np.array(_sig_pk) 
+
+    sigma_theta_lims = np.array([(5e-3, 5.), (1e-3, 5.), (1e-2, 50), (1e-2, 20.), (1e-2, 50.), (1e-2, 1e3)])[i_tts]
+    _lbls = np.array(theta_lbls)[i_tts]
+
+    fig = plt.figure(figsize=(15,8))
+    for i, theta in enumerate(tts): 
+        sub = fig.add_subplot(2,len(thetas)/2,i+1) 
+        if s8corr or bSN: 
+            plt_pk, = sub.plot(kmaxs, sig_pk[:,i], c='C1', ls='-') 
+            _plt_pk, = sub.plot(kmaxs, _sig_pk[:,i], c='C0', ls='-') 
+            plts = [_plt_pk, plt_pk]
+            _lbl = r'$P_h$ fix. $\bar{n}$ '
+            if s8corr: _lbl += 'corr. $\sigma_8$ '
+            if bSN: _lbl +=  r'marg. $b_1$ $A_{\rm SN}$'
+            if i == 0: sub.legend(plts, [r'$P_h$ fix. $\bar{n}$', _lbl], loc='lower left', fontsize=15) 
+        else: 
+            plt_pk, = sub.plot(kmaxs, sig_pk[:,i], c='C0', ls='-') 
+            if i == 0: sub.legend([plt_pk], [r'$P_h$ fix. $\bar{n}$']) 
+        sub.plot(kmaxs, sig_pm[:,i], c='k', ls='--', label=r"$P^{\rm lin.}_{m}$") 
+        if 'Mnu' in tts: sub.plot(kmaxs, sig_pcb[:,i], c='k', ls=':', label=r"$P^{\rm lin.}_{cb}$") 
+        if theta == 'Mnu': sub.legend(loc='lower left', fontsize=15) 
+        sub.set_xlim(0.05, 0.5)
+        sub.text(0.9, 0.9, _lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=30)
+        sub.set_ylim(sigma_theta_lims[i]) 
+        sub.set_yscale('log') 
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    bkgd.set_xlabel(r'$k_{\rm max}$', fontsize=28) 
+    bkgd.set_ylabel(r'marginalized $\sigma_\theta$', labelpad=10, fontsize=28) 
+    
+    flag_str = ''
+    if s8corr: flag_str += '.s8corr'
+    if bSN: flag_str += '.bSN'
+
+    fig.subplots_adjust(wspace=0.2, hspace=0.15) 
+    if np.sum(i_tts) == len(thetas): 
+        ffig = ('quijote_Fisher_dmnu_%s_sigmakmax_fixednbar%s.png' % (dmnu, flag_str))
+    else: 
+        ffig = ('quijote_Fisher_dmnu_%s_sigmakmax_fixednbar%s.%s.png' % (dmnu, flag_str, ''.join(tts)))
+    fig.savefig(os.path.join(UT.fig_dir(), ffig), bbox_inches='tight') 
+    return None
+
+
 def quijote_Fij_LT_kmax_fixednbar(kmax=0.5, dmnu='fin'):
     ''' compare fisher matrix of Ph with fixed nbar w/ LT fisher matrix.  
     '''
@@ -527,7 +662,7 @@ def quijote_Fij_LT_kmax_fixednbar(kmax=0.5, dmnu='fin'):
 
 
 def quijote_PhFij_PcbFij(kmax=0.1, dmnu='fin'):
-    ''' compare fisher matrix of Ph with fixed nbar w/ Pcb LT fisher matrix
+    ''' compare the ratio between fisher matrix of Ph with fixed nbar w/ Pcb LT fisher matrix
     '''
     klin = np.logspace(-5, 2, 500)
     # read in fisher matrices (Fij)
@@ -549,199 +684,6 @@ def quijote_PhFij_PcbFij(kmax=0.1, dmnu='fin'):
     cbar_ax = fig.add_axes([0.925, 0.15, 0.02, 0.7])
     fig.colorbar(cm, cax=cbar_ax) 
     ffig = os.path.join(UT.fig_dir(), 'quijote_PhFij_PcbFij.kmax%.1f.png' % kmax) 
-    fig.savefig(ffig, bbox_inches='tight') 
-    return None
-
-
-def quijote_Forecast_Fii_kmax_fixednbar(dmnu='fin'):
-    ''' 1/sqrt(Fii) as a function of kmax 
-    '''
-    #kmaxs = np.pi/500. * 3 * np.arange(3, 28) 
-    kmaxs = np.pi/500. * 3 * np.array([3, 5, 10, 15, 20, 27]) 
-    
-    klin = np.logspace(-5, 2, 500)
-    print(', '.join([str(tt) for tt in thetas]))
-    # read in fisher matrix (Fij)
-    Fii_pk, Fii_bk, Fii_pm, Fii_pcb = [], [], [], [] 
-    sig_pk, sig_bk = [], [] 
-    for i_k, kmax in enumerate(kmaxs): 
-        print('kmax=%.3f ---' %  kmax) 
-        # linear theory Pm 
-        Fij = LT.Fij_Pm(klin, kmax=kmax, npoints=5) 
-        Fii_pm.append(1./np.sqrt(np.diag(Fij)))
-        Fij = LT.Fij_Pm(klin, kmax=kmax, npoints=5, flag='cb') 
-        Fii_pcb.append(1./np.sqrt(np.diag(Fij)))
-        print('pm: %s' % ', '.join(['%.2e' % fii for fii in np.diag(Fij)[:6]])) 
-        Fij = quijote_Fisher_fixednbar('pk', kmax=kmax, dmnu=dmnu)
-        Fii_pk.append(1./np.sqrt(np.diag(Fij)))
-        sig_pk.append(np.sqrt(np.diag(np.linalg.inv(Fij))))
-        print('pk: %s' % ', '.join(['%.2e' % fii for fii in np.diag(Fij)[:6]])) 
-        Fij = quijote_Fisher_fixednbar('bk', kmax=kmax, dmnu=dmnu) 
-        Fii_bk.append(1./np.sqrt(np.diag(Fij)))
-        sig_bk.append(np.sqrt(np.diag(np.linalg.inv(Fij))))
-        print('bk: %s' % ', '.join(['%.2e' % fii for fii in np.diag(Fij)[:6]])) 
-    Fii_pk = np.array(Fii_pk)
-    sig_pk = np.array(sig_pk)
-    Fii_bk = np.array(Fii_bk)
-    sig_bk = np.array(sig_bk)
-    Fii_pm = np.array(Fii_pm)
-    Fii_pcb = np.array(Fii_pcb)
-    sigma_theta_lims = [(1e-4, 1.), (1e-4, 1.), (1e-3, 2), (1e-3, 2.), (1e-4, 1.), (5e-3, 10.)]
-
-    fig = plt.figure(figsize=(15,8))
-    for i, theta in enumerate(thetas): 
-        sub = fig.add_subplot(2,len(thetas)/2,i+1) 
-        if i == 0: 
-            sub.plot(kmaxs, Fii_pk[:,i], c='C0', ls='-', label='P') 
-            sub.plot(kmaxs, Fii_bk[:,i], c='C1', ls='-', label='B') 
-            sub.plot(kmaxs, sig_pk[:,i], c='C0', ls=':', label='Full Fisher') 
-        else: 
-            sub.plot(kmaxs, Fii_pk[:,i], c='C0', ls='-') 
-            sub.plot(kmaxs, Fii_bk[:,i], c='C1', ls='-') 
-            sub.plot(kmaxs, sig_pk[:,i], c='C0', ls=':') 
-        sub.plot(kmaxs, sig_bk[:,i], c='C1', ls=':') 
-        if theta == 'Mnu': 
-            sub.plot(kmaxs, Fii_pm[:,i], c='k', ls='-', label='$P_m$') 
-            sub.plot(kmaxs, Fii_pcb[:,i], c='k', ls=':', label='$P_{cb}$') 
-        else: 
-            sub.plot(kmaxs, Fii_pm[:,i], c='k', ls='-') 
-            sub.plot(kmaxs, Fii_pcb[:,i], c='k', ls=':') 
-        sub.legend(loc='upper left', fontsize=15) 
-        sub.set_xlim(0.005, 0.5)
-        sub.text(0.95, 0.95, theta_lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=25)
-        sub.set_ylim(sigma_theta_lims[i]) 
-        sub.set_yscale('log') 
-
-    bkgd = fig.add_subplot(111, frameon=False)
-    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-    bkgd.set_xlabel(r'$k_{\rm max}$', fontsize=28) 
-    bkgd.set_ylabel(r'unmarginalized $1\sigma_\theta$ $(1/\sqrt{F_{i,i}})$', labelpad=10, fontsize=28) 
-
-    fig.subplots_adjust(wspace=0.2, hspace=0.15) 
-    ffig = os.path.join(UT.fig_dir(), 'quijote_Fii_dmnu_%s_kmax_fixednbar.png' % dmnu)
-    fig.savefig(ffig, bbox_inches='tight') 
-    return None
-
-
-def quijote_Forecast_sigma_kmax_fixednbar(dmnu='fin'):
-    ''' fisher forecast for quijote for different kmax values 
-    '''
-    kmaxs = np.pi/500. * 3 * np.arange(3, 28) 
-    #kmaxs = np.pi/500. * 3 * np.array([3, 5, 10, 15, 20, 27]) 
-
-    klin = np.logspace(-5, 2, 500)
-    print(', '.join([str(tt) for tt in thetas]))
-
-    # read in fisher matrix (Fij)
-    sig_pk, sig_bk, sig_Pm, sig_Pcb = [], [], [], [] 
-    for i_k, kmax in enumerate(kmaxs): 
-        # linear theory Pm 
-        Fij = LT.Fij_Pm(klin, kmax=kmax, npoints=5) 
-        Finv = np.linalg.inv(Fij) # invert fisher matrix 
-        sig_Pm.append(np.sqrt(np.diag(Finv)))
-        print('kmax=%.3f ---' %  kmax) 
-        print('pm: %s' % ', '.join(['%.2e' % fii for fii in np.diag(Fij)[:6]])) 
-        # linear theory Pcb
-        Fij = LT.Fij_Pm(klin, kmax=kmax, npoints=5, flag='cb') 
-        Finv = np.linalg.inv(Fij) # invert fisher matrix 
-        sig_Pcb.append(np.sqrt(np.diag(Finv)))
-        print('pcb: %s' % ', '.join(['%.2e' % fii for fii in np.diag(Fij)[:6]])) 
-
-        Fij = quijote_Fisher_fixednbar('pk', kmax=kmax, dmnu=dmnu)
-        Finv = np.linalg.inv(Fij) # invert fisher matrix 
-        sig_pk.append(np.sqrt(np.diag(Finv)))
-        print('pk: %s' % ', '.join(['%.2e' % fii for fii in np.diag(Fij)[:6]])) 
-
-        #Fij = quijote_Fisher_fixednbar('bk', kmax=kmax, dmnu=dmnu) 
-        #Finv = np.linalg.inv(Fij) # invert fisher matrix 
-        #sig_bk.append(np.sqrt(np.diag(Finv)))
-        #print('bk: %s' % ', '.join(['%.2e' % fii for fii in np.diag(Fij)[:6]])) 
-    sig_pk = np.array(sig_pk)
-    #sig_bk = np.array(sig_bk)
-    sig_Pm = np.array(sig_Pm)
-    sig_Pcb = np.array(sig_Pcb)
-    sigma_theta_lims = [(5e-3, 5.), (1e-3, 5.), (1e-2, 50), (1e-2, 20.), (1e-2, 50.), (1e-2, 1e3)]
-
-    fig = plt.figure(figsize=(15,8))
-    for i, theta in enumerate(thetas): 
-        sub = fig.add_subplot(2,len(thetas)/2,i+1) 
-        sub.plot(kmaxs, sig_pk[:,i], c='C0', ls='-', label=r'$P_{h}$ fixed $\bar{n}$ ($\sigma_8$ corr.)') 
-        #sub.plot(kmaxs, sig_bk[:,i], c='C1', ls='-') 
-        sub.plot(kmaxs, sig_Pm[:,i], c='k', ls='--', label=r"$P^{\rm lin.}_{m}$") 
-        sub.plot(kmaxs, sig_Pcb[:,i], c='k', ls=':', label=r"$P^{\rm lin.}_{cb}$") 
-        if theta == 'Mnu': sub.legend(loc='lower left', fontsize=15) 
-        sub.set_xlim(0.05, 0.5)
-        sub.text(0.9, 0.9, theta_lbls[i], ha='right', va='top', 
-                transform=sub.transAxes, fontsize=30)
-        sub.set_ylim(sigma_theta_lims[i]) 
-        sub.set_yscale('log') 
-        if i == 0: 
-            sub.text(0.5, 0.35, r"$P$", ha='left', va='bottom', color='C0', transform=sub.transAxes, fontsize=24)
-            sub.text(0.25, 0.2, r"$B$", ha='right', va='top', color='C1', transform=sub.transAxes, fontsize=24)
-
-    bkgd = fig.add_subplot(111, frameon=False)
-    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-    bkgd.set_xlabel(r'$k_{\rm max}$', fontsize=28) 
-    bkgd.set_ylabel(r'$1\sigma$ constraint on $\theta$', labelpad=10, fontsize=28) 
-
-    fig.subplots_adjust(wspace=0.2, hspace=0.15) 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 
-            'quijote_Fisher_dmnu_%s_sigmakmax_fixednbar.png' % dmnu)
-    fig.savefig(ffig, bbox_inches='tight') 
-    return None
-
-
-def quijote_Forecast_sigmatheta_kmax_fixednbar(tts, dmnu='fin'):
-    ''' fisher forecast for quijote for different kmax values 
-    '''
-    #kmaxs = np.pi/500. * 3 * np.arange(3, 28) 
-    kmaxs = np.pi/500. * 3 * np.array([3, 5, 10, 15, 20, 27]) 
-
-    klin = np.logspace(-5, 2, 500)
-    
-    i_tts = np.zeros(len(thetas)).astype(bool) 
-    for tt in tts: i_tts[thetas.index(tt)] = True
-
-    # read in fisher matrix (Fij)
-    sig_pk, sig_Pm, sig_Pcb = [], [], []
-    for i_k, kmax in enumerate(kmaxs): 
-        pmFij = LT.Fij_Pm(klin, kmax=kmax, npoints=5) # linear theory Pm 
-        if 'Mnu' in tts: pcbFij = LT.Fij_Pm(klin, kmax=kmax, npoints=5, flag='cb') # linear theory Pcb 
-        pkFij = quijote_Fisher_fixednbar('pk', kmax=kmax, dmnu=dmnu, s8corr=True) # halo P(k)
-
-        sig_Pm.append(np.sqrt(np.diag(np.linalg.inv(pmFij[:,i_tts][i_tts,:]))))
-        if 'Mnu' in tts: sig_Pcb.append(np.sqrt(np.diag(np.linalg.inv(pcbFij[:,i_tts][i_tts,:]))))
-        sig_pk.append(np.sqrt(np.diag(np.linalg.inv(pkFij[:,i_tts][i_tts,:]))))
-
-    sig_pk = np.array(sig_pk)
-    sig_Pm = np.array(sig_Pm)
-    if 'Mnu' in tts: sig_Pcb = np.array(sig_Pcb)
-    sigma_theta_lims = np.array([(5e-3, 5.), (1e-3, 5.), (1e-2, 50), (1e-2, 20.), (1e-2, 50.), (1e-2, 1e3)])[i_tts]
-    _lbls = np.array(theta_lbls)[i_tts]
-
-    fig = plt.figure(figsize=(15,8))
-    for i, theta in enumerate(tts): 
-        sub = fig.add_subplot(2,len(thetas)/2,i+1) 
-        sub.plot(kmaxs, sig_pk[:,i], c='C0', ls='-') 
-        sub.plot(kmaxs, sig_Pm[:,i], c='k', ls='--', label=r"$P^{\rm lin.}_{m}$") 
-        if 'Mnu' in tts: sub.plot(kmaxs, sig_Pcb[:,i], c='k', ls=':', label=r"$P^{\rm lin.}_{cb}$") 
-        if theta == 'Mnu': sub.legend(loc='lower left', fontsize=15) 
-        sub.set_xlim(0.05, 0.5)
-        sub.text(0.9, 0.9, _lbls[i], ha='right', va='top', 
-                transform=sub.transAxes, fontsize=30)
-        sub.set_ylim(sigma_theta_lims[i]) 
-        sub.set_yscale('log') 
-        if i == 0: 
-            sub.text(0.5, 0.35, r"$P$", ha='left', va='bottom', color='C0', transform=sub.transAxes, fontsize=24)
-
-    bkgd = fig.add_subplot(111, frameon=False)
-    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-    bkgd.set_xlabel(r'$k_{\rm max}$', fontsize=28) 
-    bkgd.set_ylabel(r'$1\sigma$ constraint on $\theta$', labelpad=10, fontsize=28) 
-
-    fig.subplots_adjust(wspace=0.2, hspace=0.15) 
-    ffig = os.path.join(UT.fig_dir(),  
-            'quijote_Fisher_dmnu_%s_sigmakmax_fixednbar.%s.png' % (dmnu, ''.join(tts)))
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
@@ -1052,125 +994,15 @@ def quijote_Forecast_sigma_kmax_fixednbar_LTdtheta(tt_LT, dmnu='fin'):
     return None
 
 
-def quijote_Fisher_fixednbar_bSN(obs, kmax=0.5, dmnu='fin', fhartlap=True, s8corr=True): 
-    ''' calculate fisher matrix for parameters ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu', 'Amp', 'Asn']
-    with fixed nbar 
-    '''
-    quij = Obvs.quijoteBk('fiducial', flag='.fixed_nbar') # theta_fiducial 
-    i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
-
-    if obs == 'pk': 
-        pks = quij['p0k1'] + 1e9/quij['Nhalos'][:,None] # uncorrect shot noise 
-        _, _iuniq = np.unique(i_k, return_index=True)
-        iuniq = np.zeros(len(i_k)).astype(bool) 
-        iuniq[_iuniq] = True
-        klim = (iuniq & (i_k * kf < kmax)) 
-
-        nmock = quij['p0k1'].shape[0]
-        ndata = np.sum(klim) 
-
-        C_fid = np.cov(pks[:,klim].T) # covariance matrix 
-
-    elif obs == 'bk': 
-        # read in full covariance matrix (with shotnoise; this is the correct one) 
-        bks = quij['b123'] + quij['b_sn'] # shotnoise uncorrected B(k) 
-        
-        klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # k limit 
-
-        nmock = quij['b123'].shape[0]
-        ndata = np.sum(klim) 
-        C_fid = np.cov(bks[:,klim].T)
-    
-    if fhartlap: f_hartlap = float(nmock - ndata - 2)/float(nmock - 1) 
-    else: f_hartlap = 1. 
-    C_inv = f_hartlap * np.linalg.inv(C_fid) # invert the covariance 
-    
-    dobs_dt = [] 
-    for par in thetas+['Amp', 'Asn']: # calculate the derivative of Bk along all the thetas 
-        if obs == 'pk': 
-            dobs_dti = quijote_dPk_fixednbar(par, dmnu=dmnu, s8corr=s8corr) 
-        elif obs == 'bk': 
-            dobs_dti = quijote_dBk_fixednbar(par, dmnu=dmnu)
-        dobs_dt.append(dobs_dti[klim])
-    Fij = Forecast.Fij(dobs_dt, C_inv) 
-    return Fij 
-
-
-def quijote_Forecast_sigma_kmax_fixednbar_bSN(dmnu='fin'):
-    ''' fisher forecast for quijote for different kmax values 
-    '''
-    kmaxs = np.pi/500. * 3 * np.arange(3, 21) 
-
-    klin = np.logspace(-5, 2, 500)
-    print(', '.join([str(tt) for tt in thetas]))
-
-    # read in fisher matrix (Fij)
-    _sig_pk, sig_pk, sig_Pm, sig_Pcb = [], [], [], [] 
-    for i_k, kmax in enumerate(kmaxs): 
-        # linear theory Pm 
-        Fij = LT.Fij_Pm(klin, kmax=kmax, npoints=5) 
-        Finv = np.linalg.inv(Fij) # invert fisher matrix 
-        sig_Pm.append(np.sqrt(np.diag(Finv)))
-        print('kmax=%.3f ---' %  kmax) 
-        print('pm: %s' % ', '.join(['%.2e' % fii for fii in np.diag(Fij)[:6]])) 
-        # linear theory Pcb
-        Fij = LT.Fij_Pm(klin, kmax=kmax, npoints=5, flag='cb') 
-        Finv = np.linalg.inv(Fij) # invert fisher matrix 
-        sig_Pcb.append(np.sqrt(np.diag(Finv)))
-        print('pcb: %s' % ', '.join(['%.2e' % fii for fii in np.diag(Fij)[:6]])) 
-        
-        Fij = quijote_Fisher_fixednbar('pk', kmax=kmax, dmnu=dmnu)
-        Finv = np.linalg.inv(Fij) # invert fisher matrix 
-        _sig_pk.append(np.sqrt(np.diag(Finv)))
-        print('_pk: %s' % ', '.join(['%.2e' % fii for fii in np.diag(Fij)[:6]])) 
-
-        Fij = quijote_Fisher_fixednbar_bSN('pk', kmax=kmax, dmnu=dmnu)
-        Finv = np.linalg.inv(Fij) # invert fisher matrix 
-        sig_pk.append(np.sqrt(np.diag(Finv)))
-        print('pk: %s' % ', '.join(['%.2e' % fii for fii in np.diag(Fij)[:6]])) 
-    sig_pk = np.array(sig_pk)
-    _sig_pk = np.array(_sig_pk)
-    sig_Pm = np.array(sig_Pm)
-    sig_Pcb = np.array(sig_Pcb)
-    sigma_theta_lims = [(1e-3, 1e6), (1e-3, 1e5), (1e-2, 1e6), (1e-2, 1e6), (5e-3, 1e6), (1e-1, 5e7)]
-
-    fig = plt.figure(figsize=(15,8))
-    for i, theta in enumerate(thetas): 
-        sub = fig.add_subplot(2,len(thetas)/2,i+1) 
-        sub.plot(kmaxs, _sig_pk[:,i], c='C0', ls='-', label=r"$P_h$ fixed $\bar{n}$") 
-        sub.plot(kmaxs, sig_pk[:,i], c='C1', ls='-', label=r"$P_h$ marg. $b'$ and $A_{\rm SN}$") 
-        sub.plot(kmaxs, sig_Pm[:,i], c='k', ls='--', label=r"$P^{\rm lin.}_{m}$") 
-        sub.plot(kmaxs, sig_Pcb[:,i], c='k', ls=':', label=r"$P^{\rm lin.}_{cb}$") 
-        if theta == 'Mnu': sub.legend(loc='lower left', fontsize=15) 
-        sub.set_xlim(0.05, 0.5)
-        sub.text(0.9, 0.9, theta_lbls[i], ha='right', va='top', 
-                transform=sub.transAxes, fontsize=30)
-        sub.set_ylim(sigma_theta_lims[i]) 
-        sub.set_yscale('log') 
-
-    bkgd = fig.add_subplot(111, frameon=False)
-    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-    bkgd.set_xlabel(r'$k_{\rm max}$', fontsize=28) 
-    bkgd.set_ylabel(r'$1\sigma$ constraint on $\theta$', labelpad=10, fontsize=28) 
-
-    fig.subplots_adjust(wspace=0.2, hspace=0.15) 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 
-            'quijote_Fisher_dmnu_%s_sigmakmax_fixednbar_bSN.png' % dmnu)
-    fig.savefig(ffig, bbox_inches='tight') 
-    return None
-
-
 if __name__=="__main__": 
-    # fixed nbar test
     #Pk_fixednbar()
     #quijote_dPdthetas_LT_fixednbar(dmnu='fin')
     #quijote_Fij_LT_kmax_fixednbar(kmax=0.1, dmnu='fin')
     #quijote_Forecast_Fii_kmax_fixednbar(dmnu='fin')
-    quijote_Forecast_sigma_kmax_fixednbar(dmnu='fin')
+    quijote_Forecast_sigmatheta_kmax_fixednbar(dmnu='fin')
+    quijote_Forecast_sigmatheta_kmax_fixednbar(dmnu='fin', s8corr=True)
+    quijote_Forecast_sigmatheta_kmax_fixednbar(dmnu='fin', s8corr=True, bSN=True)
     #quijote_Forecast_sigmatheta_kmax_fixednbar(['Om', 'Ob', 'h', 'ns', 's8'], dmnu='fin')
-    #quijote_Forecast_sigmatheta_kmax_fixednbar(['Om', 'Ob', 'ns', 's8', 'Mnu'], dmnu='fin')
-    #quijote_Forecast_sigmatheta_kmax_fixednbar(['Om', 'Ob', 'ns', 's8'], dmnu='fin')
-    #quijote_Forecast_sigmatheta_kmax_fixednbar(['Om', 'ns', 'Mnu'], dmnu='fin')
     #for tt in ['Om', 'Ob', 'h', 'ns', 's8']: 
     #    quijote_Forecast_sigmatheta_kmax_fixednbar([tt, 'Mnu'], dmnu='fin')
     #quijote_Forecast_sigma_kmax_fixednbar_negh(dmnu='fin')
@@ -1183,9 +1015,4 @@ if __name__=="__main__":
         quijote_dBdthetas_fixednbar(dmnu='fin')
         quijote_Forecast_fixednbar('pk', kmax=0.2, dmnu='fin')
         quijote_Forecast_fixednbar('bk', kmax=0.2, dmnu='fin')
-        #for tt in ['s8', 'Mnu']: 
-        #    quijote_P_theta(tt, flag='.fixed_nbar')
-        #    quijote_B_theta(tt, kmax=0.5, flag='.fixed_nbar')
-        #quijote_pkCov(kmax=kmax, rsd=rsd, flag='.fixed_nbar') 
-        #quijote_bkCov(kmax=kmax, rsd=rsd, flag='.fixed_nbar') 
     '''
