@@ -539,7 +539,8 @@ def quijote_Forecast_sigmatheta_kmax_fixednbar(tts=['Om', 'Ob', 'h', 'ns', 's8',
         s8corr=False, bSN=False):
     ''' fisher forecast for quijote for different kmax values 
     '''
-    kmaxs = np.pi/500. * 3 * np.array([3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 28]) 
+    #kmaxs = np.pi/500. * 3 * np.array([3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 28]) 
+    kmaxs = np.pi/500. * 3 * np.array([3, 5, 7, 11, 15, 21, 28]) 
 
     klin = np.logspace(-5, 2, 500)
     
@@ -999,10 +1000,11 @@ if __name__=="__main__":
     #quijote_dPdthetas_LT_fixednbar(dmnu='fin')
     #quijote_Fij_LT_kmax_fixednbar(kmax=0.1, dmnu='fin')
     #quijote_Forecast_Fii_kmax_fixednbar(dmnu='fin')
-    quijote_Forecast_sigmatheta_kmax_fixednbar(dmnu='fin')
-    quijote_Forecast_sigmatheta_kmax_fixednbar(dmnu='fin', s8corr=True)
-    quijote_Forecast_sigmatheta_kmax_fixednbar(dmnu='fin', s8corr=True, bSN=True)
+    #quijote_Forecast_sigmatheta_kmax_fixednbar(dmnu='fin')
+    #quijote_Forecast_sigmatheta_kmax_fixednbar(dmnu='fin', s8corr=True)
+    #quijote_Forecast_sigmatheta_kmax_fixednbar(dmnu='fin', s8corr=True, bSN=True)
     #quijote_Forecast_sigmatheta_kmax_fixednbar(['Om', 'Ob', 'h', 'ns', 's8'], dmnu='fin')
+    quijote_Forecast_sigmatheta_kmax_fixednbar(['Ob', 'h', 'ns', 's8', 'Mnu'], dmnu='fin', s8corr=True)
     #for tt in ['Om', 'Ob', 'h', 'ns', 's8']: 
     #    quijote_Forecast_sigmatheta_kmax_fixednbar([tt, 'Mnu'], dmnu='fin')
     #quijote_Forecast_sigma_kmax_fixednbar_negh(dmnu='fin')
