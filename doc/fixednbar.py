@@ -339,7 +339,6 @@ def quijote_dPdthetas_LT_fixednbar(dmnu='fin'):
 def quijote_dBdthetas_fixednbar(dmnu='fin'):
     ''' Compare the derivatives of the powerspectrum also with linear theory
     '''
-    kf = 2.*np.pi/1000. # fundmaentla mode
     # fiducialBP(k)  
     quij = Obvs.quijoteBk('fiducial')
     i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
@@ -348,7 +347,7 @@ def quijote_dBdthetas_fixednbar(dmnu='fin'):
     klim = ((i_k*kf <= 0.5) & (j_k*kf <= 0.5) & (l_k*kf <= 0.5))
     ijl = UT.ijl_order(i_k[klim], j_k[klim], l_k[klim], typ='GM') # order of triangles 
 
-    bk_ylim = [(-15., -0.5), (1., 40.), (-10., -0.5), (-10., -0.5), (-10., -5e-2), (1e-2, 4)]
+    bk_ylim = [(-15., -0.5), (1., 40.), (-10., -0.5), (-10., -0.5), (-10., -5e-2), (-1, 2)]
 
     fig = plt.figure(figsize=(12,24))
     for i_tt, tt, lbl in zip(range(len(thetas)), thetas, theta_lbls): 
@@ -361,7 +360,7 @@ def quijote_dBdthetas_fixednbar(dmnu='fin'):
             label=r'$B_h$ fixed $\bar{n}$')  
         if i_tt == 0: sub.legend(loc='upper left', fontsize=15) 
         sub.set_xlim(0, np.sum(klim)) 
-        sub.set_yscale('symlog', linthreshy=1e-3) 
+        if tt != 'Mnu': sub.set_yscale('symlog', linthreshy=1e-3) 
         sub.set_ylim(bk_ylim[i_tt])  
         sub.text(0.95, 0.95, lbl, ha='right', va='top', transform=sub.transAxes, fontsize=25)
     bkgd = fig.add_subplot(111, frameon=False)
@@ -890,6 +889,80 @@ def quijote_dPk(theta, dmnu='fin', log=False, Nfp=None):
     return dpk / h + c_dpk 
 
 
+def quijote_dBk(theta, rsd=True, dmnu='fin', log=False, flag=None, Nfp=None):
+    ''' calculate d B(k)/d theta using the paired and fixed quijote simulations
+    run on perturbed theta 
+
+    :param theta: 
+        string that specifies the parameter to take the 
+        derivative by. 
+    '''
+    c_dbk = 0. 
+    if theta == 'Mnu': 
+        tts = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
+        if dmnu == 'p': 
+            coeffs = [-1., 1., 0., 0.]
+            h = 0.1
+        elif dmnu == 'pp': 
+            coeffs = [-1., 0., 1., 0.]
+            h = 0.2
+        elif dmnu == 'ppp': 
+            coeffs = [-1., 0., 0., 1.]
+            h = 0.4
+        elif dmnu == 'fin0': 
+            coeffs = [-3., 4., -1., 0.] # finite difference coefficient
+            h = 0.2
+        elif dmnu == 'fin': 
+            coeffs = [-21., 32., -12., 1.] # finite difference coefficient
+            h = 1.2
+    elif theta == 'Mmin': 
+        tts = ['Mmin_m', 'Mmin_p'] 
+        coeffs = [-1., 1.] 
+        h = 0.2 # 3.3x10^13 - 3.1x10^13 Msun 
+    elif theta == 'Amp': 
+        # amplitude scaling is a free parameter
+        tts = ['fiducial'] 
+        coeffs = [0.] 
+        h = 1. 
+        quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag=flag)
+        if not log: c_dbk = np.average(quij['b123'], axis=0) 
+        else: c_dbk = np.ones(quij['b123'].shape[1])
+    elif theta == 'Asn' : 
+        # constant shot noise term is a free parameter -- 1/n^2
+        tts = ['fiducial'] 
+        coeffs = [0.] 
+        h = 1. 
+        quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag=flag)
+        if not log: c_dbk = np.ones(quij['b123'].shape[1]) 
+        else: c_dbk = 1./np.average(quij['b123'], axis=0) 
+    elif theta == 'Bsn': 
+        # powerspectrum dependent term free parameter -- 1/n (P1 + P2 + P3) 
+        tts = ['fiducial'] 
+        coeffs = [0.] 
+        h = 1. 
+        quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag=flag)
+        if not log: c_dbk = np.average(quij['p0k1'] + quij['p0k2'] + quij['p0k3'], axis=0)
+        else: c_dbk = np.average(quij['p0k1'] + quij['p0k2'] + quij['p0k3'], axis=0) / np.average(quij['b123'], axis=0)
+    else: 
+        tts = [theta+'_m', theta+'_p'] 
+        coeffs = [-1., 1.]
+        h = quijote_thetas[theta][1] - quijote_thetas[theta][0]
+
+    for i_tt, tt, coeff in zip(range(len(tts)), tts, coeffs): 
+        quij = Obvs.quijoteBk(tt) # read P0k 
+        if i_tt == 0: dbk = np.zeros(quij['b123'].shape[1]) 
+
+        if Nfp is not None and tt != 'fiducial': 
+            _bk = np.average(quij['b123'][:Nfp,:], axis=0)  
+        else: 
+            _bk = np.average(quij['b123'], axis=0)  
+
+        if log: _bk = np.log(_bk) 
+        dbk += coeff * _bk 
+
+    return dbk / h + c_dbk 
+
+
 def quijote_Fisher_fixednbar_LTdtheta(obs, tt_LT, kmax=0.5, dmnu='fin', fhartlap=True, s8corr=True): 
     ''' calculate fisher matrix for parameters ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu']
     with fixed nbar where derivative w.r.t. to tt_LT is the linear theory Pm/Pcb derivative.
@@ -998,13 +1071,14 @@ def quijote_Forecast_sigma_kmax_fixednbar_LTdtheta(tt_LT, dmnu='fin'):
 if __name__=="__main__": 
     #Pk_fixednbar()
     #quijote_dPdthetas_LT_fixednbar(dmnu='fin')
+    quijote_dBdthetas_fixednbar(dmnu='fin')
     #quijote_Fij_LT_kmax_fixednbar(kmax=0.1, dmnu='fin')
     #quijote_Forecast_Fii_kmax_fixednbar(dmnu='fin')
     #quijote_Forecast_sigmatheta_kmax_fixednbar(dmnu='fin')
     #quijote_Forecast_sigmatheta_kmax_fixednbar(dmnu='fin', s8corr=True)
     #quijote_Forecast_sigmatheta_kmax_fixednbar(dmnu='fin', s8corr=True, bSN=True)
     #quijote_Forecast_sigmatheta_kmax_fixednbar(['Om', 'Ob', 'h', 'ns', 's8'], dmnu='fin')
-    quijote_Forecast_sigmatheta_kmax_fixednbar(['Ob', 'h', 'ns', 's8', 'Mnu'], dmnu='fin', s8corr=True)
+    #quijote_Forecast_sigmatheta_kmax_fixednbar(['Ob', 'h', 'ns', 's8', 'Mnu'], dmnu='fin', s8corr=True)
     #for tt in ['Om', 'Ob', 'h', 'ns', 's8']: 
     #    quijote_Forecast_sigmatheta_kmax_fixednbar([tt, 'Mnu'], dmnu='fin')
     #quijote_Forecast_sigma_kmax_fixednbar_negh(dmnu='fin')
