@@ -559,7 +559,7 @@ can more precisely constrain $\smnu$ than with the power spectrum alone.
     over the power spectrum. {\em For $\smnu$, the bispectrum improves the constraint
     from $\sigma_{\smnu}{=}~1.163$ to $0.112$ eV --- an order of magnitude improvement 
     over the power spectrum}.}
-\label{fig:bk_fish}
+\label{fig:bk_fish_02}
 \end{center}
 \end{figure}
 
@@ -570,7 +570,7 @@ can more precisely constrain $\smnu$ than with the power spectrum alone.
     Again, the bispectrum substantially improves constraints on all cosmological parameters 
     over the power spectrum. {\em For $\smnu$, the bispectrum improves $\sigma_{\smnu}$ from 
     $0.319$ to $0.0239$ eV --- over an order of magnitude improvement over the power spectrum}.}
-\label{fig:bk_fish_kmax}
+\label{fig:bk_fish_05}
 \end{center}
 \end{figure}
 
@@ -578,8 +578,10 @@ can more precisely constrain $\smnu$ than with the power spectrum alone.
 % forecast table
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{table}
-    \caption{Cosmological parameter constraints from the redshift-space halo power spectrum (top) and bispectrum (bottom) 
-    for different values of $k_{\rm max}$.} 
+    \caption{Marginalized Fisher parameter constraints from the redshift-space halo power 
+    spectrum (top) and bispectrum (bottom) for different values of $k_{\rm max}$. We list 
+    constraints for cosmological parameters $\smnu$, $\Omega_m$, $\Omega_b$, $h$, $n_s$, 
+    and $\sig$ as well as nuisance parameters $b'$ and $M_{\rm min}$} 
 \begin{center} 
     \begin{tabular}{cccccccccc} \toprule
          & $k_{\rm max}$ & $\smnu$ & $\Omega_m$ & $\Omega_b$ & $h$ & $n_s$ & $\sig$ & $b'$ & $M_{\rm min}$ \\
@@ -675,27 +677,31 @@ discuss tests of convegence in Appendix~\ref{sec:numerical}.
 
 We present the constraints on $\smnu$ and other cosmological parameters 
 $\{\Om, \Ob, h, n_s, \sig\}$ derived from the redshift-space halo bispectrum 
-Fisher matrix (Eq.~\ref{eq:fisher}) in Figures~\ref{fig:bk_fish} and~\ref{fig:bk_fish_kmax}. 
+Fisher matrix (Eq.~\ref{eq:fisher}) for $k_{\rm max} = 0.2$ and $0.5~h/{\rm Mpc}$ 
+in Figures~\ref{fig:bk_fish_02} and~\ref{fig:bk_fish_05}, respectively. 
 We include Fisher constraints for the redshift-space halo power spectrum 
-monopole in blue for comparison. The contours mark the $68\%$ and $95\%$ 
-confidence interals. For both the power spectrum and bispectrum, we set 
-$k_{\rm max} = 0.5~h/{\rm Mpc}$. We also include in our Fisher cosntraints, 
-parameters $b'$, a free amplitude scaling factor, and $M_{\rm min}$, the halo 
-mass limit. These parameters serve as a simplistic bias model and by marginalizing 
-over them we ensure that our Fisher constraints do not include extra constraining 
-power from the difference in bias/number density in the different Quijote 
-cosmologies used to calculate $\partial \overline{B}_0/\partial \theta_i$. $b'$ is a 
-multiplicative factor so $\partial \overline{B}_0/\partial b' = \overline{B}_0$.
+monopole, for the same $k_{\rm max}$ in blue for comparison. The contours 
+mark the $68\%$ and $95\%$ confidence interals. We include in our Fisher 
+constraints the following nuisance parameters: $b'$, a scaling factor on the 
+bispectrum amplitude, and $M_{\rm min}$, the halo mass limit. $b'$ is 
+analogous to linear bias. Meanwhile, we choose $M_{\rm min}$ as a nuisance
+parameter to address the difference in the number densities among the Quijote
+cosmologies, which impacts the derivatives $\partial \overline{B}_0/\partial \theta_i$. 
+For instance, the $\sig^{+}$ and $\sig^{-}$ cosmologies have halo 
+$\bar{n} = 1.586\times10^{-4}$ and $1.528 \times 10^{-4}(h^{-1}{\rm Mpc})^3$. 
+These parameters serve as a simplistic bias model and by marginalizing 
+over them we aim to ensure that our Fisher constraints do not include extra 
+constraining power from the difference in bias or number density. $b'$ is a 
+multiplicative factor so $\partial \overline{B}_0/\partial b' = \overline{B}_0$. 
 Meanwhile, we numerically estimate $\partial \overline{B}_0/\partial M_{\rm min}$ 
 using $\overline{B}_0$ evaluated at $M_{\rm min}{=}3.3$ and 
-$3.1\times10^{13}h^{-1}M_\odot$, with all other parameters fixed. In Table~\ref{tab:forecast}, we list the 
-parameter constraints for $P_0(k < k_{\rm max}=0.5~h/{\rm Mpc})$ and
-$B_0(k_1, k_2, k_3 < k_{\rm max}=0.5~h/{\rm Mpc})$.
+$3.1\times10^{13}h^{-1}M_\odot$, with all other parameters set to the fiducial 
+value. 
 
 The bispectrum substantially improves constraints on all of the parameters 
-over the power spectrum (Figure~\ref{fig:bk_fish} and Table~\ref{tab:forecast}). 
+over the power spectrum (Figure~\ref{fig:bk_fish}). 
 More precisely, the bispectrum improves the marginalized $\Om$, $\Ob$, $h$, 
-$n_s$, and $\sig$ constraints by factors of $\sim$4, 11, 10, 10, and 3 with 
+$n_s$, and $\sig$ constraints by factors of \ch{$\sim$4, 11, 10, 10, and 3} with 
 respect to their power spectrum constraints. {\em For $\smnu$, the bispectrum 
 improves the constraint from $\sigma_{\smnu}{=}~0.319$ to $0.0239$ eV --- over 
 an order of magnitude improvement over the power spectrum}.
@@ -706,13 +712,28 @@ $1\sigma$ constraints of $\Om$, $\Ob$, $h$, $n_s$, $\sig$, and $\smnu$ as
 a function of $k_{\rm max}$ for $B_0$ (orange) and $P_0$ (blue) in Figure~\ref{fig:fish_kmax}. 
 \ch{write this once we have to updated powerspectrum calculations}. 
 
+In Table~\ref{tab:forecast}, we list the marginalized Fisher parameter 
+constraints of both cosmological and nuisance parameters for 
+$P_0(k \le k_{\rm max}=0.5~h/{\rm Mpc})$ and $B_0(k_1, k_2, k_3 \le k_{\rm max}=0.5~h/{\rm Mpc})$.
+
 discussing the results  
 \bitem 
 \item emphasize that this is only for a 1 Gpc box so our constraints will be so much better
-\item how does the bispectrum do so much better? --- \emph{i.e.} triangles that contribute 
-    most fisher information
 \item redshift-space helps us out (refer to appendix) 
 \eitem 
+Q: Is this consistent with S/N calculations? 
+For marginalized constraints 
+The unmarginalized constraints are consistent with S/N calculations of scoccimarro and 
+more recently chan. 
+
+Q: How does the bispectrum do so much better? 
+A: The bispectrum does better than the power spectrum because it's better at breaking
+parameter degeneracies. In fact, P has higher Fii terms than B -- i.e. the unmarginalized
+constraints are tighter for P than B. However, once you marginalize, this goes away. One
+reason for this is that unlike other parameters such as $\sig$ and $\Om$, the response of
+the B, ($\partial \log B / \partial \smnu$0 shows very little triangle shape dependence.  
+Show figure or not? 
+
 
 The results above definitively show that the bispectrum has significant 
 constraining power in the weakly nonlinear regime ($k > 0.1~h/{\rm Mpc}$) 
@@ -722,12 +743,36 @@ $P_0$). Below, we underline a few caveats of the results we present above.
 First, the parameter constraints were derived using the Fisher matrix. This 
 assumes 
 \bitem
-\item mention the caveats of fisher forecasts
-\item emphasize the lack of bananas in the contours
 \item convergence concerns (refer to appendix) 
 \item $\smnu$ dependence of derivatives along $\smnu$. (refer to appendix) 
 \item take Fisher forecasts with a grain of salt 
 \eitem 
+
+Q: How robust are Fisher forecasts
+A: There are many caveats to the Fisher forecast. One of the main limitation is that 
+Fisher forecasts assume the posteriors are Gaussian
+
+Concern: A lot of the advantages from breaking parameter degeneracies. How robust is this? 
+Answer: We address this by imposing Planck priors on our forecasts. This expectedly has a 
+large impact on P constraints, but doesn't change B constraints much. B still does better 
+by a lot. This suggests that the breaking of parameter degeneracies are relatively stable 
+to poorly constrained derivatives spuriously breaking degeneracies so this is robust. Also 
+demonstrates that the gains are relatively stable to Fisher forecasts caveats 
+(i.e. projecting a banana). 
+
+Concern: extra information leaking in due to non-linear bias and number density differences? 
+Answer: We ran tests that include SN correction parameters in case number density 
+information is leaking in from there. Constraints barely change. We also include and marginalize 
+over $b_2$ and $g_2$ but nothing changes. Explain fixed nbar tests that we ran, which also came 
+out short. Talk about how these tests don't definitely answer whether non-linear bias information
+is leaking into the forecasts since $b'$, $M_{\rm min}$, $b_2$, and $g_2$ may not a sufficient
+model of halo bias. We suspect this is the reason why B does better than P for all $k_{\rm max}$ 
+even though on linear scales we expect P to have more constraining power. 
+However since the ultimate goal is to constrain $\smnu$ with the galaxy 
+bispectrum.  For galaxy bispectrum, HOD is a more robust bias model. The halo bispectrum is an
+intermediate step and a proof of concept, which our results show is promising. We therefore 
+refrain from an exhaustive investigation of halo bias and go directly to HOD in the next paper 
+of this series.
 
 Another caveat is that our parameter constraints were derived using the power 
 spectrum and bispectrum of halo in a periodic box. We do not consider a 
