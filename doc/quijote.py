@@ -439,8 +439,8 @@ def quijote_dBk(theta, rsd=True, dmnu='fin', log=False, flag=None, Nfp=None):
         coeffs = [0.] 
         h = 1. 
         quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag=flag)
-        if not log: c_dbk = np.ones(quij['b123'].shape[1]) 
-        else: c_dbk = 1./np.average(quij['b123'], axis=0) 
+        if not log: c_dbk = np.ones(quij['b123'].shape[1]) * 1.e8 
+        else: c_dbk = 1.e8/np.average(quij['b123'], axis=0) 
     elif theta == 'Bsn': 
         # powerspectrum dependent term free parameter -- 1/n (P1 + P2 + P3) 
         tts = ['fiducial'] 
@@ -750,6 +750,43 @@ def quijote_dBdthetas(kmax=0.5, dmnu='fin', log=True):
     return None
 
 
+def quijote_dBdMnu(kmax=0.5, dmnu='fin'):
+    ''' Compare the dlogB/dMnu highlighting the different triangle configurations
+    '''
+    quij = Obvs.quijoteBk('fiducial', rsd=True) # fiducial B(k)  
+    i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
+    klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
+    ijl = UT.ijl_order(i_k[klim], j_k[klim], l_k[klim], typ='GM') # order of triangles 
+    
+    i_k = i_k[klim][ijl]
+    j_k = j_k[klim][ijl]
+    l_k = l_k[klim][ijl]
+
+    equ = (i_k == j_k) & (j_k == l_k) 
+    fld = (i_k == j_k + l_k) 
+    squ = (i_k > 3 * l_k) & (j_k > 3 * l_k) & ~fld 
+    print np.sum(equ & fld) 
+    print np.sum(equ & squ) 
+    print np.sum(squ & fld) 
+
+    fig = plt.figure(figsize=(20, 5))
+    sub = fig.add_subplot(111)
+    dpdt = quijote_dBk('Mnu', rsd=True, dmnu=dmnu, log=True)
+    sub.plot(np.arange(np.sum(klim)), (dpdt[klim][ijl])**2, c='k') 
+    sub.scatter(np.arange(np.sum(klim))[equ], (dpdt[klim][ijl][equ])**2, zorder=7, s=3, c='C0', label='equ.') 
+    sub.scatter(np.arange(np.sum(klim))[squ], (dpdt[klim][ijl][squ])**2, zorder=8, s=3, c='C1', label='squeezed') 
+    sub.scatter(np.arange(np.sum(klim))[fld], (dpdt[klim][ijl][fld])**2, zorder=9, s=3, c='C2', label='folded') 
+    sub.legend(loc='lower left', markerscale=10, fontsize=20) 
+    sub.set_xlim(0, np.sum(klim)) 
+    sub.set_yscale('log') 
+    sub.set_ylim(1e-3, 1e1) 
+    sub.set_xlabel('triangle configuration', fontsize=25) 
+    sub.set_ylabel(r'$({\rm d}\log B/{\rm d} M_\nu)^2$', labelpad=10, fontsize=25) 
+    ffig = os.path.join(UT.fig_dir(), 'quijote_dlogBdMnu.kmax%s.%s.png' % (str(kmax), dmnu))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
+
+
 def quijote_dlogPBdMnu():
     ''' Compare the dlogP/dMnu and dlogB/dMnu for different numerical derivative step size 
     '''
@@ -817,6 +854,8 @@ def quijote_Forecast(obs, kmax=0.5, rsd=True, dmnu='fin', theta_nuis=None):
     # fisher matrix (Fij)
     _Fij    = quijote_FisherMatrix(obs, kmax=kmax, rsd=rsd, dmnu=dmnu, theta_nuis=None) # no nuisance param. 
     Fij     = quijote_FisherMatrix(obs, kmax=kmax, rsd=rsd, dmnu=dmnu, theta_nuis=theta_nuis) # marg. over nuisance param. 
+    cond = np.linalg.cond(Fij)
+    if cond > 1e16: print('Fij is ill-conditioned %.5e' % cond)
     _Finv   = np.linalg.inv(_Fij) # invert fisher matrix 
     Finv    = np.linalg.inv(Fij) # invert fisher matrix 
 
@@ -1107,8 +1146,8 @@ def quijote_Forecast_kmax(rsd=True, dmnu='fin', theta_nuis=None):
     '''
     #kmaxs = [np.pi/500.*6, np.pi/500.*9, 0.075, 0.1, 0.15, 0.16, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5] 
     #kmaxs = [0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5] #np.arange(2, 15) * 2.*np.pi/1000. * 6 #np.linspace(0.1, 0.5, 20) 
-    #kmaxs = np.pi/500. * 3 * np.arange(1, 28) 
-    kmaxs = np.pi/500. * 3 * np.array([2, 5, 10, 15, 20, 27]) 
+    kmaxs = np.pi/500. * 3 * np.arange(2, 28) 
+    #kmaxs = np.pi/500. * 3 * np.array([2, 5, 10, 15, 20, 27]) 
     
     pk_theta_nuis = list(np.array(theta_nuis).copy())
     bk_theta_nuis = list(np.array(theta_nuis).copy())
@@ -1125,8 +1164,12 @@ def quijote_Forecast_kmax(rsd=True, dmnu='fin', theta_nuis=None):
         pkFij   = quijote_FisherMatrix('pk', kmax=kmax, rsd=rsd, dmnu=dmnu, theta_nuis=pk_theta_nuis)
         bkFij   = quijote_FisherMatrix('bk', kmax=kmax, rsd=rsd, dmnu=dmnu, theta_nuis=bk_theta_nuis) 
 
-        if np.linalg.cond(pkFij) > 1e16: cond_pk[i_k] = False 
-        if np.linalg.cond(bkFij) > 1e16: cond_bk[i_k] = False 
+        if np.linalg.cond(pkFij) > 1e16: 
+            print('P Fij ill-conditioned; cond # = %.2e' % np.linalg.cond(pkFij)) 
+            cond_pk[i_k] = False 
+        if np.linalg.cond(bkFij) > 1e16: 
+            print('B Fij ill-conditioned; cond # = %.2e' % np.linalg.cond(bkFij)) 
+            cond_bk[i_k] = False 
         sig_pm.append(np.sqrt(np.diag(np.linalg.inv(pmFij))))
         sig_pcb.append(np.sqrt(np.diag(np.linalg.inv(pcbFij))))
         sig_pk.append(np.sqrt(np.diag(np.linalg.inv(pkFij))))
@@ -1596,7 +1639,7 @@ def quijote_nbars():
     for sub in thetas:
         quij = Obvs.quijoteBk(sub)
         nbars.append(np.average(quij['Nhalos'])/1.e9)
-        print sub, np.average(quij['Nhalos'])/1.e9
+        print('%s, %.5e' % (sub, np.average(quij['Nhalos'])/1.e9))
     print np.min(nbars)
     print np.min(nbars) * 1e9 
     print thetas[np.argmin(nbars)]
@@ -3061,11 +3104,14 @@ if __name__=="__main__":
         quijote_bkCov(kmax=0.5, rsd=True) # condition number 1.73518e+08
     '''
     # deriatives 
+    quijote_dBdMnu(kmax=0.2, dmnu='fin')
+    quijote_dBdMnu(kmax=0.5, dmnu='fin')
     '''
         quijote_P_theta()
         quijote_B_theta()
         quijote_dPdthetas(dmnu='fin', log=True)
         quijote_dBdthetas(dmnu='fin', log=True)
+        quijote_dBdMnu(kmax=0.5, dmnu='fin')
         quijote_dlogPBdMnu()
     ''' 
     # fisher forecasts with different nuisance parameters 
@@ -3097,11 +3143,11 @@ if __name__=="__main__":
         quijote_Forecast_thetas_kmax(tts=['Om', 'Ob', 'h', 'ns', 's8'], rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'])
     '''
     # fisher forecasts as a function of kmax where B derivatives are scaled up  with different nuisance parameters 
-    quijote_Forecast_kmax_scaleBFii(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'], f_Mnu=0.8, f_Ob=0.8, f_s8=0.95)
     '''
         quijote_Forecast_kmax_scaleBFii(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'], f_Mnu=0.975, f_Ob=0.975, f_s8=0.975)
         quijote_Forecast_kmax_scaleBFii(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'], f_Mnu=0.95, f_Ob=0.95, f_s8=0.95)
         quijote_Forecast_kmax_scaleBFii(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'], f_Mnu=0.9, f_Ob=0.9, f_s8=0.9)
+        quijote_Forecast_kmax_scaleBFii(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'], f_Mnu=0.8, f_Ob=0.8, f_s8=0.95)
     '''
     # --- convergence tests ---  
     #quijote_Forecast_convergence('bk', kmax=0.5, rsd=True, dmnu='fin')
@@ -3126,7 +3172,7 @@ if __name__=="__main__":
     '''
     # calculations 
     '''
-        #quijote_nbars()
+        quijote_nbars()
         #_ChanBlot_SN()
         #hades_dchi2(krange=[0.01, 0.5])
     '''
