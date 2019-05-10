@@ -366,7 +366,7 @@ def quijote_dPk(theta, dmnu='fin', log=False, Nfp=None):
     return dpk / h + c_dpk 
 
 
-def quijote_dBk(theta, rsd=True, dmnu='fin', log=False, flag=None, Nfp=None, f_Mnu=None, f_Ob=None, f_s8=None):
+def quijote_dBk(theta, rsd=True, dmnu='fin', log=False, flag=None, Nfp=None):
     ''' calculate d B(k)/d theta using the paired and fixed quijote simulations
     run on perturbed theta 
 
@@ -466,16 +466,10 @@ def quijote_dBk(theta, rsd=True, dmnu='fin', log=False, flag=None, Nfp=None, f_M
         if log: _bk = np.log(_bk) 
         dbk += coeff * _bk 
 
-    # in case we want to scale up the derivative (hacky) 
-    fscale = 1. 
-    if theta == 'Mnu' and f_Mnu is not None: fscale = f_Mnu
-    if theta == 'Ob' and f_Ob is not None: fscale = f_Ob
-    if theta == 's8' and f_s8 is not None: fscale = f_s8
-    print('f_%s = %.2f' % (theta, fscale) )
-    return fscale * dbk / h + c_dbk 
+    return dbk / h + c_dbk 
 
 # Fisher Matrix
-def quijote_FisherMatrix(obs, kmax=0.5, rsd=True, dmnu='fin', Nmock=None, Nfp=None, f_Mnu=None, f_Ob=None, f_s8=None, theta_nuis=None): 
+def quijote_FisherMatrix(obs, kmax=0.5, rsd=True, dmnu='fin', Nmock=None, Nfp=None, theta_nuis=None): 
     ''' calculate fisher matrix for parameters ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu'] 
     and specified nuisance parameters
     '''
@@ -564,7 +558,7 @@ def quijote_FisherMatrix(obs, kmax=0.5, rsd=True, dmnu='fin', Nmock=None, Nfp=No
             dobs_dti = quijote_dPk(par, dmnu=dmnu, Nfp=Nfp)
             dobs_dt.append(dobs_dti[klim] )
         elif obs in ['bk', 'bk_squ', 'bk_equ', 'bk_nosqu']: 
-            dobs_dti = quijote_dBk(par, rsd=rsd, dmnu=dmnu, Nfp=Nfp, f_Mnu=f_Mnu, f_Ob=f_Ob, f_s8=f_s8)
+            dobs_dti = quijote_dBk(par, rsd=rsd, dmnu=dmnu, Nfp=Nfp)
             dobs_dt.append(dobs_dti[klim])
         elif obs == 'pbk': 
             dpk_dti = quijote_dPk(par, dmnu=dmnu, Nfp=Nfp)
@@ -1295,10 +1289,12 @@ def quijote_Forecast_thetas_kmax(tts=['Om', 'Ob', 'h', 'ns', 's8'], rsd=True, dm
     return None
 
 
-def quijote_Forecast_kmax_scaleBderiv(rsd=True, dmnu='fin', theta_nuis=None, f_Mnu=1.1, f_Ob=1.05, f_s8=1.025):
+def quijote_Forecast_kmax_scaleBFii(rsd=True, dmnu='fin', theta_nuis=None, f_Mnu=0.9, f_Ob=0.95, f_s8=0.975):
     ''' fisher forecast for quijote P and B where theta_nuis are added as free parameters 
-    as a function of kmax. B derivatives along Mnu, Ob, and s8 are scaled up to test how
-    sensitive the forecasts are to the derivative convergence
+    as a function of kmax. Convergence tests show that Fii elements of Mnu, Ob, and s8 are 
+    sensitive to Nfp. The convergence relationship is also monotonic (i.e. higher Nfp, 
+    lower Fii) so we test this by scaling down the Fii terms. Off-diagonal terms are 
+    surprisingly immune to this. 
     '''
     #kmaxs = [np.pi/500.*6, np.pi/500.*9, 0.075, 0.1, 0.15, 0.16, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5] 
     #kmaxs = [0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5] #np.arange(2, 15) * 2.*np.pi/1000. * 6 #np.linspace(0.1, 0.5, 20) 
@@ -1310,6 +1306,9 @@ def quijote_Forecast_kmax_scaleBderiv(rsd=True, dmnu='fin', theta_nuis=None, f_M
     if 'Bsn' in theta_nuis: pk_theta_nuis.remove('Bsn') 
     if 'b2' in theta_nuis: pk_theta_nuis.remove('b2') 
     if 'g2' in theta_nuis: pk_theta_nuis.remove('g2') 
+    i_ob = thetas.index('Ob') 
+    i_s8 = thetas.index('s8') 
+    i_mnu = thetas.index('Mnu') 
     
     # read in fisher matrix (Fij)
     sig_pk, sig_bk, sig_pm, sig_pcb = [], [], [], [] 
@@ -1318,7 +1317,10 @@ def quijote_Forecast_kmax_scaleBderiv(rsd=True, dmnu='fin', theta_nuis=None, f_M
         pmFij   = LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints=5) # linear theory Pm 
         pcbFij  = LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints=5, flag='cb') 
         pkFij   = quijote_FisherMatrix('pk', kmax=kmax, rsd=rsd, dmnu=dmnu, theta_nuis=pk_theta_nuis)
-        bkFij   = quijote_FisherMatrix('bk', kmax=kmax, rsd=rsd, dmnu=dmnu, f_Mnu=f_Mnu, f_Ob=f_Ob, f_s8=f_s8, theta_nuis=bk_theta_nuis) 
+        bkFij   = quijote_FisherMatrix('bk', kmax=kmax, rsd=rsd, dmnu=dmnu, theta_nuis=bk_theta_nuis) 
+        if f_Ob is not None: bkFij[i_ob,i_ob] *= f_Ob
+        if f_s8 is not None: bkFij[i_s8,i_s8] *= f_s8
+        if f_Mnu is not None: bkFij[i_mnu,i_mnu] *= f_Mnu
 
         if np.linalg.cond(pkFij) > 1e16: cond_pk[i_k] = False 
         if np.linalg.cond(bkFij) > 1e16: cond_bk[i_k] = False 
@@ -3095,12 +3097,11 @@ if __name__=="__main__":
         quijote_Forecast_thetas_kmax(tts=['Om', 'Ob', 'h', 'ns', 's8'], rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'])
     '''
     # fisher forecasts as a function of kmax where B derivatives are scaled up  with different nuisance parameters 
-    quijote_Forecast_kmax_scaleBderiv(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'], f_Mnu=1.025, f_Ob=1.025, f_s8=1.025)
-    quijote_Forecast_kmax_scaleBderiv(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'], f_Mnu=1.05, f_Ob=1.05, f_s8=1.05)
-    quijote_Forecast_kmax_scaleBderiv(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'], f_Mnu=1.1, f_Ob=1.1, f_s8=1.1)
+    quijote_Forecast_kmax_scaleBFii(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'], f_Mnu=0.8, f_Ob=0.8, f_s8=0.95)
     '''
-        quijote_Forecast_kmax_scaleBderiv(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'], f_Mnu=1.025, f_Ob=1.025, f_s8=1.025)
-        quijote_Forecast_kmax_scaleBderiv(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'], f_Mnu=1.05, f_Ob=1.05, f_s8=1.05)
+        quijote_Forecast_kmax_scaleBFii(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'], f_Mnu=0.975, f_Ob=0.975, f_s8=0.975)
+        quijote_Forecast_kmax_scaleBFii(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'], f_Mnu=0.95, f_Ob=0.95, f_s8=0.95)
+        quijote_Forecast_kmax_scaleBFii(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'], f_Mnu=0.9, f_Ob=0.9, f_s8=0.9)
     '''
     # --- convergence tests ---  
     #quijote_Forecast_convergence('bk', kmax=0.5, rsd=True, dmnu='fin')
