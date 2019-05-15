@@ -146,11 +146,6 @@ Springel, V. 2005,
   \href{http://dx.doi.org/10.1111/j.1365-2966.2005.09655.x}{\JournalTitle{Monthly
   Notices of the Royal Astronomical Society}, 364, 1105}
 
-\bibitem[{Tegmark {et~al.}(1997)Tegmark, Taylor, \& Heavens}]{tegmark1997a}
-Tegmark, M., Taylor, A.~N., \& Heavens, A.~F. 1997,
-  \href{http://dx.doi.org/10.1086/303939}{\JournalTitle{The Astrophysical
-  Journal}, 480, 22}
-
 \bibitem[{Tinker {et~al.}(2013)Tinker, Leauthaud, Bundy, George, Behroozi,
   Massey, Rhodes, \& Wechsler}]{tinker2013}
 Tinker, J.~L., Leauthaud, A., Bundy, K., {et~al.} 2013,
@@ -183,6 +178,17 @@ Viel, M., Haehnelt, M.~G., \& Springel, V. 2010,
 {Villaescusa-Navarro}, F., Marulli, F., Viel, M., {et~al.} 2014,
   \href{http://dx.doi.org/10.1088/1475-7516/2014/03/011}{\JournalTitle{Journal
   of Cosmology and Astro-Particle Physics}, 03, 011}
+
+\bibitem[{Wolz {et~al.}(2012)Wolz, Kilbinger, Weller, \&
+  Giannantonio}]{wolz2012}
+Wolz, L., Kilbinger, M., Weller, J., \& Giannantonio, T. 2012,
+  \href{http://dx.doi.org/10.1088/1475-7516/2012/09/009}{\JournalTitle{Journal
+  of Cosmology and Astroparticle Physics}, 2012, 009}
+
+\bibitem[{Yankelevich \& Porciani(2019)}]{yankelevich2019}
+Yankelevich, V., \& Porciani, C. 2019,
+  \href{http://dx.doi.org/10.1093/mnras/sty3143}{\JournalTitle{Monthly Notices
+  of the Royal Astronomical Society}, 483, 2078}
 
 \bibitem[{Zennaro {et~al.}(2017)Zennaro, Bel, {Villaescusa-Navarro}, Carbone,
   Sefusatti, \& Guzzo}]{zennaro2017a}
