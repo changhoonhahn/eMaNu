@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
 
 
-def quijote_dBkdtheta(theta, log=False, dmnu='fin', flag=None):
+def quijote_dBkdtheta(theta, log=False, z=0, dmnu='fin', flag=None, rsd=0, Nfp=None):
     ''' calculate d B(k)/d theta using quijote simulations run on perturbed theta 
 
     :param theta: 
@@ -24,19 +24,22 @@ def quijote_dBkdtheta(theta, log=False, dmnu='fin', flag=None):
     
     :param flag: (default: None) 
         string specifying some specific run. 
+
+    :return k1, k2, k3, dbk
+        triangle sides and derivatives
     '''
     c_dbk = 0. 
     if theta == 'Mnu': 
         # derivative w.r.t. Mnu using 0, 0.1, 0.2, 0.4 eV
         tts = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
         if dmnu == 'p': 
-            coeffs = [-1., 1., 0., 0.]
+            coeffs = [-1., 1., 0., 0.]  # derivative at 0.05eV
             h = 0.1
         elif dmnu == 'pp': 
-            coeffs = [-1., 0., 1., 0.]
+            coeffs = [-1., 0., 1., 0.]  # derivative at 0.1eV
             h = 0.2
         elif dmnu == 'ppp': 
-            coeffs = [-1., 0., 0., 1.]
+            coeffs = [-1., 0., 0., 1.]  # derivative at 0.2eV
             h = 0.4
         elif dmnu == 'fin0': 
             coeffs = [-3., 4., -1., 0.] # finite difference coefficient
@@ -53,27 +56,29 @@ def quijote_dBkdtheta(theta, log=False, dmnu='fin', flag=None):
         tts = ['fiducial'] 
         coeffs = [0.] 
         h = 1. 
-        quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag=flag)
+        quij = Obvs.quijoteBk('fiducial', z=z, flag=flag, rsd=rsd)
         if not log: c_dbk = np.average(quij['b123'], axis=0) 
         else: c_dbk = np.ones(quij['b123'].shape[1])
     elif theta == 'b2': 
-        # B = b' B + b2 (P1P2 + P2P3 + P3P1) 
+        # analytic deivative of b2 where we have 
+        # B = b' B_nbody + b2 (P1P2 + P2P3 + P3P1) 
         tts = ['fiducial'] 
         coeffs = [0.] 
         h = 1. 
-        quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag=flag)
+        quij = Obvs.quijoteBk('fiducial', z=z, flag=flag, rsd=rsd)
         P1 = np.average(quij['p0k1'], axis=0) 
         P2 = np.average(quij['p0k2'], axis=0) 
         P3 = np.average(quij['p0k3'], axis=0) 
         if not log: c_dbk = P1*P2 + P2*P3 + P3*P1 
         else: c_dbk = (P1*P2 + P2*P3 + P3*P1)/np.average(quij['b123'], axis=0) 
     elif theta == 'g2': 
+        # analytic derivative of gamma2 where we have 
         # B = b' B + b2 (P1P2 + P2P3 + P3P1) + g2 (K12 P1 P2 + K23 P2 P3 + K31 P3 P1) 
         tts = ['fiducial'] 
         coeffs = [0.] 
         h = 1. 
-        quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag=flag)
 
+        quij = Obvs.quijoteBk('fiducial', z=z, flag=flag, rsd=rsd)
         i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
         K12 = (i_k**2 + j_k**2 - l_k**2)/(2. * i_k * j_k) # cos theta_12
         K23 = (j_k**2 + l_k**2 - i_k**2)/(2. * j_k * l_k) # cos theta_23
@@ -86,19 +91,23 @@ def quijote_dBkdtheta(theta, log=False, dmnu='fin', flag=None):
         if not log: c_dbk = K12 * P1 * P2 + K23 * P2 * P3 + K31 * P3 * P1 
         else: c_dbk = (K12 * P1 * P2 + K23 * P2 * P3 + K31 * P3 * P1)/np.average(quij['b123'], axis=0) 
     elif theta == 'Asn' : 
-        # constant shot noise term is a free parameter -- 1/n^2
+        # free parameter that's supposed to account for the constant shot noise term -- 1/n^2
+        # B = B_nbody + Bsn * (P1 + P2 + P3) + Asn
         tts = ['fiducial'] 
         coeffs = [0.] 
         h = 1. 
-        quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag=flag)
+
+        quij = Obvs.quijoteBk('fiducial', z=z, flag=flag, rsd=rsd)
         if not log: c_dbk = np.ones(quij['b123'].shape[1]) * 1.e8 
         else: c_dbk = 1.e8/np.average(quij['b123'], axis=0) 
     elif theta == 'Bsn': 
-        # powerspectrum dependent term free parameter -- 1/n (P1 + P2 + P3) 
+        # free parameter that's suppose to account for the powerspectrum dependent shot noise term -- 1/n 
+        # B = B_nbody + Bsn * (P1 + P2 + P3) + Asn
         tts = ['fiducial'] 
         coeffs = [0.] 
         h = 1. 
-        quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag=flag)
+
+        quij = Obvs.quijoteBk('fiducial', z=z, flag=flag, rsd=rsd)
         if not log: c_dbk = np.average(quij['p0k1'] + quij['p0k2'] + quij['p0k3'], axis=0)
         else: c_dbk = np.average(quij['p0k1'] + quij['p0k2'] + quij['p0k3'], axis=0) / np.average(quij['b123'], axis=0)
     else: 
@@ -107,7 +116,8 @@ def quijote_dBkdtheta(theta, log=False, dmnu='fin', flag=None):
         h = quijote_thetas[theta][1] - quijote_thetas[theta][0]
 
     for i_tt, tt, coeff in zip(range(len(tts)), tts, coeffs): 
-        quij = Obvs.quijoteBk(tt) # read P0k 
+        quij = Obvs.quijoteBk(tt, z=z, flag=flag, rsd=rsd)
+
         if i_tt == 0: dbk = np.zeros(quij['b123'].shape[1]) 
 
         if Nfp is not None and tt != 'fiducial': 
@@ -118,7 +128,7 @@ def quijote_dBkdtheta(theta, log=False, dmnu='fin', flag=None):
         if log: _bk = np.log(_bk) 
         dbk += coeff * _bk 
 
-    return dbk / h + c_dbk 
+    return quij['k1'], quij['k2'], quij['k3'], dbk / h + c_dbk 
 
 
 def Fij(dmudts, Cinv): 

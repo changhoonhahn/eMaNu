@@ -1,9 +1,15 @@
 '''
 
-script for processing B(k) files of Paco's sims into an easy to 
+script for processing B(k) files of Paco's sims into easy to 
 access hdf5 files
 
 '''
+import os 
+import glob
+import h5py 
+import numpy as np 
+# -- emanu --
+from emanu import util as UT
 
 
 def quijote_hdf5(subdir, machine='mbp', rsd=0, flag=None): 
@@ -18,7 +24,7 @@ def quijote_hdf5(subdir, machine='mbp', rsd=0, flag=None):
         string that specifies which machine. 
 
     :param rsd: (default: 0) 
-        int (0, 1, 2) that determines the direction of the RSD. 
+        int (0, 1, 2) determines the direction of the RSD. string 'real' is for real-space
 
     :param flag: (default: None) 
         string specifying the runs. For the perturbed thetas this refers to 
@@ -30,18 +36,37 @@ def quijote_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     else: raise NotImplementedError 
 
     if subdir == 'fiducial' and flag is not None: raise ValueError('fiducial does not have flag') 
-    
-    if flag is None: 
-        # include all files (fixed paired and reg. N-body in all RSD directions) 
-        fbks = glob.glob(os.path.join(dir_quij, '*'))
-    elif flag == 'ncv': 
-        # fixed pair (rsd direction) 
-        fbks = glob.glob(os.path.join(dir_quij, '*RS%i_NCV*' % rsd)) 
-    elif flag == 'reg':
-        # regular N-body (rsd direction) 
-        fbks = glob.glob(os.path.join(dir_quij, '*RS%i*' % rsd))
-        fbks_ncv = glob.glob(os.path.join(dir_quij, '*RS%i_NCV*' % rsd)) 
-        fbks = list(set(fbks) - set(fbks_ncv))
+
+    if rsd != 'real': # redshift-space B
+        if flag is None: 
+            # include all redshift-space files (fixed paired and reg. N-body in all RSD directions) 
+            fbks = glob.glob(os.path.join(dir_quij, '*RS*'))
+        elif flag == 'ncv': 
+            # fixed pair (rsd direction) 
+            fbks = glob.glob(os.path.join(dir_quij, '*RS%i_NCV*' % rsd)) 
+        elif flag == 'reg':
+            # regular N-body (rsd direction) 
+            fbks = glob.glob(os.path.join(dir_quij, '*RS%i*' % rsd))
+            fbks_ncv = glob.glob(os.path.join(dir_quij, '*RS%i_NCV*' % rsd)) 
+            fbks = list(set(fbks) - set(fbks_ncv))
+    else: # real-space B 
+        if flag is None: 
+            # include all redshift-space files (fixed paired and reg. N-body in all RSD directions) 
+            fbks = glob.glob(os.path.join(dir_quij, '*'))
+            fbks_rsd = glob.glob(os.path.join(dir_quij, '*RS*'))
+            fbks = list(set(fbks) - set(fbks_rsd))
+        elif flag == 'ncv': 
+            # fixed pair (rsd direction) 
+            fbks = glob.glob(os.path.join(dir_quij, '*NCV*')) 
+            fbks_rsd = glob.glob(os.path.join(dir_quij, '*RS*_NCV*')) 
+            fbks = list(set(fbks) - set(fbks_rsd))
+        elif flag == 'reg':
+            # regular N-body (rsd direction) 
+            fbks = glob.glob(os.path.join(dir_quij, '*'))
+            fbks_rsd = glob.glob(os.path.join(dir_quij, '*RS*')) 
+            fbks_ncv = glob.glob(os.path.join(dir_quij, '*NCV*')) 
+            fbks = list(set(fbks) - set(fbks_rsd) - set(fbks_ncv))
+
     print([os.path.basename(fbk) for fbk in fbks[::10]])
     nbk = len(fbks) 
     print('%i bispectrum files in /%s' % (nbk, subdir))  
@@ -75,10 +100,12 @@ def quijote_hdf5(subdir, machine='mbp', rsd=0, flag=None):
 
     # save to hdf5 file 
     quij_dir = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote', 'z0') 
-    if flag is None: 
-        fhdf5 = os.path.join(quij_dir, 'quijote_%s.hdf5' % subdir)
+    if rsd != 'real':  # reshift space 
+        if flag is None: fhdf5 = os.path.join(quij_dir, 'quijote_%s.hdf5' % subdir)
+        else: fhdf5 = os.path.join(quij_dir, 'quijote_%s.%s.rsd%i.hdf5' % (subdir, flag, rsd))
     else: 
-        fhdf5 = os.path.join(quij_dir, 'quijote_%s.%s.rsd%i.hdf5' % (subdir, flag, rsd))
+        if flag is None: fhdf5 = os.path.join(quij_dir, 'quijote_%s.real.hdf5' % subdir)
+        else: fhdf5 = os.path.join(quij_dir, 'quijote_%s.%s.real.hdf5' % (subdir, flag))
     f = h5py.File(fhdf5, 'w') 
     f.create_dataset('k1', data=i_k)
     f.create_dataset('k2', data=j_k)
@@ -96,12 +123,13 @@ def quijote_hdf5(subdir, machine='mbp', rsd=0, flag=None):
 
 
 if __name__=="__main__": 
-    for sub in ['Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'Om_m', 'Om_p', 'Ob2_m', 'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p', 
-            'Mmin_m', 'Mmin_p']:
+    thetas = ['Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'Om_m', 'Om_p', 'Ob2_m', 'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p', 
+            'Mmin_m', 'Mmin_p']
+    for sub in thetas:
         print('---%s---' % sub) 
-        quijote_hdf5(sub) # all files
-        for rsd in [0,1,2]: 
+        quijote_hdf5(sub) # all redshift-space files
+        quijote_hdf5(sub, rsd='real') # all real-space files
+        for rsd in [0, 1, 2, 'real']: 
             quijote_hdf5(sub, flag='ncv', rsd=rsd)
             quijote_hdf5(sub, flag='reg', rsd=rsd)
-
     #quijote_hdf5('fiducial')
