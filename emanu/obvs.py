@@ -117,7 +117,7 @@ def hadesBk_s8(sig8, nzbin=4, rsd=True):
     return _bks
 
 
-def quijoteBk(theta, rsd=True, flag=None): 
+def quijoteBk(theta, rsd=True, z=0, flag=None): 
     ''' read in real/redshift-space bispectrum for specified model (theta) of the quijote simulations. 
     
     :param theta: 
@@ -133,7 +133,12 @@ def quijoteBk(theta, rsd=True, flag=None):
     :return _bks: 
         dictionary that contains all the bispectrum data from quijote simulation
     '''
-    fbk = os.path.join(UT.dat_dir(), 'bispectrum', 
+    assert flag in ['.fixed_nbar', '.ncv', '.reg'], "flag unspecified" 
+
+    if z == 0: zdir = 'z0'
+    else: raise NotImplementedError
+
+    fbk = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote', zdir, 
             'quijote_%s%s%s.hdf5' % (theta, ['.real', ''][rsd], [flag, ''][flag is None])) 
     bks = h5py.File(fbk, 'r') 
 

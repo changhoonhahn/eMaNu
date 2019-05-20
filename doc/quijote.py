@@ -730,7 +730,7 @@ def quijote_dBdthetas(kmax=0.5, dmnu='fin', log=True):
     for i_tt, tt, lbl in zip(range(len(_thetas)), _thetas, _theta_lbls): 
         sub = fig.add_subplot(len(_thetas),1,i_tt+1)
         dpdt = quijote_dBk(tt, rsd=True, dmnu=dmnu, log=log)
-        plt_bk, = sub.plot(range(np.sum(klim)), dpdt[klim][ijl]) 
+        plt_bk, = sub.plot(range(np.sum(klim)), dpdt[klim])#[ijl]) 
         
         sub.set_xlim(0, np.sum(klim)) 
         if not log: sub.set_yscale('log') 
@@ -756,11 +756,11 @@ def quijote_dBdMnu(kmax=0.5, dmnu='fin'):
     quij = Obvs.quijoteBk('fiducial', rsd=True) # fiducial B(k)  
     i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
     klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
-    ijl = UT.ijl_order(i_k[klim], j_k[klim], l_k[klim], typ='GM') # order of triangles 
+    #ijl = UT.ijl_order(i_k[klim], j_k[klim], l_k[klim], typ='GM') # order of triangles 
     
-    i_k = i_k[klim][ijl]
-    j_k = j_k[klim][ijl]
-    l_k = l_k[klim][ijl]
+    i_k = i_k[klim]#[ijl]
+    j_k = j_k[klim]#[ijl]
+    l_k = l_k[klim]#[ijl]
 
     equ = (i_k == j_k) & (j_k == l_k) 
     fld = (i_k == j_k + l_k) 
@@ -772,10 +772,13 @@ def quijote_dBdMnu(kmax=0.5, dmnu='fin'):
     fig = plt.figure(figsize=(20, 5))
     sub = fig.add_subplot(111)
     dpdt = quijote_dBk('Mnu', rsd=True, dmnu=dmnu, log=True)
-    sub.plot(np.arange(np.sum(klim)), (dpdt[klim][ijl])**2, c='k') 
-    sub.scatter(np.arange(np.sum(klim))[equ], (dpdt[klim][ijl][equ])**2, zorder=7, s=3, c='C0', label='equ.') 
-    sub.scatter(np.arange(np.sum(klim))[squ], (dpdt[klim][ijl][squ])**2, zorder=8, s=3, c='C1', label='squeezed') 
-    sub.scatter(np.arange(np.sum(klim))[fld], (dpdt[klim][ijl][fld])**2, zorder=9, s=3, c='C2', label='folded') 
+    #sub.plot(np.arange(np.sum(klim)), (dpdt[klim][ijl])**2, c='k') 
+    #sub.scatter(np.arange(np.sum(klim))[equ], (dpdt[klim][ijl][equ])**2, zorder=7, s=3, c='C0', label='equ.') 
+    #sub.scatter(np.arange(np.sum(klim))[squ], (dpdt[klim][ijl][squ])**2, zorder=8, s=3, c='C1', label='squeezed') 
+    #sub.scatter(np.arange(np.sum(klim))[fld], (dpdt[klim][ijl][fld])**2, zorder=9, s=3, c='C2', label='folded') 
+    sub.scatter(np.arange(np.sum(klim))[equ], (dpdt[klim][equ])**2, zorder=7, s=3, c='C0', label='equ.') 
+    sub.scatter(np.arange(np.sum(klim))[squ], (dpdt[klim][squ])**2, zorder=8, s=3, c='C1', label='squeezed') 
+    sub.scatter(np.arange(np.sum(klim))[fld], (dpdt[klim][fld])**2, zorder=9, s=3, c='C2', label='folded') 
     sub.legend(loc='lower left', markerscale=10, fontsize=20) 
     sub.set_xlim(0, np.sum(klim)) 
     sub.set_yscale('log') 
@@ -3142,6 +3145,8 @@ if __name__=="__main__":
         quijote_bkCov(kmax=0.5, rsd=True) # condition number 1.73518e+08
     '''
     # deriatives 
+    quijote_dBdthetas(dmnu='fin', log=True)
+    quijote_dBdMnu(kmax=0.5, dmnu='fin')
     '''
         quijote_P_theta()
         quijote_B_theta()
@@ -3160,6 +3165,8 @@ if __name__=="__main__":
         quijote_Forecast_kmax_table(dmnu='fin', theta_nuis=None)
     '''
     # fisher forecasts with different nuisance parameters and Planck prior 
+    #quijote_Forecast_Planck('pk', kmax=0.5, rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
+    #quijote_Forecast_Planck('bk', kmax=0.5, rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
     '''
         quijote_Forecast_Planck('pk', kmax=0.5, rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
         quijote_Forecast_Planck('pk', kmax=0.5, rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn'])
@@ -3168,7 +3175,7 @@ if __name__=="__main__":
         quijote_Forecast_Planck('bk', kmax=0.5, rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'])
     '''
     # fisher forecasts as a function of kmax with different nuisance parameters 
-    quijote_Forecast_kmax(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
+    #quijote_Forecast_kmax(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
     '''
         quijote_Forecast_kmax(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
         quijote_Forecast_kmax(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'])

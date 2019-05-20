@@ -33,21 +33,39 @@ mpl.rcParams['ytick.major.width'] = 1.5
 mpl.rcParams['legend.frameon'] = False
 
 
-def quijote_hdf5(subdir): 
+def quijote_hdf5(subdir, machine='mbp', flag=None): 
     ''' write out quijote bispectrum transferred from cca server to hdf5 
     file for fast and easier access in the future. 
 
     :param subdir: 
         name of subdirectory which also describes the run.
     '''
-    dir_quij = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote', subdir) 
-    fbks = os.listdir(dir_quij) 
+    # directory where the quijote bispectrum are at 
+    if machine == 'mbp': dir_quij = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote', subdir) 
+    else: raise NotImplementedError 
+    
+    if flag is None: # include all files 
+        fbks = glob.glob(os.path.join(dir_quij, '*'))
+        fbks_real = glob.glob(os.path.join(dir_quij, '*real*') )
+        fbks = list(set(fbks) - set(fbks_real))
+    elif flag == 'ncv': # fixed pair
+        fbks = glob.glob(os.path.join(dir_quij, '*NCV*')) 
+        fbks_real = glob.glob(os.path.join(dir_quij, '*real*') )
+        fbks = list(set(fbks) - set(fbks_real))
+    elif flag == 'reg': # regular
+        fbks = glob.glob(os.path.join(dir_quij, '*'))
+        fbks_real = glob.glob(os.path.join(dir_quij, '*real*') )
+        fbks_ncv = glob.glob(os.path.join(dir_quij, '*NCV*')) 
+        fbks = list(set(fbks) - set(fbks_real) - set(fbks_ncv))
+    print fbks[::10]
     nbk = len(fbks) 
     print('%i bispectrum files in /%s' % (nbk, subdir))  
     
     # check the number of bispectrum
     if subdir == 'fiducial': assert nbk == 15000, "not the right number of files"
-    else: assert nbk == 500, "not the right number of files"
+    else: 
+        if nbk != 500 and nbk != 1000: 
+            print('not the right number of files') 
     
     # load in all the files 
     for i, fbk in enumerate(fbks):
@@ -73,7 +91,11 @@ def quijote_hdf5(subdir):
         bsn[i,:] = b_sn 
 
     # save to hdf5 file 
-    f = h5py.File(os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_%s.hdf5' % subdir), 'w') 
+    if flag is None: 
+        fhdf5 = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_%s.hdf5' % subdir)
+    else: 
+        fhdf5 = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_%s.%s.hdf5' % (subdir, flag))
+    f = h5py.File(fhdf5, 'w') 
     f.create_dataset('k1', data=i_k)
     f.create_dataset('k2', data=j_k)
     f.create_dataset('k3', data=l_k)
@@ -587,11 +609,13 @@ def quijote_avgBk_forEma():
 
 if __name__=="__main__": 
     # write to hdf5 
-    for sub in ['Mmin_m', 'Mmin_p']: #['Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'Ob_m', 'Ob_p', 'Om_m', 'Om_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p']:
+    for sub in ['Mnu_p', 'Om_m', 'Om_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p']: # ['Ob2_p', 'Ob2_m']: #['Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'Ob_m', 'Ob_p', 'Om_m', 'Om_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p']:
         print('---%s---' % sub) 
-        quijote_Pk_hdf5(sub) 
-        continue 
-        quijote_hdf5(sub)
+        #quijote_hdf5(sub)
+        quijote_hdf5(sub, flag='ncv')
+        quijote_hdf5(sub, flag='reg')
+        #quijote_Pk_hdf5(sub) 
+
     #quijote_hdf5('fiducial') 
     #quijote_Pk_hdf5('fiducial') 
     #quijote_Cov_full(shotnoise=True)   
