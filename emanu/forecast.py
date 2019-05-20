@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
 
 
-def quijote_dBkdtheta(theta, log=False, dmnu='fin', flag=None)
+def quijote_dBkdtheta(theta, log=False, dmnu='fin', flag=None):
     ''' calculate d B(k)/d theta using quijote simulations run on perturbed theta 
 
     :param theta: 
