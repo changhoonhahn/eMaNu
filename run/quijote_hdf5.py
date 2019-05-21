@@ -125,6 +125,7 @@ def quijote_hdf5(subdir, machine='mbp', rsd=0, flag=None):
 if __name__=="__main__": 
     thetas = ['Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'Om_m', 'Om_p', 'Ob2_m', 'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p', 
             'Mmin_m', 'Mmin_p']
+    thetas = ['Om_p'] 
     for sub in thetas:
         print('---%s---' % sub) 
         quijote_hdf5(sub) # all redshift-space files
