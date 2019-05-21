@@ -136,18 +136,18 @@ def quijoteBk(theta, z=0, flag=None, rsd=0):
     :return _bks: 
         dictionary that contains all the bispectrum data from quijote simulation
     '''
-    assert flag in ['.fixed_nbar', '.ncv', '.reg'], "flag unspecified" 
+    assert flag in [None, '.fixed_nbar', 'ncv', 'reg'], "flag=%s unspecified" % flag
 
     if z == 0: zdir = 'z0'
     else: raise NotImplementedError
     
     quij_dir = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote', zdir) 
     if rsd != 'real':  # reshift space 
-        if flag is None: fbk = os.path.join(quij_dir, 'quijote_%s.hdf5' % subdir)
-        else: fbk = os.path.join(quij_dir, 'quijote_%s.%s.rsd%i.hdf5' % (subdir, flag, rsd))
+        if flag is None: fbk = os.path.join(quij_dir, 'quijote_%s.hdf5' % theta)
+        else: fbk = os.path.join(quij_dir, 'quijote_%s.%s.rsd%i.hdf5' % (theta, flag, rsd))
     else: 
-        if flag is None: fbk = os.path.join(quij_dir, 'quijote_%s.real.hdf5' % subdir)
-        else: fbk = os.path.join(quij_dir, 'quijote_%s.%s.real.hdf5' % (subdir, flag))
+        if flag is None: fbk = os.path.join(quij_dir, 'quijote_%s.real.hdf5' % theta)
+        else: fbk = os.path.join(quij_dir, 'quijote_%s.%s.real.hdf5' % (theta, flag))
     bks = h5py.File(fbk, 'r') 
 
     _bks = {}

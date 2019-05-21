@@ -28,6 +28,15 @@ def quijote_dBkdtheta(theta, log=False, z=0, dmnu='fin', flag=None, rsd=0, Nfp=N
     :return k1, k2, k3, dbk
         triangle sides and derivatives
     '''
+    quijote_thetas = {
+            'Mnu': [0.1, 0.2, 0.4], # +, ++, +++ 
+            'Ob': [0.048, 0.050],   # others are - + 
+            'Ob2': [0.047, 0.051],   # others are - + 
+            'Om': [0.3075, 0.3275],
+            'h': [0.6511, 0.6911],
+            'ns': [0.9424, 0.9824],
+            's8': [0.819, 0.849]}
+
     c_dbk = 0. 
     if theta == 'Mnu': 
         # derivative w.r.t. Mnu using 0, 0.1, 0.2, 0.4 eV

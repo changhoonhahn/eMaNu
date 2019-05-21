@@ -141,8 +141,8 @@ def dBdtheta_ncv(theta, z=0, rsd=0):
         np.savetxt(fderiv, np.vstack(datastack).T, header=hdr, delimiter=',\t', fmt=fmt)
     else: 
         # calculate dB/dtheta and dlogB/dtheta 
-        k1, k2, k3, dbk = Forecast.quijote_dBkdtheta(theta, log=False, z=z, flag='flag', rsd=rsd, Nfp=None)
-        _, _, _, dlogbk = Forecast.quijote_dBkdtheta(theta, log=True, z=z, flag='flag', rsd=rsd, Nfp=None)
+        k1, k2, k3, dbk = Forecast.quijote_dBkdtheta(theta, log=False, z=z, flag='ncv', rsd=rsd, Nfp=None)
+        _, _, _, dlogbk = Forecast.quijote_dBkdtheta(theta, log=True, z=z, flag='ncv', rsd=rsd, Nfp=None)
 
         hdr = 'k1, k2, k3, dB/dtheta, dlogB/dtheta'
         # save to file 
@@ -197,7 +197,9 @@ def dBdtheta_reg(theta, z=0, rsd=0):
 
 
 if __name__=="__main__": 
-    for theta in ['Mnu', 'Om', 'Ob2', 'h', 'ns', 's8', 'Mmin']: 
+    thetas = ['Mnu', 'Om', 'Ob2', 'h', 'ns', 's8', 'Mmin']
+    thetas = ['Ob2']
+    for theta in thetas: 
         dBdtheta_fiducial(theta, z=0)
         dBdtheta_real(theta, z=0)
         for rsd in [0, 1, 2, 'real']: 
