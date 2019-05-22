@@ -52,7 +52,7 @@ def quijote_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     else: # real-space B 
         if flag is None: 
             # include all redshift-space files (fixed paired and reg. N-body in all RSD directions) 
-            fbks = glob.glob(os.path.join(dir_quij, '*'))
+            fbks = glob.glob(os.path.join(dir_quij, '*txt'))
             fbks_rsd = glob.glob(os.path.join(dir_quij, '*RS*'))
             fbks = list(set(fbks) - set(fbks_rsd))
         elif flag == 'ncv': 
@@ -62,17 +62,17 @@ def quijote_hdf5(subdir, machine='mbp', rsd=0, flag=None):
             fbks = list(set(fbks) - set(fbks_rsd))
         elif flag == 'reg':
             # regular N-body (rsd direction) 
-            fbks = glob.glob(os.path.join(dir_quij, '*'))
+            fbks = glob.glob(os.path.join(dir_quij, '*txt'))
             fbks_rsd = glob.glob(os.path.join(dir_quij, '*RS*')) 
             fbks_ncv = glob.glob(os.path.join(dir_quij, '*NCV*')) 
             fbks = list(set(fbks) - set(fbks_rsd) - set(fbks_ncv))
 
-    print([os.path.basename(fbk) for fbk in fbks[::10]])
+    print([os.path.basename(fbk) for fbk in fbks[::10][:10]])
     nbk = len(fbks) 
     print('%i bispectrum files in /%s' % (nbk, subdir))  
     
     # check the number of bispectrum
-    if subdir == 'fiducial': assert nbk == 15000, "not the right number of files"
+    #if subdir == 'fiducial': assert nbk == 15000, "not the right number of files"
     #else: if nbk != 500 and nbk != 1000: print('not the right number of files') 
     
     # load in all the files 
@@ -133,4 +133,7 @@ if __name__=="__main__":
         for rsd in [0, 1, 2, 'real']: 
             quijote_hdf5(sub, flag='ncv', rsd=rsd)
             quijote_hdf5(sub, flag='reg', rsd=rsd)
-    #quijote_hdf5('fiducial')
+
+    quijote_hdf5('fiducial', flag='reg', rsd='real')
+    quijote_hdf5('fiducial')
+    quijote_hdf5('fiducial', rsd='real')

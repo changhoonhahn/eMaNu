@@ -27,8 +27,8 @@ mpl.rcParams['ytick.major.size'] = 5
 mpl.rcParams['ytick.major.width'] = 1.5
 mpl.rcParams['legend.frameon'] = False
 
-thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mmin'] 
-theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_{min}$']#, r'$M_\nu$']
+thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu', 'Mmin'] 
+theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$', r'$M_{min}$']
 
 kf = 2.*np.pi/1000.
 
