@@ -198,7 +198,7 @@ def dBdtheta_reg(theta, z=0, rsd=0):
 
 if __name__=="__main__": 
     thetas = ['Mnu', 'Om', 'Ob2', 'h', 'ns', 's8', 'Mmin']
-    thetas = ['Ob2']
+    thetas = ['Mmin']
     for theta in thetas: 
         dBdtheta_fiducial(theta, z=0)
         dBdtheta_real(theta, z=0)

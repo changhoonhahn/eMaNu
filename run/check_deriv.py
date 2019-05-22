@@ -27,8 +27,8 @@ mpl.rcParams['ytick.major.size'] = 5
 mpl.rcParams['ytick.major.width'] = 1.5
 mpl.rcParams['legend.frameon'] = False
 
-thetas = ['Om', 'Ob2', 'ns'] 
-theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$n_s$'] #r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
+thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mmin'] 
+theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_{min}$']#, r'$M_\nu$']
 
 kf = 2.*np.pi/1000.
 
@@ -68,7 +68,6 @@ def dlogBdthetas(kmax=0.5):
     ffig = os.path.join(UT.fig_dir(), '_quijote_dlogBdthetas_check.png')
     fig.savefig(ffig, bbox_inches='tight') 
     return None
-
 
 
 def dlogBdthetas_ratio(kmax=0.5):
