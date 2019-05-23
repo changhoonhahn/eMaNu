@@ -117,21 +117,25 @@ def hadesBk_s8(sig8, nzbin=4, rsd=True):
     return _bks
 
 
-def quijoteBk(theta, z=0, flag=None, rsd=0): 
+def quijoteBk(theta, z=0, rsd=True, flag=None): 
     ''' read in real/redshift-space bispectrum for specified model (theta) of the quijote simulations. 
     
     :param theta: 
         string that specifies which quijote run. `theta==fiducial`  
         for the fiducial set of parameters. 
 
-    :param rsd: (default: 0) 
-        if int, rsd specifies the direction of the RSD. if False then it in real bispectrum 
+    :param rsd: (default: True) 
+        if True, read in z-space bispectrum (including all 3 RSD directions). 
+        if False, read in real-space bispectrum
+        if int, rsd specifies the direction of the RSD 
 
     :param z: (default:0) 
         redshift z=0. currently only supports z=0 
     
-    :param flag: 
-        for more specific runs such as flag = '.fixed_nbar' 
+    :param flag: (default: None) 
+        specify more specific bispectrum runs. currently only flags within 
+        [None, 'ncv', 'reg']  are supported. ncv only includes paired-fixed 
+        simulations. reg only includes regular n-body simulations.
 
     :return _bks: 
         dictionary that contains all the bispectrum data from quijote simulation
@@ -144,7 +148,10 @@ def quijoteBk(theta, z=0, flag=None, rsd=0):
     quij_dir = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote', zdir) 
     if rsd != 'real':  # reshift space 
         if flag is None: fbk = os.path.join(quij_dir, 'quijote_%s.hdf5' % theta)
-        else: fbk = os.path.join(quij_dir, 'quijote_%s.%s.rsd%i.hdf5' % (theta, flag, rsd))
+        else: 
+            if rsd in [0, 1, 2]: 
+                fbk = os.path.join(quij_dir, 'quijote_%s.%s.rsd%i.hdf5' % (theta, flag, rsd))
+            else: raise ValueError
     else: 
         if flag is None: fbk = os.path.join(quij_dir, 'quijote_%s.real.hdf5' % theta)
         else: fbk = os.path.join(quij_dir, 'quijote_%s.%s.real.hdf5' % (theta, flag))
