@@ -8,6 +8,82 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
 
 
+def quijote_dPkdtheta(theta, log=False, dmnu='fin', z=0, Nfp=None):
+    ''' calculate d P0(k)/d theta using the paired and fixed quijote simulations
+    run on perturbed theta 
+
+    :param theta: 
+        string that specifies the parameter to take the 
+        derivative by. 
+    '''
+    quijote_thetas = {
+            'Mnu': [0.1, 0.2, 0.4], # +, ++, +++ 
+            'Ob': [0.048, 0.050],   # others are - + 
+            'Ob2': [0.047, 0.051],   # others are - + 
+            'Om': [0.3075, 0.3275],
+            'h': [0.6511, 0.6911],
+            'ns': [0.9424, 0.9824],
+            's8': [0.819, 0.849]}
+
+    if z != 0: raise NotImplementedError
+    c_dpk = 0.
+    if theta == 'Mnu': 
+        tts = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
+        if dmnu == 'p': 
+            coeffs = [-1., 1., 0., 0.]
+            h = 0.1
+        elif dmnu == 'pp': 
+            coeffs = [-1., 0., 1., 0.]
+            h = 0.2
+        elif dmnu == 'ppp': 
+            coeffs = [-1., 0., 0., 1.]
+            h = 0.4
+        elif dmnu == 'fin0': 
+            coeffs = [-3., 4., -1., 0.] # finite difference coefficient
+            h = 0.2
+        elif dmnu == 'fin': 
+            coeffs = [-21., 32., -12., 1.] # finite difference coefficient
+            h = 1.2
+    elif theta == 'Mmin': # halo mass limit 
+        tts = ['Mmin_m', 'Mmin_p'] 
+        coeffs = [-1., 1.] 
+        h = 0.2 # 3.3 - 3.1 x 10^13 Msun 
+    elif theta == 'Amp': 
+        # amplitude of P(k) is a free parameter
+        tts = ['fiducial'] 
+        coeffs = [0.] 
+        h = 1. 
+        quij = Obvs.quijoteP0k('fiducial') 
+        if not log: c_dpk = np.average(quij['p0k'], axis=0) 
+        else: c_dpk = np.ones(quij['p0k'].shape[1]) 
+    elif theta == 'Asn' : 
+        # constant shot noise term is a free parameter
+        tts = ['fiducial'] 
+        coeffs = [0.] 
+        h = 1. 
+        quij = Obvs.quijoteP0k('fiducial') 
+        if not log: c_dpk = np.ones(quij['p0k'].shape[1]) 
+        else: c_dpk = 1./np.average(quij['p0k'], axis=0) 
+    else: 
+        tts = [theta+'_m', theta+'_p'] 
+        coeffs = [-1., 1.] 
+        h = quijote_thetas[theta][1] - quijote_thetas[theta][0]
+
+    for i_tt, tt, coeff in zip(range(len(tts)), tts, coeffs): 
+        quij = Obvs.quijoteP0k(tt) # read P0k 
+        if i_tt == 0: dpk = np.zeros(quij['p0k'].shape[1]) 
+    
+        if Nfp is not None and tt != 'fiducial': 
+            _pk = np.average(quij['p0k'][:Nfp,:], axis=0)  
+        else: 
+            _pk = np.average(quij['p0k'], axis=0)  
+
+        if log: _pk = np.log(_pk) # log 
+
+        dpk += coeff * _pk 
+    return quij['k'], dpk / h + c_dpk 
+
+
 def quijote_dBkdtheta(theta, log=False, flag=None, rsd=True, z=0, dmnu='fin', Nfp=None):
     ''' calculate d B(k)/d theta using quijote simulations run on perturbed theta 
 

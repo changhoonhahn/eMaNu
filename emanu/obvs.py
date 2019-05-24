@@ -140,26 +140,39 @@ def quijoteBk(theta, z=0, rsd=True, flag=None):
     :return _bks: 
         dictionary that contains all the bispectrum data from quijote simulation
     '''
-    assert flag in [None, '.fixed_nbar', 'ncv', 'reg'], "flag=%s unspecified" % flag
-
     if z == 0: zdir = 'z0'
     else: raise NotImplementedError
     
+    assert flag in [None, 'ncv', 'reg'], "flag=%s unspecified" % flag
+    if flag is None: assert rsd in [True, 'real'] 
+    
     quij_dir = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote', zdir) 
-    if rsd != 'real':  # reshift space 
-        if flag is None: fbk = os.path.join(quij_dir, 'quijote_%s.hdf5' % theta)
+    if (type(rsd) == bool) and rsd: # rsd=True (include all 3 rsd directions) 
+        if flag is None: # combine ncv and reg. n-body sims 
+            fbks = [] 
+            for fl in ['ncv', 'reg']: 
+                for irsd in [0, 1, 2]: 
+                    fbks.append('quijote_%s.%s.rsd%i.hdf5' % (theta, fl, irsd))
         else: 
-            if rsd in [0, 1, 2]: 
-                fbk = os.path.join(quij_dir, 'quijote_%s.%s.rsd%i.hdf5' % (theta, flag, rsd))
-            else: raise ValueError
-    else: 
-        if flag is None: fbk = os.path.join(quij_dir, 'quijote_%s.real.hdf5' % theta)
-        else: fbk = os.path.join(quij_dir, 'quijote_%s.%s.real.hdf5' % (theta, flag))
-    bks = h5py.File(fbk, 'r') 
+            fbks = ['quijote_%s.%s.rsd%i.hdf5' % (theta, flag, irsd) for irsd in [0, 1, 2]] 
+    elif rsd == 'real': # real-space 
+        if flag is None: # combine ncv and reg. n-body sims 
+            fbks = [] 
+            for fl in ['ncv', 'reg']: 
+                fbks.append('quijote_%s.%s.real.hdf5' % (theta, fl))
+        else: fbks = ['quijote_%s.%s.real.hdf5' % (theta, flag)]
+    elif rsd in [0, 1, 2]:  
+        fbks = ['quijote_%s.%s.rsd%i.hdf5' % (theta, flag, rsd)]
 
-    _bks = {}
-    for k in bks.keys(): 
-        _bks[k] = bks[k].value 
+    for i_f, fbk in enumerate(fbks): 
+        bks = h5py.File(os.path.join(quij_dir, fbk), 'r') 
+        if i_f == 0:  
+            _bks = {}
+            for k in bks.keys(): 
+                _bks[k] = bks[k].value 
+        else: 
+            for k in ['p0k1', 'p0k2', 'p0k3', 'b123', 'b_sn', 'q123']: 
+                _bks[k] = np.concatenate([_bks[k], bks[k].value]) 
     return _bks
 
 
@@ -173,7 +186,7 @@ def quijoteP0k(theta):
     :return _pks: 
         dictionary that contains all the bispectrum data from quijote simulation
     '''
-    fpk = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_Pk_%s.hdf5' % theta)
+    fpk = os.path.join(UT.dat_dir(), 'powerspectrum', 'quijote', 'z0', 'quijote_Pk_%s.hdf5' % theta)
     pks = h5py.File(fpk, 'r') 
 
     _pks = {}

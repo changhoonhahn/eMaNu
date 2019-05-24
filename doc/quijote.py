@@ -51,6 +51,7 @@ quijote_thetas = {
 ##################################################################
 kf = 2.*np.pi/1000. # fundmaentla mode
 thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']
+thetas_pk = ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu']
 theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
 theta_lims = [(0.25, 0.385), (0.02, 0.08), (0.3, 1.1), (0.6, 1.35), (0.8, 0.87), (-0.45, 0.45)]
 theta_fid = {'Mnu': 0., 'Ob': 0.049, 'Ob2': 0.049, 'Om': 0.3175, 'h': 0.6711,  'ns': 0.9624,  's8': 0.834} # fiducial theta 
@@ -78,7 +79,7 @@ def quijoteCov(rsd=True, flag=None, silent=True):
         big ass covariance matrix of all the triangle configurations in 
         the default ordering. 
     '''
-    fcov = os.path.join(dir_bk, 'quijote_Cov_full%s%s.hdf5' % (_rsd_str(rsd), _flag_str(flag)))
+    fcov = os.path.join(dir_bk, 'quijote_bCov_full%s%s.hdf5' % (_rsd_str(rsd), _flag_str(flag)))
     if os.path.isfile(fcov): 
         Fcov = h5py.File(fcov, 'r') # read in fiducial covariance matrix 
         cov = Fcov['C_bk'].value
@@ -307,70 +308,24 @@ def Pk_comparison():
 
 
 # Derivatives
-def quijote_dPk(theta, dmnu='fin', log=False, Nfp=None):
-    ''' calculate d P0(k)/d theta using the paired and fixed quijote simulations
-    run on perturbed theta 
+def quijote_dPk(theta, dmnu='fin', log=False, Nfp=None, returnks=False):
+    ''' read d P(k)/d theta  
 
     :param theta: 
         string that specifies the parameter to take the 
         derivative by. 
     '''
-    c_dpk = 0.
+    dir_dat = os.path.join(UT.doc_dir(), 'dat') 
+    fdpk = os.path.join(dir_dat, 'dPdtheta.%s.dat' % theta) 
+    i_dpk = 1 
     if theta == 'Mnu': 
-        tts = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
-        if dmnu == 'p': 
-            coeffs = [-1., 1., 0., 0.]
-            h = 0.1
-        elif dmnu == 'pp': 
-            coeffs = [-1., 0., 1., 0.]
-            h = 0.2
-        elif dmnu == 'ppp': 
-            coeffs = [-1., 0., 0., 1.]
-            h = 0.4
-        elif dmnu == 'fin0': 
-            coeffs = [-3., 4., -1., 0.] # finite difference coefficient
-            h = 0.2
-        elif dmnu == 'fin': 
-            coeffs = [-21., 32., -12., 1.] # finite difference coefficient
-            h = 1.2
-    elif theta == 'Mmin': # halo mass limit 
-        tts = ['Mmin_m', 'Mmin_p'] 
-        coeffs = [-1., 1.] 
-        h = 0.2 # 3.3 - 3.1 x 10^13 Msun 
-    elif theta == 'Amp': 
-        # amplitude of P(k) is a free parameter
-        tts = ['fiducial'] 
-        coeffs = [0.] 
-        h = 1. 
-        quij = Obvs.quijoteP0k('fiducial') 
-        if not log: c_dpk = np.average(quij['p0k'], axis=0) 
-        else: c_dpk = np.ones(quij['p0k'].shape[1]) 
-    elif theta == 'Asn' : 
-        # constant shot noise term is a free parameter
-        tts = ['fiducial'] 
-        coeffs = [0.] 
-        h = 1. 
-        quij = Obvs.quijoteP0k('fiducial') 
-        if not log: c_dpk = np.ones(quij['p0k'].shape[1]) 
-        else: c_dpk = 1./np.average(quij['p0k'], axis=0) 
-    else: 
-        tts = [theta+'_m', theta+'_p'] 
-        coeffs = [-1., 1.] 
-        h = quijote_thetas[theta][1] - quijote_thetas[theta][0]
+        index_dict = {'fin': 1, 'fin0': 3, 'p': 5, 'pp': 7, 'ppp': 9}  
+        i_dpk = index_dict[dmnu] 
+    if log: i_dpk += 1 
 
-    for i_tt, tt, coeff in zip(range(len(tts)), tts, coeffs): 
-        quij = Obvs.quijoteP0k(tt) # read P0k 
-        if i_tt == 0: dpk = np.zeros(quij['p0k'].shape[1]) 
-    
-        if Nfp is not None and tt != 'fiducial': 
-            _pk = np.average(quij['p0k'][:Nfp,:], axis=0)  
-        else: 
-            _pk = np.average(quij['p0k'], axis=0)  
-
-        if log: _pk = np.log(_pk) # log 
-
-        dpk += coeff * _pk 
-    return dpk / h + c_dpk 
+    k, dpdt = np.loadtxt(fdpk, skiprows=1, unpack=True, usecols=[0,i_dpk]) 
+    if not returnks: return dpdt 
+    else: return k, dpdt 
 
 
 def quijote_dBk(theta, log=False, rsd=True, flag=None, dmnu='fin', returnks=False):
@@ -593,7 +548,7 @@ def quijote_dPdthetas(dmnu='fin', log=True):
     ''' comparison of dlogP/dtheta or dP/dtheta
     '''
     klin = np.logspace(-5, 1, 400)
-    _thetas = thetas + ['Amp', 'Mmin', 'Asn'] # tacked on some nuisance parameters
+    _thetas = thetas_pk + ['Amp', 'Mmin', 'Asn'] # tacked on some nuisance parameters
     _theta_lbls = theta_lbls + ["$b'$", r'$M_{\rm min}$', r'$A_{\rm SN}$']
 
     quij = Obvs.quijoteP0k('fiducial')
@@ -608,7 +563,7 @@ def quijote_dPdthetas(dmnu='fin', log=True):
         dpdt = quijote_dPk(tt, dmnu=dmnu, log=log)
         plt_pk, = sub.plot(quij['k'][klim], dpdt[klim], c='C%i' % i_tt) 
         
-        if tt in thetas and log: 
+        if tt in thetas_pk and log: 
             dpmdt = LT.dPmdtheta(tt, klin, log=True, npoints='quijote') 
             plt_pm, = sub.plot(klin, dpmdt, c='k', lw=1, ls='--')
             dpcbdt = LT.dPmdtheta(tt, klin, log=True, npoints='quijote', flag='cb') 
@@ -3076,7 +3031,7 @@ if __name__=="__main__":
         quijote_bkCov(kmax=0.5, rsd=0, flag='reg') # condition number 1.73685+08
     '''
     # deriatives 
-    quijote_dBdMnu(kmax=0.5, dmnu='fin')
+    quijote_dPdthetas(dmnu='fin', log=True)
     '''
         quijote_P_theta()
         quijote_B_theta()
@@ -3084,6 +3039,8 @@ if __name__=="__main__":
         quijote_B_theta(rsd=0, flag='reg')
         quijote_dPdthetas(dmnu='fin', log=True)
         quijote_dBdthetas(log=True, rsd=True, flag=None, dmnu='fin')
+        quijote_dBdthetas(log=True, rsd=True, flag='ncv', dmnu='fin')
+        quijote_dBdthetas(log=True, rsd=True, flag='reg', dmnu='fin')
         quijote_dBdthetas(log=True, rsd=0, flag='ncv', dmnu='fin')
         quijote_dBdthetas(log=True, rsd=0, flag='reg', dmnu='fin')
         quijote_dBdMnu(kmax=0.5, dmnu='fin')
