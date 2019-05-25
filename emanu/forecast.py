@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
 
 
-def quijote_dPkdtheta(theta, log=False, dmnu='fin', z=0, Nfp=None):
+def quijote_dPkdtheta(theta, log=False, dmnu='fin', z=0, Nderiv=None):
     ''' calculate d P0(k)/d theta using the paired and fixed quijote simulations
     run on perturbed theta 
 
@@ -73,8 +73,8 @@ def quijote_dPkdtheta(theta, log=False, dmnu='fin', z=0, Nfp=None):
         quij = Obvs.quijoteP0k(tt) # read P0k 
         if i_tt == 0: dpk = np.zeros(quij['p0k'].shape[1]) 
     
-        if Nfp is not None and tt != 'fiducial': 
-            _pk = np.average(quij['p0k'][:Nfp,:], axis=0)  
+        if Nderiv is not None and tt != 'fiducial': 
+            _pk = np.average(quij['p0k'][:Nderiv,:], axis=0)  
         else: 
             _pk = np.average(quij['p0k'], axis=0)  
 
@@ -84,7 +84,7 @@ def quijote_dPkdtheta(theta, log=False, dmnu='fin', z=0, Nfp=None):
     return quij['k'], dpk / h + c_dpk 
 
 
-def quijote_dBkdtheta(theta, log=False, flag=None, rsd=True, z=0, dmnu='fin', Nfp=None):
+def quijote_dBkdtheta(theta, log=False, flag=None, rsd=True, z=0, dmnu='fin', Nderiv=None):
     ''' calculate d B(k)/d theta using quijote simulations run on perturbed theta 
 
     :param theta: 
@@ -205,8 +205,8 @@ def quijote_dBkdtheta(theta, log=False, flag=None, rsd=True, z=0, dmnu='fin', Nf
 
         if i_tt == 0: dbk = np.zeros(quij['b123'].shape[1]) 
 
-        if Nfp is not None and tt != 'fiducial': 
-            _bk = np.average(quij['b123'][:Nfp,:], axis=0)  
+        if Nderiv is not None and tt != 'fiducial': 
+            _bk = np.average(quij['b123'][:Nderiv,:], axis=0)  
         else: 
             _bk = np.average(quij['b123'], axis=0)  
 

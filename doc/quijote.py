@@ -6,6 +6,7 @@ forecasts using Quijote simulations
 import os 
 import h5py
 import numpy as np 
+from copy import copy as copy
 # --- eMaNu --- 
 from emanu import util as UT
 from emanu import obvs as Obvs
@@ -66,7 +67,31 @@ theta_nuis_lims = {'Mmin': (2.8, 3.6), 'Amp': (0.8, 1.2), 'Asn': (0., 1.), 'Bsn'
 fscale_pk = 2e5
 
 
-def quijoteCov(rsd=True, flag=None, silent=True): 
+def pkCov(silent=True): 
+    ''' calculate the covariance matrix of the RSD quijote powerspectrum. 
+    '''
+    fcov = os.path.join(dir_bk, 'quijote_pCov_full.hdf5')
+    if os.path.isfile(fcov): 
+        Fcov = h5py.File(fcov, 'r') # read in fiducial covariance matrix 
+        C_pk = Fcov['C_pk'][...]
+        k = Fcov['k'][...]
+        Nmock = Fcov['Nmock'][...]
+    else:
+        # read in P(k) 
+        quij = Obvs.quijoteP0k('fiducial') # theta_fiducial 
+        pks = quij['p0k'] + quij['p_sn'][:,None] # shotnoise uncorrected P(k) 
+        C_pk = np.cov(pks.T) # covariance matrix 
+        Nmock = quij['p0k'].shape[0] 
+        
+        f = h5py.File(fcov, 'w') # write to hdf5 file 
+        f.create_dataset('Nmock', data=Nmock)
+        f.create_dataset('C_pk', data=C_pk) 
+        f.create_dataset('k', data=quij['k']) 
+        f.close()
+    return k, C_pk, Nmock 
+
+
+def bkCov(rsd=True, flag=None, silent=True): 
     ''' return the full covariance matrix of the quijote bispectrum
     computed using 
     - rsd == True: 46500 simulations (15000 n-body x 3  + 500 ncv x 3) 
@@ -82,37 +107,34 @@ def quijoteCov(rsd=True, flag=None, silent=True):
     fcov = os.path.join(dir_bk, 'quijote_bCov_full%s%s.hdf5' % (_rsd_str(rsd), _flag_str(flag)))
     if os.path.isfile(fcov): 
         Fcov = h5py.File(fcov, 'r') # read in fiducial covariance matrix 
-        cov = Fcov['C_bk'].value
-        k1, k2, k3 = Fcov['k1'].value, Fcov['k2'].value, Fcov['k3'].value
+        cov = Fcov['C_bk'][...]
+        k1, k2, k3 = Fcov['k1'][...], Fcov['k2'][...], Fcov['k3'][...]
+        Nmock = Fcov['Nmock'][...] 
     else: 
         quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag=flag) 
         bks = quij['b123'] + quij['b_sn']
         if not silent: print('%i Bk measurements' % bks.shape[0]) 
         cov = np.cov(bks.T) # calculate the covariance
         k1, k2, k3 = quij['k1'], quij['k2'], quij['k3']
+        Nmock = quij['b123'].shape[0]
 
         f = h5py.File(fcov, 'w') # write to hdf5 file 
+        f.create_dataset('Nmock', data=Nmock)
         f.create_dataset('C_bk', data=cov) 
         f.create_dataset('k1', data=quij['k1']) 
         f.create_dataset('k2', data=quij['k2']) 
         f.create_dataset('k3', data=quij['k3']) 
         f.close()
-    return k1, k2, k3, cov
+    return k1, k2, k3, cov, Nmock
 
-# covariance matrices 
-def quijote_pkCov(kmax=0.5): 
+# plot covariance matrices 
+def _pkCov(kmax=0.5): 
     ''' plot the covariance matrix of the quijote fiducial 
     bispectrum. 
     '''
-    # read in P(k) 
-    quij = Obvs.quijoteP0k('fiducial') # theta_fiducial 
-    pks = quij['p0k'] + quij['p_sn'][:,None] # shotnoise uncorrected P(k) 
-     
-    # impose k limit on powerspectrum 
-    pklim = (quij['k'] <= kmax)
-    pks = pks[:,pklim]
-    
-    C_pk = np.cov(pks.T) # covariance matrix 
+    k, C_pk, _ = pkCov()
+    pklim = (k <= kmax) # impose k limit on powerspectrum 
+    C_pk = C_pk[pklim,:][:,pklim] # covariance matrix 
     print('Cii', np.diag(C_pk))
     print('covariance matrix condition number = %.5e' % np.linalg.cond(C_pk)) 
 
@@ -122,16 +144,16 @@ def quijote_pkCov(kmax=0.5):
     cm = sub.pcolormesh(C_pk, norm=LogNorm(vmin=1e3, vmax=1e8))
     cbar = fig.colorbar(cm, ax=sub) 
     sub.set_title(r'Quijote $P(k)$ Covariance', fontsize=25)
-    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_pkCov_kmax%s.png' % str(kmax).replace('.', ''))
+    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_pkCov_kmax%.1f.png' % kmax)
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
 
-def quijote_bkCov(kmax=0.5, rsd=True, flag=None): 
+def _bkCov(kmax=0.5, rsd=True, flag=None): 
     ''' plot the covariance matrix of the quijote fiducial 
     bispectrum. 
     '''
-    i_k, j_k, l_k, C_bk = quijoteCov(rsd=rsd, flag=flag) 
+    i_k, j_k, l_k, C_bk, _ = quijotebkCov(rsd=rsd, flag=flag) 
     # impose k limit on bispectrum
     bklim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax))
     C_bk = C_bk[bklim,:][:,bklim]
@@ -308,7 +330,7 @@ def Pk_comparison():
 
 
 # Derivatives
-def quijote_dPk(theta, dmnu='fin', log=False, Nfp=None, returnks=False):
+def dPkdtheta(theta, dmnu='fin', log=False, returnks=False):
     ''' read d P(k)/d theta  
 
     :param theta: 
@@ -328,7 +350,7 @@ def quijote_dPk(theta, dmnu='fin', log=False, Nfp=None, returnks=False):
     else: return k, dpdt 
 
 
-def quijote_dBk(theta, log=False, rsd=True, flag=None, dmnu='fin', returnks=False):
+def dBkdtheta(theta, log=False, rsd=True, flag=None, dmnu='fin', returnks=False):
     ''' read d B(k)/d theta  
 
     :param theta: 
@@ -347,108 +369,8 @@ def quijote_dBk(theta, log=False, rsd=True, flag=None, dmnu='fin', returnks=Fals
     if not returnks: return dbdt 
     else: return i_k, j_k, l_k, dbdt 
 
-# Fisher Matrix
-def quijote_FisherMatrix(obs, kmax=0.5, rsd=True, dmnu='fin', Nmock=None, Nfp=None, theta_nuis=None): 
-    ''' calculate fisher matrix for parameters ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu'] 
-    and specified nuisance parameters
-    '''
-    # calculate covariance matrix (with shotnoise; this is the correct one) 
-    if obs == 'pk': 
-        if not rsd: raise ValueError
-        quij = Obvs.quijoteP0k('fiducial') # theta_fiducial 
-        klim = (quij['k'] <= kmax) # determine k limit 
-        ndata = np.sum(klim) 
 
-        pks = quij['p0k'][:,klim] + quij['p_sn'][:,None] # uncorrect shot noise 
-        if Nmock is None: 
-            nmock = quij['p0k'].shape[0]
-            C_fid = np.cov(pks.T) # covariance matrix 
-        else: 
-            nmock = Nmock 
-            C_fid = np.cov(pks[:Nmock,:].T)
-
-    elif obs in ['bk', 'bk_equ', 'bk_squ', 'bk_nosqu']: 
-        # read in full covariance matrix (with shotnoise; this is the correct one) 
-        #i_k, j_k, l_k, C_fid = quijoteCov(rsd=rsd)
-        quij = Obvs.quijoteBk('fiducial', rsd=rsd) # theta_fiducial 
-        bks = quij['b123'] + quij['b_sn']                   # shotnoise uncorrected B(k) 
-        i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
-        
-        # impose k limit 
-        if obs == 'bk': 
-            klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
-        elif obs == 'bk_equ': 
-            tri = (i_k == j_k) & (j_k == l_k) 
-            klim = (tri & (i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
-        elif obs == 'bk_squ': 
-            tri = (i_k == j_k) & (l_k == 3)
-            klim = (tri & (i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
-        elif obs == 'bk_nosqu': 
-            tri = (l_k > 12)
-            klim = (tri & (i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
-
-        ndata = np.sum(klim) 
-        if Nmock is None: 
-            nmock = quij['b123'].shape[0]
-            C_fid = np.cov(bks.T)[:,klim][klim,:]
-        else: 
-            nmock = Nmock 
-            C_fid = np.cov(bks[:Nmock,:].T)[:,klim][klim,:]
-
-    elif obs == 'pbk': 
-        raise NotImplementedError
-        # read in P(k) 
-        quij = Obvs.quijoteP0k('fiducial') # theta_fiducial 
-        pks = quij['p0k'] + quij['p_sn'][:,None] # uncorrect shot noise 
-        k_pk = quij['k'] 
-        # read in B(k) 
-        quij = Obvs.quijoteBk('fiducial', rsd=rsd) # theta_fiducial 
-        bks = quij['b123'] + quij['b_sn']                   # shotnoise uncorrected B(k) 
-        i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
-         
-        # impose k limit on powerspectrum 
-        pklim = (k_pk <= kmax) 
-        pks = pks[:,pklim]
-        # impose k limit on bispectrum
-        bklim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
-        ijl = UT.ijl_order(i_k[bklim], j_k[bklim], l_k[bklim], typ='GM') # order of triangles 
-        bks = bks[:,bklim][:,ijl] 
-        
-        pbks = np.concatenate([fscale_pk*pks, bks], axis=1) # joint data vector
-        ndata = len(pbks) 
-        if Nmock is None: 
-            nmock = pks.shape[0]
-            C_fid = np.cov(pbks.T) # covariance matrix 
-        else: 
-            nmock = Nmock 
-            C_fid = np.cov(pbks[:Nmock,:].T) # covariance matrix 
-    
-    f_hartlap = float(nmock - ndata - 2)/float(nmock - 1) 
-    C_inv = f_hartlap * np.linalg.inv(C_fid) # invert the covariance 
-    
-    dobs_dt = [] 
-    if theta_nuis is None: 
-        _thetas = thetas
-    else: 
-        _thetas = thetas + theta_nuis 
-
-    for par in _thetas: # calculate the derivative of Bk along all the thetas 
-        if obs == 'pk': 
-            dobs_dti = quijote_dPk(par, dmnu=dmnu, Nfp=Nfp)
-            dobs_dt.append(dobs_dti[klim] )
-        elif obs in ['bk', 'bk_squ', 'bk_equ', 'bk_nosqu']: 
-            dobs_dti = quijote_dBk(par, rsd=rsd, dmnu=dmnu, Nfp=Nfp)
-            dobs_dt.append(dobs_dti[klim])
-        elif obs == 'pbk': 
-            dpk_dti = quijote_dPk(par, dmnu=dmnu, Nfp=Nfp)
-            dbk_dti = quijote_dBk(par, rsd=rsd, dmnu=dmnu, Nfp=Nfp)
-            dobs_dt.append(np.concatenate([fscale_pk * dpk_dti[pklim], dbk_dti[bklim]])) 
-    Fij = Forecast.Fij(dobs_dt, C_inv) 
-    #assert ndata > Fij.shape[0] 
-    return Fij 
-
-
-def quijote_P_theta(): 
+def P_theta(): 
     ''' Compare the quijote powerspectrum evaluated along theta axis  
     '''
     # fiducial P0(k)  
@@ -457,8 +379,8 @@ def quijote_P_theta():
     klim = (quij['k'] < 0.5)
     
     quijote_thetas['Mmin'] = [3.1, 3.3]
-    _thetas = thetas + ['Mmin'] 
-    _theta_lbls = theta_lbls + [r'$M_{\rm min}$']  
+    _thetas = copy(thetas_pk) + ['Mmin'] 
+    _theta_lbls = copy(theta_lbls) + [r'$M_{\rm min}$']  
 
     fig = plt.figure(figsize=(12,12))
     for i_tt, tt, lbl in zip(range(len(_thetas)), _thetas, _theta_lbls): 
@@ -495,7 +417,7 @@ def quijote_P_theta():
     return None
 
 
-def quijote_B_theta(kmax=0.5, rsd=True, flag=None): 
+def B_theta(kmax=0.5, rsd=True, flag=None): 
     ''' compare the B for theta- and theta+  
     '''
     quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag=flag)
@@ -544,12 +466,12 @@ def quijote_B_theta(kmax=0.5, rsd=True, flag=None):
     return None
 
 
-def quijote_dPdthetas(dmnu='fin', log=True):
+def _dPdthetas(dmnu='fin', log=True):
     ''' comparison of dlogP/dtheta or dP/dtheta
     '''
     klin = np.logspace(-5, 1, 400)
-    _thetas = thetas_pk + ['Amp', 'Mmin', 'Asn'] # tacked on some nuisance parameters
-    _theta_lbls = theta_lbls + ["$b'$", r'$M_{\rm min}$', r'$A_{\rm SN}$']
+    _thetas = copy(thetas_pk) + ['Amp', 'Mmin', 'Asn'] # tacked on some nuisance parameters
+    _theta_lbls = copy(theta_lbls) + ["$b'$", r'$M_{\rm min}$', r'$A_{\rm SN}$']
 
     quij = Obvs.quijoteP0k('fiducial')
     klim = (quij['k'] < 0.5) # k limit 
@@ -560,7 +482,7 @@ def quijote_dPdthetas(dmnu='fin', log=True):
     for i_tt, tt, lbl in zip(range(len(_thetas)), _thetas, _theta_lbls): 
         sub = fig.add_subplot(3,3,i_tt+1)
 
-        dpdt = quijote_dPk(tt, dmnu=dmnu, log=log)
+        dpdt = dPkdtheta(tt, log=log, dmnu=dmnu)
         plt_pk, = sub.plot(quij['k'][klim], dpdt[klim], c='C%i' % i_tt) 
         
         if tt in thetas_pk and log: 
@@ -596,23 +518,38 @@ def quijote_dPdthetas(dmnu='fin', log=True):
     return None
 
 
-def quijote_dBdthetas(kmax=0.5, log=True, dmnu='fin', rsd=True, flag=None):
+def _dBdthetas(kmax=0.5, log=True, rsd=True, flag=None, dmnu='fin'):
     ''' Compare the derivatives of the bispectrum w.r.t. all the parameters
+    
+    :param rsd: 
+        rsd kwarg that specifies rsd set up for B(k). 
+        If rsd == True, include 3 RSD directions. 
+        If rsd in [0,1,2] include one of the directions
+    :param flag: 
+        kwarg specifying the flag for B(k). 
+        If `flag is None`, include paired-fixed and regular N-body simulation. 
+        If `flag == 'ncv'` only include paired-fixed. 
+        If `flag == 'reg'` only include regular N-body
+    :param dmnu: 
+        derivative finite differences setup
     '''
-    _thetas = thetas + ['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'] 
-    _theta_lbls = theta_lbls + ["$b'$", r'$M_{\rm min}$', r"$A_{\rm SN}$", r"$B_{\rm SN}$", "$b_2$", "$g_2$"]
+    _thetas = copy(thetas) + ['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'] 
+    _theta_lbls = copy(theta_lbls) + ["$b'$", r'$M_{\rm min}$', r"$A_{\rm SN}$", r"$B_{\rm SN}$", "$b_2$", "$g_2$"]
+    _theta_lims = [(-17., 6.), (-2., 24.), (-5., -0.5), (-5., -0.5), (-6., 0), 
+            (-1.5, 2.), (0.95, 1.05), (0.4, -0.4), None, None, None, None] 
 
-    i_k, j_k, l_k, _ = dpdt = quijote_dBk('Om', log=log, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True)
-    klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
+    i_k, j_k, l_k, _ = dpdt = dBkdtheta('Om', log=log, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True)
+    klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # get k limit
 
     fig = plt.figure(figsize=(20, 40))
     for i_tt, tt, lbl in zip(range(len(_thetas)), _thetas, _theta_lbls): 
         sub = fig.add_subplot(len(_thetas),1,i_tt+1)
-        dpdt = quijote_dBk(tt, log=log, rsd=rsd, flag=flag, dmnu=dmnu)
+        dpdt = dBkdtheta(tt, log=log, rsd=rsd, flag=flag, dmnu=dmnu)
         plt_bk, = sub.plot(range(np.sum(klim)), dpdt[klim])
         
         sub.set_xlim(0, np.sum(klim)) 
         if not log: sub.set_yscale('log') 
+        else: sub.set_ylim(_theta_lims[i_tt]) 
         if tt in ['Asn', 'Bsn']: sub.set_yscale('log') 
         if i_tt == 0: sub.legend([plt_bk], [r'$B_{\rm h}$'], loc='upper left', fontsize=15)
         sub.text(0.975, 0.95, lbl, ha='right', va='top', transform=sub.transAxes, fontsize=25)
@@ -627,10 +564,10 @@ def quijote_dBdthetas(kmax=0.5, log=True, dmnu='fin', rsd=True, flag=None):
     return None
 
 
-def quijote_dBdMnu(kmax=0.5, dmnu='fin'):
+def dlogBdMnu(kmax=0.5, dmnu='fin'):
     ''' Compare the dlogB/dMnu highlighting the different triangle configurations
     '''
-    i_k, j_k, l_k, dpdt = quijote_dBk('Mnu', log=True, rsd=True, flag=None, dmnu=dmnu, returnks=True) 
+    i_k, j_k, l_k, dpdt = dBkdtheta('Mnu', log=True, rsd=True, flag=None, dmnu=dmnu, returnks=True) 
     klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
     
     i_k = i_k[klim]
@@ -658,8 +595,18 @@ def quijote_dBdMnu(kmax=0.5, dmnu='fin'):
     return None
 
 
-def quijote_dlogPBdMnu():
+def dlogPBdMnu(rsd=True, flag=None):
     ''' Compare the dlogP/dMnu and dlogB/dMnu for different numerical derivative step size 
+
+    :param rsd: 
+        rsd kwarg that specifies rsd set up for B(k). 
+        If rsd == True, include 3 RSD directions. 
+        If rsd in [0,1,2] include one of the directions
+    :param flag: 
+        kwarg specifying the flag for B(k). 
+        If `flag is None`, include paired-fixed and regular N-body simulation. 
+        If `flag == 'ncv'` only include paired-fixed. 
+        If `flag == 'reg'` only include regular N-body
     '''
     dmnus = ['fin', 'fin0', 'p'][::-1]
     #dmnus_lbls = ['0.0, 0.1, 0.2, 0.4 eV', '0.0, 0.1, 0.2 eV', '0.0, 0.1eV']
@@ -669,13 +616,12 @@ def quijote_dlogPBdMnu():
 
     # fiducial P0(k)  
     quij = Obvs.quijoteP0k('fiducial')
-    pk_fid = np.average(quij['p0k'], axis=0) 
     k_pk = quij['k'] 
-    # fiducial B(k)  
-    quij = Obvs.quijoteBk('fiducial', rsd=True)
-    bk_fid = np.average(quij['b123'], axis=0) 
+    pklim = (k_pk < 0.5)  # pk limit 
+
+    quij = Obvs.quijoteBk('Mnu_p', rsd=0, flag='ncv') 
     i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
-    bklim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
+    bklim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # bk limit 
     ijl = UT.ijl_order(i_k[bklim], j_k[bklim], l_k[bklim], typ='GM') # order of triangles 
 
     fig = plt.figure(figsize=(20, 5))
@@ -686,8 +632,8 @@ def quijote_dlogPBdMnu():
     # dlogP/dMnu
     sub0 = plt.subplot(gs0[0,0])
     for dmnu, lbl, c in zip(dmnus, dmnus_lbls, colors): 
-        dpk = quijote_dPk('Mnu', dmnu=dmnu, log=True) 
-        sub0.plot(k_pk, dpk, c=c, label=lbl) 
+        dpk = dPkdtheta('Mnu', dmnu=dmnu, log=True) 
+        sub0.plot(k_pk[pklim], dpk[pklim], c=c, label=lbl) 
     sub0.legend(loc='upper right', fontsize=15) 
     sub0.set_xlabel('$k$', fontsize=25) 
     sub0.set_xscale('log') 
@@ -699,60 +645,154 @@ def quijote_dlogPBdMnu():
     # dlogB/dMnu
     sub1 = plt.subplot(gs1[0,0])
     for dmnu in dmnus: 
-        dbk = quijote_dBk('Mnu', dmnu=dmnu, log=True, rsd=True, flag=None) 
+        dbk = dBkdtheta('Mnu', dmnu=dmnu, log=True, rsd=rsd, flag=flag) 
         sub1.plot(range(np.sum(bklim)), dbk[bklim][ijl]) 
     sub1.set_xlabel('triangle configurations', fontsize=25) 
     sub1.set_xlim(0, np.sum(bklim)) 
     sub1.set_ylabel(r'${\rm d}\log B(k_1, k_2, k_3)/{\rm d} M_\nu$', labelpad=-5, fontsize=25) 
     sub1.set_ylim(-0.5, 1.5) 
     sub1.set_yticks([-0.5, 0., 0.5, 1., 1.5]) 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_dPBdMnu_dmnu.png')
+    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_dPBdMnu_dmnu%s%s.png' % (_rsd_str(rsd), _flag_str(flag)))
     fig.savefig(ffig, bbox_inches='tight') 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_dPBdMnu_dmnu.pdf')
-    fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
     return None
+
+# Fisher Matrix
+def FisherMatrix(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None): 
+    ''' calculate fisher matrix for parameters ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu'] 
+    and specified nuisance parameters
+    
+    :param obs: 
+        observable ('pk' or 'bk') 
+    :param kmax: (default: 0.5) 
+        kmax of the analysis 
+    :param rsd: (default: True) 
+        rsd kwarg that specifies rsd set up for B(k). 
+        If rsd == True, include 3 RSD directions. 
+        If rsd in [0,1,2] include one of the directions
+    :param flag: (default: None) 
+        kwarg specifying the flag for B(k). 
+        If `flag is None`, include paired-fixed and regular N-body simulation. 
+        If `flag == 'ncv'` only include paired-fixed. 
+        If `flag == 'reg'` only include regular N-body
+    :param dmnu: (default: 'fin') 
+        derivative finite differences setup
+    :param theta_nuis: (default: None) 
+        list of nuisance parameters to include in the forecast. 
+    '''
+    # calculate covariance matrix (with shotnoise; this is the correct one) 
+    # *** rsd and flag kwargs are ignored for the covariace matirx ***
+    if obs == 'pk': 
+        k, _Cfid, nmock = pkCov()
+        klim = (k <= kmax) # determine k limit 
+        C_fid = _Cfid[klim,:][:,klim]
+    elif obs == 'bk':
+        i_k, j_k, l_k, _Cfid, nmock = bkCov(rsd=True, flag='reg') # only N-body for covariance
+        klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # k limit 
+        C_fid = _Cfid[:,klim][klim,:]
+    else: 
+        raise NotImplementedError
+
+    ndata = np.sum(klim) 
+    f_hartlap = float(nmock - ndata - 2)/float(nmock - 1) 
+    C_inv = f_hartlap * np.linalg.inv(C_fid) # invert the covariance 
+    
+    if obs == 'pk': _thetas = copy(thetas_pk) 
+    else: _thetas = copy(thetas) 
+    if theta_nuis is not None: _thetas += theta_nuis 
+    
+    # calculate the derivatives along all the thetas 
+    dobs_dt = [] 
+    for par in _thetas: 
+        if obs == 'pk': 
+            dobs_dti = dPkdtheta(par, dmnu=dmnu)
+            dobs_dt.append(dobs_dti[klim] )
+        elif obs == 'bk': 
+            # rsd and flag kwargs are passed to the derivatives
+            dobs_dti = dBkdtheta(par, rsd=rsd, flag=flag, dmnu=dmnu)
+            dobs_dt.append(dobs_dti[klim])
+    Fij = Forecast.Fij(dobs_dt, C_inv) 
+    #assert ndata > Fij.shape[0] 
+    return Fij 
 
 ##################################################################
 # Fisher forecasts 
 ##################################################################
-def quijote_Forecast(obs, kmax=0.5, rsd=True, dmnu='fin', theta_nuis=None):
+def forecast(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None, planck=False):
     ''' fisher forecast for quijote observables where we include theta_nuis as free parameters. 
     
+    :param obs: 
+        observable ('pk' or 'bk') 
     :param kmax: (default: 0.5) 
         kmax of the analysis 
+    :param rsd: (default: True) 
+        rsd kwarg that specifies rsd set up for B(k). 
+        If rsd == True, include 3 RSD directions. 
+        If rsd in [0,1,2] include one of the directions
+    :param flag: (default: None) 
+        kwarg specifying the flag for B(k). 
+        If `flag is None`, include paired-fixed and regular N-body simulation. 
+        If `flag == 'ncv'` only include paired-fixed. 
+        If `flag == 'reg'` only include regular N-body
+    :param dmnu: (default: 'fin') 
+        derivative finite differences setup
+    :param theta_nuis: (default: None) 
+        list of nuisance parameters to include in the forecast. 
+    :param planck: (default: False)
+        If True add Planck prior 
     '''
     # fisher matrix (Fij)
-    _Fij    = quijote_FisherMatrix(obs, kmax=kmax, rsd=rsd, dmnu=dmnu, theta_nuis=None) # no nuisance param. 
-    Fij     = quijote_FisherMatrix(obs, kmax=kmax, rsd=rsd, dmnu=dmnu, theta_nuis=theta_nuis) # marg. over nuisance param. 
+    _Fij    = FisherMatrix(obs, kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=None) # no nuisance param. 
+    Fij     = FisherMatrix(obs, kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=theta_nuis) # marg. over nuisance param. 
     cond = np.linalg.cond(Fij)
     if cond > 1e16: print('Fij is ill-conditioned %.5e' % cond)
     _Finv   = np.linalg.inv(_Fij) # invert fisher matrix 
     Finv    = np.linalg.inv(Fij) # invert fisher matrix 
+    
+    if planck: # add planck prior 
+        _Finv_noplanck = Finv.copy() 
+        _Fij_planck = np.load(os.path.join(UT.dat_dir(), 'Planck_2018_s8.npy')) # read in planck prior fisher (order is Om, Ob, h, ns, s8 and Mnu) 
+        Fij_planck = Fij.copy() 
+        Fij_planck[:6,:6] += _Fij_planck
+        Finv = np.linalg.inv(Fij_planck)
 
-    #i_s8 = thetas.index('s8')
-    #print('--- i = s8 ---')
-    #print('n nuis. Fii=%f, sigma_i = %f' % (Fij[i_s8, i_s8], np.sqrt(_Finv[i_s8,i_s8])))
-    #print("y nuis. Fii=%f, sigma_i = %f" % (Fij[i_s8, i_s8], np.sqrt(Finv[i_s8,i_s8])))
     i_Mnu = thetas.index('Mnu')
-    #print('--- i = Mnu ---')
-    #print('n nuis. Fii=%f, sigma_i = %f' % (Fij[i_Mnu, i_Mnu], np.sqrt(_Finv[i_Mnu,i_Mnu])))
-    #print("y nuis. Fii=%f, sigma_i = %f" % (Fij[i_Mnu, i_Mnu], np.sqrt(Finv[i_Mnu,i_Mnu])))
-    #print('n nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(_Finv))]))
-    #print('y nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(Finv))]))
-    print('%s' % '$ & $\pm '.join(['%.5f' % np.sqrt(Finv[i_Mnu,i_Mnu])]+['%.5f' % sii for sii in np.sqrt(np.diag(Finv))]))
+    if not planck: 
+        print('--- i = Mnu ---')
+        print('n nuis. Fii=%f, sigma_i = %f' % (_Fij[i_Mnu,i_Mnu], np.sqrt(_Finv[i_Mnu,i_Mnu])))
+        print("y nuis. Fii=%f, sigma_i = %f" % (Fij[i_Mnu,i_Mnu], np.sqrt(Finv[i_Mnu,i_Mnu])))
+        print('--- thetas ---')
+        print('n nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(_Finv))]))
+        print('y nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(Finv))]))
+    else: 
+        print('n nuis. Fii=%f, sigma_i = %f' % (_Fij[i_Mnu,i_Mnu], np.sqrt(_Finv[i_Mnu,i_Mnu])))
+        print("y nuis. Fii=%f, sigma_i = %f" % (Fij[i_Mnu,i_Mnu], np.sqrt(_Finv_noplanck[i_Mnu,i_Mnu])))
+        print("w/ Planck2018")
+        print("y nuis. Fii=%f, sigma_i = %f" % (Fij_planck[i_Mnu,i_Mnu], np.sqrt(Finv[i_Mnu,i_Mnu])))
+        print('--- thetas ---')
+        print('n nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(_Finv))]))
+        print('y nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(_Finv_noplanck))]))
+        print("w/ Planck2018")
+        print('y nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(Finv))]))
+    
+    if obs == 'pk': _thetas = copy(thetas_pk) + theta_nuis 
+    else: _thetas = copy(thetas) + theta_nuis 
+    _theta_lbls = copy(theta_lbls) + [theta_nuis_lbls[tt] for tt in theta_nuis]
 
-    _thetas = thetas + theta_nuis 
-    _theta_lbls = theta_lbls + [theta_nuis_lbls[tt] for tt in theta_nuis]
-    _theta_fid = theta_fid.copy() 
+    _theta_fid = theta_fid.copy() # fiducial thetas
     for tt in theta_nuis: _theta_fid[tt] = theta_nuis_fids[tt]
+    # x, y ranges
     _theta_lims = [(0.25, 0.385), (0.02, 0.08), (0.3, 1.1), (0.6, 1.3), (0.8, 0.88), (-0.4, 0.4)]
     if obs == 'pk' and kmax <= 0.2:
         _theta_lims = [(0.1, 0.5), (0.0, 0.15), (0.0, 1.6), (0., 2.), (0.5, 1.3), (0, 2.)]
     _theta_lims += [theta_nuis_lims[tt] for tt in theta_nuis]
+
+    #print(_thetas) 
+    #print('%s' % '$ & $\pm '.join(['%.5f' % np.sqrt(Finv[i_Mnu,i_Mnu])]+['%.5f' % sii for sii in np.sqrt(np.diag(Finv))]))
     
     fig = plt.figure(figsize=(17, 15))
-    for i in xrange(len(_thetas)+1): 
-        for j in xrange(i+1, len(_thetas)): 
+    for i in range(len(_thetas)+1): 
+        for j in range(i+1, len(_thetas)): 
             # sub inverse fisher matrix 
             Finv_sub = np.array([[Finv[i,i], Finv[i,j]], [Finv[j,i], Finv[j,j]]]) 
             # plot the ellipse
@@ -781,70 +821,111 @@ def quijote_Forecast(obs, kmax=0.5, rsd=True, dmnu='fin', theta_nuis=None):
     if 'b2' in theta_nuis: nuis_str += 'b2'
     if 'g2' in theta_nuis: nuis_str += 'g2'
 
-    ffig = ('quijote.%sFisher.%s.dmnu_%s.kmax%.2f%s.png' % (obs, nuis_str, dmnu, kmax, ['.real', ''][rsd]))
-    fig.savefig(os.path.join(UT.doc_dir(), 'figs', ffig), bbox_inches='tight') 
-    # latex version 
-    ffig = ''.join([ffig.split('.png')[0].replace('.', '_'), '.pdf']) 
-    fig.savefig(os.path.join(UT.doc_dir(), 'figs', ffig), bbox_inches='tight') 
+    planck_str = ''
+    if planck: planck_str = '.planck'
+
+    ffig = os.path.join(UT.doc_dir(), 'figs', 
+            'quijote.%sFisher.%s.dmnu_%s.kmax%.2f%s%s%s.png' % 
+            (obs, nuis_str, dmnu, kmax, _rsd_str(rsd), _flag_str(flag), planck_str))
+    fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex version 
     return None 
 
 
-def quijote_Forecast_kmax_table(dmnu='fin', theta_nuis=None): 
+def forecast_kmax_table(rsd=True, flag=None, theta_nuis=None, dmnu='fin'): 
     '''print out the constraints so that it can be directly copied and pasted to 
     the latex file 
+    
+    :param rsd: (default: True) 
+        rsd kwarg that specifies rsd set up for B(k). 
+        If rsd == True, include 3 RSD directions. 
+        If rsd in [0,1,2] include one of the directions
+    :param flag: (default: None) 
+        kwarg specifying the flag for B(k). 
+        If `flag is None`, include paired-fixed and regular N-body simulation. 
+        If `flag == 'ncv'` only include paired-fixed. 
+        If `flag == 'reg'` only include regular N-body
+    :param theta_nuis: (default: None) 
+        list of nuisance parameters to include in the forecast. 
+    :param dmnu: (default: 'fin') 
+        derivative finite differences setup
     '''
+    if theta_nuis is None: theta_nuis = [] 
     for obs in ['pk', 'bk']:  
         for kmax in [0.2, 0.3, 0.4, 0.5]: 
-            Fij     = quijote_FisherMatrix(obs, kmax=kmax, rsd=True, dmnu=dmnu, theta_nuis=theta_nuis) # marg. over nuisance param. 
+            Fij = FisherMatrix(obs, kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=theta_nuis) # marg. over nuisance param. 
             cond = np.linalg.cond(Fij)
             if cond > 1e16: print('Fij is ill-conditioned %.5e' % cond)
-            Finv    = np.linalg.inv(Fij) # invert fisher matrix 
-            
-            i_thetas = [thetas.index('Mnu'), thetas.index('Om'), thetas.index('Ob'), thetas.index('h'), 
-                    thetas.index('ns'), thetas.index('s8')]+range(6,6+len(theta_nuis))
+            Finv = np.linalg.inv(Fij) # invert fisher matrix 
+    
+            if obs == 'pk': 
+                i_thetas = [thetas_pk.index('Mnu'), thetas_pk.index('Om'), thetas_pk.index('Ob'), thetas_pk.index('h'), 
+                        thetas_pk.index('ns'), thetas_pk.index('s8')]+range(6,6+len(theta_nuis))
+            elif obs == 'bk': 
+                i_thetas = [thetas.index('Mnu'), thetas.index('Om'), thetas.index('Ob2'), thetas.index('h'), 
+                        thetas.index('ns'), thetas.index('s8')]+range(6,6+len(theta_nuis))
             print(r'& %.1f & $\pm%s$\\' % (kmax, '$ & $\pm'.join(['%.5f' % np.sqrt(Finv[ii,ii]) for ii in i_thetas])))
     return None 
 
 # P, B forecast comparison
-def quijote_pbkForecast(kmax=0.5, rsd=True, dmnu='fin', theta_nuis=None):
+def pbForecast(kmax=0.5, rsd=True, flag=None, theta_nuis=None, dmnu='fin', planck=False):
     ''' fisher forecast for quijote P and B where theta_nuis are added as free parameters. 
     
     :param kmax: (default: 0.5) 
         kmax of the analysis 
+    :param rsd: (default: True) 
+        rsd kwarg that specifies rsd set up for B(k). 
+        If rsd == True, include 3 RSD directions. 
+        If rsd in [0,1,2] include one of the directions
+    :param flag: (default: None) 
+        kwarg specifying the flag for B(k). 
+        If `flag is None`, include paired-fixed and regular N-body simulation. 
+        If `flag == 'ncv'` only include paired-fixed. 
+        If `flag == 'reg'` only include regular N-body
+    :param dmnu: (default: 'fin') 
+        derivative finite differences setup
+    :param theta_nuis: (default: None) 
+        list of nuisance parameters to include in the forecast. 
+    :param planck: (default: False)
+        If True add Planck prior 
     '''
     # fisher matrix (Fij)
-    pkFij   = quijote_FisherMatrix('pk', kmax=kmax, rsd=rsd, dmnu=dmnu, theta_nuis=theta_nuis)  
-    bkFij   = quijote_FisherMatrix('bk', kmax=kmax, rsd=rsd, dmnu=dmnu, theta_nuis=theta_nuis)  
-    pbkFij  = quijote_FisherMatrix('pbk', kmax=kmax, rsd=rsd, dmnu=dmnu, theta_nuis=theta_nuis)  
+    pkFij   = FisherMatrix('pk', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=theta_nuis)  
+    bkFij   = FisherMatrix('bk', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=theta_nuis)  
+    #pbkFij  = quijote_FisherMatrix('pbk', kmax=kmax, rsd=rsd, dmnu=dmnu, theta_nuis=theta_nuis)  
 
-    pkFinv      = np.linalg.inv(pkFij) 
-    bkFinv      = np.linalg.inv(bkFij) 
-    pbkFinv     = np.linalg.inv(pbkFij) 
+    if planck: # add planck prior 
+        _Fij_planck = np.load(os.path.join(UT.dat_dir(), 'Planck_2018_s8.npy')) # read in planck prior fisher (order is Om, Ob, h, ns, s8 and Mnu) 
+        pkFij[:6,:6] += _Fij_planck
+        bkFij[:6,:6] += _Fij_planck
+        #pbkFij[:6,:6] += _Fij_planck
+    pkFinv  = np.linalg.inv(pkFij) 
+    bkFinv  = np.linalg.inv(bkFij) 
+    #pbkFinv = np.linalg.inv(pbkFij) 
 
-    i_s8 = thetas.index('s8')
-    print('--- i = s8 ---') 
-    print('P Fii=%f, sigma_i = %f' % (pkFij[i_s8, i_s8], np.sqrt(pkFinv[i_s8,i_s8])))
-    print("B Fii=%f, sigma_i = %f" % (bkFij[i_s8, i_s8], np.sqrt(bkFinv[i_s8,i_s8])))
-    print("P+B Fii=%f, sigma_i = %f" % (pbkFij[i_s8, i_s8], np.sqrt(pbkFinv[i_s8,i_s8])))
     i_Mnu = thetas.index('Mnu')
     print('--- i = Mnu ---') 
     print('P Fii=%f, sigma_i = %f' % (pkFij[i_Mnu, i_Mnu], np.sqrt(pkFinv[i_Mnu,i_Mnu])))
     print("B Fii=%f, sigma_i = %f" % (bkFij[i_Mnu, i_Mnu], np.sqrt(bkFinv[i_Mnu,i_Mnu])))
-    print("P+B Fii=%f, sigma_i = %f" % (pbkFij[i_Mnu, i_Mnu], np.sqrt(pbkFinv[i_Mnu,i_Mnu])))
+    #print("P+B Fii=%f, sigma_i = %f" % (pbkFij[i_Mnu, i_Mnu], np.sqrt(pbkFinv[i_Mnu,i_Mnu])))
+    print('--- thetas ---') 
+    print('P sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(pkFinv))]))
+    print('B sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(bkFinv))]))
+    #print('P+B sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(pbkFinv))]))
 
-    _thetas = thetas + theta_nuis 
-    _theta_lbls = theta_lbls + [theta_nuis_lbls[tt] for tt in theta_nuis]
-    _theta_fid = theta_fid.copy() 
+    _thetas = copy(thetas) + theta_nuis 
+    _theta_lbls = copy(theta_lbls) + [theta_nuis_lbls[tt] for tt in theta_nuis]
+    _theta_fid = theta_fid.copy() # fiducial thetas
     for tt in theta_nuis: _theta_fid[tt] = theta_nuis_fids[tt]
     _theta_lims = [(0.25, 0.385), (0.02, 0.08), (0.3, 1.1), (0.6, 1.3), (0.8, 0.88), (-0.4, 0.4)]
     _theta_lims += [theta_nuis_lims[tt] for tt in theta_nuis]
-    
+
     fig = plt.figure(figsize=(17, 15))
     gs = mpl.gridspec.GridSpec(2, 1, figure=fig, height_ratios=[5,2], hspace=0.15) 
     gs0 = mpl.gridspec.GridSpecFromSubplotSpec(5, 8, subplot_spec=gs[0])
     gs1 = mpl.gridspec.GridSpecFromSubplotSpec(2, 8, subplot_spec=gs[1])
-    for i in xrange(ntheta+1): 
-        for j in xrange(i+1, ntheta+2): 
+    for i in range(ntheta+1): 
+        for j in range(i+1, ntheta+2): 
             theta_fid_i, theta_fid_j = _theta_fid[_thetas[i]], _theta_fid[_thetas[j]] # fiducial parameter 
             
             if j < ntheta: sub = plt.subplot(gs0[j-1,i])
@@ -888,97 +969,31 @@ def quijote_pbkForecast(kmax=0.5, rsd=True, dmnu='fin', theta_nuis=None):
     if 'b2' in theta_nuis: nuis_str += 'b2'
     if 'g2' in theta_nuis: nuis_str += 'g2'
 
-    ffig = ('quijote.pbkFisher.dmnu_%s%s.kmax%.1f%s.png' % (dmnu, nuis_str, kmax, ['_real', ''][rsd]))
-    fig.savefig(os.path.join(UT.doc_dir(), 'figs', ffig), bbox_inches='tight') 
-    # latex 
-    ffig = ''.join([ffig.split('.png')[0].replace('.', '_'), '.pdf']) 
-    fig.savefig(os.path.join(UT.doc_dir(), 'figs', ffig), bbox_inches='tight') 
-    return None 
+    planck_str = ''
+    if planck: planck_str = '.planck'
 
-# w/ Planck prior 
-def quijote_Forecast_Planck(obs, kmax=0.5, rsd=True, dmnu='fin', theta_nuis=None):
-    ''' fisher forecast for quijote observables where we include theta_nuis as free parameters. 
-    plus Planck priors 
-
-    :param kmax: (default: 0.5) 
-        kmax of the analysis 
-    '''
-    # fisher matrix (Fij)
-    _Fij    = quijote_FisherMatrix(obs, kmax=kmax, rsd=rsd, dmnu=dmnu, theta_nuis=None) # no nuisance param. 
-    Fij     = quijote_FisherMatrix(obs, kmax=kmax, rsd=rsd, dmnu=dmnu, theta_nuis=theta_nuis) # marg. over nuisance param. 
-
-    # read in planck prior fisher (order is Om, Ob, h, ns, s8 and Mnu) 
-    _Fij_planck = np.load(os.path.join(UT.dat_dir(), 'Planck_2018_s8.npy'))
-    Fij_planck = Fij.copy() 
-    Fij_planck[:6,:6] += _Fij_planck
-
-    __Finv  = np.linalg.inv(_Fij) 
-    _Finv   = np.linalg.inv(Fij) 
-    Finv    = np.linalg.inv(Fij_planck)
-
-    i_s8 = thetas.index('s8')
-    print('--- i = s8 ---')
-    print('n nuis. Fii=%f, sigma_i = %f' % (_Fij[i_s8,i_s8], np.sqrt(__Finv[i_s8,i_s8])))
-    print("y nuis. Fii=%f, sigma_i = %f" % (Fij[i_s8,i_s8], np.sqrt(_Finv[i_s8,i_s8])))
-    print("w/ Planck2018")
-    print("y nuis. Fii=%f, sigma_i = %f" % (Fij_planck[i_s8,i_s8], np.sqrt(Finv[i_s8,i_s8])))
-    i_Mnu = thetas.index('Mnu')
-    print('--- i = Mnu ---')
-    print('n nuis. Fii=%f, sigma_i = %f' % (_Fij[i_Mnu,i_Mnu], np.sqrt(__Finv[i_Mnu,i_Mnu])))
-    print("y nuis. Fii=%f, sigma_i = %f" % (Fij[i_Mnu,i_Mnu], np.sqrt(_Finv[i_Mnu,i_Mnu])))
-    print("w/ Planck2018")
-    print("y nuis. Fii=%f, sigma_i = %f" % (Fij_planck[i_Mnu,i_Mnu], np.sqrt(Finv[i_Mnu,i_Mnu])))
-
-    _thetas = thetas + theta_nuis 
-    _theta_lbls = theta_lbls + [theta_nuis_lbls[tt] for tt in theta_nuis]
-    _theta_fid = theta_fid.copy() 
-    for tt in theta_nuis: _theta_fid[tt] = theta_nuis_fids[tt]
-    _theta_lims = [(0.25, 0.385), (0.02, 0.08), (0.3, 1.1), (0.6, 1.3), (0.8, 0.88), (-0.4, 0.4)]
-    if obs == 'pk' and kmax <= 0.2:
-        _theta_lims = [(0.1, 0.5), (0.0, 0.15), (0.0, 1.6), (0., 2.), (0.5, 1.3), (0, 2.)]
-    _theta_lims += [theta_nuis_lims[tt] for tt in theta_nuis]
-    
-    fig = plt.figure(figsize=(17, 15))
-    for i in xrange(len(_thetas)+1): 
-        for j in xrange(i+1, len(_thetas)): 
-            # sub inverse fisher matrix 
-            Finv_sub = np.array([[Finv[i,i], Finv[i,j]], [Finv[j,i], Finv[j,j]]]) 
-            # plot the ellipse
-            sub = fig.add_subplot(len(_thetas)-1, len(_thetas)-1, (len(_thetas)-1) * (j-1) + i + 1) 
-            Forecast.plotEllipse(Finv_sub, sub, 
-                    theta_fid_ij=[_theta_fid[_thetas[i]], _theta_fid[_thetas[j]]], color='C0')
-            sub.set_xlim(_theta_lims[i])
-            sub.set_ylim(_theta_lims[j])
-            if i == 0:   
-                sub.set_ylabel(_theta_lbls[j], fontsize=30) 
-            else: 
-                sub.set_yticks([])
-                sub.set_yticklabels([])
-            
-            if j == len(_thetas)-1: 
-                sub.set_xlabel(_theta_lbls[i], labelpad=10, fontsize=30) 
-            else: 
-                sub.set_xticks([])
-                sub.set_xticklabels([]) 
-    fig.subplots_adjust(wspace=0.05, hspace=0.05) 
-    
-    nuis_str = ''
-    if 'Amp' in theta_nuis: nuis_str += 'b'
-    if 'Mmin' in theta_nuis: nuis_str += 'Mmin'
-    if ('Asn' in theta_nuis) or ('Bsn' in theta_nuis): nuis_str += 'SN'
-    if 'b2' in theta_nuis: nuis_str += 'b2'
-    if 'g2' in theta_nuis: nuis_str += 'g2'
-
-    ffig = ('quijote.%sFisher.%s.Planck2018prior.dmnu_%s.kmax%.2f%s.png' % (obs, nuis_str, dmnu, kmax, ['.real', ''][rsd]))
-    fig.savefig(os.path.join(UT.doc_dir(), 'figs', ffig), bbox_inches='tight') 
-    # latex version 
-    ffig = ''.join([ffig.split('.png')[0].replace('.', '_'), '.pdf']) 
-    fig.savefig(os.path.join(UT.doc_dir(), 'figs', ffig), bbox_inches='tight') 
+    ffig = os.path.join(UT.doc_dir(), 'figs', 
+            'quijote.pbkFisher%s.dmnu_%s.kmax%.2f%s%s%s.png' % 
+            (nuis_str, dmnu, kmax, _rsd_str(rsd), _flag_str(flag), planck_str))
+    fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig), bbox_inches='tight') # latex 
     return None 
 
 
-def quijote_Forecast_Fii_kmax(rsd=True, dmnu='fin'):
+def Fii_kmax(rsd=True, flag=None, dmnu='fin'):
     ''' 1/sqrt(Fii) as a function of kmax 
+    
+    :param rsd: (default: True) 
+        rsd kwarg that specifies rsd set up for B(k). 
+        If rsd == True, include 3 RSD directions. 
+        If rsd in [0,1,2] include one of the directions
+    :param flag: (default: None) 
+        kwarg specifying the flag for B(k). 
+        If `flag is None`, include paired-fixed and regular N-body simulation. 
+        If `flag == 'ncv'` only include paired-fixed. 
+        If `flag == 'reg'` only include regular N-body
+    :param dmnu: (default: 'fin') 
+        derivative finite differences setup
     '''
     kmaxs = kf * 3 * np.array([1, 3, 5, 10, 15, 20, 27]) #np.arange(1, 28) 
     #kmaxs = kf * 3 * np.arange(1, 28) 
@@ -987,8 +1002,8 @@ def quijote_Forecast_Fii_kmax(rsd=True, dmnu='fin'):
     Fii_pk, Fii_bk, Fii_pm, Fii_pcb = [], [], [], [] 
     for i_k, kmax in enumerate(kmaxs): 
         pmFij   = LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints=5, flag='cb') # linear theory Pm 
-        pkFij   = quijote_FisherMatrix('pk', kmax=kmax, rsd=rsd, dmnu=dmnu, theta_nuis=None)
-        bkFij   = quijote_FisherMatrix('bk', kmax=kmax, rsd=rsd, dmnu=dmnu, theta_nuis=None) 
+        pkFij   = FisherMatrix('pk', kmax=kmax, dmnu=dmnu, theta_nuis=None)
+        bkFij   = FisherMatrix('bk', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=None) 
 
         Fii_pm.append(1./np.sqrt(np.diag(pmFij)))
         Fii_pk.append(1./np.sqrt(np.diag(pkFij)))
@@ -1023,25 +1038,44 @@ def quijote_Forecast_Fii_kmax(rsd=True, dmnu='fin'):
     bkgd.set_ylabel(r'unmarginalized $\sigma_\theta$ $(1/\sqrt{F_{i,i}})$', labelpad=10, fontsize=28) 
     
     fig.subplots_adjust(wspace=0.2, hspace=0.15) 
-    ffig = os.path.join(UT.fig_dir(), 'quijote.Fii_kmax.dmnu_%s.png' % dmnu)
+    ffig = os.path.join(UT.fig_dir(), 'quijote.Fii_kmax%s%s.dmnu_%s.png' % (_rsd_str(rsd), _flag_str(flag), dmnu)) 
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
 
-def quijote_Forecast_kmax(rsd=True, dmnu='fin', theta_nuis=None, LT=False):
+def forecast_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False, planck=False):
     ''' fisher forecast for quijote P and B where theta_nuis are added as free parameters 
     as a function of kmax.
+    
+    :param rsd: (default: True) 
+        rsd kwarg that specifies rsd set up for B(k). 
+        If rsd == True, include 3 RSD directions. 
+        If rsd in [0,1,2] include one of the directions
+    :param flag: (default: None) 
+        kwarg specifying the flag for B(k). 
+        If `flag is None`, include paired-fixed and regular N-body simulation. 
+        If `flag == 'ncv'` only include paired-fixed. 
+        If `flag == 'reg'` only include regular N-body
+    :param theta_nuis: (default: None) 
+        list of nuisance parameters to include in the forecast. 
+    :param dmnu: (default: 'fin') 
+        derivative finite differences setup
+    :param LT: (default: False)
+        If True include linear theory matter powerspectrum forecasts
+    :param planck: (default: False)
+        If True add Planck prior 
     '''
-    #kmaxs = [np.pi/500.*6, np.pi/500.*9, 0.075, 0.1, 0.15, 0.16, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5] 
-    #kmaxs = [0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5] #np.arange(2, 15) * 2.*np.pi/1000. * 6 #np.linspace(0.1, 0.5, 20) 
-    kmaxs = np.pi/500. * 3 * np.arange(2, 28) 
-    #kmaxs = np.pi/500. * 3 * np.array([1, 5, 15, 20, 27]) 
+    #kmaxs = np.pi/500. * 3 * np.arange(2, 28) 
+    kmaxs = kf * 3 * np.array([1, 3, 5, 10, 15, 20, 27]) #np.arange(1, 28) 
     
     pk_theta_nuis = list(np.array(theta_nuis).copy())
     bk_theta_nuis = list(np.array(theta_nuis).copy())
     if 'Bsn' in theta_nuis: pk_theta_nuis.remove('Bsn') 
     if 'b2' in theta_nuis: pk_theta_nuis.remove('b2') 
     if 'g2' in theta_nuis: pk_theta_nuis.remove('g2') 
+
+    if planck: # read in planck prior fisher (order is Om, Ob, h, ns, s8 and Mnu) 
+        _Fij_planck = np.load(os.path.join(UT.dat_dir(), 'Planck_2018_s8.npy')) 
     
     # read in fisher matrix (Fij)
     sig_pk, sig_bk, sig_pm, sig_pcb = [], [], [], [] 
@@ -1049,8 +1083,12 @@ def quijote_Forecast_kmax(rsd=True, dmnu='fin', theta_nuis=None, LT=False):
         if LT: 
             pmFij   = LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints=5) # linear theory Pm 
             pcbFij  = LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints=5, flag='cb') 
-        pkFij   = quijote_FisherMatrix('pk', kmax=kmax, rsd=rsd, dmnu=dmnu, theta_nuis=pk_theta_nuis)
-        bkFij   = quijote_FisherMatrix('bk', kmax=kmax, rsd=rsd, dmnu=dmnu, theta_nuis=bk_theta_nuis) 
+        pkFij   = FisherMatrix('pk', kmax=kmax, dmnu=dmnu, theta_nuis=pk_theta_nuis)
+        bkFij   = FisherMatrix('bk', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=bk_theta_nuis) 
+    
+        if planck: # add planck prior 
+            pkFij[:6,:6] += _Fij_planck
+            bkFij[:6,:6] += _Fij_planck
 
         if np.linalg.cond(pkFij) > 1e16: 
             print('P Fij ill-conditioned; cond # = %.2e' % np.linalg.cond(pkFij)) 
@@ -1092,14 +1130,11 @@ def quijote_Forecast_kmax(rsd=True, dmnu='fin', theta_nuis=None, LT=False):
     fbk = os.path.join(UT.doc_dir(), 'dat', 'bk_forecast_kmax.dat') 
     np.savetxt(fbk, bk_dat, delimiter=', ', fmt='%.5f')
 
-    #sigma_theta_lims = [(5e-3, 5.), (1e-3, 5.), (1e-2, 50), (1e-2, 20.), (1e-2, 50.), (1e-2, 1e3)]
     sigma_theta_lims = [(5e-3, 1.), (1e-3, 1.), (1e-2, 10), (1e-2, 10.), (1e-2, 10.), (1e-2, 1e1)]
 
     fig = plt.figure(figsize=(15,8))
     for i, theta in enumerate(thetas): 
         sub = fig.add_subplot(2,len(thetas)/2,i+1) 
-        #sub.plot(kmaxs, sig_pk[:,i], c='C0', ls=':') 
-        #sub.plot(kmaxs, sig_bk[:,i], c='C1', ls=':') 
         sub.plot(kmaxs[cond_pk], sig_pk[:,i][cond_pk], c='C0', ls='-') 
         sub.plot(kmaxs[cond_bk], sig_bk[:,i][cond_bk], c='C1', ls='-') 
         if LT: 
@@ -1131,20 +1166,22 @@ def quijote_Forecast_kmax(rsd=True, dmnu='fin', theta_nuis=None, LT=False):
     if 'b2' in theta_nuis: nuis_str += 'b2'
     if 'g2' in theta_nuis: nuis_str += 'g2'
 
-    ffig = ('quijote.Fisher_kmax.dmnu_%s%s%s%s.png' % (dmnu, nuis_str, ['', '.LT'][LT], ['.real', ''][rsd]))
-    fig.savefig(os.path.join(UT.doc_dir(), 'figs', ffig), bbox_inches='tight') 
-    # latex 
-    ffig = ''.join([ffig.split('.png')[0].replace('.', '_'), '.pdf']) 
-    fig.savefig(os.path.join(UT.doc_dir(), 'figs', ffig), bbox_inches='tight') 
+    planck_str = ''
+    if planck: planck_str = '.planck'
+
+    ffig = os.path.join(UT.doc_dir(), 'figs', 
+            'quijote.Fisher_kmax%s.dmnu_%s%s%s%s%s.png' % 
+            (nuis_str, dmnu, _rsd_str(rsd), _flag_str(flag), planck_str, ['', '.LT'][LT]))
+    fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig), bbox_inches='tight') # latex 
     return None
 
 
-def quijote_Forecast_thetas_kmax(tts=['Om', 'Ob', 'h', 'ns', 's8'], rsd=True, dmnu='fin', theta_nuis=None):
+def forecast_thetas_kmax(tts=['Om', 'Ob2', 'h', 'ns', 's8'], rsd=True, flag=None, dmnu='fin', theta_nuis=None):
     ''' fisher forecast for quijote P and B where theta_nuis are added as free parameters 
     as a function of kmax.
     '''
-    #kmaxs = [np.pi/500.*6, np.pi/500.*9, 0.075, 0.1, 0.15, 0.16, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5] 
-    #kmaxs = [0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5] #np.arange(2, 15) * 2.*np.pi/1000. * 6 #np.linspace(0.1, 0.5, 20) 
+    if tts == 'lcdm': tts = ['Om', 'Ob2', 'h', 'ns', 's8']
     #kmaxs = np.pi/500. * 3 * np.arange(1, 28) 
     kmaxs = kf * 3 * np.array([2, 5, 10, 15, 20, 27]) 
     
@@ -1169,8 +1206,8 @@ def quijote_Forecast_thetas_kmax(tts=['Om', 'Ob', 'h', 'ns', 's8'], rsd=True, dm
     for i_k, kmax in enumerate(kmaxs): 
         pmFij   = LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints=5) # linear theory Pm 
         pcFij  = LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints=5, flag='cb') 
-        pkFij   = quijote_FisherMatrix('pk', kmax=kmax, rsd=rsd, dmnu=dmnu, theta_nuis=pk_theta_nuis)
-        bkFij   = quijote_FisherMatrix('bk', kmax=kmax, rsd=rsd, dmnu=dmnu, theta_nuis=bk_theta_nuis) 
+        pkFij   = FisherMatrix('pk', kmax=kmax, rsd=rsd, dmnu=dmnu, theta_nuis=pk_theta_nuis)
+        bkFij   = FisherMatrix('bk', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=bk_theta_nuis) 
 
         pmFij = pmFij[:,i_tt_lt][i_tt_lt,:]
         pcFij = pcFij[:,i_tt_lt][i_tt_lt,:]
@@ -1230,13 +1267,11 @@ def quijote_Forecast_thetas_kmax(tts=['Om', 'Ob', 'h', 'ns', 's8'], rsd=True, dm
     if ('Asn' in theta_nuis) or ('Bsn' in theta_nuis): nuis_str += 'SN'
     if 'b2' in theta_nuis: nuis_str += 'b2'
     if 'g2' in theta_nuis: nuis_str += 'g2'
-
-    ffig = ('quijote.Fisher_kmax.%s.dmnu_%s%s%s.png' % 
-        (''.join(tts), dmnu, nuis_str, ['.real', ''][rsd]))
-    fig.savefig(os.path.join(UT.doc_dir(), 'figs', ffig), bbox_inches='tight') 
-    # latex 
-    ffig = ''.join([ffig.split('.png')[0].replace('.', '_'), '.pdf']) 
-    fig.savefig(os.path.join(UT.doc_dir(), 'figs', ffig), bbox_inches='tight') 
+    
+    ffig = os.path.join(UT.doc_dir(), 'figs', 
+            'quijote.Fisher.%s%s.dmnu_%s%s%s.png' % (''.join(tts), nuis_str, dmnu, _rsd_str(rsd), _flag_str(flag)))
+    fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex version 
     return None
 
 
@@ -1340,38 +1375,31 @@ def quijote_Forecast_kmax_scaleBFii(rsd=True, dmnu='fin', theta_nuis=None, f_Mnu
 ##################################################################
 # convergence tests
 ##################################################################
-def quijote_dlogPBdtheta_Nfixedpair(kmax=0.5, dmnu='fin'):
+def dlogPBdtheta_Nfixedpair(rsd=True, flag=None, dmnu='fin'):
     ''' d log P/B / d theta for different values of Nfixedpair 
     '''
-    kf = 2.*np.pi/1000.
-    nfps = [100, 200, 300, 350, 400, 450, 500]
-    # fiducial P0(k)  
-    quij = Obvs.quijoteP0k('fiducial')
-    pk_fid = np.average(quij['p0k'], axis=0) 
-    k_pk = quij['k'] 
-    pklim = (k_pk < 0.5)
-    # fiducial B(k)  
-    quij = Obvs.quijoteBk('fiducial', rsd=True)
-    bk_fid = np.average(quij['b123'], axis=0) 
-    i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
-    bklim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
-    ijl = UT.ijl_order(i_k[bklim], j_k[bklim], l_k[bklim], typ='GM') # order of triangles 
+    kmax = 0.5 
+    if flag is None: nderivs = np.arange(1, 16) * 200 
+    elif flag == 'ncv': nderivs = np.arange(1, 16) * 100 
+    elif flag == 'reg': nderivs = np.arange(1, 16) * 100 
 
     b_ylims = [(-20, 5), (-50., 50.), (-7.5, 3), (-7., 1.), (-8., 3.), (-5., 5.)]
     fig1 = plt.figure(figsize=(12,8)) 
     fig2 = plt.figure(figsize=(12,24)) 
-
-    for i, par in enumerate(thetas): # calculate the derivative of Bk along all the thetas 
+    for i, par_pk, par_bk in zip(range(len(thetas)), thetas_pk, thetas): # calculate the derivative of Bk along all the thetas 
         sub1 = fig1.add_subplot(2,3,i+1)
         sub2 = fig2.add_subplot(6,1,i+1)
 
-        for nfp in nfps: 
-            dpk_dti = quijote_dPk(par, dmnu=dmnu, log=True, Nfp=nfp)
-            sub1.plot(k_pk[pklim], dpk_dti[pklim]) 
-
-            dbk_dti = quijote_dBk(par, rsd=True, dmnu=dmnu, log=True, Nfp=nfp)
+        for nderiv in nderivs: 
+            k, dpk_dti = Forecast.quijote_dPkdtheta(par_pk, log=True, dmnu=dmnu, Nderiv=nderiv)
+            i_k, j_k, l_k, dbk_dti = Forecast.quijote_dBkdtheta(par_bk, log=True, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=nderiv)
+            if i == 0: 
+                pklim = (k < kmax)
+                bklim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
+                ijl = UT.ijl_order(i_k[bklim], j_k[bklim], l_k[bklim], typ='GM') # order of triangles 
+            sub1.plot(k[pklim], dpk_dti[pklim]) 
             sub2.plot(range(np.sum(bklim)), dbk_dti[bklim][ijl]) 
-        sub1.plot(k_pk[pklim], dpk_dti[pklim], c='k') 
+        sub1.plot(k[pklim], dpk_dti[pklim], c='k') 
         sub2.plot(range(np.sum(bklim)), dbk_dti[bklim][ijl], c='k') 
         sub1.text(0.95, 0.95, theta_lbls[i], ha='right', va='top', transform=sub1.transAxes, fontsize=25)
         sub2.text(0.95, 0.95, theta_lbls[i], ha='right', va='top', transform=sub2.transAxes, fontsize=25)
@@ -1394,14 +1422,91 @@ def quijote_dlogPBdtheta_Nfixedpair(kmax=0.5, dmnu='fin'):
     bkgd2.set_xlabel(r'triangle configurations', fontsize=25) 
     bkgd2.set_ylabel(r'${\rm d}\log B(k_1, k_2, k_3)/{\rm d} \theta$', labelpad=10, fontsize=25) 
 
-    ffig = os.path.join(UT.fig_dir(), 'quijote_dlogPdtheta_Nfp.png')
+    ffig = os.path.join(UT.fig_dir(), 'quijote_dlogPdtheta_Nderiv%s%s.dmnu_%s.png' % (_rsd_str(rsd), _flag_str(flag), dmnu))
     fig1.savefig(ffig, bbox_inches='tight') 
-    ffig = os.path.join(UT.fig_dir(), 'quijote_dlogBdtheta_Nfp.png')
+    ffig = os.path.join(UT.fig_dir(), 'quijote_dlogBdtheta_Nderiv%s%s.dmnu_%s.png'% (_rsd_str(rsd), _flag_str(flag), dmnu))
     fig2.savefig(ffig, bbox_inches='tight') 
     return None
 
 
-def quijote_Fij_convergence(obs, kmax=0.5, rsd=True, dmnu='fin'): 
+def FisherMatrix_convergence(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None, Ncov=None, Nderiv=None): 
+    ''' calculate fisher matrix for parameters ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu'] 
+    and specified nuisance parameters with extra kwargs for convergence testing. This is 
+    slower 
+    
+    :param obs: 
+        observable ('pk' or 'bk') 
+    :param kmax: (default: 0.5) 
+        kmax of the analysis 
+    :param rsd: (default: True) 
+        rsd kwarg that specifies rsd set up for B(k). 
+        If rsd == True, include 3 RSD directions. 
+        If rsd in [0,1,2] include one of the directions
+    :param flag: (default: None) 
+        kwarg specifying the flag for B(k). 
+        If `flag is None`, include paired-fixed and regular N-body simulation. 
+        If `flag == 'ncv'` only include paired-fixed. 
+        If `flag == 'reg'` only include regular N-body
+    :param dmnu: (default: 'fin') 
+        derivative finite differences setup
+    :param theta_nuis: (default: None) 
+        list of nuisance parameters to include in the forecast. 
+    '''
+    # calculate covariance matrix (with shotnoise; this is the correct one) 
+    # *** rsd and flag kwargs are ignored for the covariace matirx ***
+    if obs == 'pk': 
+        # read in P(k) 
+        quij = Obvs.quijoteP0k('fiducial') # theta_fiducial 
+        pks = quij['p0k'] + quij['p_sn'][:,None] # shotnoise uncorrected P(k) 
+        if Ncov is None: 
+            _Cfid = np.cov(pks.T) # covariance matrix 
+            nmock = pks.shape[0]
+        else: 
+            _Cfid = np.cov(pks[:Ncov,:].T) # covariance matrix 
+            nmock = Ncov
+        klim = (quij['k'] <= kmax) # determine k limit 
+        C_fid = _Cfid[:,klim][klim,:]
+
+    elif obs == 'bk':
+        quij = Obvs.quijoteBk('fiducial', rsd=True, flag='reg') 
+        bks = quij['b123'] + quij['b_sn']
+        if Ncov is None: 
+            _Cfid = np.cov(bks.T) # calculate the covariance
+            nmock = bks.shape[0]
+        else: 
+            _Cfid = np.cov(bks[:Ncov,:].T) # calculate the covariance
+            nmock = Ncov
+        i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
+
+        klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # k limit 
+        C_fid = _Cfid[:,klim][klim,:]
+    else: 
+        raise NotImplementedError
+
+    ndata = np.sum(klim) 
+    f_hartlap = float(nmock - ndata - 2)/float(nmock - 1) 
+    C_inv = f_hartlap * np.linalg.inv(C_fid) # invert the covariance 
+    
+    if obs == 'pk': _thetas = copy(thetas_pk) 
+    else: _thetas = copy(thetas) 
+    if theta_nuis is not None: _thetas += theta_nuis 
+    
+    # calculate the derivatives along all the thetas 
+    dobs_dt = [] 
+    for par in _thetas: 
+        if obs == 'pk': 
+            _, dobs_dti = Forecast.quijote_dPkdtheta(par, dmnu=dmnu, Nderiv=Nderiv)
+            dobs_dt.append(dobs_dti[klim] )
+        elif obs == 'bk': 
+            # rsd and flag kwargs are passed to the derivatives
+            _, _, _, dobs_dti = Forecast.quijote_dBkdtheta(par, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=Nderiv)
+            dobs_dt.append(dobs_dti[klim])
+    Fij = Forecast.Fij(dobs_dt, C_inv) 
+    #assert ndata > Fij.shape[0] 
+    return Fij 
+
+
+def Fij_convergence(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin'): 
     ''' check the convergence of Fisher matrix terms when we calculate the covariance 
     matrix or derivatives using different number of mocks. 
     '''
@@ -1414,61 +1519,74 @@ def quijote_Fij_convergence(obs, kmax=0.5, rsd=True, dmnu='fin'):
             ij_pairs_str.append(','.join([theta_lbls[i], theta_lbls[j]]))
     ij_pairs = np.array(ij_pairs) 
 
-    print('--- Nmock test ---' ) 
+    print('--- Ncov test ---' ) 
     # convegence of covariance matrix 
-    nmocks = [1000, 3000, 5000, 7000, 9000, 11000, 13000, 14000, 15000]
+    if obs == 'pk': ncovs = [1000, 3000, 5000, 7000, 9000, 11000, 13000, 14000, 15000]
+    elif obs == 'bk': ncovs = [3000, 5000, 10000, 20000, 30000, 40000, 45000]
     # read in fisher matrix (Fij)
     Fijs = []
-    for nmock in nmocks: 
-        Fijs.append(quijote_FisherMatrix(obs, kmax=kmax, rsd=rsd, dmnu=dmnu, Nmock=nmock)) 
+    for ncov in ncovs: 
+        Fijs.append(FisherMatrix_convergence(obs, kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, Ncov=ncov)) 
     Fijs = np.array(Fijs) 
 
     fig = plt.figure(figsize=(12,15))
     sub = fig.add_subplot(121) 
     for _i, ij in enumerate(ij_pairs): 
-        sub.fill_between([1000, 15000], [1.-_i*0.3-0.05, 1.-_i*0.3-0.05], [1.-_i*0.3+0.05, 1.-_i*0.3+0.05],
+        sub.fill_between([1000, 45000], [1.-_i*0.3-0.05, 1.-_i*0.3-0.05], [1.-_i*0.3+0.05, 1.-_i*0.3+0.05],
                 color='k', linewidth=0, alpha=0.25) 
-        sub.plot([1000, 15000], [1.-_i*0.3, 1.-_i*0.3], c='k', ls='--', lw=1) 
-        _Fij = np.array([Fijs[ik][ij[0],ij[1]] for ik in range(len(nmocks))]) 
-        sub.plot(nmocks, _Fij/_Fij[-1] - _i*0.3) 
+        sub.plot([1000, 45000], [1.-_i*0.3, 1.-_i*0.3], c='k', ls='--', lw=1) 
+        _Fij = np.array([Fijs[ik][ij[0],ij[1]] for ik in range(len(ncovs))]) 
+        sub.plot(ncovs, _Fij/_Fij[-1] - _i*0.3) 
     #ij_str = ','.join([theta_lbls[ii].strip('$'), theta_lbls[ij].strip('$')]) 
-    sub.set_ylabel(r'$F_{ij}(N_{\rm fid})/F_{ij}(N_{\rm fid}=15,000)$', fontsize=25)
+    sub.set_xlabel(r"$N_{\rm cov}$ Quijote simulations", labelpad=10, fontsize=25) 
+    if obs == 'pk': 
+        sub.set_xlim([3000, 15000]) 
+        sub.set_ylabel(r'$F_{ij}(N_{\rm cov})/F_{ij}(N_{\rm cov}=15,000)$', fontsize=25)
+    elif obs == 'bk':  
+        sub.set_xlim([3000, 45000]) 
+        sub.set_ylabel(r'$F_{ij}(N_{\rm cov})/F_{ij}(N_{\rm cov}=45,000)$', fontsize=25)
     sub.set_ylim([1. - 0.3*len(ij_pairs), 1.3]) 
     sub.set_yticks([1. - 0.3 * ii for ii in range(len(ij_pairs))])
     sub.set_yticklabels(ij_pairs_str) 
-    sub.set_xlabel(r"$N_{\rm fid}$ Quijote simulations", labelpad=10, fontsize=25) 
-    sub.set_xlim([3000, 15000]) 
 
-    print('--- Nfp test ---' ) 
+    print('--- Nderiv. test ---' ) 
     # convergence of derivatives 
-    nfps = [100, 200, 300, 350, 375, 400, 425, 450, 475, 500]
+    if obs == 'pk': nderivs = [100, 200, 300, 350, 400, 425, 450, 475, 500]
+    elif obs == 'bk': nderivs = [100, 250, 500, 750, 1000, 1250, 1500]
     # read in fisher matrix (Fij)
     Fijs = []
-    for nfp in nfps: 
-        Fijs.append(quijote_FisherMatrix(obs, kmax=kmax, rsd=rsd, dmnu=dmnu, Nfp=nfp))
+    for nderiv in nderivs: 
+        Fijs.append(FisherMatrix_convergence(obs, kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=nderiv)) 
     Fijs = np.array(Fijs) 
 
     sub = fig.add_subplot(122)
     for _i, ij in enumerate(ij_pairs): 
-        sub.fill_between([100, 500], [1.-_i*0.3-0.05, 1.-_i*0.3-0.05], [1.-_i*0.3+0.05, 1.-_i*0.3+0.05],
+        sub.fill_between([100, 1500], [1.-_i*0.3-0.05, 1.-_i*0.3-0.05], [1.-_i*0.3+0.05, 1.-_i*0.3+0.05],
                 color='k', linewidth=0, alpha=0.25) 
-        sub.plot([100., 500.], [1.-_i*0.3, 1.-_i*0.3], c='k', ls='--', lw=1) 
-        _Fij = np.array([Fijs[ik][ij[0],ij[1]] for ik in range(len(nfps))]) 
-        sub.plot(nfps, _Fij/_Fij[-1] - _i*0.3)
-    sub.set_ylabel(r'$F_{ij}(N_{\rm fp})/F_{ij}(N_{\rm fp}=500)$', fontsize=25)
+        sub.plot([100., 1500.], [1.-_i*0.3, 1.-_i*0.3], c='k', ls='--', lw=1) 
+        _Fij = np.array([Fijs[ik][ij[0],ij[1]] for ik in range(len(nderivs))]) 
+        sub.plot(nderivs, _Fij/_Fij[-1] - _i*0.3)
+    sub.set_xlabel(r"$N_{\rm deriv.}$ Quijote simulations", labelpad=10, fontsize=25) 
+    if obs == 'pk': 
+        sub.set_xlim([100, 500]) 
+        sub.set_ylabel(r'$F_{ij}(N_{\rm deriv.})/F_{ij}(N_{\rm deriv.}=500)$', fontsize=25)
+    elif obs == 'bk':
+        sub.set_xlim([100, 1500]) 
+        sub.set_ylabel(r'$F_{ij}(N_{\rm deriv.})/F_{ij}(N_{\rm deriv.}=1500)$', fontsize=25)
     sub.set_ylim([1.-0.3*len(ij_pairs), 1.3]) 
     sub.set_yticks([1. - 0.3 * ii for ii in range(len(ij_pairs))])
     sub.set_yticklabels(ij_pairs_str) 
-    sub.set_xlabel(r"$N_{\rm fp}$ Quijote simulations", labelpad=10, fontsize=25) 
-    sub.set_xlim([100, 500]) 
     fig.subplots_adjust(wspace=0.4) 
-    ffig = os.path.join(UT.fig_dir(), 'quijote.%sFij_convergence.dmnu_%s.kmax%.1f%s.png' % 
-            (obs, dmnu, kmax, ['_real', ''][rsd]))
+    if obs == 'pk': 
+        ffig = os.path.join(UT.fig_dir(), 'quijote.%sFij_convergence.dmnu_%s.kmax%.1f.png' % (obs, dmnu, kmax))
+    else: 
+        ffig = os.path.join(UT.fig_dir(), 'quijote.%sFij_convergence%s%s.dmnu_%s.kmax%.1f.png' % 
+                (obs, _rsd_str(rsd), _flag_str(flag), dmnu, kmax))
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
 
-def quijote_Forecast_convergence(obs, kmax=0.5, rsd=True, dmnu='fin'): 
+def forecast_convergence(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None): 
     ''' fisher forecast where we compute the covariance matrix or derivatives using different 
     number of mocks. 
     
@@ -1476,19 +1594,21 @@ def quijote_Forecast_convergence(obs, kmax=0.5, rsd=True, dmnu='fin'):
         k1, k2, k3 <= kmax
     '''
     # convegence of covariance matrix 
-    nmocks = [1000, 3000, 5000, 7000, 9000, 11000, 13000, 14000, 15000]
+    if obs == 'pk': ncovs = [1000, 3000, 5000, 7000, 9000, 11000, 13000, 14000, 15000]
+    elif obs == 'bk': ncovs = [3000, 5000, 10000, 20000, 30000, 40000, 45000]
+
     # read in fisher matrix (Fij)
     Finvs, Fiis = [], [] 
-    for nmock in nmocks: 
-        Fij = quijote_FisherMatrix(obs, kmax=kmax, rsd=rsd, dmnu=dmnu, Nmock=nmock)
+    for ncov in ncovs: 
+        Fij = FisherMatrix_convergence(obs, kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=theta_nuis, Ncov=ncov)
         Finvs.append(np.linalg.inv(Fij)) # invert fisher matrix 
         Fiis.append(np.diag(Fij)) 
 
     fig = plt.figure(figsize=(12,6))
     sub = fig.add_subplot(121) 
-    sub.plot([1000, 15000], [1., 1.], c='k', ls='--', lw=1) 
-    sub.plot([1000, 15000], [0.9, 0.9], c='k', ls=':', lw=1) 
-    for i in xrange(ntheta): 
+    sub.plot([1000, 45000], [1., 1.], c='k', ls='--', lw=1) 
+    sub.plot([1000, 45000], [0.9, 0.9], c='k', ls=':', lw=1) 
+    for i in range(ntheta): 
         sig_theta = np.zeros(len(nmocks))
         sigii_theta = np.zeros(len(nmocks))
         for ik in range(len(nmocks)): 
@@ -1497,26 +1617,30 @@ def quijote_Forecast_convergence(obs, kmax=0.5, rsd=True, dmnu='fin'):
         print('--- %s ---' % theta_lbls[i]) 
         print(sig_theta/sig_theta[-1]) 
         print(sigii_theta/sigii_theta[-1]) 
-        sub.plot(nmocks, sig_theta/sig_theta[-1], label=r'$%s$' % theta_lbls[i]) 
+        sub.plot(nderivs, sig_theta/sig_theta[-1], label=r'$%s$' % theta_lbls[i]) 
+    sub.set_xlabel(r"$N_{\rm cov}$ Quijote simulations", labelpad=10, fontsize=25) 
+    if obs == 'pk': 
         sub.set_xlim([3000, 15000]) 
-    #sub.legend(loc='lower right', fontsize=20) 
-    sub.set_ylabel(r'$\sigma_\theta(N_{\rm fid})/\sigma_\theta(N_{\rm fid}=15,000)$', fontsize=25)
+        sub.set_ylabel(r'$\sigma_\theta(N_{\rm cov})/\sigma_\theta(N_{\rm cov}=15,000)$', fontsize=25)
+    elif obs == 'bk':
+        sub.set_xlim([3000, 45000]) 
+        sub.set_ylabel(r'$\sigma_\theta(N_{\rm cov})/\sigma_\theta(N_{\rm cov}=45,000)$', fontsize=25)
     sub.set_ylim([0.5, 1.1]) 
-    sub.set_xlabel(r"$N_{\rm fid}$ Quijote simulations", labelpad=10, fontsize=25) 
 
     print('--- Nfp test ---' ) 
     # convergence of derivatives 
-    nfps = [100, 200, 300, 350, 400, 450, 500]
+    if obs == 'pk': nderivs = [100, 200, 300, 350, 400, 425, 450, 475, 500]
+    elif obs == 'bk': nderivs = [100, 250, 500, 750, 1000, 1250, 1500]
     # read in fisher matrix (Fij)
     Finvs, Fiis = [], [] 
-    for nfp in nfps: 
-        Fij = quijote_FisherMatrix(obs, kmax=kmax, rsd=rsd, dmnu=dmnu, Nfp=nfp)
+    for nderiv in nderivs: 
+        Fij = FisherMatrix_convergence(obs, kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=theta_nuis, Nderiv=nderiv)
         Finvs.append(np.linalg.inv(Fij)) # invert fisher matrix 
         Fiis.append(Fij) 
     sub = fig.add_subplot(122)
-    sub.plot([100., 500.], [1., 1.], c='k', ls='--', lw=1) 
-    sub.plot([100., 500.], [0.9, 0.9], c='k', ls=':', lw=1) 
-    for i in xrange(ntheta): 
+    sub.plot([100., 1500.], [1., 1.], c='k', ls='--', lw=1) 
+    sub.plot([100., 1500.], [0.9, 0.9], c='k', ls=':', lw=1) 
+    for i in range(ntheta): 
         sig_theta = np.zeros(len(nfps))
         sigii_theta = np.zeros(len(nfps))
         for ik in range(len(nfps)): 
@@ -1526,18 +1650,20 @@ def quijote_Forecast_convergence(obs, kmax=0.5, rsd=True, dmnu='fin'):
         print(sig_theta/sig_theta[-1]) 
         print(sigii_theta/sigii_theta[-1]) 
         sub.plot(nfps, sig_theta/sig_theta[-1], label=(r'$%s$' % theta_lbls[i]))
-        sub.set_xlim([100, 500]) 
     sub.legend(loc='lower right', fontsize=20) 
-    sub.set_ylabel(r'$\sigma_\theta(N_{\rm fp})/\sigma_\theta(N_{\rm fp}=500)$', fontsize=25)
+    sub.set_xlabel(r"$N_{\rm deriv.}$ Quijote simulations", labelpad=10, fontsize=25) 
+    if obs == 'pk': 
+        sub.set_xlim([100, 500]) 
+        sub.set_ylabel(r'$\sigma_\theta(N_{\rm deriv.})/\sigma_\theta(N_{\rm deriv.}=500)$', fontsize=25)
+    elif obs == 'bk': 
+        sub.set_xlim([100, 1500]) 
+        sub.set_ylabel(r'$\sigma_\theta(N_{\rm deriv.})/\sigma_\theta(N_{\rm deriv.}=1,500)$', fontsize=25)
     sub.set_ylim([0.5, 1.1]) 
-    sub.set_xlabel(r"$N_{\rm fp}$ Quijote simulations", labelpad=10, fontsize=25) 
     fig.subplots_adjust(wspace=0.25) 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_%sFisher_convergence_dmnu_%s_kmax%s%s.pdf' % 
-            (obs, dmnu, str(kmax).replace('.', ''), ['_real', ''][rsd]))
+    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote.%sFisher_convergence.%s%s.dmnu_%s.kmax%.1f.png' % 
+            (obs, _rsd_str(rsd), _flag_str(flag), dmnu, kmax))
     fig.savefig(ffig, bbox_inches='tight') 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_%sFisher_convergence_dmnu_%s_kmax%s%s.png' % 
-            (obs, dmnu, str(kmax).replace('.', ''), ['_real', ''][rsd]))
-    fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
     return None
 
 ############################################################
@@ -1548,9 +1674,9 @@ def quijote_nbars():
         quij = Obvs.quijoteBk(sub)
         nbars.append(np.average(quij['Nhalos'])/1.e9)
         print('%s, %.5e' % (sub, np.average(quij['Nhalos'])/1.e9))
-    print np.min(nbars)
-    print np.min(nbars) * 1e9 
-    print thetas[np.argmin(nbars)]
+    print(np.min(nbars))
+    print(np.min(nbars) * 1e9 )
+    print(thetas[np.argmin(nbars)])
     return None
 
 
@@ -1919,8 +2045,8 @@ def quijote_FisherInfo(obs, kmax=0.5):
 
         fig = plt.figure(figsize=(6,4))
         sub = fig.add_subplot(111)
-        print l_k[highFii]/i_k[highFii]
-        print j_k[highFii]/i_k[highFii]
+        print(l_k[highFii]/i_k[highFii])
+        print(j_k[highFii]/i_k[highFii])
         bplot = sub.scatter(l_k[highFii]/i_k[highFii], j_k[highFii]/i_k[highFii], c=quij['counts'][ijl][highFii]) 
         sub.set_xlim([0., 1.]) 
         sub.set_ylim([0.5, 1.]) 
@@ -2094,17 +2220,16 @@ def quijote_bkForecast_gaussCov(kmax=0.5, Mnu_fid=0.0, dmnu='fin'):
     :param kmax: (default: 0.5) 
         kmax of the analysis 
     '''
-    print thetas
     # fisher matrix (Fij)
     Fij     = quijote_bkFisher_gaussCov(kmax=kmax, Mnu_fid=Mnu_fid, dmnu=dmnu)   # w/ free Mmin 
     Finv    = np.linalg.inv(Fij[4:6,4:6]) # invert fisher matrix 
     if Mnu_fid == 0.0: 
         _Fij     = quijote_Fisher_freeMmin('bk', kmax=kmax, rsd=True, dmnu=dmnu)   # w/ free Mmin 
         _Finv   = np.linalg.inv(_Fij[4:6,4:6]) # invert fisher matrix 
-        print 'fiducial', np.sqrt(np.diag(_Finv))
-        print 'fiducial', np.sqrt(_Fij[5,5]**(-1))
-    print 'gauss C', np.sqrt(np.diag(Finv))
-    print 'gauss C', np.sqrt(Fij[5,5]**(-1))
+        print('fiducial', np.sqrt(np.diag(_Finv)))
+        print('fiducial', np.sqrt(_Fij[5,5]**(-1)))
+    print('gauss C', np.sqrt(np.diag(Finv)))
+    print('gauss C', np.sqrt(Fij[5,5]**(-1))) 
     return None
 
 
@@ -2149,7 +2274,6 @@ def quijote_Forecast_s8mnu_kmax_gaussCov(dmnu='fin'):
 
     Fij_lt = np.array([[1.05542e6, 73304.8], [73304.8, 5533.04]]) 
     Finv_lt = np.linalg.inv(Fij_lt) 
-    print Finv_lt
 
     fig = plt.figure(figsize=(10,5))
     for i, theta in enumerate(thetas[i_s8:i_Mnu+1]): 
@@ -2429,7 +2553,7 @@ def quijote_FisherTest(kmax=0.5, rsd=True, dmnu='fin', flag=None):
             C_fid = np.cov(pks[:,klim].T) 
         elif 'bk' in obs: 
             # read in full covariance matrix (with shotnoise; this is the correct one) 
-            i_k, j_k, l_k, C_fid = quijoteCov(rsd=rsd, flag=flag)
+            i_k, j_k, l_k, C_fid = quijotebkCov(rsd=rsd, flag=flag)
             
             # impose k limit 
             if obs == 'bk': 
@@ -2462,7 +2586,7 @@ def quijote_FisherTest(kmax=0.5, rsd=True, dmnu='fin', flag=None):
                 Fij_delfi[a,b] += 0.5*(np.dot(dobs_dt[a], np.dot(C_inv, dobs_dt[b])) + 
                         np.dot(dobs_dt[b], np.dot(C_inv, dobs_dt[a])))
         print('--- %s ---' % obs) 
-        print np.max(Fij-Fij_delfi)
+        print(np.max(Fij-Fij_delfi))
     return None 
 
 ############################################################
@@ -2920,29 +3044,29 @@ def _quijote_Fishertest(kmax):
     F10 = 0.5 * np.trace(np.dot(Cinv, M10)) 
     F11 = 0.5 * np.trace(np.dot(Cinv, M11)) 
     Fij = np.array([[F00, F01], [F10, F11]]) 
-    print "Licia's way"
-    print Fij
-    print np.sqrt(np.diag(np.linalg.inv(Fij)))
+    print("Licia's way")
+    print(Fij)
+    print(np.sqrt(np.diag(np.linalg.inv(Fij))))
 
     F00 = np.dot(dpk_dsig, np.dot(Cinv, dpk_dsig)) 
     F01 = np.dot(dpk_dsig, np.dot(Cinv, dpk_dmnu)) 
     F10 = np.dot(dpk_dmnu, np.dot(Cinv, dpk_dsig)) 
     F11 = np.dot(dpk_dmnu, np.dot(Cinv, dpk_dmnu)) 
     Fij = np.array([[F00, F01], [F10, F11]]) 
-    print "not Licia's way"
-    print Fij
-    print np.sqrt(np.diag(np.linalg.inv(Fij)))
-    print np.sqrt(np.diag(np.linalg.inv(Forecast.Fij([dpk_dsig, dpk_dmnu], Cinv))))
-    print "full pipeline p"
+    print("not Licia's way")
+    print(Fij)
+    print(np.sqrt(np.diag(np.linalg.inv(Fij))))
+    print(np.sqrt(np.diag(np.linalg.inv(Forecast.Fij([dpk_dsig, dpk_dmnu], Cinv)))))
+    print("full pipeline p")
     _Fij = quijote_Fisher_freeMmin('pk', kmax=kmax, rsd=True, dmnu='p')
-    print _Fij[4:6,4:6]
-    print  np.sqrt(np.diag(np.linalg.inv(_Fij[4:6,4:6])))
-    print np.sqrt(np.diag(np.linalg.inv(_Fij)[4:6,4:6]))
+    print(_Fij[4:6,4:6])
+    print( np.sqrt(np.diag(np.linalg.inv(_Fij[4:6,4:6]))))
+    print(np.sqrt(np.diag(np.linalg.inv(_Fij)[4:6,4:6])))
     _Fij = quijote_Fisher_freeMmin('pk', kmax=kmax, rsd=True, dmnu='fin')
-    print "full pipeline fin"
-    print _Fij[4:6,4:6]
-    print np.sqrt(np.diag(np.linalg.inv(_Fij[4:6,4:6])))
-    print np.sqrt(np.diag(np.linalg.inv(_Fij)[4:6,4:6]))
+    print("full pipeline fin")
+    print(_Fij[4:6,4:6])
+    print(np.sqrt(np.diag(np.linalg.inv(_Fij[4:6,4:6]))))
+    print(np.sqrt(np.diag(np.linalg.inv(_Fij)[4:6,4:6])))
     return None 
 
 
@@ -3022,61 +3146,67 @@ def _flag_str(flag):
 if __name__=="__main__": 
     # covariance matrices
     '''
-        quijoteCov(rsd=True, flag=None, silent=False)
-        quijoteCov(rsd=0, flag='ncv', silent=False)
-        quijoteCov(rsd=0, flag='reg', silent=False)
-        quijote_pkCov(kmax=0.5)        # condition number 4.38605e+05
-        quijote_pkbkCov(kmax=0.5)      # condition number 1.74845e+08
-        quijote_bkCov(kmax=0.5, rsd=True) # condition number 1.53979+08
-        quijote_bkCov(kmax=0.5, rsd=0, flag='reg') # condition number 1.73685+08
+        pkCov()
+        for flag in [None, 'ncv', 'reg']: bkCov(rsd=True, flag=flag, silent=False)
+        _pkCov(kmax=0.5)        # condition number 4.38605e+05
+        _pkbkCov(kmax=0.5)      # condition number 1.74845e+08
+        _bkCov(kmax=0.5, rsd=True) # condition number 1.53979+08
+        _bkCov(kmax=0.5, rsd=0, flag='reg') # condition number 1.73685+08
     '''
     # deriatives 
-    quijote_dPdthetas(dmnu='fin', log=True)
     '''
-        quijote_P_theta()
-        quijote_B_theta()
-        quijote_B_theta(rsd=0, flag='ncv')
-        quijote_B_theta(rsd=0, flag='reg')
-        quijote_dPdthetas(dmnu='fin', log=True)
-        quijote_dBdthetas(log=True, rsd=True, flag=None, dmnu='fin')
-        quijote_dBdthetas(log=True, rsd=True, flag='ncv', dmnu='fin')
-        quijote_dBdthetas(log=True, rsd=True, flag='reg', dmnu='fin')
-        quijote_dBdthetas(log=True, rsd=0, flag='ncv', dmnu='fin')
-        quijote_dBdthetas(log=True, rsd=0, flag='reg', dmnu='fin')
-        quijote_dBdMnu(kmax=0.5, dmnu='fin')
-        quijote_dlogPBdMnu()
+        P_theta()
+        B_theta()
+        for flag in ['ncv', 'reg']: B_theta(rsd=0, flag=flag)
+        _dPdthetas(dmnu='fin', log=True)
+        for flag in [None, 'ncv', 'reg']: _dBdthetas(log=True, rsd=True, flag=flag, dmnu='fin')
+        for flag in ['ncv', 'reg']: _dBdthetas(log=True, rsd=0, flag=flag, dmnu='fin')
+        dlogBdMnu(kmax=0.5, dmnu='fin')
+        for flag in [None, 'ncv', 'reg']: dlogPBdMnu(rsd=True, flag=flag)
+        for flag in ['ncv', 'reg']: dlogPBdMnu(rsd=0, flag=flag)
     ''' 
     # fisher forecasts with different nuisance parameters 
     '''
-        quijote_Forecast('pk', kmax=0.5, rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
-        quijote_Forecast('pk', kmax=0.5, rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn'])
-        quijote_Forecast('bk', kmax=0.5, rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
-        quijote_Forecast('bk', kmax=0.5, rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'])
-        quijote_Forecast('bk', kmax=0.5, rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'])
-        quijote_Forecast_kmax_table(dmnu='fin', theta_nuis=None)
+        forecast('pk', kmax=0.5, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
+        forecast('pk', kmax=0.5, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn'])
+        forecast('pk', kmax=0.5, dmnu='fin', theta_nuis=['Amp', 'Mmin'], planck=True)
+        forecast('pk', kmax=0.5, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn'], planck=True)
+        for flag in [None, 'ncv', 'reg']: 
+            forecast('bk', kmax=0.5, rsd=True, flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
+            forecast('bk', kmax=0.5, rsd=True, flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'])
+            forecast('bk', kmax=0.5, rsd=True, flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'])
+        for flag in [None, 'ncv', 'reg']: 
+            forecast('bk', kmax=0.5, rsd=True, flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin'], planck=True)
+            forecast('bk', kmax=0.5, rsd=True, flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'], planck=True)
+            forecast('bk', kmax=0.5, rsd=True, flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'], planck=True)
+        forecast_kmax_table(dmnu='fin', theta_nuis=None)
     '''
-    # fisher forecasts with different nuisance parameters and Planck prior 
-    #quijote_Forecast_Planck('pk', kmax=0.5, rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
-    #quijote_Forecast_Planck('bk', kmax=0.5, rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
+    # P+B fisher forecasts with different nuisance parameters 
     '''
-        quijote_Forecast_Planck('pk', kmax=0.5, rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
-        quijote_Forecast_Planck('pk', kmax=0.5, rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn'])
-        quijote_Forecast_Planck('bk', kmax=0.5, rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
-        quijote_Forecast_Planck('bk', kmax=0.5, rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'])
-        quijote_Forecast_Planck('bk', kmax=0.5, rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'])
+        for flag in [None, 'ncv', 'reg']: 
+            pbForecast(kmax=0.5, rsd=True, flag=flag, theta_nuis=['Amp', 'Mmin'], dmnu='fin')
+            pbForecast(kmax=0.5, rsd=True, flag=flag, theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'], dmnu='fin')
+            pbForecast(kmax=0.5, rsd=True, flag=flag, theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'], dmnu='fin')
+        for flag in [None, 'ncv', 'reg']: 
+            pbForecast(kmax=0.5, rsd=True, flag=flag, theta_nuis=['Amp', 'Mmin'], dmnu='fin', planck=True)
+            pbForecast(kmax=0.5, rsd=True, flag=flag, theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'], dmnu='fin', planck=True)
+            pbForecast(kmax=0.5, rsd=True, flag=flag, theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'], dmnu='fin', planck=True)
     '''
     # fisher forecasts as a function of kmax with different nuisance parameters 
-    #quijote_Forecast_kmax(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
     '''
-        quijote_Forecast_kmax(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
-        quijote_Forecast_kmax(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'])
-        quijote_Forecast_kmax(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'])
+        for flag in [None, 'ncv', 'reg']: 
+            Fii_kmax(rsd=True, flag=flag, dmnu='fin')
+            forecast_kmax(rsd=True, flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
+            forecast_kmax(rsd=True, flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin'], planck=True)
+            forecast_kmax(rsd=True, flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'])
+            forecast_kmax(rsd=True, flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'])
     '''
     # fisher forecasts as a function of kmax excluding some cosmo. parameters with different nuisance parameters 
     '''
-        quijote_Forecast_thetas_kmax(tts=['Om', 'Ob', 'h', 'ns', 's8'], rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
-        quijote_Forecast_thetas_kmax(tts=['Om', 'Ob', 'h', 'ns', 's8'], rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'])
-        quijote_Forecast_thetas_kmax(tts=['Om', 'Ob', 'h', 'ns', 's8'], rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'])
+        for flag in [None, 'ncv', 'reg']: 
+            forecast_thetas_kmax(tts='lcdm', rsd=True, flag=None, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
+            forecast_thetas_kmax(tts='lcdm', rsd=True, flag=None, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'])
+            forecast_thetas_kmax(tts='lcdm', rsd=True, flag=None, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'])
     '''
     # fisher forecasts as a function of kmax where B derivatives are scaled up  with different nuisance parameters 
     '''
@@ -3086,12 +3216,15 @@ if __name__=="__main__":
         quijote_Forecast_kmax_scaleBFii(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'], f_Mnu=0.8, f_Ob=0.8, f_s8=0.95)
     '''
     # --- convergence tests ---  
+    for flag in [None, 'ncv', 'reg']: 
+        Fij_convergence('bk', kmax=0.5, rsd=True, flag=flag, dmnu='fin')
     '''
-        quijote_Forecast_convergence('pk', kmax=0.5, rsd=True, dmnu='fin')
-        quijote_Forecast_convergence('bk', kmax=0.5, rsd=True, dmnu='fin')
-        quijote_Fij_convergence('pk', kmax=0.2, rsd=True, dmnu='fin')
-        quijote_Fij_convergence('bk', kmax=0.2, rsd=True, dmnu='fin')
-        quijote_dlogPBdtheta_Nfixedpair(kmax=0.5, dmnu='fin')
+        Fij_convergence('pk', kmax=0.5, rsd=True, flag=None, dmnu='fin')
+        for flag in [None, 'ncv', 'reg']: 
+            dlogPBdtheta_Nfixedpair(rsd=True, flag=flag, dmnu='fin')
+            Fij_convergence('bk', kmax=0.2, rsd=True, flag=flag, dmnu='fin')
+        forecast_convergence('pk', kmax=0.5, rsd=True, dmnu='fin')
+        forecast_convergence('bk', kmax=0.5, rsd=True, dmnu='fin')
     ''' 
     # --- quijote pair fixed test ---
     '''
