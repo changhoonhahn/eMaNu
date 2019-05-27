@@ -1619,7 +1619,8 @@ def Fij_convergence(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin'):
 
     print('--- Ncov test ---' ) 
     # convegence of covariance matrix 
-    ncovs = [1000, 3000, 5000, 7000, 9000, 11000, 13000, 14000, 15000]
+    ncovs = [3000, 7500, 10000, 12500, 15000]
+    #ncovs = [1000, 3000, 5000, 7000, 9000, 11000, 13000, 14000, 15000]
     # read in fisher matrix (Fij)
     Fijs = []
     for ncov in ncovs: 
@@ -1634,14 +1635,9 @@ def Fij_convergence(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin'):
         sub.plot([1000, 15000], [1.-_i*0.3, 1.-_i*0.3], c='k', ls='--', lw=1) 
         _Fij = Fijs[:,ij[0],ij[1]] 
         sub.plot(ncovs, _Fij/_Fij[-1] - _i*0.3) 
-    #ij_str = ','.join([theta_lbls[ii].strip('$'), theta_lbls[ij].strip('$')]) 
     sub.set_xlabel(r"$N_{\rm cov}$ Quijote simulations", labelpad=10, fontsize=25) 
-    if obs == 'pk': 
-        sub.set_xlim([3000, 15000]) 
-        sub.set_ylabel(r'$F_{ij}(N_{\rm cov})/F_{ij}(N_{\rm cov}=15,000)$', fontsize=25)
-    elif obs == 'bk':  
-        sub.set_xlim([3000, 45000]) 
-        sub.set_ylabel(r'$F_{ij}(N_{\rm cov})/F_{ij}(N_{\rm cov}=45,000)$', fontsize=25)
+    sub.set_xlim(3000, 15000) 
+    sub.set_ylabel(r'$F_{ij}(N_{\rm cov})/F_{ij}(N_{\rm cov}=%i)$' % sub.get_xlim()[1], fontsize=25)
     sub.set_ylim([1. - 0.3*len(ij_pairs), 1.3]) 
     sub.set_yticks([1. - 0.3 * ii for ii in range(len(ij_pairs))])
     sub.set_yticklabels(ij_pairs_str) 
@@ -1650,9 +1646,9 @@ def Fij_convergence(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin'):
     # convergence of derivatives 
     if obs == 'pk': nderivs = [100, 200, 300, 350, 400, 425, 450, 475, 500]
     elif obs == 'bk': 
-        if flag is None: nderivs = [100, 250, 500, 1000, 1500, 2000, 2500, 3000]
+        if flag is None: nderivs = [100, 1000, 2000, 2500, 3000]
         else: 
-            if (type(rsd) == bool) and rsd: nderivs = [100, 250, 500, 750, 1000, 1250, 1500]
+            if (type(rsd) == bool) and rsd: nderivs = [100, 500, 1000, 1500]
             else: nderivs = [100, 250, 500]
     # read in fisher matrix (Fij)
     Fijs = []
