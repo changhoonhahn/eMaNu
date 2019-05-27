@@ -107,7 +107,7 @@ def quijote_dBkdtheta(theta, log=False, flag=None, rsd=True, z=0, dmnu='fin', Nd
     quijote_thetas = {
             'Mnu': [0.1, 0.2, 0.4], # +, ++, +++ 
             'Ob': [0.048, 0.050],   # others are - + 
-            'Ob2': [0.047, 0.051],   # others are - + 
+            'Ob2': [0.047, 0.051],   
             'Om': [0.3075, 0.3275],
             'h': [0.6511, 0.6911],
             'ns': [0.9424, 0.9824],
@@ -201,10 +201,12 @@ def quijote_dBkdtheta(theta, log=False, flag=None, rsd=True, z=0, dmnu='fin', Nd
         h = quijote_thetas[theta][1] - quijote_thetas[theta][0]
 
     for i_tt, tt, coeff in zip(range(len(tts)), tts, coeffs): 
-        quij = Obvs.quijoteBk(tt, z=z, flag=flag, rsd=rsd)
+        if tt != 'fiducial': 
+            quij = Obvs.quijoteBk(tt, z=z, flag=flag, rsd=rsd)
+        else: 
+            quij = Obvs.quijoteBk(tt, z=z, flag='reg', rsd=rsd)
 
         if i_tt == 0: dbk = np.zeros(quij['b123'].shape[1]) 
-
         if Nderiv is not None and tt != 'fiducial': 
             _bk = np.average(quij['b123'][:Nderiv,:], axis=0)  
         else: 

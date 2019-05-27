@@ -117,7 +117,7 @@ def hadesBk_s8(sig8, nzbin=4, rsd=True):
     return _bks
 
 
-def quijoteBk(theta, z=0, rsd=True, flag=None): 
+def quijoteBk(theta, z=0, rsd=True, flag=None, silent=True): 
     ''' read in real/redshift-space bispectrum for specified model (theta) of the quijote simulations. 
     
     :param theta: 
@@ -164,6 +164,7 @@ def quijoteBk(theta, z=0, rsd=True, flag=None):
     elif rsd in [0, 1, 2]:  
         fbks = ['quijote_%s.%s.rsd%i.hdf5' % (theta, flag, rsd)]
 
+    if not silent: print(fbks) 
     for i_f, fbk in enumerate(fbks): 
         bks = h5py.File(os.path.join(quij_dir, fbk), 'r') 
         if i_f == 0:  
