@@ -33,8 +33,8 @@ def dBdtheta(theta, z=0, rsd=True, flag=None):
     if theta == 'Mnu': 
         for i_dmnu, dmnu in enumerate(['fin', 'fin0', 'p', 'pp', 'ppp']): 
             # calculate dB/dtheta and dlogB/dtheta 
-            k1, k2, k3, dbk = Forecast.quijote_dBkdtheta(theta, log=False, z=z, dmnu=dmnu, flag=flag, rsd=rsd, Nfp=None)
-            _, _, _, dlogbk = Forecast.quijote_dBkdtheta(theta, log=True, z=z, dmnu=dmnu, flag=flag, rsd=rsd, Nfp=None)
+            k1, k2, k3, dbk = Forecast.quijote_dBkdtheta(theta, log=False, z=z, dmnu=dmnu, flag=flag, rsd=rsd, Nderiv=None)
+            _, _, _, dlogbk = Forecast.quijote_dBkdtheta(theta, log=True, z=z, dmnu=dmnu, flag=flag, rsd=rsd, Nderiv=None)
             
             if i_dmnu == 0: 
                 datastack = [k1, k2, k3]
@@ -48,8 +48,8 @@ def dBdtheta(theta, z=0, rsd=True, flag=None):
         np.savetxt(fderiv, np.vstack(datastack).T, header=hdr, delimiter=',\t', fmt=fmt)
     else: 
         # calculate dB/dtheta and dlogB/dtheta 
-        k1, k2, k3, dbk = Forecast.quijote_dBkdtheta(theta, log=False, z=z, flag=flag, rsd=rsd, Nfp=None)
-        _, _, _, dlogbk = Forecast.quijote_dBkdtheta(theta, log=True, z=z, flag=flag, rsd=rsd, Nfp=None)
+        k1, k2, k3, dbk = Forecast.quijote_dBkdtheta(theta, log=False, z=z, flag=flag, rsd=rsd, Nderiv=None)
+        _, _, _, dlogbk = Forecast.quijote_dBkdtheta(theta, log=True, z=z, flag=flag, rsd=rsd, Nderiv=None)
 
         hdr = 'k1, k2, k3, dB/dtheta, dlogB/dtheta'
         # save to file 
@@ -78,8 +78,8 @@ def dPdtheta(theta, z=0):
     if theta == 'Mnu': 
         for i_dmnu, dmnu in enumerate(['fin', 'fin0', 'p', 'pp', 'ppp']): 
             # calculate dP/dtheta and dlogP/dtheta 
-            k, dpk = Forecast.quijote_dPkdtheta(theta, log=False, z=z, dmnu=dmnu, Nfp=None)
-            _, dlogpk = Forecast.quijote_dPkdtheta(theta, log=True, z=z, dmnu=dmnu, Nfp=None)
+            k, dpk = Forecast.quijote_dPkdtheta(theta, log=False, z=z, dmnu=dmnu, Nderiv=None)
+            _, dlogpk = Forecast.quijote_dPkdtheta(theta, log=True, z=z, dmnu=dmnu, Nderiv=None)
             
             if i_dmnu == 0: 
                 datastack = [k]
@@ -93,8 +93,8 @@ def dPdtheta(theta, z=0):
         np.savetxt(fderiv, np.vstack(datastack).T, header=hdr, delimiter=',\t', fmt=fmt)
     else: 
         # calculate dP/dtheta and dlogP/dtheta 
-        k, dpk = Forecast.quijote_dPkdtheta(theta, log=False, z=z, Nfp=None)
-        _, dlogpk = Forecast.quijote_dPkdtheta(theta, log=True, z=z, Nfp=None)
+        k, dpk = Forecast.quijote_dPkdtheta(theta, log=False, z=z, Nderiv=None)
+        _, dlogpk = Forecast.quijote_dPkdtheta(theta, log=True, z=z, Nderiv=None)
 
         hdr = 'k, dP/dtheta, dlogP/dtheta'
         # save to file 
@@ -117,10 +117,9 @@ def _flag_str(flag):
 if __name__=="__main__": 
     thetas = ['Mnu', 'Om', 'Ob2', 'h', 'ns', 's8', 'Mmin', 'Amp', 'Asn', 'Bsn', 'b2', 'g2']
     for theta in thetas: 
-        continue
-        dBdtheta(theta, z=0)
-        dBdtheta(theta, z=0, rsd='real')
-        for rsd in [True, 0, 'real']: 
+        #dBdtheta(theta, z=0)
+        #dBdtheta(theta, z=0, rsd='real')
+        for rsd in [2]: #[True, 0, 'real']: 
             dBdtheta(theta, z=0, rsd=rsd, flag='ncv')
             dBdtheta(theta, z=0, rsd=rsd, flag='reg') 
 

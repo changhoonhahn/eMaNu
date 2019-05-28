@@ -34,38 +34,27 @@ def quijote_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     # directory where the quijote bispectrum are at 
     if machine in ['mbp', 'cori']: dir_quij = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote', subdir) 
     else: raise NotImplementedError 
+    
+    if rsd not in [0, 1, 2, 'real']: raise ValueError 
+    if subdir == 'fiducial' and flag == 'reg': nmocks = 15000
+    elif subdir == 'fiducial' and flag == 'ncv': nmocks = 500
+    else: nmocks = 500 
 
-    #if subdir == 'fiducial' and flag is not None: raise ValueError('fiducial does not have flag') 
-
-    if rsd != 'real': # redshift-space B
-        if flag is None: 
-            # include all redshift-space files (fixed paired and reg. N-body in all RSD directions) 
-            fbks = glob.glob(os.path.join(dir_quij, '*RS*'))
-        elif flag == 'ncv': 
-            # fixed pair (rsd direction) 
-            fbks = glob.glob(os.path.join(dir_quij, '*RS%i_NCV*' % rsd)) 
-        elif flag == 'reg':
-            # regular N-body (rsd direction) 
-            fbks = glob.glob(os.path.join(dir_quij, '*RS%i*' % rsd))
-            fbks_ncv = glob.glob(os.path.join(dir_quij, '*RS%i_NCV*' % rsd)) 
-            fbks = list(set(fbks) - set(fbks_ncv))
-    else: # real-space B 
-        if flag is None: 
-            # include all redshift-space files (fixed paired and reg. N-body in all RSD directions) 
-            fbks = glob.glob(os.path.join(dir_quij, '*txt'))
-            fbks_rsd = glob.glob(os.path.join(dir_quij, '*RS*'))
-            fbks = list(set(fbks) - set(fbks_rsd))
-        elif flag == 'ncv': 
-            # fixed pair (rsd direction) 
-            fbks = glob.glob(os.path.join(dir_quij, '*NCV*')) 
-            fbks_rsd = glob.glob(os.path.join(dir_quij, '*RS*_NCV*')) 
-            fbks = list(set(fbks) - set(fbks_rsd))
-        elif flag == 'reg':
-            # regular N-body (rsd direction) 
-            fbks = glob.glob(os.path.join(dir_quij, '*txt'))
-            fbks_rsd = glob.glob(os.path.join(dir_quij, '*RS*')) 
-            fbks_ncv = glob.glob(os.path.join(dir_quij, '*NCV*')) 
-            fbks = list(set(fbks) - set(fbks_rsd) - set(fbks_ncv))
+    fbks = [] 
+    if rsd != 'real' and flag == 'reg': 
+        for i in range(nmocks): 
+            fbks.append('Bk_RS%i_%i_z=0.txt' % (rsd, i)) 
+    elif rsd != 'real' and flag == 'ncv':
+        for i in range(nmocks/2): 
+            fbks.append('Bk_RS%i_NCV_0_%i_z=0.txt' % (rsd, i)) 
+            fbks.append('Bk_RS%i_NCV_1_%i_z=0.txt' % (rsd, i)) 
+    elif rsd == 'real' and flag == 'reg': 
+        for i in range(nmocks): 
+            fbks.append('Bk_%i_z=0.txt' % i) 
+    elif rsd == 'real' and flag == 'ncv': 
+        for i in range(nmocks/2): 
+            fbks.append('Bk_NCV_0_%i_z=0.txt' % i)
+            fbks.append('Bk_NCV_1_%i_z=0.txt' % i)
 
     print([os.path.basename(fbk) for fbk in fbks[::10][:10]])
     nbk = len(fbks) 
@@ -101,11 +90,9 @@ def quijote_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     # save to hdf5 file 
     quij_dir = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote', 'z0') 
     if rsd != 'real':  # reshift space 
-        if flag is None: fhdf5 = os.path.join(quij_dir, 'quijote_%s.hdf5' % subdir)
-        else: fhdf5 = os.path.join(quij_dir, 'quijote_%s.%s.rsd%i.hdf5' % (subdir, flag, rsd))
+        fhdf5 = os.path.join(quij_dir, 'quijote_%s.%s.rsd%i.hdf5' % (subdir, flag, rsd))
     else: 
-        if flag is None: fhdf5 = os.path.join(quij_dir, 'quijote_%s.real.hdf5' % subdir)
-        else: fhdf5 = os.path.join(quij_dir, 'quijote_%s.%s.real.hdf5' % (subdir, flag))
+        fhdf5 = os.path.join(quij_dir, 'quijote_%s.%s.real.hdf5' % (subdir, flag))
     f = h5py.File(fhdf5, 'w') 
     f.create_dataset('k1', data=i_k)
     f.create_dataset('k2', data=j_k)
@@ -118,22 +105,16 @@ def quijote_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     f.create_dataset('b_sn', data=bsn) 
     f.create_dataset('counts', data=cnts) 
     f.create_dataset('Nhalos', data=Nhalos) 
+    f.create_dataset('files', data=fbks) 
     f.close()
     return None 
 
 
 if __name__=="__main__": 
     thetas = ['Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'Om_m', 'Om_p', 'Ob2_m', 'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p', 
-            'Mmin_m', 'Mmin_p']
+            'Mmin_m', 'Mmin_p', 'fiducial']
     for sub in thetas:
-        continue 
         print('---%s---' % sub) 
-        quijote_hdf5(sub) # all redshift-space files
-        quijote_hdf5(sub, rsd='real') # all real-space files
         for rsd in [0, 1, 2, 'real']: 
             quijote_hdf5(sub, flag='ncv', rsd=rsd)
             quijote_hdf5(sub, flag='reg', rsd=rsd)
-
-    quijote_hdf5('fiducial', flag='reg', rsd='real')
-    quijote_hdf5('fiducial')
-    quijote_hdf5('fiducial', rsd='real')

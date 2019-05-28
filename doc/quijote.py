@@ -600,38 +600,37 @@ def _dBdthetas_ncv(kmax=0.5, log=True, rsd=True, dmnu='fin'):
     if not log: bkgd.set_ylabel(r'$|{\rm d}B/{\rm d} \theta|$', labelpad=10, fontsize=25) 
     else: bkgd.set_ylabel(r'${\rm d}\log B/{\rm d} \theta$', labelpad=10, fontsize=25) 
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-    ffig = os.path.join(dir_fig, 'quijote_d%sBdthetas%s.ncv.%s.png' % (['', 'log'][log], _rsd_str(rsd), dmnu))
+    ffig = os.path.join(dir_fig, 'quijote_d%sBdthetas%s.ncv_reg.%s.png' % (['', 'log'][log], _rsd_str(rsd), dmnu))
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
 
-def dlogBdMnu(kmax=0.5, dmnu='fin'):
-    ''' Compare the dlogB/dMnu highlighting the different triangle configurations
+def dlogBdMnu(kmax=0.5):
+    ''' Compare the dlogB/dMnu for different methods 
     '''
-    i_k, j_k, l_k, dpdt = dBkdtheta('Mnu', log=True, rsd=True, flag=None, dmnu=dmnu, returnks=True) 
-    klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
-    
-    i_k = i_k[klim]
-    j_k = j_k[klim]
-    l_k = l_k[klim]
-
-    equ = (i_k == j_k) & (j_k == l_k) 
-    fld = (i_k == j_k + l_k) 
-    squ = (i_k > 3 * l_k) & (j_k > 3 * l_k) & ~fld 
-
     fig = plt.figure(figsize=(20, 5))
     sub = fig.add_subplot(111)
-    sub.plot(np.arange(np.sum(klim)), (dpdt[klim]), c='k')
-    sub.scatter(np.arange(np.sum(klim))[equ], (dpdt[klim][equ]), zorder=7, s=3, c='C0', label='equ.') 
-    sub.scatter(np.arange(np.sum(klim))[squ], (dpdt[klim][squ]), zorder=8, s=3, c='C1', label='squeezed') 
-    sub.scatter(np.arange(np.sum(klim))[fld], (dpdt[klim][fld]), zorder=9, s=3, c='C2', label='folded') 
-    sub.legend(loc='lower left', markerscale=10, fontsize=20) 
+    for dmnu in ['fin', 'fin0', 'p', 'pp', 'ppp']: 
+        i_k, j_k, l_k, dpdt = dBkdtheta('Mnu', log=True, rsd=True, flag=None, dmnu=dmnu, returnks=True) 
+        klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
+        
+        i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim]
+        #equ = (i_k == j_k) & (j_k == l_k) 
+        #fld = (i_k == j_k + l_k) 
+        #squ = (i_k > 3 * l_k) & (j_k > 3 * l_k) & ~fld 
+
+        sub.plot(np.arange(np.sum(klim)), dpdt[klim], label=dmnu)
+        #sub.plot(np.arange(np.sum(klim)), (dpdt[klim]), c='k')
+        #sub.scatter(np.arange(np.sum(klim))[equ], (dpdt[klim][equ]), zorder=7, s=3, c='C0', label='equ.') 
+        #sub.scatter(np.arange(np.sum(klim))[squ], (dpdt[klim][squ]), zorder=8, s=3, c='C1', label='squeezed') 
+        #sub.scatter(np.arange(np.sum(klim))[fld], (dpdt[klim][fld]), zorder=9, s=3, c='C2', label='folded') 
+    sub.legend(loc='upper left', markerscale=10, fontsize=20, ncol=2) 
     sub.set_xlim(0, np.sum(klim)) 
     #sub.set_yscale('log') 
     sub.set_ylim(-1, 2) 
     sub.set_xlabel('triangle configuration', fontsize=25) 
     sub.set_ylabel(r'${\rm d}\log B/{\rm d} M_\nu$', labelpad=10, fontsize=25) 
-    ffig = os.path.join(UT.fig_dir(), 'quijote_dlogBdMnu.kmax%s.%s.png' % (str(kmax), dmnu))
+    ffig = os.path.join(UT.fig_dir(), 'quijote_dlogBdMnu.kmax%s.png' % str(kmax))
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
@@ -728,7 +727,7 @@ def FisherMatrix(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None
         klim = (k <= kmax) # determine k limit 
         C_fid = _Cfid[klim,:][:,klim]
     elif obs == 'bk':
-        i_k, j_k, l_k, _Cfid, nmock = bkCov(rsd=True, flag='reg') # only N-body for covariance
+        i_k, j_k, l_k, _Cfid, nmock = bkCov(rsd=2, flag='reg') # only N-body for covariance
         klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # k limit 
         C_fid = _Cfid[:,klim][klim,:]
     else: 
@@ -953,6 +952,8 @@ def pbForecast(kmax=0.5, rsd=True, flag=None, theta_nuis=None, dmnu='fin', planc
     print('P sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(pkFinv))]))
     print('B sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(bkFinv))]))
     #print('P+B sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(pbkFinv))]))
+    print(np.diag(pkFij))
+    print(np.diag(bkFij))
 
     _thetas = copy(thetas) + theta_nuis 
     _theta_lbls = copy(theta_lbls) + [theta_nuis_lbls[tt] for tt in theta_nuis]
@@ -3040,6 +3041,9 @@ if __name__=="__main__":
         forecast_kmax_table(dmnu='fin', theta_nuis=None)
     '''
     # P+B fisher forecasts with different nuisance parameters 
+    #pbForecast(kmax=0.5, rsd=2, flag='ncv', theta_nuis=['Amp', 'Mmin'], dmnu='fin')
+    #for flag in [None, 'ncv', 'reg']: 
+    #    pbForecast(kmax=0.5, rsd=True, flag=flag, theta_nuis=['Amp', 'Mmin'], dmnu='fin')
     '''
         for flag in [None, 'ncv', 'reg']: 
             pbForecast(kmax=0.5, rsd=True, flag=flag, theta_nuis=['Amp', 'Mmin'], dmnu='fin')
@@ -3074,10 +3078,6 @@ if __name__=="__main__":
         quijote_Forecast_kmax_scaleBFii(rsd=True, dmnu='fin', theta_nuis=['Amp', 'Mmin'], f_Mnu=0.8, f_Ob=0.8, f_s8=0.95)
     '''
     # --- convergence tests ---  
-    forecast_convergence('bk', kmax=0.5, rsd=2, flag='ncv', dmnu='fin')
-    for flag in ['ncv', 'reg', None]:
-        #Fij_convergence('bk', kmax=0.5, rsd=True, flag=flag, dmnu='fin')
-        forecast_convergence('bk', kmax=0.5, rsd=True, flag=flag, dmnu='fin')
     '''
         Fij_convergence('pk', kmax=0.5, rsd=True, flag=None, dmnu='fin')
         for flag in [None, 'ncv', 'reg']: 
