@@ -117,17 +117,17 @@ def hadesBk_s8(sig8, nzbin=4, rsd=True):
     return _bks
 
 
-def quijoteBk(theta, z=0, rsd=True, flag=None, silent=True): 
+def quijoteBk(theta, z=0, rsd='all', flag=None, silent=True): 
     ''' read in real/redshift-space bispectrum for specified model (theta) of the quijote simulations. 
     
     :param theta: 
         string that specifies which quijote run. `theta==fiducial`  
         for the fiducial set of parameters. 
 
-    :param rsd: (default: True) 
-        if True, read in z-space bispectrum (including all 3 RSD directions). 
+    :param rsd: (default: 'all') 
+        if rsd == 'all', read in z-space bispectrum (including all 3 RSD directions). 
+        if rsd in [0, 1, 2], read in z-space bispecturm in one RSD direction 
         if False, read in real-space bispectrum
-        if int, rsd specifies the direction of the RSD 
 
     :param z: (default:0) 
         redshift z=0. currently only supports z=0 
@@ -144,31 +144,33 @@ def quijoteBk(theta, z=0, rsd=True, flag=None, silent=True):
     else: raise NotImplementedError
     
     assert flag in [None, 'ncv', 'reg'], "flag=%s unspecified" % flag
-    if flag is None: assert rsd in [True, 'real'] 
+    assert rsd in [0, 1, 2, 'all', 'real'] 
     
+    # get files to read-in 
     quij_dir = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote', zdir) 
-    if (type(rsd) == bool) and rsd: # rsd=True (include all 3 rsd directions) 
-        if flag is None: # combine ncv and reg. n-body sims 
+    if rsd == 'all': # include all 3 rsd directions
+        if flag is None: # combine ncv and reg. n-body sims (no advised) 
             fbks = [] 
             for fl in ['ncv', 'reg']: 
                 for irsd in [0, 1, 2]: 
                     fbks.append('quijote_%s.%s.rsd%i.hdf5' % (theta, fl, irsd))
         else: 
             fbks = ['quijote_%s.%s.rsd%i.hdf5' % (theta, flag, irsd) for irsd in [0, 1, 2]] 
+    elif rsd in [0, 1, 2]: # include a single rsd direction 
+        fbks = ['quijote_%s.%s.rsd%i.hdf5' % (theta, flag, rsd)]
     elif rsd == 'real': # real-space 
         if flag is None: # combine ncv and reg. n-body sims 
             fbks = [] 
             for fl in ['ncv', 'reg']: 
                 fbks.append('quijote_%s.%s.real.hdf5' % (theta, fl))
         else: fbks = ['quijote_%s.%s.real.hdf5' % (theta, flag)]
-    elif rsd in [0, 1, 2]:  
-        fbks = ['quijote_%s.%s.rsd%i.hdf5' % (theta, flag, rsd)]
-
+    
+    # combine the files  
     if not silent: print(fbks) 
+    _bks = {}
     for i_f, fbk in enumerate(fbks): 
         bks = h5py.File(os.path.join(quij_dir, fbk), 'r') 
         if i_f == 0:  
-            _bks = {}
             for k in bks.keys(): 
                 _bks[k] = bks[k].value 
         else: 
@@ -177,20 +179,64 @@ def quijoteBk(theta, z=0, rsd=True, flag=None, silent=True):
     return _bks
 
 
-def quijoteP0k(theta): 
-    ''' read in redshift-space power spectrum for specified model (theta) of the quijote simulations. 
+def quijotePk(theta, z=0, rsd='all', flag=None, silent=True): 
+    ''' read in real/redshift-space powerspectrum monopole (for RSD quadru- and hexadeca-poles) 
+    for specified model (theta) of the quijote simulations. 
     
     :param theta: 
         string that specifies which quijote run. `theta==fiducial`  
         for the fiducial set of parameters. 
 
-    :return _pks: 
+    :param z: (default:0) 
+        redshift z=0. currently only supports z=0 
+
+    :param rsd: (default: 'all') 
+        if rsd == 'all', read in z-space bispectrum (including all 3 RSD directions). 
+        if rsd in [0, 1, 2], read in z-space bispecturm in one RSD direction 
+        if False, read in real-space bispectrum
+    
+    :param flag: (default: None) 
+        specify more specific bispectrum runs. currently only flags within 
+        [None, 'ncv', 'reg']  are supported. ncv only includes paired-fixed 
+        simulations. reg only includes regular n-body simulations.
+
+    :return _bks: 
         dictionary that contains all the bispectrum data from quijote simulation
     '''
-    fpk = os.path.join(UT.dat_dir(), 'powerspectrum', 'quijote', 'z0', 'quijote_Pk_%s.hdf5' % theta)
-    pks = h5py.File(fpk, 'r') 
-
+    if z == 0: zdir = 'z0'
+    else: raise NotImplementedError
+    
+    assert flag in [None, 'ncv', 'reg'], "flag=%s unspecified" % flag
+    assert rsd in [0, 1, 2, 'all', 'real'] 
+    
+    # get files to read-in 
+    quij_dir = os.path.join(UT.dat_dir(), 'powerspectrum', 'quijote', zdir) 
+    if rsd == 'all': # include all 3 rsd directions
+        if flag is None: # combine ncv and reg. n-body sims (no advised) 
+            fpks = [] 
+            for fl in ['ncv', 'reg']: 
+                for irsd in [0, 1, 2]: 
+                    fpks.append('quijote_%s.%s.rsd%i.hdf5' % (theta, fl, irsd))
+        else: 
+            fpks = ['quijote_%s.%s.rsd%i.hdf5' % (theta, flag, irsd) for irsd in [0, 1, 2]] 
+    elif rsd in [0, 1, 2]: # include a single rsd direction 
+        fpks = ['quijote_%s.%s.rsd%i.hdf5' % (theta, flag, rsd)]
+    elif rsd == 'real': # real-space 
+        if flag is None: # combine ncv and reg. n-body sims 
+            fpks = [] 
+            for fl in ['ncv', 'reg']: 
+                fpks.append('quijote_%s.%s.real.hdf5' % (theta, fl))
+        else: fpks = ['quijote_%s.%s.real.hdf5' % (theta, flag)]
+    
+    # combine the files  
+    if not silent: print(fpks) 
     _pks = {}
-    for k in pks.keys(): 
-        _pks[k] = pks[k].value 
+    for i_f, fpk in enumerate(fpks): 
+        pks = h5py.File(os.path.join(quij_dir, fpk), 'r') 
+        if i_f == 0:  
+            for k in pks.keys(): 
+                _pks[k] = pks[k].value 
+        else: 
+            for k in ['p0k', 'p2k', 'p4k', 'p_sn']: 
+                _pks[k] = np.concatenate([_pks[k], pks[k].value]) 
     return _pks
