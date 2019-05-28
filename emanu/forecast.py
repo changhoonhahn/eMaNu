@@ -74,7 +74,7 @@ def quijote_dPkdtheta(theta, log=False, dmnu='fin', z=0, Nderiv=None):
         if i_tt == 0: dpk = np.zeros(quij['p0k'].shape[1]) 
     
         if Nderiv is not None and tt != 'fiducial': 
-            _pk = np.average(quij['p0k'][:Nderiv,:], axis=0)  
+            _pk = np.average(quij['p0k'][:Nderiv], axis=0)  
         else: 
             _pk = np.average(quij['p0k'], axis=0)  
 
@@ -84,7 +84,7 @@ def quijote_dPkdtheta(theta, log=False, dmnu='fin', z=0, Nderiv=None):
     return quij['k'], dpk / h + c_dpk 
 
 
-def quijote_dBkdtheta(theta, log=False, flag=None, rsd=True, z=0, dmnu='fin', Nderiv=None):
+def quijote_dBkdtheta(theta, log=False, rsd=True, flag=None, z=0, dmnu='fin', Nderiv=None):
     ''' calculate d B(k)/d theta using quijote simulations run on perturbed theta 
 
     :param theta: 
@@ -204,11 +204,11 @@ def quijote_dBkdtheta(theta, log=False, flag=None, rsd=True, z=0, dmnu='fin', Nd
         if tt != 'fiducial': 
             quij = Obvs.quijoteBk(tt, z=z, flag=flag, rsd=rsd)
         else: 
-            quij = Obvs.quijoteBk(tt, z=z, flag='reg', rsd=rsd)
+            quij = Obvs.quijoteBk('fiducial', z=z, flag='reg', rsd=rsd)
 
         if i_tt == 0: dbk = np.zeros(quij['b123'].shape[1]) 
         if Nderiv is not None and tt != 'fiducial': 
-            _bk = np.average(quij['b123'][:Nderiv,:], axis=0)  
+            _bk = np.average(quij['b123'][:Nderiv], axis=0)  
         else: 
             _bk = np.average(quij['b123'], axis=0)  
 
