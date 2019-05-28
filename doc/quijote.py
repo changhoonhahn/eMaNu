@@ -91,10 +91,10 @@ def pkCov(silent=True):
     return k, C_pk, Nmock 
 
 
-def bkCov(rsd=True, flag=None, silent=True): 
+def bkCov(rsd=2, flag='reg', silent=True): 
     ''' return the full covariance matrix of the quijote bispectrum
     computed using 
-    - rsd == True: 46500 simulations (15000 n-body x 3  + 500 ncv x 3) 
+    - rsd == 'all': 46500 simulations (15000 n-body x 3  + 500 ncv x 3) 
     - rsd == 0: 15500 simulations (15000 n-body + 500 ncv) 
     - rsd == 'real': 15500 simulations (15000 n-body + 500 ncv)
     
@@ -104,14 +104,19 @@ def bkCov(rsd=True, flag=None, silent=True):
         big ass covariance matrix of all the triangle configurations in 
         the default ordering. 
     '''
+    assert flag == 'reg', "only n-body should be used for covariance"
+    assert rsd != 'all', "only one RSD direction should be used otherwise modes will be correlated" 
+
     fcov = os.path.join(dir_bk, 'quijote_bCov_full%s%s.hdf5' % (_rsd_str(rsd), _flag_str(flag)))
     if os.path.isfile(fcov): 
-        Fcov = h5py.File(fcov, 'r') # read in fiducial covariance matrix 
+        if not silent: print('reading ... %s' % os.path.basename(fcov))
+        Fcov = h5py.File(fcov, 'r') # read in covariance matrix 
         cov = Fcov['C_bk'][...]
         k1, k2, k3 = Fcov['k1'][...], Fcov['k2'][...], Fcov['k3'][...]
         Nmock = Fcov['Nmock'][...] 
     else: 
-        quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag=flag) 
+        if not silent: print('calculating ... %s' % os.path.basename(fcov))
+        quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag=flag, silent=silent) 
         bks = quij['b123'] + quij['b_sn']
         if not silent: print('%i Bk measurements' % bks.shape[0]) 
         cov = np.cov(bks.T) # calculate the covariance
@@ -149,13 +154,12 @@ def _pkCov(kmax=0.5):
     return None 
 
 
-def _bkCov(kmax=0.5, rsd=True, flag=None): 
+def _bkCov(kmax=0.5, rsd=2, flag='reg'): 
     ''' plot the covariance matrix of the quijote fiducial 
     bispectrum. 
     '''
-    i_k, j_k, l_k, C_bk, _ = quijotebkCov(rsd=rsd, flag=flag) 
-    # impose k limit on bispectrum
-    bklim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax))
+    i_k, j_k, l_k, C_bk, _ = bkCov(rsd=rsd, flag=flag) 
+    bklim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # k limit
     C_bk = C_bk[bklim,:][:,bklim]
 
     ijl = UT.ijl_order(i_k[bklim], j_k[bklim], l_k[bklim], typ='GM') # order of triangles 
@@ -169,45 +173,8 @@ def _bkCov(kmax=0.5, rsd=True, flag=None):
     cbar = fig.colorbar(cm, ax=sub) 
     cbar.set_label(r'$\widehat{B}_0(k_1, k_2, k_3)$ covariance matrix, ${\bf C}_{B}$', 
             fontsize=25, labelpad=10, rotation=90)
-    #sub.set_title(r'Quijote $B(k_1, k_2, k_3)$ Covariance', fontsize=25)
     ffig = os.path.join(dir_doc, 
             'quijote_bkCov_kmax%s%s%s.png' % (str(kmax).replace('.', ''), _rsd_str(rsd), _flag_str(flag)))
-    fig.savefig(ffig, bbox_inches='tight') 
-    return None 
-
-
-def quijote_pkbkCov(kmax=0.5): 
-    ''' plot the covariance matrix of the quijote fiducial bispectrum and powerspectrum. 
-    '''
-    # read in P(k) 
-    quij = Obvs.quijoteP0k('fiducial') # theta_fiducial 
-    pks = quij['p0k'] + quij['p_sn'][:,None] # shotnoise uncorrected P(k) 
-    # impose k limit on powerspectrum 
-    pklim = (quij['k'] <= kmax)
-    pks = pks[:,pklim]
-
-    # read in B(k) 
-    quij = Obvs.quijoteBk('fiducial', rsd=True) # theta_fiducial 
-    bks = quij['b123'] + quij['b_sn']                   # shotnoise uncorrected B(k) 
-    i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
-    # impose k limit on bispectrum
-    kf = 2.*np.pi/1000. # fundmaentla mode
-    bklim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
-    ijl = UT.ijl_order(i_k[bklim], j_k[bklim], l_k[bklim], typ='GM') # order of triangles 
-    bks = bks[:,bklim][:,ijl] 
-    
-    pbks = np.concatenate([fscale_pk * pks, bks], axis=1) # joint data vector
-
-    C_pbk = np.cov(pbks.T) # covariance matrix 
-    print('covariance matrix condition number = %.5e' % np.linalg.cond(C_pbk)) 
-
-    # plot the covariance matrix 
-    fig = plt.figure(figsize=(10,8))
-    sub = fig.add_subplot(111)
-    cm = sub.pcolormesh(C_pbk, norm=LogNorm(vmin=1e5, vmax=1e18))
-    cbar = fig.colorbar(cm, ax=sub) 
-    sub.set_title(r'Quijote $P(k)$ and $B(k_1, k_2, k_3)$ Covariance', fontsize=25)
-    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_pbkCov_kmax%s.png' % str(kmax).replace('.', ''))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
@@ -417,10 +384,10 @@ def P_theta():
     return None
 
 
-def B_theta(kmax=0.5, rsd=True, flag=None): 
+def B_theta(kmax=0.5, rsd='all', flag='reg'): 
     ''' compare the B for theta- and theta+  
     '''
-    quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag=flag)
+    quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag='reg') # fiducial should always be n-body 
     bk_fid = np.average(quij['b123'], axis=0) 
     print('%i fiducial Bk measurements' % quij['b123'].shape[0])  
     i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
@@ -518,18 +485,20 @@ def _dPdthetas(dmnu='fin', log=True):
     return None
 
 
-def _dBdthetas(kmax=0.5, log=True, rsd=True, flag=None, dmnu='fin'):
+def _dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin'):
     ''' Compare the derivatives of the bispectrum w.r.t. all the parameters
     
-    :param rsd: 
+    :param rsd: (default: 'all') 
         rsd kwarg that specifies rsd set up for B(k). 
-        If rsd == True, include 3 RSD directions. 
+        If rsd == 'all', include 3 RSD directions. 
         If rsd in [0,1,2] include one of the directions
-    :param flag: 
+
+    :param flag: (default: 'reg')  
         kwarg specifying the flag for B(k). 
         If `flag is None`, include paired-fixed and regular N-body simulation. 
         If `flag == 'ncv'` only include paired-fixed. 
         If `flag == 'reg'` only include regular N-body
+
     :param dmnu: 
         derivative finite differences setup
     '''
@@ -564,8 +533,8 @@ def _dBdthetas(kmax=0.5, log=True, rsd=True, flag=None, dmnu='fin'):
     return None
 
 
-def _dBdthetas_ncv(kmax=0.5, log=True, rsd=True, dmnu='fin'):
-    ''' Compare the derivatives of the bispectrum w.r.t. all the parameters
+def _dBdthetas_ncv(kmax=0.5, log=True, rsd='all', dmnu='fin'):
+    ''' Compare the derivatives of the paired-fixed bispectrum to N-body bispectrum
     
     :param rsd: 
         rsd kwarg that specifies rsd set up for B(k). 
@@ -648,9 +617,9 @@ def dlogPBdMnu(rsd=True, flag=None):
         If `flag == 'ncv'` only include paired-fixed. 
         If `flag == 'reg'` only include regular N-body
     '''
-    dmnus = ['fin', 'fin0', 'p'][::-1]
+    dmnus = ['fin', 'fin0', 'p']
     #dmnus_lbls = ['0.0, 0.1, 0.2, 0.4 eV', '0.0, 0.1, 0.2 eV', '0.0, 0.1eV']
-    dmnus_lbls = ['Eq.12', r'excluding $M^{+++}_\nu$', 'forward diff.'][::-1]
+    dmnus_lbls = ['Eq.12', r'excluding $M^{+++}_\nu$', 'forward diff.']
     colors = ['C0', 'C1', 'C2']
     kmax=0.5
 
@@ -1765,72 +1734,6 @@ def quijote_nbars():
     print(np.min(nbars) * 1e9 )
     print(thetas[np.argmin(nbars)])
     return None
-
-
-def pairfixed_test(kmax=0.5): 
-    ''' compare the bispectrum of the fiducial and fiducial pair-fixed 
-    '''
-    quij_fid = Obvs.quijoteBk('fiducial', rsd=True) 
-    i_k, j_k, l_k = quij_fid['k1'], quij_fid['k2'], quij_fid['k3']
-    bk_fid = np.average(quij_fid['b123'], axis=0) 
-    quij_fid_ncv = Obvs.quijoteBk('fiducial_NCV', rsd=True) 
-    bk_fid_ncv = np.average(quij_fid_ncv['b123'], axis=0) 
-    
-    kf = 2.*np.pi/1000. 
-    klim = ((i_k * kf <= kmax) & (j_k * kf <= kmax) & (l_k * kf <= kmax)) 
-
-    i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim] 
-    ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order of triangles 
-
-    fig = plt.figure(figsize=(20,10)) 
-    sub = fig.add_subplot(211)
-    sub.plot(range(np.sum(klim)), bk_fid[klim][ijl], c='k', label='fiducial') 
-    sub.plot(range(np.sum(klim)), bk_fid_ncv[klim][ijl], c='C1', ls="--", label='fiducial NCV') 
-    sub.legend(loc='upper right', fontsize=20) 
-    sub.set_xlim(0, np.sum(klim))
-    sub.set_ylabel('$B(k)$', fontsize=25)
-    sub.set_yscale('log') 
-    sub.set_ylim(1e5, 1e10)
-
-    sub = fig.add_subplot(212)
-    sub.plot(range(np.sum(klim)), bk_fid_ncv[klim][ijl]/bk_fid[klim][ijl], c='k' ) 
-    sub.legend(loc='upper right', fontsize=20) 
-    sub.set_xlabel('triangle configuration', fontsize=25) 
-    sub.set_xlim(0, np.sum(klim))
-    sub.set_ylabel(r'$B^{\rm fid;NCV}/B^{\rm fid}$', fontsize=25)
-    sub.set_ylim(0.9, 1.1)
-
-    ffig = os.path.join(UT.fig_dir(), 'quijote_pairfixed_test.kmax%.2f.png' % kmax) 
-    fig.savefig(ffig, bbox_inches='tight') 
-
-    # compare diagonal elements of the covariance 
-    bks = quij_fid['b123'] + quij_fid['b_sn']
-    C_fid = np.cov(bks.T) # calculate the covariance
-    C_fid = C_fid[klim,:][:,klim]
-    C_fid = C_fid[ijl,:][:,ijl]
-    
-    bks_ncv = quij_fid_ncv['b123'] + quij_fid_ncv['b_sn']
-    C_fid_ncv = np.cov(bks_ncv.T) # calculate the covariance
-    C_fid_ncv = C_fid_ncv[klim,:][:,klim]
-    C_fid_ncv = C_fid_ncv[ijl,:][:,ijl]
-
-    fig = plt.figure(figsize=(10,10)) 
-    sub = fig.add_subplot(211)
-    sub.plot(range(np.sum(klim)), np.diag(C_fid), c='k', label='fiducial') 
-    sub.plot(range(np.sum(klim)), np.diag(C_fid_ncv), c='C1', ls="--", label='fiducial NCV') 
-    sub.legend(loc='upper right', fontsize=20) 
-    sub.set_xlim(0, np.sum(klim))
-    sub.set_ylabel('$C_{i,i}$', fontsize=25)
-    sub.set_yscale('log') 
-    #sub.set_ylim(1e5, 1e10)
-    sub = fig.add_subplot(212)
-    sub.plot(range(np.sum(klim)), np.diag(C_fid_ncv)/np.diag(C_fid), c='k') 
-    sub.set_xlabel('triangle configuration', fontsize=25) 
-    sub.set_xlim(0, np.sum(klim))
-    sub.set_ylabel(r'$C_{i,i}^{\rm fid, NCV}/C_{i,i}^{\rm fid}$', fontsize=25)
-    ffig = os.path.join(UT.fig_dir(), 'quijote_pairfixed_Cii_test.kmax%.2f.png' % kmax) 
-    fig.savefig(ffig, bbox_inches='tight') 
-    return None 
 
 ##################################################################
 # forecasts without free Mmin and b' (defunct) 
@@ -2991,9 +2894,10 @@ def _ChanBlot_SN():
 ############################################################
 def _rsd_str(rsd): 
     # assign string based on rsd kwarg 
-    if type(rsd) == bool: return ''
-    elif type(rsd) == int: return '.rsd%i' % rsd
+    if rsd == 'all': return ''
+    elif rsd in [0, 1, 2]: return '.rsd%i' % rsd
     elif rsd == 'real': return '.real'
+    else: raise NotImplementedError
 
 
 def _flag_str(flag): 
@@ -3005,23 +2909,24 @@ if __name__=="__main__":
     # covariance matrices
     '''
         pkCov()
+        for rsd in [0, 1, 2]:  bkCov(rsd=rsd, flag='reg', silent=False) 
         for flag in [None, 'ncv', 'reg']: bkCov(rsd=True, flag=flag, silent=False)
         _pkCov(kmax=0.5)        # condition number 4.38605e+05
         _pkbkCov(kmax=0.5)      # condition number 1.74845e+08
-        _bkCov(kmax=0.5, rsd=True) # condition number 1.53979+08
         _bkCov(kmax=0.5, rsd=0, flag='reg') # condition number 1.73685+08
+        _bkCov(kmax=0.5, rsd=1, flag='reg') # condition number 1.71010+08
+        _bkCov(kmax=0.5, rsd=2, flag='reg') # condition number 1.73518+08
     '''
     # deriatives 
+    for flag in ['ncv', 'reg']: _dBdthetas(log=True, rsd='all', flag=flag, dmnu='fin')
     '''
         P_theta()
-        B_theta()
         for flag in ['ncv', 'reg']: B_theta(rsd=0, flag=flag)
         _dPdthetas(dmnu='fin', log=True)
         for flag in [None, 'ncv', 'reg']: _dBdthetas(log=True, rsd=True, flag=flag, dmnu='fin')
         for flag in ['ncv', 'reg']: _dBdthetas(log=True, rsd=0, flag=flag, dmnu='fin')
         dlogBdMnu(kmax=0.5, dmnu='fin')
-        for flag in [None, 'ncv', 'reg']: dlogPBdMnu(rsd=True, flag=flag)
-        for flag in ['ncv', 'reg']: dlogPBdMnu(rsd=0, flag=flag)
+        for flag in ['ncv', 'reg']: dlogPBdMnu(rsd=True, flag=flag)
         _dBdthetas_ncv(kmax=0.5, log=True, rsd=True, dmnu='fin')
     ''' 
     # fisher forecasts with different nuisance parameters 
@@ -3087,10 +2992,6 @@ if __name__=="__main__":
         for flag in [None, 'ncv', 'reg']: 
             forecast_convergence('bk', kmax=0.5, rsd=True, flag=flag, dmnu='fin')
     ''' 
-    # --- quijote pair fixed test ---
-    '''
-        quijote_pairfixed_test(kmax=0.5)
-    '''
     # SN uncorrected forecasts 
     '''
         #compare_Bk_rsd_SNuncorr(krange=[0.01, 0.5])

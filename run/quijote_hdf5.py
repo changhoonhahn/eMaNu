@@ -12,7 +12,97 @@ import numpy as np
 from emanu import util as UT
 
 
-def quijote_hdf5(subdir, machine='mbp', rsd=0, flag=None): 
+def quijoteP_hdf5(subdir, machine='mbp', rsd=0, flag=None): 
+    ''' write out quijote powerspectrum transferred from cca server to hdf5 
+    file for fast and easier access in the future. 
+    **currently only implemented for z = 0**
+
+    :param subdir: 
+        name of subdirectory which also describes the run.
+
+    :param machine: (default: 'mbp') 
+        string that specifies which machine. 
+
+    :param rsd: (default: 0) 
+        int (0, 1, 2) determines the direction of the RSD. string 'real' is for real-space
+
+    :param flag: (default: None) 
+        string specifying the runs. For the perturbed thetas this refers to 
+        either regular Nbody runs or fixed-paired (reg vs ncv). If None it reads 
+        in all the files in the directory 
+    '''
+    # directory where the quijote bispectrum are at 
+    if machine in ['mbp', 'cori']: dir_quij = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote', subdir) 
+    else: raise NotImplementedError 
+    
+    if rsd not in [0, 1, 2, 'real']: raise ValueError 
+    if subdir == 'fiducial' and flag == 'reg': nmocks = 15000
+    elif subdir == 'fiducial' and flag == 'ncv': nmocks = 500
+    else: nmocks = 500 
+
+    fpks = [] 
+    if rsd != 'real' and flag == 'reg': 
+        for i in range(nmocks): 
+            fpks.append('Pk_RS%i_%i_z=0.txt' % (rsd, i)) 
+    elif rsd != 'real' and flag == 'ncv':
+        for i in range(nmocks/2): 
+            fpks.append('Pk_RS%i_NCV_0_%i_z=0.txt' % (rsd, i)) 
+            fpks.append('Pk_RS%i_NCV_1_%i_z=0.txt' % (rsd, i)) 
+    elif rsd == 'real' and flag == 'reg': 
+        for i in range(nmocks): 
+            fpks.append('Pk_%i_z=0.txt' % i) 
+    elif rsd == 'real' and flag == 'ncv': 
+        for i in range(nmocks/2): 
+            fpks.append('Pk_NCV_0_%i_z=0.txt' % i)
+            fpks.append('Pk_NCV_1_%i_z=0.txt' % i)
+
+    print([os.path.basename(fpk) for fpk in fpks[::10][:10]])
+    npk = len(fpks) 
+    print('%i bispectrum files in /%s' % (npk, subdir))  
+    
+    # check the number of bispectrum
+    #if subdir == 'fiducial': assert nbk == 15000, "not the right number of files"
+    #else: if nbk != 500 and nbk != 1000: print('not the right number of files') 
+    
+    # load in all the files 
+    for i, fpk in enumerate(fpks):
+        k, _p0k, _p2k, _p4k = np.loadtxt(os.path.join(dir_quij, fpk), skiprows=1, unpack=True, usecols=range(4)) 
+        hdr = open(os.path.join(dir_quij, fpk)).readline().rstrip() 
+        # Nhalos=159315 BoxSize=1000.000
+        Nhalo = int(hdr.split(' ')[0].split('Nhalo=')[-1])
+        nbar = float(Nhalo)/1000.**3 
+ 
+        if i == 0: 
+            Nhalos = np.zeros((nbk)) 
+            p0k = np.zeros((nbk, len(k)))
+            p2k = np.zeros((nbk, len(k)))
+            p4k = np.zeros((nbk, len(k)))
+            psn = np.zeros((nbk))
+        Nhalos[i] = Nhalo
+        psn[i] = 1./nbar
+        p0k[i,:] = _p0k - 1./nbar 
+        p2k[i,:] = _p2k
+        p4k[i,:] = _p4k
+
+    # save to hdf5 file 
+    quij_dir = os.path.join(UT.dat_dir(), 'powerspectrum', 'quijote', 'z0') 
+    if rsd != 'real':  # reshift space 
+        fhdf5 = os.path.join(quij_dir, 'quijote_%s.%s.rsd%i.hdf5' % (subdir, flag, rsd))
+    else: 
+        fhdf5 = os.path.join(quij_dir, 'quijote_%s.%s.real.hdf5' % (subdir, flag))
+    f = h5py.File(fhdf5, 'w') 
+    f.create_dataset('k', data=i_k)
+    f.create_dataset('p0k', data=p0k1) 
+    f.create_dataset('p2k', data=p0k2) 
+    f.create_dataset('p4k', data=p0k3) 
+    f.create_dataset('p_sn', data=bsn) 
+    f.create_dataset('Nhalos', data=Nhalos) 
+    f.create_dataset('files', data=fpks) 
+    f.close()
+    return None 
+
+
+def quijoteB_hdf5(subdir, machine='mbp', rsd=0, flag=None): 
     ''' write out quijote bispectrum transferred from cca server to hdf5 
     file for fast and easier access in the future. 
     **currently only implemented for z = 0**
@@ -116,5 +206,8 @@ if __name__=="__main__":
     for sub in thetas:
         print('---%s---' % sub) 
         for rsd in [0, 1, 2, 'real']: 
-            quijote_hdf5(sub, flag='ncv', rsd=rsd)
-            quijote_hdf5(sub, flag='reg', rsd=rsd)
+            quijoteP_hdf5(sub, rsd=rsd, flag='ncv')
+            quijoteP_hdf5(sub, rsd=rsd, flag='reg')
+            continue 
+            quijoteB_hdf5(sub, rsd=rsd, flag='ncv')
+            quijoteB_hdf5(sub, rsd=rsd, flag='reg')
