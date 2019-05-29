@@ -12,7 +12,7 @@ from emanu import util as UT
 from emanu import forecast as Forecast
 
 
-def dBdtheta(theta, z=0, rsd=True, flag=None): 
+def dBdtheta(theta, z=0, rsd='all', flag=None, silent=True): 
     ''' write out derivatives of B with respect to theta to file in the following format: 
     k1, k2, k3, dB/dtheta, dlogB/dtheta.
 
@@ -33,9 +33,10 @@ def dBdtheta(theta, z=0, rsd=True, flag=None):
     if theta == 'Mnu': 
         for i_dmnu, dmnu in enumerate(['fin', 'fin0', 'p', 'pp', 'ppp']): 
             # calculate dB/dtheta and dlogB/dtheta 
-            k1, k2, k3, dbk = Forecast.quijote_dBkdtheta(theta, log=False, z=z, dmnu=dmnu, flag=flag, rsd=rsd, Nderiv=None)
-            _, _, _, dlogbk = Forecast.quijote_dBkdtheta(theta, log=True, z=z, dmnu=dmnu, flag=flag, rsd=rsd, Nderiv=None)
-            
+            k1, k2, k3, dbk = Forecast.quijote_dBkdtheta(theta, log=False, z=z, dmnu=dmnu, flag=flag, rsd=rsd, Nderiv=None,
+                                                         silent=silent)
+            _, _, _, dlogbk = Forecast.quijote_dBkdtheta(theta, log=True, z=z, dmnu=dmnu, flag=flag, rsd=rsd, Nderiv=None, 
+                                                         silent=silent)
             if i_dmnu == 0: 
                 datastack = [k1, k2, k3]
                 hdr = 'k1, k2, k3'
@@ -48,8 +49,8 @@ def dBdtheta(theta, z=0, rsd=True, flag=None):
         np.savetxt(fderiv, np.vstack(datastack).T, header=hdr, delimiter=',\t', fmt=fmt)
     else: 
         # calculate dB/dtheta and dlogB/dtheta 
-        k1, k2, k3, dbk = Forecast.quijote_dBkdtheta(theta, log=False, z=z, flag=flag, rsd=rsd, Nderiv=None)
-        _, _, _, dlogbk = Forecast.quijote_dBkdtheta(theta, log=True, z=z, flag=flag, rsd=rsd, Nderiv=None)
+        k1, k2, k3, dbk = Forecast.quijote_dBkdtheta(theta, log=False, z=z, flag=flag, rsd=rsd, Nderiv=None, silent=silent)
+        _, _, _, dlogbk = Forecast.quijote_dBkdtheta(theta, log=True, z=z, flag=flag, rsd=rsd, Nderiv=None, silent=silent)
 
         hdr = 'k1, k2, k3, dB/dtheta, dlogB/dtheta'
         # save to file 
@@ -57,7 +58,7 @@ def dBdtheta(theta, z=0, rsd=True, flag=None):
     return None 
 
 
-def dPdtheta(theta, z=0): 
+def dPdtheta(theta, z=0, rsd='all', flag=None, silent=True): 
     ''' write out  derivatives of P with respect to theta to file in the following format: 
     k, dP/dtheta, dlogP/dtheta.
 
@@ -72,14 +73,14 @@ def dPdtheta(theta, z=0):
         redshift. currently only z=0 is implemented
 
     '''
-    fderiv = os.path.join(UT.doc_dir(), 'dat', 'dPdtheta.%s.dat' % theta) 
+    fderiv = os.path.join(UT.doc_dir(), 'dat', 'dPdtheta.%s%s%s.dat' % (theta, _rsd_str(rsd), _flag_str(flag))) 
     print("--- writing dP/d%s to %s ---" % (theta, fderiv))
 
     if theta == 'Mnu': 
         for i_dmnu, dmnu in enumerate(['fin', 'fin0', 'p', 'pp', 'ppp']): 
             # calculate dP/dtheta and dlogP/dtheta 
-            k, dpk = Forecast.quijote_dPkdtheta(theta, log=False, z=z, dmnu=dmnu, Nderiv=None)
-            _, dlogpk = Forecast.quijote_dPkdtheta(theta, log=True, z=z, dmnu=dmnu, Nderiv=None)
+            k, dpk = Forecast.quijote_dPkdtheta(theta, log=False, z=z, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=None, silent=silent)
+            _, dlogpk = Forecast.quijote_dPkdtheta(theta, log=True, z=z, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=None, silent=silent)
             
             if i_dmnu == 0: 
                 datastack = [k]
@@ -93,8 +94,8 @@ def dPdtheta(theta, z=0):
         np.savetxt(fderiv, np.vstack(datastack).T, header=hdr, delimiter=',\t', fmt=fmt)
     else: 
         # calculate dP/dtheta and dlogP/dtheta 
-        k, dpk = Forecast.quijote_dPkdtheta(theta, log=False, z=z, Nderiv=None)
-        _, dlogpk = Forecast.quijote_dPkdtheta(theta, log=True, z=z, Nderiv=None)
+        k, dpk = Forecast.quijote_dPkdtheta(theta, log=False, z=z, rsd=rsd, flag=flag, Nderiv=None, silent=silent)
+        _, dlogpk = Forecast.quijote_dPkdtheta(theta, log=True, z=z, rsd=rsd, flag=flag, Nderiv=None, silent=silent)
 
         hdr = 'k, dP/dtheta, dlogP/dtheta'
         # save to file 
@@ -104,9 +105,10 @@ def dPdtheta(theta, z=0):
 
 def _rsd_str(rsd): 
     # assign string based on rsd kwarg 
-    if type(rsd) == bool: return ''
-    elif type(rsd) == int: return '.rsd%i' % rsd
+    if rsd == 'all': return ''
+    elif rsd in [0, 1, 2]: return '.rsd%i' % rsd
     elif rsd == 'real': return '.real'
+    else: raise NotImplementedError
 
 
 def _flag_str(flag): 
@@ -117,12 +119,10 @@ def _flag_str(flag):
 if __name__=="__main__": 
     thetas = ['Mnu', 'Om', 'Ob2', 'h', 'ns', 's8', 'Mmin', 'Amp', 'Asn', 'Bsn', 'b2', 'g2']
     for theta in thetas: 
-        #dBdtheta(theta, z=0)
-        #dBdtheta(theta, z=0, rsd='real')
-        for rsd in [2]: #[True, 0, 'real']: 
-            dBdtheta(theta, z=0, rsd=rsd, flag='ncv')
-            dBdtheta(theta, z=0, rsd=rsd, flag='reg') 
-
-    thetas = ['Mnu', 'Om', 'Ob', 'h', 'ns', 's8', 'Mmin', 'Amp', 'Asn']
-    for theta in thetas: 
-        dPdtheta(theta, z=0)
+        for rsd in [0, 1, 2, 'all']: #[True, 0, 'real']: 
+            if theta not in ['Bsn', 'b2', 'g2']: 
+                dPdtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
+                dPdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
+            continue 
+            dBdtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
+            dBdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
