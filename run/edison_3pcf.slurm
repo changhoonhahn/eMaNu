@@ -18,14 +18,14 @@ thpcf_dir=$cscratch_dir'3pcf/'
 for nreal in {1..100}; do 
     echo "--- mneut="$mneut" eV nreal="$nreal" ---"
     ## DDD run (~2 mins) 
-    cmd='srun -n 1 -c 16 /global/homes/c/chahah/projects/eMaNu/emanu/zs_3pcf/grid_multipoles_nbin20 -box 1000. -scale 1 -nside 20'
-    in_ddd=$group_dir'groups.'$mneut'eV.'$nreal'.nzbin4.rspace.dat'
-    out_ddd=$thpcf_dir"3pcf.groups."$mneut"eV."$nreal".nzbin4.nside"$nside".nbin"$nbin".rspace.ddd.dat"
-    mult_ddd=$thpcf_dir"3pcf.groups."$mneut"eV."$nreal".nzbin4.nside"$nside".nbin"$nbin".rspace.ddd.mult"
-    #echo "--- calculating DDD ---"
-    #eval $cmd -in $in_ddd -save $mult_ddd > $out_ddd
-    #now=$(date +"%T") 
-    #echo " DDD finished ... "$now
+    cmd='srun -n 1 -c 16 /global/homes/c/chahah/projects/eMaNu/emanu/zs_3pcf/grid_multipoles_nbin20 -box 1000. -scale 1 -nside 20' 
+    in_ddd=$group_dir'groups.'$mneut'eV.'$nreal'.nzbin4.rspace.dat' # positions data 
+    out_ddd=$thpcf_dir"3pcf.groups."$mneut"eV."$nreal".nzbin4.nside"$nside".nbin"$nbin".rspace.ddd.dat" # ddd output 
+    mult_ddd=$thpcf_dir"3pcf.groups."$mneut"eV."$nreal".nzbin4.nside"$nside".nbin"$nbin".rspace.ddd.mult" # pairs saved for NNN calculations
+    echo "--- calculating DDD ---"
+    eval $cmd -in $in_ddd -save $mult_ddd > $out_ddd # this actually runs the command 
+    now=$(date +"%T") 
+    echo " DDD finished ... "$now
     
     # NNN (~9 mins each) 
     for i_r in {1..1}; do 
@@ -35,7 +35,7 @@ for nreal in {1..100}; do
 
         # copy data to tmp 
         cp $in_ddd $tmp 
-        # append random to data in tmp file 
+        # append random (with negative scaled weights) to data in tmp file 
         cat $rand >> $tmp  
     
         echo "--- calculating NNN ---"
