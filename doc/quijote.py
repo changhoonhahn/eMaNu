@@ -37,7 +37,7 @@ mpl.rcParams['legend.frameon'] = False
 
 dir_bk  = os.path.join(UT.dat_dir(), 'bispectrum') # bispectrum directory
 dir_fig = UT.fig_dir() # figure directory
-dir_doc = os.path.join(UT.doc_dir(), 'figs') # figures for paper 
+dir_doc = os.path.join(UT.doc_dir(), 'paper1', 'figs') # figures for paper 
 
 quijote_thetas = {
         'Mnu': [0.1, 0.2, 0.4], # +, ++, +++ 
@@ -61,7 +61,7 @@ ntheta = len(thetas)
 theta_nuis_lbls = {'Mmin': r'$M_{\rm min}$', 'Amp': "$b'$", 'Asn': r"$A_{\rm SN}$", 'Bsn': r"$B_{\rm SN}$", 
         'b2': '$b_2$', 'g2': '$g_2$'}
 theta_nuis_fids = {'Mmin': 3.2, 'Amp': 1., 'Asn': 1e-6, 'Bsn': 1e-3, 'b2': 1., 'g2': 1.} 
-theta_nuis_lims = {'Mmin': (2.8, 3.6), 'Amp': (0.8, 1.2), 'Asn': (0., 1.), 'Bsn': (0., 1.), 
+theta_nuis_lims = {'Mmin': (2.1, 4.3), 'Amp': (0.75, 1.25), 'Asn': (0., 1.), 'Bsn': (0., 1.), 
         'b2': (0.95, 1.05), 'g2': (0.95, 1.05)} 
 
 fscale_pk = 2e5
@@ -584,7 +584,7 @@ def dlogBdMnu(kmax=0.5, flag='reg'):
     fig = plt.figure(figsize=(20, 5))
     sub = fig.add_subplot(111)
     for dmnu in ['fin', 'fin0', 'p', 'pp', 'ppp']: 
-        i_k, j_k, l_k, dpdt = dBkdtheta('Mnu', log=True, rsd=True, flag=flag, dmnu=dmnu, returnks=True) 
+        i_k, j_k, l_k, dpdt = dBkdtheta('Mnu', log=True, rsd='all', flag=flag, dmnu=dmnu, returnks=True) 
         klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
         
         i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim]
@@ -623,7 +623,9 @@ def dlogPBdMnu(rsd='all', flag='reg'):
     '''
     dmnus = ['fin', 'fin0', 'p']
     #dmnus_lbls = ['0.0, 0.1, 0.2, 0.4 eV', '0.0, 0.1, 0.2 eV', '0.0, 0.1eV']
-    dmnus_lbls = ['Eq.12', r'excluding $M^{+++}_\nu$', 'forward diff.']
+    dmnus_lbls = [r'$M^{\rm fid}_\nu, M^{+}_\nu, M^{++}_\nu, M^{+++}_\nu$ (Eq.12)', 
+                  r'$M^{\rm fid}_\nu, M^{+}_\nu, M^{++}_\nu$', 
+                  r'$M^{\rm fid}_\nu, M^{+}_\nu$']
     colors = ['C0', 'C1', 'C2']
     kmax=0.5
 
@@ -643,25 +645,27 @@ def dlogPBdMnu(rsd='all', flag='reg'):
         k_pk, dpk = dPkdtheta('Mnu', log=True, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True) 
         pklim = (k_pk <= 0.5) 
         sub0.plot(k_pk[pklim], dpk[pklim], c=c, label=lbl) 
-    sub0.legend(loc='upper right', fontsize=15) 
     sub0.set_xlabel('$k$', fontsize=25) 
     sub0.set_xscale('log') 
     sub0.set_xlim(5e-3, 1.0) 
     sub0.set_xticks([0.02, 0.1, 0.5])
     sub0.set_xticklabels([0.02, 0.1, 0.5])
     sub0.set_ylabel(r'${\rm d}\log P_0(k)/{\rm d} M_\nu$', fontsize=25) 
-    sub0.set_ylim(0., 0.6) 
+    sub0.set_ylim(0., 0.5) 
     # dlogB/dMnu
     sub1 = plt.subplot(gs1[0,0])
-    for dmnu in dmnus: 
+    splts = [] 
+    for dmnu, lbl in zip(dmnus, dmnus_lbls): 
         dbk = dBkdtheta('Mnu', log=True, rsd=rsd, flag=flag, dmnu=dmnu) 
-        sub1.plot(range(np.sum(bklim)), dbk[bklim][ijl]) 
+        splt, = sub1.plot(range(np.sum(bklim)), dbk[bklim][ijl]) 
+        splts.append(splt) 
+    sub1.legend(splts[::-1], dmnus_lbls[::-1], loc='lower left', fontsize=18) 
     sub1.set_xlabel('triangle configurations', fontsize=25) 
     sub1.set_xlim(0, np.sum(bklim)) 
     sub1.set_ylabel(r'${\rm d}\log B(k_1, k_2, k_3)/{\rm d} M_\nu$', labelpad=-5, fontsize=25) 
-    sub1.set_ylim(-0.5, 1.5) 
+    sub1.set_ylim(-0.65, 1.5) 
     sub1.set_yticks([-0.5, 0., 0.5, 1., 1.5]) 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_dPBdMnu_dmnu%s%s.png' % (_rsd_str(rsd), _flag_str(flag)))
+    ffig = os.path.join(dir_doc, 'quijote_dPBdMnu_dmnu%s%s.png' % (_rsd_str(rsd), _flag_str(flag)))
     fig.savefig(ffig, bbox_inches='tight') 
     fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
     return None
@@ -832,7 +836,7 @@ def forecast(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None, pl
     planck_str = ''
     if planck: planck_str = '.planck'
 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 
+    ffig = os.path.join(dir_doc, 
             'quijote.%sFisher.%s.dmnu_%s.kmax%.2f%s%s%s.png' % 
             (obs, nuis_str, dmnu, kmax, _rsd_str(rsd), _flag_str(flag), planck_str))
     fig.savefig(ffig, bbox_inches='tight') 
@@ -840,7 +844,7 @@ def forecast(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None, pl
     return None 
 
 
-def forecast_kmax_table(rsd=True, flag=None, theta_nuis=None, dmnu='fin'): 
+def forecast_kmax_table(rsd='all', flag='reg', theta_nuis=None, dmnu='fin'): 
     '''print out the constraints so that it can be directly copied and pasted to 
     the latex file 
     
@@ -872,7 +876,7 @@ def forecast_kmax_table(rsd=True, flag=None, theta_nuis=None, dmnu='fin'):
             elif obs == 'bk': 
                 i_thetas = [thetas.index('Mnu'), thetas.index('Om'), thetas.index('Ob2'), thetas.index('h'), 
                         thetas.index('ns'), thetas.index('s8')]+range(6,6+len(theta_nuis))
-            print(r'& %.1f & $\pm%s$\\' % (kmax, '$ & $\pm'.join(['%.5f' % np.sqrt(Finv[ii,ii]) for ii in i_thetas])))
+            print(r'& %.1f & $\pm%s$\\' % (kmax, '$ & $\pm'.join(['%.3f' % np.sqrt(Finv[ii,ii]) for ii in i_thetas])))
     return None 
 
 # P, B forecast comparison
@@ -919,6 +923,7 @@ def pbForecast(kmax=0.5, rsd=True, flag=None, theta_nuis=None, dmnu='fin', planc
     print('--- thetas ---') 
     print('P sigmas %s' % ', '.join(['%.4f' % sii for sii in np.sqrt(np.diag(pkFinv))]))
     print('B sigmas %s' % ', '.join(['%.4f' % sii for sii in np.sqrt(np.diag(bkFinv))]))
+    print('improvement %s' % ', '.join(['%.1f' % (pii/bii) for pii, bii in zip(np.sqrt(np.diag(pkFinv)), np.sqrt(np.diag(bkFinv)))]))
     #print('P+B sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(pbkFinv))]))
     print(np.diag(pkFij))
     print(np.diag(bkFij))
@@ -927,7 +932,7 @@ def pbForecast(kmax=0.5, rsd=True, flag=None, theta_nuis=None, dmnu='fin', planc
     _theta_lbls = copy(theta_lbls) + [theta_nuis_lbls[tt] for tt in theta_nuis]
     _theta_fid = theta_fid.copy() # fiducial thetas
     for tt in theta_nuis: _theta_fid[tt] = theta_nuis_fids[tt]
-    _theta_lims = [(0.25, 0.385), (0.02, 0.08), (0.3, 1.1), (0.6, 1.3), (0.8, 0.88), (-0.4, 0.4)]
+    _theta_lims = [(0.25, 0.385), (0.02, 0.08), (0.3, 1.1), (0.6, 1.3), (0.77, 0.9), (-0.4, 0.4)]
     _theta_lims += [theta_nuis_lims[tt] for tt in theta_nuis]
 
     fig = plt.figure(figsize=(17, 15))
@@ -982,7 +987,7 @@ def pbForecast(kmax=0.5, rsd=True, flag=None, theta_nuis=None, dmnu='fin', planc
     planck_str = ''
     if planck: planck_str = '.planck'
 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 
+    ffig = os.path.join(dir_doc,
             'quijote.pbkFisher%s.dmnu_%s.kmax%.2f%s%s%s.png' % 
             (nuis_str, dmnu, kmax, _rsd_str(rsd), _flag_str(flag), planck_str))
     fig.savefig(ffig, bbox_inches='tight') 
@@ -1005,7 +1010,6 @@ def Fii_kmax(rsd=True, flag=None, dmnu='fin'):
     :param dmnu: (default: 'fin') 
         derivative finite differences setup
     '''
-    kmaxs = kf * 3 * np.array([1, 3, 5, 10, 15, 20, 27]) 
     kmaxs = kf * 3 * np.arange(1, 28) 
     
     # read in fisher matrix (Fij)
@@ -1075,8 +1079,9 @@ def forecast_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False, pl
     :param planck: (default: False)
         If True add Planck prior 
     '''
-    #kmaxs = np.pi/500. * 3 * np.arange(2, 28) 
-    kmaxs = kf * 3 * np.array([1, 3, 5, 10, 15, 20, 27]) #np.arange(1, 28) 
+    #kmaxs = kf * 3 * np.arange(2, 28) 
+    #kmaxs = kf * 3 * np.array([1, 3, 5, 10, 15, 20, 27]) 
+    kmaxs = kf * 3 * np.arange(1, 28) 
     
     pk_theta_nuis = list(np.array(theta_nuis).copy())
     bk_theta_nuis = list(np.array(theta_nuis).copy())
@@ -1180,7 +1185,7 @@ def forecast_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False, pl
     planck_str = ''
     if planck: planck_str = '.planck'
 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 
+    ffig = os.path.join(dir_doc, 
             'quijote.Fisher_kmax%s.dmnu_%s%s%s%s%s.png' % 
             (nuis_str, dmnu, _rsd_str(rsd), _flag_str(flag), planck_str, ['', '.LT'][LT]))
     fig.savefig(ffig, bbox_inches='tight') 
@@ -1279,7 +1284,7 @@ def forecast_thetas_kmax(tts=['Om', 'Ob2', 'h', 'ns', 's8'], rsd='all', flag='re
     if 'b2' in theta_nuis: nuis_str += 'b2'
     if 'g2' in theta_nuis: nuis_str += 'g2'
     
-    ffig = os.path.join(UT.doc_dir(), 'figs', 
+    ffig = os.path.join(dir_doc, 
             'quijote.Fisher.%s%s.dmnu_%s%s%s.png' % (''.join(tts), nuis_str, dmnu, _rsd_str(rsd), _flag_str(flag)))
     fig.savefig(ffig, bbox_inches='tight') 
     fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex version 
@@ -1640,9 +1645,10 @@ def Fij_convergence(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', silent=True)
     sub.set_yticks([1. - 0.3 * ii for ii in range(len(ij_pairs))])
     sub.set_yticklabels(ij_pairs_str) 
     fig.subplots_adjust(wspace=0.4) 
-    ffig = os.path.join(UT.fig_dir(), 'quijote.%sFij_convergence%s%s.dmnu_%s.kmax%.1f.png' % 
+    ffig = os.path.join(dir_doc, 'quijote.%sFij_convergence%s%s.dmnu_%s.kmax%.1f.png' % 
                         (obs, _rsd_str(rsd), _flag_str(flag), dmnu, kmax))
     fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex version 
     return None
 
 
@@ -1717,7 +1723,7 @@ def forecast_convergence(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_n
     planck_str = ''
     if planck: planck_str = '.planck'
 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote.%sFisher_convergence%s%s.dmnu_%s.kmax%.1f%s.png' % 
+    ffig = os.path.join(dir_doc, 'quijote.%sFisher_convergence%s%s.dmnu_%s.kmax%.1f%s.png' % 
             (obs, _rsd_str(rsd), _flag_str(flag), dmnu, kmax, planck_str))
     fig.savefig(ffig, bbox_inches='tight') 
     fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
@@ -1782,7 +1788,7 @@ def quijote_pbkForecast_Mnu_s8(kmax=0.5):
     sub.scatter(_hades_sig8, np.zeros(len(_hades_sig8)), c='k', marker='x', zorder=10)
 
     sub.legend(loc='upper right', handletextpad=0.2, markerscale=5, fontsize=20)
-    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_pbkFisher_Mnu_sig8_kmax%s.png' % str(kmax).replace('.', ''))
+    ffig = os.path.join(dir_doc, 'quijote_pbkFisher_Mnu_sig8_kmax%s.png' % str(kmax).replace('.', ''))
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
@@ -1856,9 +1862,9 @@ def quijote_Forecast_dmnu(obs, rsd=True):
     bkgd.legend(loc='upper right', handletextpad=0.3, bbox_to_anchor=(0.925, 0.775), fontsize=25)
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
     fig.subplots_adjust(wspace=0.05, hspace=0.05) 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_%sFisher_dmnu%s.pdf' % (obs, ['_real', ''][rsd]))
+    ffig = os.path.join(dir_doc, 'quijote_%sFisher_dmnu%s.pdf' % (obs, ['_real', ''][rsd]))
     fig.savefig(ffig, bbox_inches='tight') 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 'quijote_%sFisher_dmnu%s.png' % (obs, ['_real', ''][rsd]))
+    ffig = os.path.join(dir_doc, 'quijote_%sFisher_dmnu%s.png' % (obs, ['_real', ''][rsd]))
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
@@ -2396,10 +2402,10 @@ def compare_Pk_rsd(krange=[0.01, 0.5]):
     sub.set_yscale('log') 
     sub.set_ylabel('$P(k_1)$', labelpad=10, fontsize=25) 
     krange_str = str(kmin).replace('.', '')+'_'+str(kmax).replace('.', '') 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 
+    ffig = os.path.join(dir_doc, 
             'haloPk_amp_%s_%s_rsd_comparison.pdf' % (str(kmin).replace('.', ''), str(kmax).replace('.', '')))
     fig.savefig(ffig, bbox_inches='tight') 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 
+    ffig = os.path.join(dir_doc, 
             'haloPk_amp_%s_%s_rsd_comparison.png' % (str(kmin).replace('.', ''), str(kmax).replace('.', '')))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
@@ -2456,10 +2462,10 @@ def compare_Bk_rsd(kmax=0.5):
     sub.set_ylim([1e5, 1e10]) 
     sub.set_xlabel('triangle configurations', labelpad=15, fontsize=25) 
     sub.set_ylabel('$B(k_1, k_2, k_3)$', labelpad=10, fontsize=25) 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 
+    ffig = os.path.join(dir_doc,
             'haloBk_amp_kmax%s_rsd_comparison.pdf' % str(kmax).replace('.', ''))
     fig.savefig(ffig, bbox_inches='tight') 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 
+    ffig = os.path.join(dir_doc, 
             'haloBk_amp_kmax%s_rsd_comparison.png' % str(kmax).replace('.', ''))
     fig.savefig(ffig, bbox_inches='tight') 
 
@@ -2472,7 +2478,7 @@ def compare_Bk_rsd(kmax=0.5):
     sub.set_ylim([1., 5.]) 
     sub.set_xlabel('triangle configurations', labelpad=15, fontsize=25) 
     sub.set_ylabel('$B^{(s)}/B$', labelpad=10, fontsize=25) 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 
+    ffig = os.path.join(dir_doc, 
             'haloBk_amp_kmax%s_rsd_ratio.png' % str(kmax).replace('.', ''))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
@@ -2525,10 +2531,10 @@ def compare_Qk_rsd(krange=[0.01, 0.5]):
     sub.set_xlabel('triangle configurations', labelpad=15, fontsize=25) 
     sub.set_ylabel('$Q(k_1, k_2, k_3)$', labelpad=10, fontsize=25) 
     krange_str = str(kmin).replace('.', '')+'_'+str(kmax).replace('.', '') 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 
+    ffig = os.path.join(dir_doc,
             'haloQk_amp_%s_%s_rsd_comparison.pdf' % (str(kmin).replace('.', ''), str(kmax).replace('.', '')))
     fig.savefig(ffig, bbox_inches='tight') 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 
+    ffig = os.path.join(dir_doc, 
             'haloQk_amp_%s_%s_rsd_comparison.png' % (str(kmin).replace('.', ''), str(kmax).replace('.', '')))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
@@ -2911,7 +2917,6 @@ if __name__=="__main__":
     '''
         for rsd in [0, 1, 2]:  pkCov(rsd=rsd, flag='reg', silent=False) 
         for rsd in [0, 1, 2]:  bkCov(rsd=rsd, flag='reg', silent=False) 
-        for flag in [None, 'ncv', 'reg']: bkCov(rsd=True, flag=flag, silent=False)
         _pkCov(kmax=0.5, rsd=0, flag='reg') # condition number 3.39136+05 
         _pkCov(kmax=0.5, rsd=1, flag='reg') # condition number 3.38878+05 
         _pkCov(kmax=0.5, rsd=2, flag='reg') # condition number 3.40810+05 
@@ -2928,7 +2933,7 @@ if __name__=="__main__":
         for flag in ['ncv', 'reg']: B_theta(rsd='all', flag=flag)
         for flag in ['ncv', 'reg']: _dPdthetas(log=True, rsd=0, flag=flag, dmnu='fin')
         for flag in ['ncv', 'reg']: _dBdthetas(log=True, rsd=0, flag=flag, dmnu='fin')
-        dlogBdMnu(kmax=0.5, dmnu='fin')
+        dlogBdMnu(kmax=0.5, flag='reg')
         for flag in ['ncv', 'reg']: dlogPBdMnu(rsd='all', flag=flag)
         _dBdthetas_ncv(kmax=0.5, log=True, rsd=True, dmnu='fin')
     ''' 
@@ -2949,6 +2954,7 @@ if __name__=="__main__":
         forecast_kmax_table(dmnu='fin', theta_nuis=None)
     '''
     # P+B fisher forecasts with different nuisance parameters 
+    pbForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin'], dmnu='fin')
     '''
         for flag in ['ncv', 'reg']: 
             pbForecast(kmax=0.5, rsd='all', flag=flag, theta_nuis=['Amp', 'Mmin'], dmnu='fin')

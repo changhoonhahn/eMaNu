@@ -1,0 +1,122 @@
+\section{Fisher Forecasts using $N$-body simulations} \label{sec:numerical}
+The two key elements in calculating the Fisher matrices we use in our forecasts
+are the bispectrum covariance matrix ($\bfi{C}$; Figure~\ref{fig:bk_cov}) and 
+the derivatives of the bispectrum along the cosmological and nuisance parameters, 
+$\partial B_0/\partial \theta_i$ (Section~\ref{sec:forecasts}). We compute 
+both these elements directly using the $N$-body simulations of the Quijote suite 
+(Section~\ref{sec:hades}). This takes advantage of the $N$-body simulations and 
+allows us to accurately quantify the constraining power of the bispectrum that 
+come from the nonlinear regime. However, to trust our forecast, we must ensure that 
+both $\bfi{C}$ has converged and that the numerically calculated 
+$\partial B_0/\partial \theta_i$ do not introduce any biases. Below, we tests 
+the convergence of $\bfi{C}$ and $\partial B_0/\partial \theta_i$ and discuss
+some of the subtleties and caveats of numerically calculating $\partial B_0/\partial \theta_i$ 
+from the Quijote simulations. 
+\ch{mention somewhere the P convergence looks good} 
+
+To estimate $\bfi{C}$, we use 15,000 Quijote $N$-body simulations at the 
+fiducial cosmology. This is a \emph{significantly} larger number of simulations 
+than previous bispectrum analyses; however, we also consider a larger number
+of triangle configurations --- $1898$ triangles out to $k_{\rm max} = 0.5~h/{\rm Mpc}$. 
+For reference, the recent \cite{gil-marin2017} analysis used 2048 simulations 
+to estimate the covariance matrix of the bispectrum with $825$ configurations. 
+We, therefore, check the convergence of $\bfi{C}$ by varying $N_{\rm fid}$, 
+the number of simulations used to estimate $\bfi{C}$, and examining whether 
+this significantly impacts the Fisher parameter constraints. We present 
+$\sigma_\theta(N_{\rm fid})/\sigma_\theta(N_{\rm fid} = 15,000)$, the ratio of 
+the 1$\sigma$ Fisher constraint for $\theta = \Om$, $\Ob$, $h$, $n_s$, $\sig$, 
+and $\smnu$ calculated with $N_{\rm fid}$ over the constraint calculated with 
+$N_{\rm fid} = 15,000$, as a function of $N_{\rm fid}$ (Figure~\ref{fig:converge} 
+left panel). The 1$\sigma$ Fisher constraints on the parameters 
+vary by $<10\%$ for $N_{\rm fid} > 7000$; in fact, the constraints vary by 
+$<1\%$ for $N_{\rm fid} > 14,000$. Hence, we conclude that we have a sufficient 
+number of simulations to estimate the bispectrum $\bfi{C}$ and our forecasts 
+are robust to the convergence of $\bfi{C}$. 
+
+We estimate $\partial B_0/\partial \theta_i$ numerically using 13 sets of 
+$N_{\rm fp} = 500$ fixed paired simulations~(Table~\ref{tab:sims}). To check 
+the convergence of $\partial B_0/\partial \theta_i$ and its impact on our forecast 
+we present the ratio of the 1$\sigma$ Fisher constraint for $\theta$ calculated 
+using $N_{\rm fp}$ simulations over the constraint calculated with $N_{\rm fp} = 500$, 
+$\sigma_\theta(N_{\rm fp})/\sigma_\theta(N_{\rm fp} = 500)$, as a function of 
+$N_{\rm fp}$ (Figure~\ref{fig:converge} right panel). Unlike $\sigma_\theta(N_{\rm fid})$, 
+$\sigma_\theta(N_{\rm fp})$ depend significantly on $\theta$. For instance, 
+$\sigma_\theta$ for $\sig$ and $\Om$ vary by $< 10\%$ for $N_{\rm fp} > 300$ 
+and $< 2\%$ for $N_{\rm fp} > 450$. $\sigma_\theta$ for the other parameter 
+vary significantly more. Nonetheless, for $N_{\rm fp} > 400$ and $450$ they vary by 
+$< 10$ and $5\%$, respectively. 
+
+For $\Om$, $\Ob$, $h$, $n_s$, $\sig$, and $M_{\rm lim}$ we estimate 
+$\partial B_0/\partial \theta_i$ using a centered difference approximation 
+(Eq.~\ref{eq:dbkdt}). However, for $\smnu$, where we cannot have values below 
+0.0 eV, we cannot estimate the derivative with the same method. If we use the 
+forward difference approximation, 
+\beq 
+\frac{\partial \overline{B}_0}{\partial \smnu} \approx \frac{\overline{B}_0(\smnu^{\rm fid}+\delta \smnu) - \overline{B}_0(\smnu^{\rm fid})}{\delta \smnu}, 
+\eeq
+the error goes as $\mathcal{O}(\delta \smnu)$. Instead, we use Eq.~\ref{eq:dbkdmnu},
+which provides a $\mathcal{O}(\delta \smnu^2)$ order approximation. In our 
+$\partial B_0/\partial \smnu$ approximation, we use the Quijote simulations at 
+$\smnu^{+}$, $\smnu^{++}$, and $\smnu^{+++}$. We compare 
+$\partial \log B(k_1, k_2, k_3)/\partial M_\nu$ (right) and 
+$\partial \log P(k)/\partial M_\nu$ (left), computed using Eq.~\ref{eq:dbkdmnu} (blue) 
+and the forward difference approximation (green) in Figure~\ref{fig:dPBdmnu}.
+We also include $P$ and $B$ derivatives approximated using only the $\smnu^{+}$ and 
+$\smnu^{++}$ simulations in orange. \ch{update numbers:} The three approximations for the 
+derivatives differ from one another by roughly $10\%$ with Eq.~\ref{eq:dbkdmnu} producing 
+the largest estimate for both $P_0$ and $B_0$. If we use the $\smnu^{+}$ and $\smnu^{++}$ 
+and forward difference derivatives instead of the Eq.~\ref{eq:dbkdmnu} for our Fisher 
+forecasts, we find the following marginalized $\smnu$ constraints for $k_{\rm max} = 0.5~h/{\rm Mpc}$: 
+$0.196$ and $0.294$eV for $P_0$ and  $0.0308$ and $0.0483$eV for $B_0$. These correspond 
+to a $\sim20$ and $80\%$ relative increase from our forecasts in Section~\ref{sec:forecasts}. 
+The forward difference derivatives have a significant impact on our forecasts; however, 
+we emphasize that this is a 
+$\mathcal{O}(\delta \smnu)$ approximation, unlike the other $\mathcal{O}(\delta \smnu^2)$ 
+approximations. Moreover, because the discrepancies in the derivative propogate similarly
+to the $P_0$ and $B_0$ constraints, the relative improvement of $B_0$ over $P_0$ remains
+roughly the same. Hence we conclude that the derivatives have sufficiently converged and 
+robust for our Fisher forecasts.
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=0.75\textwidth]{figs/quijote_bkFij_convergence_reg_dmnu_fin_kmax0_5.pdf}
+\label{fig:fij_converge}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=0.8\textwidth]{figs/quijote_bkFisher_convergence_dmnu_fin_kmax05.pdf}
+    \caption{{\bf Left}: The ratio of the 1$\sigma$ Fisher constraint for $\theta=\Om$, 
+    $\Ob$, $h$, $n_s$, $\sig$, and $\smnu$ calculated using $N_{\rm fid}$ Quijote 
+    simulations over the constraint calculated with all 15,000 simulations, 
+    $\sigma_\theta(N_{\rm fid})/\sigma_\theta(N_{\rm fid} = 15,000)$, as a 
+    function of $N_{\rm fid}$. The $N_{\rm fid}$ simulations are used to estimate 
+    $\bfi{C}$ used to calculate the Fisher matrix~(Eq.~\ref{eq:fisher}). The Fisher
+    parameter constraints vary by $<10$ and $1\%$ for $N_{\rm fid} > 7000$ and 
+    $14,000$, respectively. 
+    {\bf Right}: The ratio of the 1$\sigma$ Fisher constraint for $\theta$ 
+    calculated using  $N_{\rm fp}$ simulations over the constraint calculated with 
+    all 500 fixed paired simulations, $\sigma_\theta(N_{\rm fp})/\sigma_\theta(N_{\rm fp} = 500)$, 
+    as a function of $N_{\rm fp}$. The $N_{\rm fp}$ fixed paired simulations are 
+    used to numerically estimate $\partial B_0/\partial \theta_i$ in Eq.~\ref{eq:fisher}. 
+    Although $\sigma_\theta(N_{\rm fp})/\sigma_\theta(N_{\rm fp} = 500)$ vary among 
+    the parameters, for $N_{\rm fp} > 400$ and $450$ they vary by $< 10$ and $5\%$, 
+    respectively. Hence, {\em we have a sufficient number of simulations to estimate 
+    $\bfi{C}$ and the derivatives of the bipsectrum and our forecasts are robust to 
+    their convergence.} 
+    }
+\label{fig:converge}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=\textwidth]{figs/quijote_dPBdMnu_dmnu_reg.pdf} 
+    \caption{Comparison of $\partial \log B(k_1, k_2, k_3)/\partial M_\nu$ (right) 
+    and $\partial \log P(k)/\partial M_\nu$ (left), computed using Eq.\ref{eq:dbkdmnu} (blue), 
+    excluding $\smnu^{+++}$ (orange), and the forward difference approximation (green). 
+    }
+\label{fig:dPBdmnu}
+\end{center}
+\end{figure}
