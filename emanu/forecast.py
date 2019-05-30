@@ -78,10 +78,13 @@ def quijote_dPkdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0, N
         quij = Obvs.quijotePk(tt, z=z, flag=flag, rsd=rsd, silent=silent) # read Pk 
         if i_tt == 0: dpk = np.zeros(quij['p0k'].shape[1]) 
     
-        if Nderiv is not None and tt != 'fiducial': 
-            __pk = quij['p0k'][:Nderiv]
-            if not silent: print('only using %i of %i' % (__pk.shape[0], quij['p0k'].shape[0])) 
-            _pk = np.average(quij['p0k'][:Nderiv], axis=0)  
+        if Nderiv is not None: 
+            if (flag == 'reg') and (tt == 'fiducial'): 
+                _pk = np.average(quij['p0k'], axis=0)  
+            else: 
+                __pk = quij['p0k'][:Nderiv]
+                if not silent: print('only using %i of %i' % (__pk.shape[0], quij['p0k'].shape[0])) 
+                _pk = np.average(quij['p0k'][:Nderiv], axis=0)  
         else: 
             _pk = np.average(quij['p0k'], axis=0)  
 
@@ -225,10 +228,13 @@ def quijote_dBkdtheta(theta, log=False, rsd='all', flag=None, z=0, dmnu='fin', N
         quij = Obvs.quijoteBk(tt, z=z, flag=flag, rsd=rsd, silent=silent)
 
         if i_tt == 0: dbk = np.zeros(quij['b123'].shape[1]) 
-        if Nderiv is not None and tt != 'fiducial': 
-            __bk = quij['b123'][:Nderiv]
-            if not silent: print('only using %i of %i' % (__bk.shape[0], quij['b123'].shape[0])) 
-            _bk = np.average(__bk, axis=0)  
+        if Nderiv is not None: 
+            if (flag == 'reg') and (tt == 'fiducial'):
+                _bk = np.average(quij['b123'], axis=0)  
+            else: 
+                __bk = quij['b123'][:Nderiv]
+                if not silent: print('only using %i of %i' % (__bk.shape[0], quij['b123'].shape[0])) 
+                _bk = np.average(__bk, axis=0)  
         else: 
             _bk = np.average(quij['b123'], axis=0)  
 
