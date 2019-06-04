@@ -2842,35 +2842,35 @@ def _ChanBlot_SN():
     ''' calculate SN as a function of kmax  using Eq. (47) in 
     Chan & Blot (2017). 
     '''
-    k_f = 2.*np.pi/1000. 
     # read in P
-    quij = Obvs.quijoteP0k('fiducial') 
+    quij = Obvs.quijotePk('fiducial', rsd='all', flag='reg', silent=False) 
     k_p = quij['k'] 
     pk = np.average(quij['p0k'], axis=0) 
-    pksn = quij['p0k'] + quij['p_sn'][:,None]
-    
+    pksn = quij['p0k'] + quij['p_sn'][:,None] # shotnoise uncorrected P(k) 
+
     # read in B 
-    quij = Obvs.quijoteBk('fiducial') # fiducial 
-    i_k, l_k, j_k = quij['k1'], quij['k2'], quij['k3'] 
+    quij = Obvs.quijoteBk('fiducial', rsd='all', flag='reg', silent=False)  
     bk = np.average(quij['b123'], axis=0) 
     bksn = quij['b123'] + quij['b_sn'] # uncorrected for shot noise  
+    i_k, l_k, j_k = quij['k1'], quij['k2'], quij['k3'] 
 
-    kmaxs = np.linspace(0.04, 0.7, 10) 
+    kmaxs = np.linspace(0.04, 0.75, 10) 
     SN_B, SN_P = [], [] 
     for kmax in kmaxs: 
         # k limit 
         pklim = (k_p <= kmax) 
-        bklim = ((i_k*k_f <= kmax) & (j_k*k_f <= kmax) & (l_k*k_f <= kmax)) 
+        bklim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
 
         C_bk = np.cov(bksn[:,bklim].T) # calculate the B covariance
         Ci_B = np.linalg.inv(C_bk) 
         C_pk = np.cov(pksn[:,pklim].T) # calculate the P covariance  
         Ci_P = np.linalg.inv(C_pk) 
-        
-        #print np.matmul(Ci_B, bk[bklim]).shape 
-        #print np.matmul(Ci_P, pk[pklim]).shape 
-        SN_B.append(np.sqrt(np.matmul(bk[bklim].T, np.matmul(Ci_B, bk[bklim]))))
-        SN_P.append(np.sqrt(np.matmul(pk[pklim].T, np.matmul(Ci_P, pk[pklim]))))
+        sn_b_i = np.sqrt(np.matmul(bk[bklim].T, np.matmul(Ci_B, bk[bklim])))
+        sn_p_i = np.sqrt(np.matmul(pk[pklim].T, np.matmul(Ci_P, pk[pklim])))
+
+        print('kmax=%.2f: P:%f, B:%f' % (kmax, sn_p_i, sn_b_i)) 
+        SN_B.append(sn_b_i)
+        SN_P.append(sn_p_i)
 
     cb_p_kmax = np.array([0.04869675251658636, 0.06760829753919823, 0.07673614893618194, 0.08609937521846012, 0.10592537251772895, 0.11415633046188466, 0.1341219935405372, 0.14288939585111032, 0.1612501027337743, 0.17080477200597086, 0.18728370830175495, 0.19838096568365063, 0.21134890398366477, 0.22908676527677735, 0.25703957827688645, 0.3037386091946106, 0.3823842536581126, 0.44668359215096326, 0.5339492735741767, 0.6760829753919819, 0.8511380382023763, 0.9828788730000325, 1.1481536214968824]) 
     cb_p_sn = np.array([9.554281212853747, 14.56687309222178, 16.512840354510395, 18.506604023110235, 21.462641346777612, 22.20928889966336, 24.054044983627143, 24.329804200374014, 25.176195307362626, 25.756751569612643, 25.756751569612643, 26.052030872682657, 25.756751569612643, 26.35069530242852, 26.35069530242852, 26.35069530242852, 26.35069530242852, 26.65278366645541, 26.35069530242852, 26.65278366645541, 26.65278366645541, 26.65278366645541, 27.2673896573547]) 
@@ -2954,7 +2954,6 @@ if __name__=="__main__":
         forecast_kmax_table(dmnu='fin', theta_nuis=None)
     '''
     # P+B fisher forecasts with different nuisance parameters 
-    pbForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin'], dmnu='fin')
     '''
         for flag in ['ncv', 'reg']: 
             pbForecast(kmax=0.5, rsd='all', flag=flag, theta_nuis=['Amp', 'Mmin'], dmnu='fin')
@@ -2994,6 +2993,7 @@ if __name__=="__main__":
             forecast_convergence('bk', kmax=0.5, rsd='all', flag=flag, dmnu='fin', planck=True)
     ''' 
     # calculations 
+    _ChanBlot_SN()
     '''
         quijote_nbars()
         _ChanBlot_SN()

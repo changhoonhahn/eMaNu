@@ -245,40 +245,44 @@ $B_0$ derivatives with respect to the parameters have significant different
 scale and triangle shape dependences. \ch{derivative figure?} 
 
 By exploiting the unprecedented number of $N$-body simulations of the Quijote 
-suite, we quantify, for the first time, the full information content of the 
+suite, we present for the first time the full information content of the 
 redshift-space bispectrum beyond the linear regime. The information content 
 of the bispectrum, however, has previously been examined using perturbation 
 theory. Previous works, for instance, measure the signal-to-noise ratio (SNR) 
-of the bispectrum derived from perturbation theory estimates of the covariance 
-matrix~\citep[\emph{e.g.}][]{sefusatti2005, chan2017}. Most recently, \cite{chan2017},
+of the bispectrum derived from covariance matrices estimated using perturbation 
+theory~\citep[\emph{e.g.}][]{sefusatti2005, chan2017}. Most recently, \cite{chan2017},
 using covariance matrices that include non-Gaussian contributions calibrated with 
 $N$-body simulations, find that the cumulative SNR of the halo bispectrum is 
-$\sim 30\%$ of the halo power spectrum SNR at $k_{\rm max} \sim 0.1~\mpc$ and 
-increases to $\sim 40\%$ at $k_{\rm max}\sim 0.35~\mpc$. We find a consistent 
-relation between the SNRs of the halo power spectrum and bispectrum using our 
-covariance matrix (Figure~\ref{fig:bk_cov}). Beyond the $k$ range probed by 
-\cite{chan2017} ($k_{\rm max}>0.35~\mpc$), we find that while the SNR of the power spectrum saturates
-at $k_{\rm max}\sim 0.1~\mpc$, the SNR of the bispectrum continues to increase 
-out to the maximum $k$ range we probe $k_{\rm max} = 0.75~\mpc$. However, 
-we note that these SNR measurements do not answer what the constraining power of 
-the bispectrum is. Yet these SNR measurements are roughly consistent with the 
-unmarginalized constraints, where the constraining power of the bispectrum only 
-exceeds the power spectrum at $k_{\rm max} > 0.4~\mpc$. 
+$\sim 30\%$ of the SNR of the halo power spectrum at $k_{\rm max} \sim 0.1~\mpc$ 
+and increases to $\sim 40\%$ at $k_{\rm max}\sim 0.35~\mpc$. While these simple 
+SNR measurements cannot be easily compared to our Fisher analysis, we note that 
+they are loosely consistent with the unmarginalized constraints, where we find 
+tighter unmarginalized constraints from $P_0$ than $B_0$ at $k_{\rm max} < 0.4~\mpc$. 
+Also, when we measure the the halo power spectrum and bispectrum SNRs using our 
+covariance matrices (Figure~\ref{fig:bk_cov}), we find a relation between the 
+SNRs consistent with $\cite{chan2017}$. Beyond the $k$ range of \cite{chan2017} 
+($k_{\rm max}>0.35~\mpc$), we find that the SNR of $B_0$ continues to increase 
+at higher $k_{\rm max}$ in constract to the $P_0$ SNR, which saturates at 
+$k_{\rm max}\sim 0.1~\mpc$. At $k_{\rm max} = 0.75~\mpc$, the largest $k$ we 
+probe, the $B_0$ SNR is $\sim75\%$ of the $P_0$ SNR.
 
-
-%In cosmology, we are ultimately interested in how well the measurements of the polyspectra can put constraints on the cosmological parameters, and this can be esti- mated using the Fisher analysis. Furthermore, it has pre- viously been shown that the Fisher analysis results may not be easily interpreted from a simpler signal-to-noise analysis.
-% https://arxiv.org/abs/1506.00083 ,  https://arxiv.org/abs/1512.05383
-
-
-Beyond signal-to-noise calculations, 
+Going beyond signal-to-noise calculations, a number of previous works have 
+\begin{itemize}
+    \item Scoccimarro, Sefusatti \& Zaldarriaga 2004: 
+    \item Sefusatti \& Komatsu 2007
+    \item Song, Taruya \& Oka 2015
+    \item Tellarini et al. 2016
+    \item Yamauchi, Yokoyama \& Takahashi 2017a
+    \item Karagiannis et al. 2018
+\end{itemize} 
 There are many forecasts where they fix the main cosmological parameters and look at 
-only bias and non-Gaussianity: Scoccimarro, Sefusatti \& Zaldar- riaga 2004; Sefusatti \& Komatsu 2007; 
-Song, Taruya \& Oka 2015; Tellarini et al. 2016; Yamauchi, Yokoyama \& Takahashi 2017a; 
-Karagiannis et al. 2018. We're better than these forecasts because we include all the cosmological 
+only bias and non-Gaussianity. 
+We're better than these forecasts because we include all the cosmological 
 parameters so we actually explore the parameter degeneracies accurately. 
 There are some forecasts with full cosmology: \cite{sefusatti2005, yankelevich2019}. Summarize 
 their results. They however use PT, which break down on small scales. P vs B. They also do not account for
 the non-Gaussian contributions to the covariance matrix, which we find matters even for diagonal elements. 
+%https://arxiv.org/abs/1506.00083, https://arxiv.org/abs/1512.05383
 We're the first to use simulations. They also don't look at neutrinos. 
 
 Our results also demonstrated the potential of 
