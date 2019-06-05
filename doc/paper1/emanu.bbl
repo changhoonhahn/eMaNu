@@ -3,41 +3,41 @@
 \providecommand\JournalTitle[1]{#1}
 
 \bibitem[{Ade {et~al.}(2016)Ade, Aghanim, Arnaud, Ashdown, Aumont, Baccigalupi,
-  Banday, Barreiro, Bartlett, Bartolo, Battaner, Battye, Benabed, Beno\^it,
-  {Benoit-L\'evy}, Bernard, Bersanelli, Bielewicz, Bock, Bonaldi, Bonavera,
+  Banday, Barreiro, Bartlett, Bartolo, Battaner, Battye, Benabed, Beno{\^i}t,
+  {Benoit-L{\'e}vy}, Bernard, Bersanelli, Bielewicz, Bock, Bonaldi, Bonavera,
   Bond, Borrill, Bouchet, Boulanger, Bucher, Burigana, Butler, Calabrese,
   Cardoso, Catalano, Challinor, Chamballu, Chary, Chiang, Chluba, Christensen,
   Church, Clements, Colombi, Colombo, Combet, Coulais, Crill, Curto, Cuttaia,
   Danese, Davies, Davis, de~Bernardis, de~Rosa, de~Zotti, Delabrouille,
-  D\'esert, Valentino, Dickinson, Diego, Dolag, Dole, Donzelli, Dor\'e,
-  Douspis, Ducout, Dunkley, Dupac, Efstathiou, Elsner, En\ss{}lin, Eriksen,
+  D{\'e}sert, Valentino, Dickinson, Diego, Dolag, Dole, Donzelli, Dor{\'e},
+  Douspis, Ducout, Dunkley, Dupac, Efstathiou, Elsner, En{\ss}lin, Eriksen,
   Farhang, Fergusson, Finelli, Forni, Frailis, Fraisse, Franceschi, Frejsel,
-  Galeotta, Galli, Ganga, Gauthier, Gerbino, Ghosh, Giard, {Giraud-H\'eraud},
-  Giusarma, Gjerl\o{}w, {Gonz\'alez-Nuevo}, G\'orski, Gratton, Gregorio,
+  Galeotta, Galli, Ganga, Gauthier, Gerbino, Ghosh, Giard, {Giraud-H{\'e}raud},
+  Giusarma, Gjerl{\o}w, {Gonz{\'a}lez-Nuevo}, G{\'o}rski, Gratton, Gregorio,
   Gruppuso, Gudmundsson, Hamann, Hansen, Hanson, Harrison, Helou,
-  {Henrot-Versill\'e}, {Hern\'andez-Monteagudo}, Herranz, Hildebrandt, Hivon,
-  Hobson, Holmes, Hornstrup, Hovest, Huang, Huffenberger, Hurier, Jaffe, Jaffe,
-  Jones, Juvela, Keih\"anen, Keskitalo, Kisner, Kneissl, Knoche, Knox, Kunz,
-  {Kurki-Suonio}, Lagache, L\"ahteenm\"aki, Lamarre, Lasenby, Lattanzi,
-  Lawrence, Leahy, Leonardi, Lesgourgues, Levrier, Lewis, Liguori, Lilje,
-  {Linden-V\o{}rnle}, {L\'opez-Caniego}, Lubin, {Mac\'ias-P\'erez}, Maggio,
-  Maino, Mandolesi, Mangilli, Marchini, Maris, Martin, Martinelli,
-  {Mart\'inez-Gonz\'alez}, Masi, Matarrese, McGehee, Meinhold, Melchiorri,
-  Melin, Mendes, Mennella, Migliaccio, Millea, Mitra, {Miville-Desch\^enes},
-  Moneti, Montier, Morgante, Mortlock, Moss, Munshi, Murphy, Naselsky, Nati,
-  Natoli, Netterfield, {N\o{}rgaard-Nielsen}, Noviello, Novikov, Novikov,
-  Oxborrow, Paci, Pagano, Pajot, Paladini, Paoletti, Partridge, Pasian,
-  Patanchon, Pearson, Perdereau, Perotto, Perrotta, Pettorino, Piacentini,
-  Piat, Pierpaoli, Pietrobon, Plaszczynski, Pointecouteau, Polenta, Popa,
-  Pratt, Pr\'ezeau, Prunet, Puget, Rachen, Reach, Rebolo, Reinecke,
-  Remazeilles, Renault, Renzi, Ristorcelli, Rocha, Rosset, Rossetti, Roudier,
-  {d'Orfeuil}, {Rowan-Robinson}, {Rubi\~no-Mart\'in}, Rusholme, Said,
-  Salvatelli, Salvati, Sandri, Santos, Savelainen, Savini, Scott, Seiffert,
-  Serra, Shellard, Spencer, Spinelli, Stolyarov, Stompor, Sudiwala, Sunyaev,
-  Sutton, {Suur-Uski}, Sygnet, Tauber, Terenzi, Toffolatti, Tomasi, Tristram,
-  Trombetti, Tucci, Tuovinen, T\"urler, Umana, Valenziano, Valiviita, Tent,
-  Vielva, Villa, Wade, Wandelt, Wehus, White, White, Wilkinson, Yvon, Zacchei,
-  Zonca, \& Zonca}]{ade2016a}
+  {Henrot-Versill{\'e}}, {Hern{\'a}ndez-Monteagudo}, Herranz, Hildebrandt,
+  Hivon, Hobson, Holmes, Hornstrup, Hovest, Huang, Huffenberger, Hurier, Jaffe,
+  Jaffe, Jones, Juvela, Keih{\"a}nen, Keskitalo, Kisner, Kneissl, Knoche, Knox,
+  Kunz, {Kurki-Suonio}, Lagache, L{\"a}hteenm{\"a}ki, Lamarre, Lasenby,
+  Lattanzi, Lawrence, Leahy, Leonardi, Lesgourgues, Levrier, Lewis, Liguori,
+  Lilje, {Linden-V{\o}rnle}, {L{\'o}pez-Caniego}, Lubin,
+  {Mac{\'i}as-P{\'e}rez}, Maggio, Maino, Mandolesi, Mangilli, Marchini, Maris,
+  Martin, Martinelli, {Mart{\'i}nez-Gonz{\'a}lez}, Masi, Matarrese, McGehee,
+  Meinhold, Melchiorri, Melin, Mendes, Mennella, Migliaccio, Millea, Mitra,
+  {Miville-Desch{\^e}nes}, Moneti, Montier, Morgante, Mortlock, Moss, Munshi,
+  Murphy, Naselsky, Nati, Natoli, Netterfield, {N{\o}rgaard-Nielsen}, Noviello,
+  Novikov, Novikov, Oxborrow, Paci, Pagano, Pajot, Paladini, Paoletti,
+  Partridge, Pasian, Patanchon, Pearson, Perdereau, Perotto, Perrotta,
+  Pettorino, Piacentini, Piat, Pierpaoli, Pietrobon, Plaszczynski,
+  Pointecouteau, Polenta, Popa, Pratt, Pr{\'e}zeau, Prunet, Puget, Rachen,
+  Reach, Rebolo, Reinecke, Remazeilles, Renault, Renzi, Ristorcelli, Rocha,
+  Rosset, Rossetti, Roudier, {d'Orfeuil}, {Rowan-Robinson},
+  {Rubi{\~n}o-Mart{\'i}n}, Rusholme, Said, Salvatelli, Salvati, Sandri, Santos,
+  Savelainen, Savini, Scott, Seiffert, Serra, Shellard, Spencer, Spinelli,
+  Stolyarov, Stompor, Sudiwala, Sunyaev, Sutton, {Suur-Uski}, Sygnet, Tauber,
+  Terenzi, Toffolatti, Tomasi, Tristram, Trombetti, Tucci, Tuovinen,
+  T{\"u}rler, Umana, Valenziano, Valiviita, Tent, Vielva, Villa, Wade, Wandelt,
+  Wehus, White, White, Wilkinson, Yvon, Zacchei, Zonca, \& Zonca}]{ade2016a}
 Ade, P. a.~R., Aghanim, N., Arnaud, M., {et~al.} 2016,
   \href{http://dx.doi.org/10.1051/0004-6361/201525830}{\JournalTitle{Astronomy
   \& Astrophysics}, 594, A13}
@@ -47,9 +47,9 @@ Angulo, R.~E., \& Pontzen, A. 2016,
   \href{http://dx.doi.org/10.1093/mnrasl/slw098}{\JournalTitle{Monthly Notices
   of the Royal Astronomical Society}, 462, L1}
 
-\bibitem[{Brandbyge {et~al.}(2008)Brandbyge, Hannestad, Haugb\o{}lle, \&
+\bibitem[{Brandbyge {et~al.}(2008)Brandbyge, Hannestad, Haugb{\o}lle, \&
   Thomsen}]{brandbyge2008}
-Brandbyge, J., Hannestad, S., Haugb\o{}lle, T., \& Thomsen, B. 2008,
+Brandbyge, J., Hannestad, S., Haugb{\o}lle, T., \& Thomsen, B. 2008,
   \href{http://dx.doi.org/10.1088/1475-7516/2008/08/020}{\JournalTitle{Journal
   of Cosmology and Astro-Particle Physics}, 08, 020}
 
@@ -65,6 +65,12 @@ Castorina, E., Sefusatti, E., Sheth, R.~K., {Villaescusa-Navarro}, F., \& Viel,
   \href{http://dx.doi.org/10.1088/1475-7516/2014/02/049}{\JournalTitle{Journal
   of Cosmology and Astro-Particle Physics}, 02, 049}
 
+\bibitem[{Chan \& Blot(2017)}]{chan2017}
+Chan, K.~C., \& Blot, L. 2017,
+  \href{http://dx.doi.org/10.1103/PhysRevD.96.023528}{\JournalTitle{Physical
+  Review D}, 96}, \href{http://arxiv.org/abs/1610.06585}{{\sffamily
+  arXiv:1610.06585}}
+
 \bibitem[{Davis {et~al.}(1985)Davis, Efstathiou, Frenk, \& White}]{davis1985}
 Davis, M., Efstathiou, G., Frenk, C.~S., \& White, S. D.~M. 1985,
   \href{http://dx.doi.org/10.1086/163168}{\JournalTitle{The Astrophysical
@@ -73,10 +79,10 @@ Davis, M., Efstathiou, G., Frenk, C.~S., \& White, S. D.~M. 1985,
 \bibitem[{Dodelson(2003)}]{dodelson2003}
 Dodelson, S. 2003, Modern Cosmology
 
-\bibitem[{{Gil-Mar\'in} {et~al.}(2017){Gil-Mar\'in}, Percival, Verde,
-  Brownstein, Chuang, Kitaura, {Rodr\'iguez-Torres}, \&
+\bibitem[{{Gil-Mar{\'i}n} {et~al.}(2017){Gil-Mar{\'i}n}, Percival, Verde,
+  Brownstein, Chuang, Kitaura, {Rodr{\'i}guez-Torres}, \&
   Olmstead}]{gil-marin2017}
-{Gil-Mar\'in}, H., Percival, W.~J., Verde, L., {et~al.} 2017,
+{Gil-Mar{\'i}n}, H., Percival, W.~J., Verde, L., {et~al.} 2017,
   \href{http://dx.doi.org/10.1093/mnras/stw2679}{\JournalTitle{Monthly Notices
   of the Royal Astronomical Society}, 465, 1757}
 
@@ -99,9 +105,15 @@ Jungman, G., Kamionkowski, M., Kosowsky, A., \& Spergel, D.~N. 1996,
   \href{http://dx.doi.org/10.1103/PhysRevD.54.1332}{\JournalTitle{Physical
   Review D}, 54, 1332}
 
+\bibitem[{Karagiannis {et~al.}(2018)Karagiannis, Lazanu, Liguori, Raccanelli,
+  Bartolo, \& Verde}]{karagiannis2018}
+Karagiannis, D., Lazanu, A., Liguori, M., {et~al.} 2018,
+  \href{http://dx.doi.org/10.1093/mnras/sty1029}{\JournalTitle{Monthly Notices
+  of the Royal Astronomical Society}, 478, 1341}
+
 \bibitem[{Leauthaud {et~al.}(2012)Leauthaud, Tinker, Bundy, Behroozi, Massey,
-  Rhodes, George, Kneib, Benson, Wechsler, Busha, Capak, Cort\^es, Ilbert,
-  Koekemoer, Le~F\`evre, Lilly, McCracken, Salvato, Schrabback, Scoville,
+  Rhodes, George, Kneib, Benson, Wechsler, Busha, Capak, Cort{\^e}s, Ilbert,
+  Koekemoer, Le~F{\`e}vre, Lilly, McCracken, Salvato, Schrabback, Scoville,
   Smith, \& Taylor}]{leauthaud2012a}
 Leauthaud, A., Tinker, J., Bundy, K., {et~al.} 2012,
   \href{http://dx.doi.org/10.1088/0004-637X/744/2/159}{\JournalTitle{The
@@ -129,11 +141,29 @@ Scoccimarro, R. 2015,
   Review D}, 92}, \href{http://arxiv.org/abs/1506.02729}{{\sffamily
   arXiv:1506.02729}}
 
+\bibitem[{Scoccimarro {et~al.}(2004)Scoccimarro, Sefusatti, \&
+  Zaldarriaga}]{scoccimarro2004}
+Scoccimarro, R., Sefusatti, E., \& Zaldarriaga, M. 2004,
+  \href{http://dx.doi.org/10.1103/PhysRevD.69.103513}{\JournalTitle{Physical
+  Review D}, 69, 103513}
+
+\bibitem[{Sefusatti {et~al.}(2006)Sefusatti, Crocce, Pueblas, \&
+  Scoccimarro}]{sefusatti2006}
+Sefusatti, E., Crocce, M., Pueblas, S., \& Scoccimarro, R. 2006,
+  \href{http://dx.doi.org/10.1103/PhysRevD.74.023522}{\JournalTitle{Physical
+  Review D}, 74}, \href{http://arxiv.org/abs/astro-ph/0604505}{{\sffamily
+  arXiv:astro-ph/0604505}}
+
 \bibitem[{Sefusatti {et~al.}(2016)Sefusatti, Crocce, Scoccimarro, \&
   Couchman}]{sefusatti2016}
 Sefusatti, E., Crocce, M., Scoccimarro, R., \& Couchman, H. M.~P. 2016,
   \href{http://dx.doi.org/10.1093/mnras/stw1229}{\JournalTitle{Monthly Notices
   of the Royal Astronomical Society}, 460, 3624}
+
+\bibitem[{Sefusatti \& Komatsu(2007)}]{sefusatti2007}
+Sefusatti, E., \& Komatsu, E. 2007,
+  \href{http://dx.doi.org/10.1103/PhysRevD.76.083004}{\JournalTitle{Physical
+  Review D}, 76, 083004}
 
 \bibitem[{Sefusatti \& Scoccimarro(2005)}]{sefusatti2005}
 Sefusatti, E., \& Scoccimarro, R. 2005,
@@ -141,10 +171,26 @@ Sefusatti, E., \& Scoccimarro, R. 2005,
   Review D}, 71}, \href{http://arxiv.org/abs/astro-ph/0412626}{{\sffamily
   arXiv:astro-ph/0412626}}
 
+\bibitem[{Song {et~al.}(2015)Song, Taruya, \& Oka}]{song2015}
+Song, Y.-S., Taruya, A., \& Oka, A. 2015,
+  \href{http://dx.doi.org/10.1088/1475-7516/2015/08/007}{\JournalTitle{Journal
+  of Cosmology and Astro-Particle Physics}, 2015, 007}
+
 \bibitem[{Springel(2005)}]{springel2005}
 Springel, V. 2005,
   \href{http://dx.doi.org/10.1111/j.1365-2966.2005.09655.x}{\JournalTitle{Monthly
   Notices of the Royal Astronomical Society}, 364, 1105}
+
+\bibitem[{Tegmark {et~al.}(1997)Tegmark, Taylor, \& Heavens}]{tegmark1997}
+Tegmark, M., Taylor, A.~N., \& Heavens, A.~F. 1997,
+  \href{http://dx.doi.org/10.1086/303939}{\JournalTitle{The Astrophysical
+  Journal}, 480, 22}
+
+\bibitem[{Tellarini {et~al.}(2016)Tellarini, Ross, Tasinato, \&
+  Wands}]{tellarini2016}
+Tellarini, M., Ross, A.~J., Tasinato, G., \& Wands, D. 2016,
+  \href{http://dx.doi.org/10.1088/1475-7516/2016/06/014}{\JournalTitle{Journal
+  of Cosmology and Astro-Particle Physics}, 2016, 014}
 
 \bibitem[{Tinker {et~al.}(2013)Tinker, Leauthaud, Bundy, George, Behroozi,
   Massey, Rhodes, \& Wechsler}]{tinker2013}
@@ -185,6 +231,12 @@ Wolz, L., Kilbinger, M., Weller, J., \& Giannantonio, T. 2012,
   \href{http://dx.doi.org/10.1088/1475-7516/2012/09/009}{\JournalTitle{Journal
   of Cosmology and Astroparticle Physics}, 2012, 009}
 
+\bibitem[{Yamauchi {et~al.}(2017)Yamauchi, Yokoyama, \&
+  Takahashi}]{yamauchi2017a}
+Yamauchi, D., Yokoyama, S., \& Takahashi, K. 2017,
+  \href{http://dx.doi.org/10.1103/PhysRevD.95.063530}{\JournalTitle{Physical
+  Review D}, 95, 063530}
+
 \bibitem[{Yankelevich \& Porciani(2019)}]{yankelevich2019}
 Yankelevich, V., \& Porciani, C. 2019,
   \href{http://dx.doi.org/10.1093/mnras/sty3143}{\JournalTitle{Monthly Notices
@@ -204,7 +256,7 @@ Zentner, A.~R., Hearin, A., van~den Bosch, F.~C., Lange, J.~U., \& Villarreal,
   [astro-ph]}}
 
 \bibitem[{Zheng {et~al.}(2005)Zheng, Berlind, Weinberg, Benson, Baugh, Cole,
-  Dav\'e, Frenk, Katz, \& Lacey}]{zheng2005}
+  Dav{\'e}, Frenk, Katz, \& Lacey}]{zheng2005}
 Zheng, Z., Berlind, A.~A., Weinberg, D.~H., {et~al.} 2005,
   \href{http://dx.doi.org/10.1086/466510}{\JournalTitle{The Astrophysical
   Journal}, 633, 791}
