@@ -933,6 +933,8 @@ def pbForecast(kmax=0.5, rsd=True, flag=None, theta_nuis=None, dmnu='fin', planc
     _theta_fid = theta_fid.copy() # fiducial thetas
     for tt in theta_nuis: _theta_fid[tt] = theta_nuis_fids[tt]
     _theta_lims = [(0.25, 0.385), (0.02, 0.08), (0.3, 1.1), (0.6, 1.3), (0.77, 0.9), (-0.4, 0.4)]
+    if kmax < 0.2:
+        _theta_lims = [(0.1, 0.5), (0.0, 0.15), (0.0, 1.6), (0., 2.), (0.5, 1.3), (0, 2.)]
     _theta_lims += [theta_nuis_lims[tt] for tt in theta_nuis]
 
     fig = plt.figure(figsize=(17, 15))
@@ -2148,11 +2150,10 @@ def Cov_gauss(Mnu=0.0, validate=False):
     from the power spectrum using Eq. 19 of Sefusatti et al (2006) 
     '''
     if Mnu == 0.0:  
-        quij = Obvs.quijoteBk('fiducial', rsd=True)  
+        quij = Obvs.quijoteBk('fiducial', rsd=2, flag='reg', silent=False)  
     elif Mnu == 0.1:  
-        quij = Obvs.quijoteBk('Mnu_p', rsd=True)  
-    
-    kf = 2.*np.pi/1000.
+        quij = Obvs.quijoteBk('Mnu_p', rsd=2, flag='reg', silent=False)  
+
     i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3'] 
     p0k1 = np.average(quij['p0k1'] + 1e9/quij['Nhalos'][:,None], axis=0)
     p0k2 = np.average(quij['p0k2'] + 1e9/quij['Nhalos'][:,None], axis=0)
@@ -2162,25 +2163,22 @@ def Cov_gauss(Mnu=0.0, validate=False):
 
     if validate:
         bks = quij['b123'] + quij['b_sn']
-        _, _, _, C_fid = quijoteCov(rsd=True)
-                
+        _, _, _, C_fid, _ = bkCov(rsd=2, flag='reg') # only N-body for covariance
         # impose k limit 
-        kmax = 0.5
+        kmax = 0.15
         klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
         ijl = UT.ijl_order(i_k[klim], j_k[klim], l_k[klim], typ='GM') # order of triangles 
 
         C_fid = C_fid[:,klim][klim,:]
         _C_B = C_B[:,klim][klim,:] 
         
-        _C_B = _C_B[ijl,:][:,ijl]
-        C_fid = C_fid[ijl,:][:,ijl]
         fig = plt.figure(figsize=(10,5))
         sub = fig.add_subplot(111)
         sub.plot(range(np.sum(klim)), np.diag(_C_B)/np.diag(C_fid), c='C0')
         sub.plot(range(np.sum(klim)), np.ones(np.sum(klim)), c='k', ls='--') 
         sub.set_xlabel('configurations', fontsize=25) 
         sub.set_xlim(0., np.sum(klim))
-        sub.set_ylabel('(Gaussian %.1f eV)/(Quijote 0.0 eV)' % Mnu, fontsize=25) 
+        sub.set_ylabel(r'($C_{i,i}^{\rm gauss}$ %.1f eV)/($C_{i,i}^{\rm full}$ 0.0 eV)' % Mnu, fontsize=25) 
         sub.set_ylim(0., 1.2) 
 
         ffig = os.path.join(UT.fig_dir(), 'Cov_Bk_gauss.%.1feV.png' % Mnu)
@@ -2954,6 +2952,7 @@ if __name__=="__main__":
         forecast_kmax_table(dmnu='fin', theta_nuis=None)
     '''
     # P+B fisher forecasts with different nuisance parameters 
+    pbForecast(kmax=0.15, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin'], dmnu='fin')
     '''
         for flag in ['ncv', 'reg']: 
             pbForecast(kmax=0.5, rsd='all', flag=flag, theta_nuis=['Amp', 'Mmin'], dmnu='fin')
@@ -2993,11 +2992,12 @@ if __name__=="__main__":
             forecast_convergence('bk', kmax=0.5, rsd='all', flag=flag, dmnu='fin', planck=True)
     ''' 
     # calculations 
-    _ChanBlot_SN()
     '''
         quijote_nbars()
         _ChanBlot_SN()
         hades_dchi2(krange=[0.01, 0.5])
+        Cov_gauss(Mnu=0.0, validate=False)
+        Cov_gauss(Mnu=0.1, validate=False)
     '''
     # --- fisher matrix test --- 
     '''

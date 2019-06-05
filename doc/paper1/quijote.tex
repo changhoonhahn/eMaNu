@@ -265,60 +265,73 @@ SNRs consistent with \cite{chan2017}. Beyond the $k$ range of \cite{chan2017}
 at higher $k_{\rm max}$ in constract to the $P_0$ SNR, which saturates at 
 $k_{\rm max}\sim 0.1~\mpc$. At $k_{\rm max} = 0.75~\mpc$, the largest $k$ we 
 probe, the $B_0$ SNR is $\sim75\%$ of the $P_0$ SNR.
+% https://arxiv.org/abs/1506.00083, https://arxiv.org/abs/1512.05383
 
-Beyond these signal-to-noise calculations, a number of previous works quantify 
-the information content of the bispectrum with Fisher 
-forecasts~\citep{scoccimarro2004, sefusatti2006, sefusatti2007, song2015, tellarini2016, yamauchi2017a, karagiannis2018, yankelevich2019}. While many of these works fix most cosmological parameters
-and focus soley on forecasting constraints of primordial non-Gaussianity 
-($f_{\rm NL}$) and bias parameters, \cite{sefusatti2006} and \cite{yankelevich2019} 
-forecast full sets of cosmological parameters. \cite{sefusatti2006} present 
-likelihood analysis forecasts for $\omega_d$, $\omega_b$, $\OL$, $n_s$, 
-$A_s$, $w$, $\tau$, and bias parameters. %$\omega_d = \Omega_{\rm cdm}h^2$ and $\omega_b = \Ob h^2$ are the physical dark matter and baryon densities,  $\tau$ is the reionization optical depth, $A_s$ is the primordial amplitude of scalar fluctuations, and $w$ is dark energy equation of state parameter.  
+Beyond these signal-to-noise calculations, a number of previous works 
+quantify the information content of the bispectrum with Fisher 
+forecasts~\citep{scoccimarro2004, sefusatti2006, sefusatti2007, song2015, tellarini2016, yamauchi2017a, karagiannis2018, yankelevich2019}. 
+While most of these works fix most cosmological parameters and focus soley 
+on forecasting constraints of primordial non-Gaussianity ($f_{\rm NL}$) and 
+bias parameters, \cite{sefusatti2006} and \cite{yankelevich2019} provide 
+bispectrum forecasts for full sets of cosmological parameters. In \cite{sefusatti2006}, 
+they present likelihood analysis forecasts for $\omega_d$, $\omega_b$, $\OL$, 
+$n_s$, $A_s$, $w$, $\tau$. %$\omega_d = \Omega_{\rm cdm}h^2$ and $\omega_b = \Ob h^2$ are the physical dark matter and baryon densities,  $\tau$ is the reionization optical depth, $A_s$ is the primordial amplitude of scalar fluctuations, and $w$ is dark energy equation of state parameter.  
 For $\Lambda$CDM, with fixed bias parameters, and $k_{\rm max} = 0.3~\mpc$, 
 they find constraints on $\Om$, $\Ob$, $h$, $n_s$, and $\sig$ from WMAP, 
 $P_0$, and $B_0$ is a factor of 1.71, 1.3, 1.4, 1.2, and 1.5 tighter 
 than constraints from WMAP and $P_0$ alone. In comparison, for 
 $k_{\rm max} = 0.3~\mpc$ our $B_0$ constraints are tighter than $P_0$ constraints 
 by factors of 2.1, 2.9, 3.5, 3.7, and 3.0. Both \cite{sefusatti2006} and our 
-analysis find significant improvements on the constraints with the 
-bispectrum. They however include the WMAP likelihood in their forecast 
-and only present constraints with both $P_0$ and $B_0$. We also emphasize 
-that they use perturbation theory bispectrum models, which break down on 
-small scales. In a comparison with $N$-body simulations, \cite{lazanu2016} 
-find that perturbation theory models of the matter bispectrum deviate by 
-$>5\%$ at $k_{\rm max} \gtrsim 0.15~\mpc$. 
+analysis find significantly tighter constraints with the bispectrum. They 
+however include the WMAP likelihood in their forecast and only present 
+constraints with both $P_0$ and $B_0$. We also emphasize that they use 
+perturbation theory bispectrum models, which break down on small scales. 
+In a comparison with $N$-body simulations, \cite{lazanu2016} find that 
+perturbation theory models of the matter bispectrum deviate by $>5\%$ 
+at $k_{\rm max} \gtrsim 0.15~\mpc$. 
 
-Meanwhile, \cite{yankelevich2019} present Fisher forecasts for 
-$\Omega_{\rm cdm}$, $\Ob$, $h$, $n_s$, $A_s$, $w_0$, and $w_0$ for a Euclid-like
-survey~\citep{laureijs2011} in 14 non-overlapping redshift bins. They use the full redshift-space 
-bispectrum rather than just $B_0$. They include forecasts of dynamical 
-dark-energy models and use a more sophisticated bias expansion than 
-\cite{sefusatti2006} that depend on the tidal field. However, same as 
-\cite{sefusatti2006} and all other forecasts, they use a pertrubative 
-model for the bispectrum and consequently limit their forecast to 
-$k_{\rm max} = 0.15~\mpc$. They also marginalize over 56 nuisance 
-parameters (14 $z$ bins each with 3 bias parameters and 1 RSD parameter).
+Meanwhile, in \cite{yankelevich2019}, they present Fisher forecasts for 
+$\Omega_{\rm cdm}$, $\Ob$, $h$, $n_s$, $A_s$, $w_0$, and $w_0$ for a 
+Euclid-like survey~\citep{laureijs2011} in 14 non-overlapping redshift 
+bins over $0.65 < z < 2.05$. They use the full redshift-space bispectrum,
+rather than just the monopole, and a more sophisticated bias expansion 
+than \cite{sefusatti2006} that depend on the tidal field. They use a 
+pertrubative model for the bispectrum, which consequently limit their 
+forecast to $k_{\rm max} = 0.15~\mpc$. From their forecasts, they find 
+similar constraining power on cosmological parameters from $B$ alone as $P$. 
+They also find that combining the bispectrum with the power spectrum 
+only moderately improves parameter constraints because posterior 
+correlations are similar for $P$ and $B$. While this seemingly conflicts 
+with the results we present, there are significant differences between our 
+forecasts. For instance, their forecasts are at higher redshifts, $z > 0.7$,
+where we expect the constraining power of $B$ to be weaker than at $z=0$. 
+They also forecast the {\em galaxy} $P$ and $B$ and marginalizes over 
+56 nuisance parameters (14 $z$ bins each with 3 bias parameters and 1 
+RSD parameter). They also neglect non-Gaussian contributions to the $B$ 
+covariance matrix, which substantially impact the constraints especially 
+on small scales~\citep{chan2017}. %; for $k_{\rm max} \sim 0.14~\mpc$, neglecting these contributions overestimates the SNR of the bispectrum by a factor of $\sim 3$~\citep{chan2017}. 
+Despite differences, \cite{yankelevich2019} find that the constraining 
+power of $B$ relative to $P$ increases for higher $k_{\rm max}$, consistent 
+with our forecasts as a function of $k_{\rm max}$ (Figure~\ref{fish_kmax}). 
+Also, similar to their forecast, for for $k_{\rm max} = 0.15~\mpc$, 
+we also find similar posterior correlations between the $P_0$ and $B_0$ 
+constraints. At $k_{\rm max} = 0.5~\mpc$, however, we find significantly 
+less correlations~(Figure~\ref{fig:bk_fish_05}). Based on our forecasts, 
+at higher $k_{\rm max}$ adding $B_0$ to the analysis improve parameter 
+constraints beyond the improvement found in \cite{yankelevich2019}. 
 
-These forecasts also do not account for the 
-non-Gaussian contributions to the covariance matrix, which substantially impact the
-constraints especially on small scales where non-linear effects strongly enhance 
-the non-Gaussian contributions~\citep{chan2017}. For $k_{\rm max} \sim 0.14~\mpc$, 
-\cite{chan2017} find that neglecting non-Gaussian contributions overestimates the 
-SNR of the bispectrum by a factor of $\sim 3$. 
-%- fisher forecast for the following sets of cosmological parameters: {Ocdm, Ob, h, ns, A}, {Ocdm, Ob, h, ns, A, w}, {Ocdm, Ob, h, ns, A, w0, wa}. Along with $b_1$, $b_2$, $b_{s^2}$, and $\sigma_p$ nuisance parameters.
-%- Improvements over Sefusatti et al. (2016): 
-%  - consider the full galaxy bispectrum in redshift space instead of its monopole moment
-%  - make forecasts for dynamical dark-energy models
-%  - account for a more sophisticated bias expansion that also depends on the tidal field and which represents the current state of the art
-%- Gaussian covariance only
-%- kmax = 0.15 (because of PT where accounting for galaxy biasing, RSD and discreteness effects provide additional challenges for the per- turbative models and reduces their range of validity.)
-%https://arxiv.org/abs/1506.00083, https://arxiv.org/abs/1512.05383
-We're the first to use simulations. There's really nothing comparable. especially because there are no forecasts looking at neutrnios
-They also don't look at neutrinos\cite{ruggeri2018} . 
+While the various difference between our forecast and previous work 
+prevent more thorough comparisons, the main difference is that we 
+present the first bispectrum forecasts for a full set of cosmological 
+parameters using bispectrum measurements entirely from $N$-body 
+simulations. This allows us to go beyond previous perturbation theory 
+based forecasts and quantify the full information content of the 
+redshift-space bispectrum all the way out to the non-linear regime. 
+Moreover, we also present the first bispectrum forecast of cosmological
+parameters including neutrinos and demonstrate the potential of the 
+bispectrum in constraining $\smnu$. Below, we underline a few caveats 
+of our Fisher forecasts.
 
-Our results also demonstrated the potential of 
-the bispectrum in constraining $\smnu$ (an order of magnitude improvement over 
-$P_0$). Below, we underline a few caveats of the results we present above. 
 First, the parameter constraints were derived using the Fisher matrix. This 
 assumes 
 

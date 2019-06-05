@@ -174,7 +174,7 @@ def quijoteBk(theta, z=0, rsd='all', flag=None, silent=True):
             for k in bks.keys(): 
                 _bks[k] = bks[k].value 
         else: 
-            for k in ['p0k1', 'p0k2', 'p0k3', 'b123', 'b_sn', 'q123']: 
+            for k in ['p0k1', 'p0k2', 'p0k3', 'b123', 'b_sn', 'q123', 'Nhalos']: 
                 _bks[k] = np.concatenate([_bks[k], bks[k].value]) 
     return _bks
 
