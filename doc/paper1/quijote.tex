@@ -312,7 +312,7 @@ covariance matrix, which substantially impact the constraints especially
 on small scales~\citep{chan2017}. %; for $k_{\rm max} \sim 0.14~\mpc$, neglecting these contributions overestimates the SNR of the bispectrum by a factor of $\sim 3$~\citep{chan2017}. 
 Despite differences, \cite{yankelevich2019} find that the constraining 
 power of $B$ relative to $P$ increases for higher $k_{\rm max}$, consistent 
-with our forecasts as a function of $k_{\rm max}$ (Figure~\ref{fish_kmax}). 
+with our forecasts as a function of $k_{\rm max}$ (Figure~\ref{fig:fish_kmax}). 
 Also, similar to their forecast, for for $k_{\rm max} = 0.15~\mpc$, 
 we also find similar posterior correlations between the $P_0$ and $B_0$ 
 constraints. At $k_{\rm max} = 0.5~\mpc$, however, we find significantly 
@@ -330,16 +330,34 @@ redshift-space bispectrum all the way out to the non-linear regime.
 Moreover, we also present the first bispectrum forecast of cosmological
 parameters including neutrinos and demonstrate the potential of the 
 bispectrum in constraining $\smnu$. Below, we underline a few caveats 
-of our Fisher forecasts.
+of our forecasts.
 
-First, the parameter constraints were derived using the Fisher matrix. This 
-assumes 
+Our forecasts are derived from Fisher matrices. Such forecasts make 
+the assumption that the posterior is approximately Gaussian and, as a result, 
+they underestimate the constraints for posteriors that are highly 
+non-elliptical or asymmetric~\cite{wolz2012}. Fisher matrices also rely 
+on the stability, and in our case convergence, of numerical derivatives. 
+We examine the stability of the $P_0$ and $B_0$ derivatives with respect 
+to $\smnu$ by comparing the derivatives computed using $N$-body simulations 
+at three different sets of cosmologies: (1) fiducial, $\smnu^{+}$, $\smnu^{++}$, 
+and $\smnu^{+++}$ cosmologies (Eq.~\ref{eq:dbkdmnu}), (2) fiducial, $\smnu^{+}$, 
+and $\smnu^{++}$ cosmologies, and (3) only the fiducial and $\smnu^{+}$ 
+cosmologies~(Appendix~\ref{sec:numerical}; Figure~\ref{fig:dPBdmnu}). 
+Compared to the derivatives derivatives computed with the (1) cosmologies, 
+the derivatives with (2) and (3) differ by $\sim 20$ and $\sim 50\%$ for 
+both $P_0$ and $B_0$. The differences in the derivatives do not impact the 
+$\Om$, $\Ob$, $h$, $n_s$, and $\sig$ constraints. While the differences in 
+the derivatives impact the $\smnu$ constraints, because the $P_0$ and $B_0$ 
+derivatives are impacted by the same factor, the improvement of the $B_0$ 
+constraint over the $P_0$ constraints is not impacted. In addition to the 
+stability of the derivatives, because we use $N$-body simulations, we also 
+examine the convergence of our forecasts in Appendix~\ref{sec:numerical}. 
 
-{\bf Q}: How robust are Fisher forecasts \\ 
-{\bf A}: There are many caveats to the Fisher forecast. One of the main limitation is that 
-Fisher forecasts assume the posteriors are Gaussian, this can result in incorrect posteriors \cite{wolz2012}. 
-Convergence of the covariance matrix and derivatives are also key. We discuss this in the appendix
-and they do not seem to be an issue. 
+
+We refer to Apprendix~\ref{sec:numerical} for a more detailed investigation 
+on 
+
+%$\sigma_\smnu = 0.1962$, 0.2385, and 0.3774 eV with $P_0$ and $\sigma_\smnu = 0.0342$, 0.0416, and 0.0657 eV with $B_0$. 
 
 {\bf Q}: A lot of the advantages from breaking parameter degeneracies. How robust is this? \\
 {\bf A}: We address this by imposing Planck priors on our forecasts. This expectedly has a 

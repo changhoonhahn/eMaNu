@@ -645,6 +645,10 @@ def dlogPBdMnu(rsd='all', flag='reg'):
         k_pk, dpk = dPkdtheta('Mnu', log=True, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True) 
         pklim = (k_pk <= 0.5) 
         sub0.plot(k_pk[pklim], dpk[pklim], c=c, label=lbl) 
+        if dmnu == 'fin': _dpk = dpk 
+        else: 
+            ratio = (dpk/_dpk)
+            print('(%s)/(fin) = %f' % (dmnu, np.median(ratio[np.isfinite(ratio)]))) 
     sub0.set_xlabel('$k$', fontsize=25) 
     sub0.set_xscale('log') 
     sub0.set_xlim(5e-3, 1.0) 
@@ -659,6 +663,10 @@ def dlogPBdMnu(rsd='all', flag='reg'):
         dbk = dBkdtheta('Mnu', log=True, rsd=rsd, flag=flag, dmnu=dmnu) 
         splt, = sub1.plot(range(np.sum(bklim)), dbk[bklim][ijl]) 
         splts.append(splt) 
+        if dmnu == 'fin': _dbk = dbk 
+        else: 
+            ratio = (dbk/_dbk)
+            print('(%s)/(fin) = %f' % (dmnu, np.median(ratio[np.isfinite(ratio)]))) 
     sub1.legend(splts[::-1], dmnus_lbls[::-1], loc='lower left', fontsize=18) 
     sub1.set_xlabel('triangle configurations', fontsize=25) 
     sub1.set_xlim(0, np.sum(bklim)) 
@@ -2936,6 +2944,9 @@ if __name__=="__main__":
         _dBdthetas_ncv(kmax=0.5, log=True, rsd=True, dmnu='fin')
     ''' 
     # fisher forecasts with different nuisance parameters 
+    #forecast('bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'])
+    #forecast('bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin0', theta_nuis=['Amp', 'Mmin'])
+    #forecast('bk', kmax=0.5, rsd='all', flag='reg', dmnu='p', theta_nuis=['Amp', 'Mmin'])
     '''
         for flag in ['ncv', 'reg']: 
             forecast('pk', kmax=0.5, rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
@@ -2952,7 +2963,9 @@ if __name__=="__main__":
         forecast_kmax_table(dmnu='fin', theta_nuis=None)
     '''
     # P+B fisher forecasts with different nuisance parameters 
-    pbForecast(kmax=0.15, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin'], dmnu='fin')
+    pbForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin'], dmnu='fin')
+    pbForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin'], dmnu='fin0')
+    pbForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin'], dmnu='p')
     '''
         for flag in ['ncv', 'reg']: 
             pbForecast(kmax=0.5, rsd='all', flag=flag, theta_nuis=['Amp', 'Mmin'], dmnu='fin')
