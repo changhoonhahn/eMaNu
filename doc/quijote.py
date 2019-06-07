@@ -1616,6 +1616,7 @@ def Fij_convergence(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', silent=True)
         Fijs.append(FisherMatrix_convergence(obs, kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, Ncov=ncov, silent=silent)) 
     Fijs = np.array(Fijs) 
 
+    print(ncovs)
     fig = plt.figure(figsize=(12,15))
     sub = fig.add_subplot(121) 
     for _i, ij in enumerate(ij_pairs): 
@@ -1624,6 +1625,8 @@ def Fij_convergence(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', silent=True)
         sub.plot([1000, 15000], [1.-_i*0.3, 1.-_i*0.3], c='k', ls='--', lw=1) 
         _Fij = Fijs[:,ij[0],ij[1]] 
         sub.plot(ncovs, _Fij/_Fij[-1] - _i*0.3) 
+        print('--- %s ---' % ij_pairs_str[_i]) 
+        print(_Fij/_Fij[-1]) 
     sub.set_xlabel(r"$N_{\rm cov}$ Quijote simulations", labelpad=10, fontsize=25) 
     sub.set_xlim(3000, 15000) 
     sub.set_ylabel(r'$F_{ij}(N_{\rm cov})/F_{ij}(N_{\rm cov}=%i)$' % sub.get_xlim()[1], fontsize=25)
@@ -1640,7 +1643,7 @@ def Fij_convergence(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', silent=True)
     for nderiv in nderivs: 
         Fijs.append(FisherMatrix_convergence(obs, kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=nderiv, silent=silent)) 
     Fijs = np.array(Fijs) 
-
+    print(nderivs) 
     sub = fig.add_subplot(122)
     for _i, ij in enumerate(ij_pairs): 
         sub.fill_between([100, 3000], [1.-_i*0.3-0.05, 1.-_i*0.3-0.05], [1.-_i*0.3+0.05, 1.-_i*0.3+0.05],
@@ -1648,6 +1651,8 @@ def Fij_convergence(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', silent=True)
         sub.plot([100., 3000.], [1.-_i*0.3, 1.-_i*0.3], c='k', ls='--', lw=1) 
         _Fij = Fijs[:,ij[0],ij[1]]
         sub.plot(nderivs, _Fij/_Fij[-1] - _i*0.3)
+        print('--- %s ---' % ij_pairs_str[_i]) 
+        print(_Fij/_Fij[-1]) 
     sub.set_xlabel(r"$N_{\rm deriv.}$ Quijote simulations", labelpad=10, fontsize=25) 
     sub.set_xlim(100, nderivs[-1]) 
     sub.set_ylabel(r'$F_{ij}(N_{\rm deriv.})/F_{ij}(N_{\rm deriv.}=%i)$' % sub.get_xlim()[1], fontsize=25)
@@ -1687,6 +1692,7 @@ def forecast_convergence(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_n
     sub = fig.add_subplot(121) 
     sub.plot([3000, 15000], [1., 1.], c='k', ls='--', lw=1) 
     sub.plot([3000, 15000], [0.9, 0.9], c='k', ls=':', lw=1) 
+    print(ncovs) 
     for i in range(ntheta): 
         sig_theta = np.sqrt(Finvs[:,i,i]) 
         sigii_theta = 1./np.sqrt(Fiis[:,i]) 
@@ -2947,6 +2953,7 @@ if __name__=="__main__":
     #forecast('bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'])
     #forecast('bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin0', theta_nuis=['Amp', 'Mmin'])
     #forecast('bk', kmax=0.5, rsd='all', flag='reg', dmnu='p', theta_nuis=['Amp', 'Mmin'])
+
     '''
         for flag in ['ncv', 'reg']: 
             forecast('pk', kmax=0.5, rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
@@ -2963,9 +2970,6 @@ if __name__=="__main__":
         forecast_kmax_table(dmnu='fin', theta_nuis=None)
     '''
     # P+B fisher forecasts with different nuisance parameters 
-    pbForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin'], dmnu='fin')
-    pbForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin'], dmnu='fin0')
-    pbForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin'], dmnu='p')
     '''
         for flag in ['ncv', 'reg']: 
             pbForecast(kmax=0.5, rsd='all', flag=flag, theta_nuis=['Amp', 'Mmin'], dmnu='fin')
@@ -2993,11 +2997,12 @@ if __name__=="__main__":
             forecast_thetas_kmax(tts='lcdm', rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'])
     '''
     # --- convergence tests ---  
+    Fij_convergence('bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin')
     '''
         for flag in ['ncv', 'reg']: 
             dlogPBdtheta_Nfixedpair(rsd=True, flag=flag, dmnu='fin')
             Fij_convergence('pk', kmax=0.5, rsd='all', flag=None, dmnu='fin')
-            Fij_convergence('bk', kmax=0.2, rsd='all', flag=flag, dmnu='fin')
+            Fij_convergence('bk', kmax=0.5, rsd='all', flag=flag, dmnu='fin')
         for flag in ['ncv', 'reg']: 
             forecast_convergence('pk', kmax=0.5, rsd='all', flag=flag, dmnu='fin')
             forecast_convergence('bk', kmax=0.5, rsd='all', flag=flag, dmnu='fin')

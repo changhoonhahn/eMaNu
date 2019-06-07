@@ -339,25 +339,38 @@ non-elliptical or asymmetric~\cite{wolz2012}. Fisher matrices also rely
 on the stability, and in our case convergence, of numerical derivatives. 
 We examine the stability of the $P_0$ and $B_0$ derivatives with respect 
 to $\smnu$ by comparing the derivatives computed using $N$-body simulations 
-at three different sets of cosmologies: (1) fiducial, $\smnu^{+}$, $\smnu^{++}$, 
-and $\smnu^{+++}$ cosmologies (Eq.~\ref{eq:dbkdmnu}), (2) fiducial, $\smnu^{+}$, 
-and $\smnu^{++}$ cosmologies, and (3) only the fiducial and $\smnu^{+}$ 
-cosmologies~(Appendix~\ref{sec:numerical}; Figure~\ref{fig:dPBdmnu}). 
+at three different sets of cosmologies: (1) \{fiducial, $\smnu^{+}$, $\smnu^{++}$, 
+and $\smnu^{+++}$\} (Eq.~\ref{eq:dbkdmnu}), (2) \{fiducial, $\smnu^{+}$, 
+and $\smnu^{++}$\}, and (3) \{fiducial and $\smnu^{+}$ \}~(Appendix~\ref{sec:numerical}; Figure~\ref{fig:dPBdmnu}). 
 Compared to the derivatives derivatives computed with the (1) cosmologies, 
 the derivatives with (2) and (3) differ by $\sim 20$ and $\sim 50\%$ for 
-both $P_0$ and $B_0$. The differences in the derivatives do not impact the 
-$\Om$, $\Ob$, $h$, $n_s$, and $\sig$ constraints. While the differences in 
-the derivatives impact the $\smnu$ constraints, because the $P_0$ and $B_0$ 
-derivatives are impacted by the same factor, the improvement of the $B_0$ 
-constraint over the $P_0$ constraints is not impacted. In addition to the 
-stability of the derivatives, because we use $N$-body simulations, we also 
-examine the convergence of our forecasts in Appendix~\ref{sec:numerical}. 
+both $P_0$ and $B_0$. These differences do not impact the $\Om$, $\Ob$, $h$, 
+$n_s$, and $\sig$ constraints. They do however affect the $\smnu$ constraints; 
+but because $P_0$ and $B_0$ derivatives are scaled by the same factor, 
+{\em the relative improvement of the $B_0$ constraint over the $P_0$ constraints 
+is not impacted}. 
 
-
-We refer to Apprendix~\ref{sec:numerical} for a more detailed investigation 
-on 
-
+In addition to the stability of the derivatives, because we use $N$-body 
+simulations, we test whether the convergence of our covariance matrix and 
+derivatives impact our forecasts by varying the number of simulations 
+used to estimate them: $N_{\rm cov}$ and $N_{\rm deriv}$, repsectively. 
+For $N_{\rm cov}$, we find $< 5\%$ variation in the Fisher matrix elements, 
+$F_{i,j}$ for $N_{\rm cov} > 5000$. Meanwhile, the marginalized parameter
+constraints, $\sigma_\theta$, vary by $< 1\%$ for $N_{\rm cov} > 12000$. 
+When we vary $N_{\rm deriv}$, we find $< 5\%$ variation in the $F_{i,j}$ 
+elements and $\sigma_\theta$ for $N_{\rm deriv} > 1200$. 
+Since our constraints vary by $< 10\%$ for sufficient $N_{\rm cov}$ and 
+$N_{\rm deriv}$, {\em we conclude that the convergence of the covariance matrix 
+and derivatives do not impact our forecasts}. We refer readers to 
+Apprendix~\ref{sec:numerical} for a more details on the robustness of 
+our results to the stability of the derivatives and convergence. 
 %$\sigma_\smnu = 0.1962$, 0.2385, and 0.3774 eV with $P_0$ and $\sigma_\smnu = 0.0342$, 0.0416, and 0.0657 eV with $B_0$. 
+
+We find that the constraining power of the bispectrum and its improvement 
+over the power spectrum come from breaking degeneracies among the 
+cosmological parameters. Given the limitations of Fisher analyses, we 
+test the robustness of this by seeing what happens when we include 
+Planck priors (\ch{@paco: citation to planck prior}) 
 
 {\bf Q}: A lot of the advantages from breaking parameter degeneracies. How robust is this? \\
 {\bf A}: We address this by imposing Planck priors on our forecasts. This expectedly has a 
