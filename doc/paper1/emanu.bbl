@@ -71,6 +71,11 @@ Chan, K.~C., \& Blot, L. 2017,
   Review D}, 96}, \href{http://arxiv.org/abs/1610.06585}{{\sffamily
   arXiv:1610.06585}}
 
+\bibitem[{Chan {et~al.}(2012)Chan, Scoccimarro, \& Sheth}]{chan2012}
+Chan, K.~C., Scoccimarro, R., \& Sheth, R.~K. 2012,
+  \href{http://dx.doi.org/10.1103/PhysRevD.85.083509}{\JournalTitle{Physical
+  Review D}, 85, 083509}
+
 \bibitem[{Davis {et~al.}(1985)Davis, Efstathiou, Frenk, \& White}]{davis1985}
 Davis, M., Efstathiou, G., Frenk, C.~S., \& White, S. D.~M. 1985,
   \href{http://dx.doi.org/10.1086/163168}{\JournalTitle{The Astrophysical
@@ -85,6 +90,12 @@ Dodelson, S. 2003, Modern Cosmology
 {Gil-Mar{\'i}n}, H., Percival, W.~J., Verde, L., {et~al.} 2017,
   \href{http://dx.doi.org/10.1093/mnras/stw2679}{\JournalTitle{Monthly Notices
   of the Royal Astronomical Society}, 465, 1757}
+
+\bibitem[{Hand {et~al.}(2017)Hand, Seljak, Beutler, \& Vlah}]{hand2017}
+Hand, N., Seljak, U., Beutler, F., \& Vlah, Z. 2017,
+  \JournalTitle{arXiv:1706.02362 [astro-ph]},
+  \href{http://arxiv.org/abs/1706.02362}{{\sffamily arXiv:1706.02362
+  [astro-ph]}}, rEAD
 
 \bibitem[{Heavens(2009)}]{heavens2009}
 Heavens, A. 2009, \JournalTitle{arXiv:0906.0664 [astro-ph]},
@@ -110,6 +121,44 @@ Jungman, G., Kamionkowski, M., Kosowsky, A., \& Spergel, D.~N. 1996,
 Karagiannis, D., Lazanu, A., Liguori, M., {et~al.} 2018,
   \href{http://dx.doi.org/10.1093/mnras/sty1029}{\JournalTitle{Monthly Notices
   of the Royal Astronomical Society}, 478, 1341}
+
+\bibitem[{Laureijs {et~al.}(2011)Laureijs, Amiaux, Arduini, Augu{\`e}res,
+  Brinchmann, Cole, Cropper, Dabin, Duvet, Ealet, Garilli, Gondoin, Guzzo,
+  Hoar, Hoekstra, Holmes, Kitching, Maciaszek, Mellier, Pasian, Percival,
+  Rhodes, Saavedra~Criado, Sauvage, Scaramella, Valenziano, Warren, Bender,
+  Castander, Cimatti, Le~F{\`e}vre, {Kurki-Suonio}, Levi, Lilje, Meylan,
+  Nichol, Pedersen, Popa, Rebolo~Lopez, Rix, Rottgering, Zeilinger, Grupp,
+  Hudelot, Massey, Meneghetti, Miller, Paltani, {Paulin-Henriksson}, Pires,
+  Saxton, Schrabback, Seidel, Walsh, Aghanim, Amendola, Bartlett, Baccigalupi,
+  Beaulieu, Benabed, Cuby, Elbaz, Fosalba, Gavazzi, Helmi, Hook, Irwin, Kneib,
+  Kunz, Mannucci, Moscardini, Tao, Teyssier, Weller, Zamorani, Zapatero~Osorio,
+  Boulade, Foumond, Di~Giorgio, Guttridge, James, Kemp, Martignac, Spencer,
+  Walton, Bl{\"u}mchen, Bonoli, Bortoletto, Cerna, Corcione, Fabron, Jahnke,
+  Ligori, Madrid, Martin, Morgante, Pamplona, Prieto, Riva, Toledo, Trifoglio,
+  Zerbi, Abdalla, Douspis, Grenet, Borgani, Bouwens, Courbin, Delouis, Dubath,
+  Fontana, Frailis, Grazian, Koppenh{\"o}fer, Mansutti, Melchior, Mignoli,
+  Mohr, Neissner, Noddle, Poncet, Scodeggio, Serrano, Shane, Starck, Surace,
+  Taylor, {Verdoes-Kleijn}, Vuerli, Williams, Zacchei, Altieri, Escudero~Sanz,
+  Kohley, Oosterbroek, Astier, Bacon, Bardelli, Baugh, Bellagamba, Benoist,
+  Bianchi, Biviano, Branchini, Carbone, Cardone, Clements, Colombi, Conselice,
+  Cresci, Deacon, Dunlop, Fedeli, Fontanot, Franzetti, Giocoli,
+  {Garcia-Bellido}, Gow, Heavens, Hewett, Heymans, Holland, Huang, Ilbert,
+  Joachimi, Jennins, Kerins, Kiessling, Kirk, Kotak, Krause, Lahav, {van
+  Leeuwen}, Lesgourgues, Lombardi, Magliocchetti, Maguire, Majerotto, Maoli,
+  Marulli, Maurogordato, McCracken, McLure, Melchiorri, Merson, Moresco,
+  Nonino, Norberg, Peacock, Pello, Penny, Pettorino, Di~Porto, Pozzetti,
+  Quercellini, Radovich, Rassat, Roche, Ronayette, Rossetti, Sartoris,
+  Schneider, Semboloni, Serjeant, Simpson, Skordis, Smadja, Smartt, Spano,
+  Spiro, Sullivan, Tilquin, Trotta, Verde, Wang, Williger, Zhao, Zoubian, \&
+  Zucca}]{laureijs2011}
+Laureijs, R., Amiaux, J., Arduini, S., {et~al.} 2011, \JournalTitle{arXiv
+  e-prints}, arXiv:1110.3193
+
+\bibitem[{Lazanu {et~al.}(2016)Lazanu, Giannantonio, Schmittfull, \&
+  Shellard}]{lazanu2016}
+Lazanu, A., Giannantonio, T., Schmittfull, M., \& Shellard, E. P.~S. 2016,
+  \href{http://dx.doi.org/10.1103/PhysRevD.93.083517}{\JournalTitle{Physical
+  Review D}, 93, 083517}
 
 \bibitem[{Leauthaud {et~al.}(2012)Leauthaud, Tinker, Bundy, Behroozi, Massey,
   Rhodes, George, Kneib, Benson, Wechsler, Busha, Capak, Cort{\^e}s, Ilbert,
@@ -170,6 +219,11 @@ Sefusatti, E., \& Scoccimarro, R. 2005,
   \href{http://dx.doi.org/10.1103/PhysRevD.71.063001}{\JournalTitle{Physical
   Review D}, 71}, \href{http://arxiv.org/abs/astro-ph/0412626}{{\sffamily
   arXiv:astro-ph/0412626}}
+
+\bibitem[{Sheth {et~al.}(2013)Sheth, Chan, \& Scoccimarro}]{sheth2013}
+Sheth, R.~K., Chan, K.~C., \& Scoccimarro, R. 2013,
+  \href{http://dx.doi.org/10.1103/PhysRevD.87.083002}{\JournalTitle{Physical
+  Review D}, 87, 083002}
 
 \bibitem[{Song {et~al.}(2015)Song, Taruya, \& Oka}]{song2015}
 Song, Y.-S., Taruya, A., \& Oka, A. 2015,

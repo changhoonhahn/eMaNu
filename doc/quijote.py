@@ -909,9 +909,15 @@ def pbForecast(kmax=0.5, rsd=True, flag=None, theta_nuis=None, dmnu='fin', planc
     :param planck: (default: False)
         If True add Planck prior 
     '''
+    pk_theta_nuis = list(np.array(theta_nuis).copy())
+    bk_theta_nuis = list(np.array(theta_nuis).copy())
+    if 'Bsn' in theta_nuis: pk_theta_nuis.remove('Bsn') 
+    if 'b2' in theta_nuis: pk_theta_nuis.remove('b2') 
+    if 'g2' in theta_nuis: pk_theta_nuis.remove('g2') 
+
     # fisher matrix (Fij)
-    pkFij   = FisherMatrix('pk', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=theta_nuis)  
-    bkFij   = FisherMatrix('bk', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=theta_nuis)  
+    pkFij   = FisherMatrix('pk', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=pk_theta_nuis)  
+    bkFij   = FisherMatrix('bk', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=bk_theta_nuis)  
     #pbkFij  = quijote_FisherMatrix('pbk', kmax=kmax, rsd=rsd, dmnu=dmnu, theta_nuis=theta_nuis)  
 
     if planck: # add planck prior 
@@ -2952,10 +2958,6 @@ if __name__=="__main__":
         _dBdthetas_ncv(kmax=0.5, log=True, rsd=True, dmnu='fin')
     ''' 
     # fisher forecasts with different nuisance parameters 
-    #forecast('bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'])
-    #forecast('bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin0', theta_nuis=['Amp', 'Mmin'])
-    #forecast('bk', kmax=0.5, rsd='all', flag='reg', dmnu='p', theta_nuis=['Amp', 'Mmin'])
-
     '''
         for flag in ['ncv', 'reg']: 
             forecast('pk', kmax=0.5, rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
@@ -2972,7 +2974,6 @@ if __name__=="__main__":
         forecast_kmax_table(dmnu='fin', theta_nuis=None)
     '''
     # P+B fisher forecasts with different nuisance parameters 
-    pbForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin'], dmnu='fin', planck=True)
     '''
         for flag in ['ncv', 'reg']: 
             pbForecast(kmax=0.5, rsd='all', flag=flag, theta_nuis=['Amp', 'Mmin'], dmnu='fin')
@@ -2984,6 +2985,7 @@ if __name__=="__main__":
             pbForecast(kmax=0.5, rsd='all', flag=flag, theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'], dmnu='fin', planck=True)
     '''
     # fisher forecasts as a function of kmax with different nuisance parameters 
+    forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'], planck=True)
     '''
         for flag in ['ncv', 'reg']: 
             Fii_kmax(rsd='all', flag=flag, dmnu='fin')

@@ -370,69 +370,91 @@ Apprendix~\ref{sec:numerical} for a more details on the robustness of
 our results to the stability of the derivatives and convergence. 
 
 We argue that the constraining power of the bispectrum and its improvement 
-over the power spectrum come from breaking degeneracies among the 
-cosmological parameters. We test the robustness of this claim by including 
-Planck priors (\ch{@paco: citation to planck prior}) in our Fisher forecasts. 
-Since Planck provide constraints on $\Om$, $\Ob$, $h$, $n_s$, and $\sig$
-tighter than $P_0$ and $B_0$ alone, the elements of the Planck prior matrix 
-are larger than the elements in the $P_0$ and $B_0$ Fisher matrices. 
-Hence, including the Planck priors, adding the prior matrix to the Fisher matrices 
-in our forecasts, increases the stability of the constraints. It also, obviously, 
-determines whether or not the bispectrum improves parameter constraints 
-once we include constraints from CMB. With Planck priors, $B_0$ more tightly 
-constrain $\Om$, $\Ob$, $h$, $n_s$, and $\sig$ than $P_0$ by factors 
-of 1.5, 1.6, 1.4, 1.1, and 2.3 for $k_{\rm max} = 0.5~\mpc$. For $\smnu$, 
-$\sigma_\smnu = 0.0802$ eV for $P_0$ and $\sigma_\smnu = 0.0297$ eV, a factor 
-of 2.7 improvement. Hence, even with Planck priors, $B_0$ improves substantially 
-parameter constraints, especially for $\smnu$. 
+over the power spectrum come from breaking degeneracies among the cosmological 
+parameters. However, numerical noise can impact our forecasts when we invert 
+the Fisher matrix. Since Planck constrain $\Om$, $\Ob$, $h$, $n_s$, and $\sig$ 
+tighter than the $P_0$ and $B_0$ alone (\ch{@paco: citation to planck prior}), 
+the elements of the Planck prior matrix are larger than the elements of $P_0$ 
+and $B_0$ Fisher matrices. By including Planck priors (\emph{i.e.} adding the 
+prior matrix to the Fisher matrix) increases the numerical stability of our 
+forecasts. It also reveals whether the bispectrum still improves parameter 
+constraints once we include CMB constraints. With Planck priors and $P_0$ to 
+$k_{\rm max} = 0.5~\mpc$, we derive the following constraints: 
+$\sigma_{\Om} = 0.0125$, $\sigma_{\Ob} = 0.0012$, $\sigma_h=0.0086$, 
+$\sigma_{n_s}=0.0048$, and $\sigma_{\sig}=0.0194$. 
+Including Planck priors expectedly tighten the constraints from $P_0$ alone. 
+Meanwhile, with Planck priors and $B_0$ to $k_{\rm max} = 0.5~\mpc$, we get 
+$\sigma_{\Om} = 0.0086$, $\sigma_{\Ob} = 0.0008$, $\sigma_h=0.0006$, 
+$\sigma_{n_s}=0.0043$, and $\sigma_{\sig}=0.0085$, 1.5, 1.6, 1.4, 1.1, and 2.3 
+times tighter constraints. For $\smnu$, $\sigma_{\smnu} = 0.0802$ eV for $P_0$ 
+and $\sigma_{\smnu} = 0.0297$ eV, a factor of 2.7 improvement.  Hence, even with 
+Planck priors, $B_0$ improves substantially parameter constraints, especially for 
+$\smnu$. This also suggests that the improvement from $B_0$ we find in our 
+forecasts are numerically robust. 
 
-Another caveat is that our parameter constraints were derived using the power 
-spectrum and bispectrum of halo in a periodic box. We do not consider a 
-realistic survey geometry or radial selection function. A realistic selection 
-function will smooth out the triangle configuration dependence and consequently 
-degrade the constraining power of the bispectrum. In \cite{sefusatti2005}, for 
-instance, they find that the signal-to-noise of the bispectrum is significantly 
-reduced once survey geometry is included in their forecast. Survey geometry, 
-however, also degrade the signal-to-noise of their power spectrum forecasts. 
-Hence, with the order of magnitude improve in the $\smnu$ constraining power 
-of the bispectrum, even with survey geometry, including the bispectrum will 
-improve $\smnu$ constraints. 
+So far in our analysis, our forecasts are derived using the power spectrum
+and bispectrum in a \emph{periodic box}. We do not consider a realistic 
+geometry or radial selection function of actual observations from galaxy 
+surveys. A realistic selection function will smooth out the triangle 
+configuration dependence and consequently degrade the constraining power 
+of the bispectrum. In \cite{sefusatti2005}, for instance, they find that the 
+signal-to-noise of the bispectrum is significantly reduced once survey geometry 
+is included in their forecast. Survey geometry, however, also degrades the 
+signal-to-noise of their power spectrum forecasts. Hence, with the substantial 
+improvement in the $\smnu$ constraints of the bispectrum, even with survey 
+geometry we expect the bispectrum will significantly improve $\smnu$ constraints 
+over the power spectrum. 
 
-{\bf Q}: extra information leaking in due to non-linear bias and number density differences? \\
-{\bf A}: We ran tests that include SN correction parameters in case number density 
-information is leaking in from there. Constraints barely change. We also include and marginalize 
-over $b_2$ and $g_2$ but nothing changes. Explain fixed nbar tests that we ran, which also came 
-out short. Talk about how these tests don't definitely answer whether non-linear bias information
-is leaking into the forecasts since $b'$, $M_{\rm min}$, $b_2$, and $g_2$ may not a sufficient
-model of halo bias. We suspect this is the reason why B does better than P for all $k_{\rm max}$ 
-even though on linear scales we expect P to have more constraining power. 
-However since the ultimate goal is to constrain $\smnu$ with the galaxy 
-bispectrum.  For galaxy bispectrum, HOD is a more robust bias model. The halo bispectrum is an
-intermediate step and a proof of concept, which our results show is promising. We therefore 
-refrain from an exhaustive investigation of halo bias and go directly to HOD in the next paper 
-of this series.
+We include the nuisance parameter $\mmin$ in our forecasts to address the 
+difference in halo number densities among the Quijote cosmologies. Although 
+we marginalize over $\mmin$, this may not fully account for the extra 
+information from $\bar{n}$ and nonlinear bias leaking into the derivatives. 
+To test this, we include extra nuisance parameters, $A_{\rm SN}$, 
+$B_{\rm SN}$, $b_2$, and $\gamma_2$, and examine their impact on our forecasts. 
+$A_{\rm SN}$ and $B_{\rm SN}$ are multiplicative factors of the first and
+second terms of Eq.~\ref{eq:bk_sn}, which we include to account for any 
+$\bar{n}$ dependence that may be introduced from the $B_0$ shotnoise correction. 
+$b_2$ and $\gamma_2$ are the quadratic bias and nonlocal bias 
+parameters~\citep{chan2012, sheth2013} to account for information from 
+nonlinear bias. Marginalizing over $b'$, $\mmin$, $A_{\rm SN}$, $B_{\rm SN}$, 
+$b_2$ and $\gamma_2$, we obtain the following constraints from $B_0$ 
+with $k_{\rm max} = 0.5~\mpc$:
+$\sigma_{\Om} = 0.0129$, $\sigma_{\Ob} = 0.0044$, $\sigma_h=0.0404$, 
+$\sigma_{n_s}=0.0455$, $\sigma_{\sig}=0.0228$, and $\sigma_{\smnu}=0.0343$. 
+Only constraints on $n_s$ and $\sig$ are broadened from our fiducial 
+forecasts, by $27\%$ and $60\%$. Other parameters, especially $\smnu$, 
+are not impacted by marginalizing over the extra nuisance parameters. 
+As another test to further isolate the impact of the differing $\bar{n}$, 
+we calculate derivatives using halo catalogs from Quijote $\theta^{-}$ 
+and $\theta^{+}$ cosmologies--- with fixed $\bar{n}$. We similarly find 
+no significant impact on the parameter constraints from $B_0$. Forecasts 
+using additional nuisance parameters and with fixed $\bar{n}$ derivatives, 
+both support the robustness of our forecast. Yet these tests do not 
+ensure that our forecast entirely marginalizes over halo bias. 
 
-Although we focus on the halo bispectrum and power spectrum in this paper, 
+In this paper, we focus on the halo bispectrum and power spectrum. However,   
 constraints on $\smnu$ will ultimately be derived from the distribution of 
 galaxies. Besides the cosmological parameters, bias and nuisance parameters 
-that allow us to marginalize over the galaxy---halo connection need to be
-incorporated to forecast $\smnu$ and other cosmological parameter constraints 
-for the galaxy bispectrum. Although we include a \emph{naive} bias model 
-through $b'$ and $M_{\rm min}$, this is insufficient to describe how galaxies
-occupy halos. A more realistic bias model such as a halo occupation distribution 
-(HOD) model involve extra parameters that describe the distribution of central 
-and satellite galaxies in halos~\citep[\emph{e.g.}][]{zheng2005,leauthaud2012a,tinker2013,zentner2016,vakili2019}. 
-\ch{maybe something about Uros and Nick's model involving a lot of parameters.}
-Marginalizing over these extra parameters, will likely reduce the constraining 
-power at high $k$. Even if the constraining power at high $k$ is reduced, the
-bispectrum still offers significant improvements over the power spectrum at 
-$k_{\rm max} \sim 0.2$. Jointly analyzing power spectrum and bispectrum will 
-help constrain these extra bias parameters. 
-\ch{talk about \cite{yankelevich2019} how they don't find as much of an improvement 
-for the galaxy bispectrum alone. But they do find that jointly analyzing P and B 
-improve results significantly. Don't read too into this because of all the differences 
-that we mentioned.} Furthermore, we again emphasize that
-the constraints we present in this paper is for a $1h^{-1}{\rm Gpc}$ box. In 
-Hahn et al. (in preparation), we will include a realistic HOD model and quantify 
-the information content and constraining power of a joint galaxy power spectrum 
-and bispectrum analysis. 
+that allow us to marginalize over galaxy bias need to be incorporated to 
+forecast $\smnu$ and other cosmological parameter constraints for the 
+galaxy bispectrum. Although we include a \emph{naive} bias model through $b'$ 
+and $M_{\rm min}$, and even $b_2$ and $\gamma_2$ in our tests, this is 
+insufficient to describe how galaxies trace matter. A more realistic bias model 
+such as a halo occupation distribution (HOD) model involve extra parameters 
+that describe the distribution of central and satellite galaxies in 
+halos~\citep[\emph{e.g.}][]{zheng2005,leauthaud2012a,tinker2013,zentner2016,vakili2019}. 
+We, therefore, refrain from a more exhaustive investigation of the impact of 
+halo bias on our results and focus quantifying the constraing power of 
+the galaxy bispectrum in the next paper of this series. 
+
+Marginalizing over galaxy bias parameters, will likely reduce the constraining 
+power at high $k$. \cite{hand2017}, for instance, find for their 13 parameter 
+model only find a 15-30\% improvement in $f\sig$ when they extend their power 
+spectrum multipole analysis from $0.2~\mpc$ to $0.4~\mpc$. Furthermore, jointly 
+analyzing power spectrum and bispectrum will help break parameter degeneracies 
+and improve constraints on cosmological parameters~\citep{sefusatti2006, yankelevich2019}. 
+We again emphasize that the constraints we present is for a $1h^{-1}{\rm Gpc}$ box, 
+a substantially volume than upcoming surveys. Thus, even if the constraining 
+power at high $k$ is reduced, our forecasts suggest that the bispectrum still 
+offers significant improvements over the power spectrum, especially for 
+constraining $\smnu$. 
