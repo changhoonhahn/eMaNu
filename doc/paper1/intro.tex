@@ -1,32 +1,65 @@
 \section{Introduction}
-\ch{very brief into on neutrinos}
-Brief intro on the impact of massive active neutrinos on the matter powerspectrum 
-and how that's detectable with CMB and LSS
+Boiler plate intro paragraph on how oscillation experiments show neutrinos have mass. 
+A sentence on the implications of neutrino mass --- physics beyond the standard model. 
+Followed up by, very briefly, the current state of particle experiments in constraining
+neutrino mass, while suggesting they're not good enough. 
+follow this up with a sentence on how cosmology provides complementary constraints on 
+neutrinso
 
-Quick summary of current cosmology constraints and where they come from. 
-
+Brief intro on the impact of massive neutrinos on cosmology.
+Then explain how this is being used to detect with CMB and LSS. 
+summary the state-of-the-art constraints from Planck + BAO.
 
 %The neutrino mass can be probed precisely in cos- mology because properties of the cosmic neutrino back- ground affect the growth of cosmic structure and the expansion history of the universe [2, 3]. A primary ef- fect targeted by future experiments is the suppression of growth of small scale structure caused by a nonzero neu- trino mass. The rest mass of the neutrinos, as they be- come non-relativistic, increases the neutrino contribution to the total mean energy density beyond what it would be in the massless case, thereby increasing the expansion rate and thus suppressing growth. A secondary effect is the scale dependence of this suppression: above the free-streaming scale the neutrinos act just like cold dark matter and therefore contribute to gravitational instabil- ity, with the net effect of canceling out the suppressive effect of the increased expansion rate [4–8]. This results in a fairly broad “step”-like feature in the matter power spectrum, where the size of the step is time dependent and grows approximately linearly with every e-fold of ex- pansion1 .
 %To measure neutrino mass using this time-dependent suppression, the amplitude of structure at low redshift (probed by gravitational lensing, clusters, or redshift- space distortions) is typically compared with the initial, high redshift amplitude probed by the CMB. In particu- lar, the small-scale suppression is about 4% between the redshift of recombination and today for the minimal mass of 60 meV.
 % This high-z amplitude As, in turn, is limited by how well we know the optical depth τ to the CMB, because the combination Ase−2τ (describ- ing the amplitude of the CMB power spectrum) is what is measured by CMB surveys [11, 12]. Since it is un- clear whether substantially improved τ constraints will be forthcoming, it is well motivated to seek methods by which the neutrino mass can be probed without relying on a knowledge of the CMB optical depth.
 
-
-Talk about 
-the CMB-LSS lever arm. The degeneracy between As and tau and how that's a bottleneck
-short thing about how $\tau$ is hard to constrain.
+CMB experiments, however, do not measure $A_s$ explicitly. They instead measure the 
+combination $A_se^{-2\tau}$, where $\tau$ is the optical depth of reionization. 
+This causes As and tau to be degenerate, which is a major bottleneck for future experiments.
+short thing about how $\tau$ is hard to constrain and how major improvements in it 
+will take a while. Future experiments such as LiteBIRD, which at the moment is still
+under review, will not arrive within 5 years. 
 Fortunately the imprint of neutrinos on the matter distribution leaves imprints
 on clustering. So with clustering measurements alone we can derive constraints 
 on $\smnu$ and at the very least tighten constraints.  
 
-Brief summary of previous works that look at the powerspectrum.
-%https://arxiv.org/abs/1310.0037
-Then Discuss the 
-shortcomings of the powerspectrum only analysis-- Not good enough. 
+Until now, one limitation of using galaxy clustering beyond linear scales has been 
+the difficulty in modeling nonlinear structure formation. $N$-body simulations with
+massive neutrinos have made huge progress in this regard (citecitecite). In 
+conjuction, methods like emulation which leverage the accuracy of $N$-body simulation
+while minimizing the computing budget have been applied to analyze small-scale galaxy
+clustering with remarkable success (citecitecite). With these developments, analyzing 
+small scale clustering, shows great promise. 
 
-However, we don't have to settle for just two point statistics, three-point 
-statistics such as the bispectrum and 3PCF... 
+Paco et al. examined the power spectrum multipole using n-body simulations going beyond
+previous real-space matter powerspectrum analyses (citecite). One major bottleneck he 
+found when it comes to analyzing the power spectrum is the Mnu-sig8 degeneracy. 
+sig8 and Mnu have very similiar signatures and only differ by 1\% or w.e. 
+However, we don't have to settle for just two point statistics, there's three-point 
+statistics i.e. the bispectrum. mention ruggeri paper and some broad statements about
+the advantages of the bispectrum. 
 
-In Section blah 
+In this paper we use n-body simulations with massive neutrinos to examine the 
+redshift-space halo bispectrum and demonstrate how it breaks the mnu-sig8 degeneracy. 
+Furthermore, we present the full information content of the bispectrum with a Fisher 
+forecast where we calculate the covariance matrix and derivatives with an unprecedented 
+number simulations of the Quijote suite. This paper is the first of a series of 
+papers that aim at demonstrating the potential of the galaxy bispectrum analysis in 
+constraining $\smnu$. In the subsequent paper, we will include HOD parameters in our 
+forecasts to quantify the full information content of the galaxy bispectrum. We will
+also present various ways to tackle the challenges of a full galaxy bispectrum analysis, 
+such as data compression for reducing the dimensionality of the bispectrum. 
 
-\ch{List plans for paper 2}
+In Section~\ref{sec:hades} we describe the two simulation suites, HADES and Quijote, 
+that we use throughout the paper. Then in Section~\ref{sec:bk}, we describe how 
+we measure the bispectrum of these simulations. We then present in Section~\ref{sec:mnusig}, 
+using the redshift-space halo bispectrum of HADES simulations, how $\smnu$ leaves 
+a distinct imprint on the bispectrum which allows the bispectrum to break the 
+degeneracy between $\smnu$ and $\sig$. Finally, in Section~\ref{sec:forecasts} 
+we present the full information content of the halo bispectrum with a Fisher 
+forecast of cosmological parameters using the Quijote simulations and demonstrate 
+the how the bispectrum drastically improves the constraints on the cosmological 
+parameters: $\Om$, $\Ob$, $h$, $n_s$, $\sig$, and {\em especially} $\smnu$. 
+
 
