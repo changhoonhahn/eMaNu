@@ -63,6 +63,11 @@ Ade, P. a.~R., Aghanim, N., Arnaud, M., {et~al.} 2016,
   \href{http://dx.doi.org/10.1051/0004-6361/201525830}{\JournalTitle{Astronomy
   \& Astrophysics}, 594, A13}
 
+\bibitem[{Agarwal \& Feldman(2011)}]{agarwal2011}
+Agarwal, S., \& Feldman, H.~A. 2011,
+  \href{http://dx.doi.org/10.1111/j.1365-2966.2010.17546.x}{\JournalTitle{Monthly
+  Notices of the Royal Astronomical Society}, 410, 1647}
+
 \bibitem[{Allison {et~al.}(2015)Allison, Caucal, Calabrese, Dunkley, \&
   Louis}]{allison2015}
 Allison, R., Caucal, P., Calabrese, E., Dunkley, J., \& Louis, T. 2015,
@@ -173,6 +178,11 @@ Davis, M., Efstathiou, G., Frenk, C.~S., \& White, S. D.~M. 1985,
 \bibitem[{Dodelson(2003)}]{dodelson2003}
 Dodelson, S. 2003, Modern Cosmology
 
+\bibitem[{Drexlin {et~al.}(2013)Drexlin, Hannen, Mertens, \&
+  Weinheimer}]{drexlin2013}
+Drexlin, G., Hannen, V., Mertens, S., \& Weinheimer, C.
+  \href{http://dx.doi.org/10.1155/2013/293986}{2013}
+
 \bibitem[{Emberson {et~al.}(2017)Emberson, Yu, Inman, Zhang, Pen,
   {Harnois-D{\'e}raps}, Yuan, Teng, Zhu, Chen, \& Xing}]{emberson2017}
 Emberson, J.~D., Yu, H.-R., Inman, D., {et~al.} 2017,
@@ -185,6 +195,11 @@ Emberson, J.~D., Yu, H.-R., Inman, D., {et~al.} 2017,
   \href{http://dx.doi.org/10.1088/1475-7516/2014/05/023}{\JournalTitle{Journal
   of Cosmology and Astro-Particle Physics}, 05, 023}
 
+\bibitem[{Forero {et~al.}(2014)Forero, T{\'o}rtola, \& Valle}]{forero2014}
+Forero, D.~V., T{\'o}rtola, M., \& Valle, J. W.~F. 2014,
+  \href{http://dx.doi.org/10.1103/PhysRevD.90.093006}{\JournalTitle{Physical
+  Review D}, 90, 093006}
+
 \bibitem[{Gerbino(2018)}]{gerbino2018}
 Gerbino, M. 2018, \JournalTitle{arXiv e-prints}, arXiv:1803.11545
 
@@ -194,6 +209,12 @@ Gerbino, M. 2018, \JournalTitle{arXiv e-prints}, arXiv:1803.11545
 {Gil-Mar{\'i}n}, H., Percival, W.~J., Verde, L., {et~al.} 2017,
   \href{http://dx.doi.org/10.1093/mnras/stw2679}{\JournalTitle{Monthly Notices
   of the Royal Astronomical Society}, 465, 1757}
+
+\bibitem[{{Gonzalez-Garcia} {et~al.}(2016){Gonzalez-Garcia}, Maltoni, \&
+  Schwetz}]{gonzalez-garcia2016}
+{Gonzalez-Garcia}, M.~C., Maltoni, M., \& Schwetz, T. 2016,
+  \href{http://dx.doi.org/10.1016/j.nuclphysb.2016.02.033}{\JournalTitle{Nuclear
+  Physics B}, 908, 199}
 
 \bibitem[{Hand {et~al.}(2017)Hand, Seljak, Beutler, \& Vlah}]{hand2017}
 Hand, N., Seljak, U., Beutler, F., \& Vlah, Z. 2017,
@@ -302,6 +323,12 @@ LoVerde, M. 2014,
   \href{http://dx.doi.org/10.1103/PhysRevD.90.083518}{\JournalTitle{Physical
   Review D}, 90, 083518}
 
+\bibitem[{Marulli {et~al.}(2011)Marulli, Carbone, Viel, Moscardini, \&
+  Cimatti}]{marulli2011}
+Marulli, F., Carbone, C., Viel, M., Moscardini, L., \& Cimatti, A. 2011,
+  \href{http://dx.doi.org/10.1111/j.1365-2966.2011.19488.x}{\JournalTitle{Monthly
+  Notices of the Royal Astronomical Society}, 418, 346}
+
 \bibitem[{McClintock {et~al.}(2018)McClintock, Rozo, Becker, DeRose, Mao,
   McLaughlin, Tinker, Wechsler, \& Zhai}]{mcclintock2018}
 McClintock, T., Rozo, E., Becker, M.~R., {et~al.} 2018,
@@ -325,6 +352,16 @@ Pontzen, A., Slosar, A., Roth, N., \& Peiris, H.~V. 2016,
 Ruggeri, R., Castorina, E., Carbone, C., \& Sefusatti, E. 2018,
   \href{http://dx.doi.org/10.1088/1475-7516/2018/03/003}{\JournalTitle{Journal
   of Cosmology and Astroparticle Physics}, 2018, 003}
+
+\bibitem[{Saito {et~al.}(2008)Saito, Takada, \& Taruya}]{saito2008}
+Saito, S., Takada, M., \& Taruya, A. 2008,
+  \href{http://dx.doi.org/10.1103/PhysRevLett.100.191301}{\JournalTitle{Physical
+  Review Letters}, 100, 191301}
+
+\bibitem[{Saito {et~al.}(2009)Saito, Takada, \& Taruya}]{saito2009}
+---. 2009,
+  \href{http://dx.doi.org/10.1103/PhysRevD.80.083528}{\JournalTitle{Physical
+  Review D}, 80, 083528}
 
 \bibitem[{Sartoris {et~al.}(2016)Sartoris, Biviano, Fedeli, Bartlett, Borgani,
   Costanzi, Giocoli, Moscardini, Weller, Ascaso, Bardelli, Maurogordato, \&
@@ -401,6 +438,12 @@ Tinker, J.~L., Leauthaud, A., Bundy, K., {et~al.} 2013,
   \href{http://dx.doi.org/10.1088/0004-637X/778/2/93}{\JournalTitle{The
   Astrophysical Journal}, 778, 93}
 
+\bibitem[{Upadhye {et~al.}(2016)Upadhye, Kwan, Pope, Heitmann, Habib, Finkel,
+  \& Frontiere}]{upadhye2016}
+Upadhye, A., Kwan, J., Pope, A., {et~al.} 2016,
+  \href{http://dx.doi.org/10.1103/PhysRevD.93.063515}{\JournalTitle{Physical
+  Review D}, 93, 063515}
+
 \bibitem[{Vakili \& Hahn(2019)}]{vakili2019}
 Vakili, M., \& Hahn, C. 2019,
   \href{http://dx.doi.org/10.3847/1538-4357/aaf1a1}{\JournalTitle{The
@@ -445,6 +488,11 @@ Wibking, B.~D., Salcedo, A.~N., Weinberg, D.~H., {et~al.} 2019,
 Wolz, L., Kilbinger, M., Weller, J., \& Giannantonio, T. 2012,
   \href{http://dx.doi.org/10.1088/1475-7516/2012/09/009}{\JournalTitle{Journal
   of Cosmology and Astroparticle Physics}, 2012, 009}
+
+\bibitem[{Wong(2008)}]{wong2008}
+Wong, Y. Y.~Y. 2008,
+  \href{http://dx.doi.org/10.1088/1475-7516/2008/10/035}{\JournalTitle{Journal
+  of Cosmology and Astroparticle Physics}, 2008, 035}
 
 \bibitem[{Yamauchi {et~al.}(2017)Yamauchi, Yokoyama, \&
   Takahashi}]{yamauchi2017a}

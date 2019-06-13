@@ -1,13 +1,19 @@
 \section{Introduction}
-The discovery from neutrino oscillation experiments that $\smnu > 0.06eV$
-opens many doors of physics beyond the standard model. Tight constraints on $\smnu$ 
-has the potential to \ch{insert implications}. 
-Current and upcoming laboratory experiments have the potential to measure 
-These measurements alone are not good enough. 
-Neutrinos through the cosmic neutrino background affect the expansion history 
-and the growth of cosmic structure. Measuring these effects with cosmological 
-observables provides complementary and potentially more constraining 
-measurements of $\smnu$. 
+The lower bound on the sum of neutrino masses ($\smnu \gtrsim 0.06$ eV), 
+discovered by neutrino oscillation experiments, provides strong evidence of 
+physics beyond the Standard Model of particle physics~\citep{forero2014, gonzalez-garcia2016}. 
+A more precise measurement of $\smnu$ has the potential to distinguish 
+between the `normal' and `inverted' neutrino mass hierarchy scenarios 
+and further reveal the physics of neutrinos. Neutrino oscillation 
+experiments, however, are insensitive to the absolute neutrino mass scales. 
+Other laboratory experiments sensitive to $\smnu$ (\emph{e.g.} double beta 
+decay and tritium beta decay experiments) have the potential to place upper 
+bounds of $\smnu < 0.2$ eV in upcoming experiments~\citep[\ch{hmm, who do I cite}]{drexlin2013}. 
+These upper bound alone are not insufficient to distinguish between the mass
+hiearchies. Neutrinos through the cosmic neutrino background affect the 
+expansion history and the growth of cosmic structure. Measuring these effects 
+with cosmological observables provides complementary and potentially more 
+precise measurements of $\smnu$. 
 
 Neutrinos, in the early universe, are relativistic and contribute to the 
 energy density of radiation. Later as they become non-relativistic, 
@@ -69,7 +75,7 @@ content in nonlinear clustering to constrain $\smnu$.
 
 % more real space papers Bird et al. 2012; Wagner et al. 2012; Ali-Haïmoud & Bird 2013; Lesgourgues et al. 2013; Villaescusa-Navarro et al. 2013b, 2015; Blas et al. 2014; LoVerde 2014b; Rossi et al. 2014, 2014; Upadhye et al. 2014; Castorina et al. 2015; Führer & Wong 2015; Inman et al. 2015; Peloso et al. 2015; Banerjee & Dalal 2016; Emberson et al. 2016}
 Various works have examined the impact of neutrino masses on nonlinear clustering 
-of matter in real-space~\citep[\emph{e.g.}][\ch{add more citations}]{brandyge2008, saito2008, wong 2008, saito2009, viel2010, agarwal2011} and in 
+of matter in real-space~\citep[\emph{e.g.}][\ch{add more citations}]{brandyge2008, saito2008, wong2008, saito2009, viel2010, agarwal2011} and in 
 redshift-space~\citep{marulli2011, castorina2015, upadhye2016}. Most recently, 
 using a suite of more than 1000 simulations, \cite{villaescusa-navarro2018} 
 examined the impact of $\smnu$ on the redshift-space matter and halo power 
@@ -79,24 +85,27 @@ poses a serious limitation of constraining $\smnu$ with the power spectrum.
 However, information in the nonlinear regime extend beyond the power spectrum 
 to higher-order statistics--- \emph{e.g.} the bispectrum. In fact, the 
 bispectrum has comparable a signal-to-noise ratio to the power spectrum
-on nonlinear scales~\citep{sefusatti2005, chan2017}. Furthermore, including 
-the bispectrum improves constraints on cosmological parameters besides
-$\smnu$~\citep{sefusatti2006, yankelevich2019}. The bispectrum 
+on nonlinear scales~\citep{sefusatti2005, chan2017}. Furthermore, although $\smnu$ 
+is not included in their analysis, \cite{sefusatti2006} and \cite{yankelevich2019} 
+have shown that including the bispectrum in analyses improves constraints on 
+cosmological parameters. \cite{ruggeri2018} presented the first measurement of 
+the bispectrum for $N$-body simulations with massive neutrions. Yet, no work to 
+date has quantified the full information content and constraining power of 
+the bispectrum down to nonlinear scales --- especially for $\smnu$. 
 
-With neutrinos ruggeri measured the bispectrum with sims with massive neutrinos, 
-but we have no idea how well the bispectrum will do compared to power spectrum 
-for neutrinos.
-
-In this paper we use n-body simulations with massive neutrinos to examine the 
-redshift-space halo bispectrum and demonstrate how it breaks the mnu-sig8 degeneracy. 
-Furthermore, we present the full information content of the bispectrum with a Fisher 
-forecast where we calculate the covariance matrix and derivatives with an unprecedented 
-number simulations of the Quijote suite. This paper is the first of a series of 
-papers that aim at demonstrating the potential of the galaxy bispectrum analysis in 
-constraining $\smnu$. In the subsequent paper, we will include HOD parameters in our 
-forecasts to quantify the full information content of the galaxy bispectrum. We will
-also present various ways to tackle the challenges of a full galaxy bispectrum analysis, 
-such as data compression for reducing the dimensionality of the bispectrum. 
+In this work, we examine the effect of massive neutrinos on the redshift-space 
+halo bispectrum using more than 23000 $N$-body simulations with massive neutrinos. 
+We first demonstrate that the bispectrum helps break the $\smnu$--$\sig$ degeneracy 
+found in the power spectrum. Then we present the full information content of the 
+bispectrum for all triangle configurations down to $k_{\rm max} = 0.5~\mpc$ using 
+a Fisher forecast where we estimate the covariance matrix and derivatives with 
+the large set of simulations from the Quijote suite (Villaescusa-Navarro et al. in preparation). 
+This paper is the first of a series of papers that aim to demonstrate the potential 
+of the galaxy bispectrum analysis in constraining $\smnu$. In the subsequent paper, 
+we will include HOD parameters in our forecasts to quantify the full information 
+content of the galaxy bispectrum. In the series, we will also present methods to 
+tackle challenges that come with analyzing the full galaxy bispectrum, such as data 
+compression for reducing the dimensionality of the bispectrum. 
 
 In Section~\ref{sec:hades} we describe the two simulation suites, HADES and Quijote, 
 that we use throughout the paper. Then in Section~\ref{sec:bk}, we describe how 
