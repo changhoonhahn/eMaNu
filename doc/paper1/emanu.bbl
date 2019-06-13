@@ -18,6 +18,11 @@ Abazajian, K.~N., Adshead, P., Ahmed, Z., {et~al.} 2016,
   physics:hep-th]}, \href{http://arxiv.org/abs/1610.02743}{{\sffamily
   arXiv:1610.02743 [astro-ph, physics:gr-qc, physics:hep-ph, physics:hep-th]}}
 
+\bibitem[{Adamek {et~al.}(2017)Adamek, Durrer, \& Kunz}]{adamek2017}
+Adamek, J., Durrer, R., \& Kunz, M. 2017, \JournalTitle{arXiv:1707.06938
+  [astro-ph, physics:gr-qc]}, \href{http://arxiv.org/abs/1707.06938}{{\sffamily
+  arXiv:1707.06938 [astro-ph, physics:gr-qc]}}
+
 \bibitem[{Ade {et~al.}(2016)Ade, Aghanim, Arnaud, Ashdown, Aumont, Baccigalupi,
   Banday, Barreiro, Bartlett, Bartolo, Battaner, Battye, Benabed, Beno{\^i}t,
   {Benoit-L{\'e}vy}, Bernard, Bersanelli, Bielewicz, Bock, Bonaldi, Bonavera,
@@ -97,6 +102,12 @@ Carron, J. 2013,
   \href{http://dx.doi.org/10.1051/0004-6361/201220538}{\JournalTitle{Astronomy
   \& Astrophysics}, 551, A88}
 
+\bibitem[{Castorina {et~al.}(2015)Castorina, Carbone, Bel, Sefusatti, \&
+  Dolag}]{castorina2015}
+Castorina, E., Carbone, C., Bel, J., Sefusatti, E., \& Dolag, K. 2015,
+  \href{http://dx.doi.org/10.1088/1475-7516/2015/07/043}{\JournalTitle{Journal
+  of Cosmology and Astro-Particle Physics}, 2015, 043}
+
 \bibitem[{Castorina {et~al.}(2014)Castorina, Sefusatti, Sheth,
   {Villaescusa-Navarro}, \& Viel}]{castorina2014}
 Castorina, E., Sefusatti, E., Sheth, R.~K., {Villaescusa-Navarro}, F., \& Viel,
@@ -161,6 +172,12 @@ Davis, M., Efstathiou, G., Frenk, C.~S., \& White, S. D.~M. 1985,
 
 \bibitem[{Dodelson(2003)}]{dodelson2003}
 Dodelson, S. 2003, Modern Cosmology
+
+\bibitem[{Emberson {et~al.}(2017)Emberson, Yu, Inman, Zhang, Pen,
+  {Harnois-D{\'e}raps}, Yuan, Teng, Zhu, Chen, \& Xing}]{emberson2017}
+Emberson, J.~D., Yu, H.-R., Inman, D., {et~al.} 2017,
+  \href{http://dx.doi.org/10.1088/1674-4527/17/8/85}{\JournalTitle{Research in
+  Astronomy and Astrophysics}, 17, 085}
 
 \bibitem[{{Font-Ribera} {et~al.}(2014){Font-Ribera}, McDonald, Mostek, Reid,
   Seo, \& Slosar}]{font-ribera2014}
@@ -404,6 +421,12 @@ Viel, M., Haehnelt, M.~G., \& Springel, V. 2010,
 {Villaescusa-Navarro}, F., Banerjee, A., Dalal, N., {et~al.} 2018,
   \href{http://dx.doi.org/10.3847/1538-4357/aac6bf}{\JournalTitle{The
   Astrophysical Journal}, 861, 53}
+
+\bibitem[{{Villaescusa-Navarro} {et~al.}(2013){Villaescusa-Navarro}, Bird,
+  {Pe{\~n}a-Garay}, \& Viel}]{villaescusa-navarro2013}
+{Villaescusa-Navarro}, F., Bird, S., {Pe{\~n}a-Garay}, C., \& Viel, M. 2013,
+  \href{http://dx.doi.org/10.1088/1475-7516/2013/03/019}{\JournalTitle{Journal
+  of Cosmology and Astro-Particle Physics}, 2013, 019}
 
 \bibitem[{{Villaescusa-Navarro} {et~al.}(2014){Villaescusa-Navarro}, Marulli,
   Viel, Branchini, Castorina, Sefusatti, \& Saito}]{villaescusa-navarro2014}
