@@ -41,24 +41,25 @@ We're interested in breaking parameter degeneracies that limit the constraining
 power on $\smnu$ of two-point clustering analyses using three-point clustering 
 statistics --- \emph{i.e.} the bispectrum. In this section, we describe the 
 bispectrum estimator used throughout the paper. We focus on the bispectrum monopole 
-($\ell = 0$) and use an estimator that exploits Fast Fourier Transpforms (FFTs). 
-Our estimator is similar to the estimators described in \cite{scoccimarro2015,sefusatti2016}; 
-we also follow their formalism in our description below. Although \cite{sefusatti2016} 
-and \cite{scoccimarro2015} respectively describe estimators in redshift- and real-space,  
-since we focus on the bispectrum monopole, we note that there is no difference. 
+($\ell = 0$) and use an estimator that exploits the speed of Fast Fourier 
+Transforms (FFTs). Our estimator is similar to the estimators described in 
+\cite{scoccimarro2015} and \cite{sefusatti2016}; we also follow their formalism 
+in our description below. Although \cite{sefusatti2016} and \cite{scoccimarro2015} 
+respectively describe estimators in real- and redshift-space,  since we focus on the bispectrum monopole, we note that there is no difference. 
 
 To measure the bispectrum of our halo catalogs, we begin by interpolating the halo
-positions to a grid, $\delta({\bfi x})$ and Fourier transforming the grid to get $\delta({\bfi k})$.
-We use a fourth-order interpolation to interlaced grids, which has advantageous 
-anti-aliasing properties~\citep{hockney1981,sefusatti2016} that allow unbias measurements 
-up to the Nyquist frequency. Then using $\delta({\bfi k})$, we measure the bispectrum monopole as 
+positions to a grid, $\delta({\bfi x})$, and Fourier transforming the grid to get 
+$\delta({\bfi k})$. We use a fourth-order interpolation to interlaced grids, 
+which has advantageous anti-aliasing properties that allow unbias measurements 
+up to the Nyquist frequency~\citep{hockney1981,sefusatti2016}. Then using 
+$\delta({\bfi k})$, we measure the bispectrum monopole as 
 \beq \label{eq:bk} 
-\widehat{B}_{\ell = 0}(k_1,k_2, k_3) = \frac{1}{V_B} \int\limits_{k_1}{\rm d}^3q_1 \int\limits_{k_2}{\rm d}^3q_2 \int\limits_{k_3}{\rm d}^3q_3~\delta_{\rm D}({\bfi q_{123}})~\delta({\bfi q_1})~\delta({\bfi q_2})~\delta({\bfi q_3}) - B^{\rm SN}_{\ell = 0}
+\widehat{B}_{\ell = 0}(k_1,k_2, k_3) = \frac{1}{V_B} \int\limits_{k_1}{\rm d}^3q_1 \int\limits_{k_2}{\rm d}^3q_2 \int\limits_{k_3}{\rm d}^3q_3~\delta_{\rm D}({\bfi q_{123}})~\delta({\bfi q_1})~\delta({\bfi q_2})~\delta({\bfi q_3}) - B^{\rm SN}_{\ell = 0}.
 \eeq
 $\delta_{\rm D}$ above is a Dirac delta function and hence $\delta_{\rm D}({\bfi q_{123}}) = \delta_{\rm D}({\bfi q_1} + {\bfi q_2} + {\bfi q_3})$ 
 ensures that the ${\bfi q}_i$ triplet actually form a closed triangle. Each of the integrals 
 above represent an integral over a spherical shell in $k$-space with radius $\delta k$ 
-centered at ${\bfi k}_i$ --- \emph{i.e.} 
+centered at ${\bfi k}_i$: 
 \beq
 \int_{k_i}{\rm d}^3q \equiv \int\limits_{k_i-\delta k/2}^{k_i+\delta k/2}{\rm d}q~q^2\int {\rm d}\Omega.
 \eeq
@@ -66,14 +67,14 @@ $V_B$ is a normalization factor proportional to the number of triplets ${\bfi q_
 ${\bfi q_2}$, and ${\bfi q_3}$ that can be found in the triangle bin defined by 
 $k_1$, $k_2$, and $k_3$ with width $\delta k$: 
 \beq
-V_B = \int\limits_{k_1}{\rm d}^3q_1 \int\limits_{k_2}{\rm d}^3q_2 \int\limits_{k_3}{\rm d}^3q_3~\delta_{\rm D}({\bfi q_{123}})
+V_B = \int\limits_{k_1}{\rm d}^3q_1 \int\limits_{k_2}{\rm d}^3q_2 \int\limits_{k_3}{\rm d}^3q_3~\delta_{\rm D}({\bfi q_{123}}). 
 \eeq
 Lastly, $B^{\rm SN}_{\ell=0}$ is the correction for the Poisson shot noise, which 
 contributes due to the self-correlation of individual objects: 
 \beq \label{eq:bk_sn} 
-B^{\rm SN}_{\ell=0}(k_1, k_2, k_3) = \frac{1}{\bar{n}} \big(P_0(k_1) + P_0(k_2) + P_0(k_3) \big) + \frac{1}{\bar{n}^2}. 
+B^{\rm SN}_{\ell=0}(k_1, k_2, k_3) = \frac{1}{\bar{n}} \big(P_0(k_1) + P_0(k_2) + P_0(k_3) \big) + \frac{1}{\bar{n}^2}
 \eeq
-$\bar{n}$ is the number density of objects (halos) and $P_0$ is the powerspectrum monopole. 
+where $\bar{n}$ is the number density of objects (halos) and $P_0$ is the powerspectrum monopole. 
 
 In order to evaluate the integrals in Eq.~\ref{eq:bk}, we take advantage of the plane-wave 
 representation of the Dirac delta function and rewrite the equation as
@@ -86,31 +87,31 @@ where
 I_{k_i}({\bfi x}) = \int\limits_k {\rm d}^3q~\delta({\bfi q})~e^{i {\bfi q}\cdot{\bfi x}}. 
 \eeq
 At this point, we measure $\widehat{B}_{\ell = 0}(k_1, k_2, k_3)$ by calcuating the 
-$I_{k_i}$s with inverse FFTs and summing over in real space.\footnote{The code that we use to 
-evaluate $\widehat{B}_{\ell = 0}$ is publicly available at \url{https://github.com/changhoonhahn/pySpectrum}}
-For $\widehat{B}_{\ell = 0}$
+$I_{k_i}$s with inverse FFTs and summing over in real space. For $\widehat{B}_{\ell = 0}$
 measurements throughout the paper, we use $\delta({\bfi x})$ grids with $N_{\rm grid} = 360$ 
 and triangle configurations defined by $k_1, k_2, k_3$ bins of width 
 $\Delta k = 3 k_f = 0.01885~h/{\rm Mpc}$, three times the fundamental mode
-$k_f = 2\pi/(1000~h/{\rm Mpc})$ given the box size. 
+$k_f = 2\pi/(1000~h^{-1}{\rm Mpc})$ given the box size\footnote{The code that we use to 
+evaluate $\widehat{B}_{\ell = 0}$ is publicly available at \url{https://github.com/changhoonhahn/pySpectrum}}. 
 
 We present the redshift-space halo bispectrum of the HADE simulations measured using 
 the estimator above in two ways: one that emphasizes the triangle shape dependence 
 (Figure~\ref{fig:bk_shape}) and the other that emphasizes the amplitude 
 (Figure~\ref{fig:bk_amp}). In Figure~\ref{fig:bk_shape}, we plot $\BOk(k_1, k_2, k_3)$ 
 as a function of $k_2/k_1$ and $k_3/k_1$, which describe the triangle configuration shape. 
-In each panel, the colormap in each ($k_2/k_1$, $k_3/k_1$) bin is the weighted average $\BOk$ amplitude 
-of all triangle configurations in the bin. The upper left bins contain squeezed triangles 
-($k_1 = k_2 \gg k_3$); the upper right bins contain equilateral triangles 
-($k_1 = k_2 = k_3$); and the bottom center bins contain folded triangles ($k_1 = 2 k_2 = 2 k_3$). 
-We include all possible triangle configurations with $k_1, k_2, k_3 < k_{\rm max} = 0.5~h/{\rm Mpc}$. 
+In each panel, the colormap of the ($k_2/k_1$, $k_3/k_1$) bins represent the weighted 
+average $\BOk$ amplitude of all triangle configurations in the bins. The upper left 
+bins contain squeezed triangles ($k_1 = k_2 \gg k_3$); the upper right bins contain 
+equilateral triangles ($k_1 = k_2 = k_3$); and the bottom center bins contain folded 
+triangles ($k_1 = 2 k_2 = 2 k_3$). 
+We include all possible 1898 triangle configurations with $k_1, k_2, k_3 < k_{\rm max} = 0.5~\mpc$. 
 The $\BOk$ in the upper panels are HADES models with $\smnu = 0.0$ (fiducial), $0.06, 0.10$, 
-and $0.15\,\mathrm{eV}$; $\BOk$ in the lower panels are  HADES models with $\smnu 0.0$ eV and 
+and $0.15\,\mathrm{eV}$; $\BOk$ in the lower panels are  HADES models with $\smnu = 0.0$ eV and 
 $\sig = 0.822, 0.818$, and $0.807$. The top and bottom panels of the three right-most 
 columns have matching $\sig$ values (Section~\ref{sec:hades}).
 
 Next, in Figure~\ref{fig:bk_amp}, we plot $\BOk(k_1, k_2, k_3)$ for all possible triangle 
-configurations with $k_1, k_2, k_3 < k_{\rm max} = 0.5~h/{\rm Mpc}$ where we order the 
+configurations with $k_1, k_2, k_3 < k_{\rm max} = 0.5~\mpc$ where we order the 
 configurations by looping through $k_3$ in the inner most loop and $k_1$ in the outer most 
 loop with $k_1 \leq k_2 \leq k_3$. In the top panel, we present $\BOk$ of HADES models 
 with $\smnu = 0.0, 0.06, 0.10$, and $0.15\,\mathrm{eV}$; in the lower panel, we present 
