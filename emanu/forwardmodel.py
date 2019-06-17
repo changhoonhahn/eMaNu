@@ -41,19 +41,16 @@ def Observables(cat, observable='plk', rsd=False, Nmesh=256, dk=0.01, kmin=0.01,
         raise NotImplementedError
 
 
-def Galaxies(halos, p_hod, seed=None): 
+def hadesMnuGalaxies(p_hod, mneut=0.0, nreal=1, nzbin=4, mh_min=3200., dir=None, silent=True, overwrite=False, seed=None): 
     ''' populate given halo catalog (halos) with galaxies
     based on HOD model with p_hod parameters 
 
     Parameters
     ----------
-    halos : halotools.sim_manager.UserSuppliedHaloCatalog
-        output of HaloCatalog.to_halotools. for our intents and purposes 
-        this is the halo catalog
     p_hod : dict
         dictionary specifying the HOD parameters 
     '''
-    # check halos 
+    # check HOD parameters
     if 'alpha' not in p_hod.keys(): 
         raise ValueError
     if 'logMmin' not in p_hod.keys(): 
@@ -64,7 +61,10 @@ def Galaxies(halos, p_hod, seed=None):
         raise ValueError
     if 'sigma_logM' not in p_hod.keys(): 
         raise ValueError
-    # run HOD
+    # read HADES FoF halo catalog 
+    halos = hadesMnuHalos(mneut, nreal, nzbin, mh_min=mh_min., dir=dir, silent=silent, overwrite=overwrite)
+
+    # populate using HOD
     hod = halos.populate(Zheng07Model, seed=seed, **p_hod) 
     return hod 
 
