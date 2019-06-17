@@ -489,6 +489,60 @@ def _dPdthetas(log=True, rsd='all', flag='reg', dmnu='fin', silent=True):
     return None
 
 
+def dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin'):
+    ''' Compare the derivatives of the bispectrum w.r.t. all the parameters
+    
+    :param rsd: (default: 'all') 
+        rsd kwarg that specifies rsd set up for B(k). 
+        If rsd == 'all', include 3 RSD directions. 
+        If rsd in [0,1,2] include one of the directions
+
+    :param flag: (default: 'reg')  
+        kwarg specifying the flag for B(k). 
+        If `flag is None`, include paired-fixed and regular N-body simulation. 
+        If `flag == 'ncv'` only include paired-fixed. 
+        If `flag == 'reg'` only include regular N-body
+
+    :param dmnu: 
+        derivative finite differences setup
+    '''
+    _thetas = copy(thetas)
+    _theta_lbls = copy(theta_lbls) 
+    _theta_lims = [(-15., 5.), (-2., 24.), (-4., 0.5), (-5., -0.5), (-6., 0), (-1.5, 2.)]
+
+    i_k, j_k, l_k, _ = dpdt = dBkdtheta('Om', log=log, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True)
+    klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # get k limit
+    ijl = UT.ijl_order(i_k[klim], j_k[klim], l_k[klim], typ='GM') # order of triangles 
+    print i_k[:10], j_k[:10], l_k[:10]
+    print i_k[ijl][:10], j_k[ijl][:10], l_k[ijl][:10]
+
+    fig = plt.figure(figsize=(15,15))
+    for i_tt, tt, lbl in zip(range(len(_thetas)), _thetas, _theta_lbls): 
+        sub = fig.add_subplot(len(_thetas),1,i_tt+1)
+        dpdt = dBkdtheta(tt, log=log, rsd=rsd, flag=flag, dmnu=dmnu)
+        plt_bk, = sub.plot(range(np.sum(klim)), dpdt[klim])
+        #plt_bk, = sub.plot(range(np.sum(klim)), dpdt[klim][ijl])
+        
+        sub.set_xlim(0, np.sum(klim)) 
+        if not log: sub.set_yscale('log') 
+        else: sub.set_ylim(_theta_lims[i_tt]) 
+        #if i_tt == 0: sub.legend([plt_bk], [r'$B_{\rm h}$'], loc='upper left', fontsize=15)
+        if tt != _thetas[-1]: sub.set_xticklabels([]) 
+        sub.text(0.975, 0.925, lbl, ha='right', va='top', transform=sub.transAxes, fontsize=25)
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.set_xlabel('triangle configurations', fontsize=25) 
+    if not log: bkgd.set_ylabel(r'$|{\rm d}B/{\rm d} \theta|$', labelpad=10, fontsize=25) 
+    else: bkgd.set_ylabel(r'${\rm d}\log B/{\rm d} \theta$', labelpad=10, fontsize=25) 
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+
+    fig.subplots_adjust(hspace=0.075) 
+    ffig = os.path.join(dir_doc, 'quijote_d%sBdthetas%s%s.%s.png' % (['', 'log'][log], _rsd_str(rsd), _flag_str(flag), dmnu))
+    fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
+    return None
+
+
 def _dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin'):
     ''' Compare the derivatives of the bispectrum w.r.t. all the parameters
     
@@ -532,7 +586,7 @@ def _dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin'):
     if not log: bkgd.set_ylabel(r'$|{\rm d}B/{\rm d} \theta|$', labelpad=10, fontsize=25) 
     else: bkgd.set_ylabel(r'${\rm d}\log B/{\rm d} \theta$', labelpad=10, fontsize=25) 
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-    ffig = os.path.join(dir_fig, 'quijote_d%sBdthetas%s%s.%s.png' % (['', 'log'][log], _rsd_str(rsd), _flag_str(flag), dmnu))
+    ffig = os.path.join(fig_doc, 'quijote_d%sBdthetas%s%s.%s.png' % (['', 'log'][log], _rsd_str(rsd), _flag_str(flag), dmnu))
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
@@ -1111,7 +1165,7 @@ def forecast_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False, pl
         _Fij_planck = np.load(os.path.join(UT.dat_dir(), 'Planck_2018_s8.npy')) 
     
     # read in fisher matrix (Fij)
-    sig_pk, sig_bk, sig_pm, sig_pcb = [], [], [], [] 
+    sig_pk, sig_bk, sig_pk_planck, sig_bk_planck, sig_pm, sig_pcb = [], [], [], [], [], [] 
     for i_k, kmax in enumerate(kmaxs): 
         if LT: 
             pmFij   = LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints=5) # linear theory Pm 
@@ -1120,8 +1174,10 @@ def forecast_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False, pl
         bkFij   = FisherMatrix('bk', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=bk_theta_nuis) 
     
         if planck: # add planck prior 
-            pkFij[:6,:6] += _Fij_planck
-            bkFij[:6,:6] += _Fij_planck
+            pkFij_planck = pkFij.copy() 
+            bkFij_planck = bkFij.copy() 
+            pkFij_planck[:6,:6] += _Fij_planck
+            bkFij_planck[:6,:6] += _Fij_planck
 
         if np.linalg.cond(pkFij) > 1e16: 
             print('P Fij ill-conditioned; cond # = %.2e' % np.linalg.cond(pkFij)) 
@@ -1132,15 +1188,24 @@ def forecast_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False, pl
             sig_pcb.append(np.sqrt(np.diag(np.linalg.inv(pcbFij))))
         sig_pk.append(np.sqrt(np.diag(np.linalg.inv(pkFij))))
         sig_bk.append(np.sqrt(np.diag(np.linalg.inv(bkFij))))
+        if planck: 
+            sig_pk_planck.append(np.sqrt(np.diag(np.linalg.inv(pkFij_planck))))
+            sig_bk_planck.append(np.sqrt(np.diag(np.linalg.inv(bkFij_planck))))
         print('kmax=%.3f ---' %  kmax) 
         print('pk: %s' % ', '.join(['%.2e' % fii for fii in sig_pk[-1]])) 
         print('bk: %s' % ', '.join(['%.2e' % fii for fii in sig_bk[-1]])) 
+        if planck: 
+            print('pk w/ planck: %s' % ', '.join(['%.2e' % fii for fii in sig_pk_planck[-1]])) 
+            print('bk w/ planck: %s' % ', '.join(['%.2e' % fii for fii in sig_bk_planck[-1]])) 
         if LT: 
             print('pm: %s' % ', '.join(['%.2e' % fii for fii in sig_pm[-1]])) 
             print('pcb: %s' % ', '.join(['%.2e' % fii for fii in sig_pcb[-1]])) 
 
     sig_pk  = np.array(sig_pk)
     sig_bk  = np.array(sig_bk)
+    if planck: 
+        sig_pk_planck = np.array(sig_pk_planck)
+        sig_bk_planck = np.array(sig_bk_planck)
     if LT: 
         sig_pm  = np.array(sig_pm)
         sig_pcb = np.array(sig_pcb)
@@ -1153,24 +1218,29 @@ def forecast_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False, pl
         print('%.3f %s' % (kmaxs[i_k], ', '.join(['%.3f' % fpb for fpb in sig_pk[i_k]/sig_bk[i_k]])))
 
     # write out to table
-    kmax_preset = np.zeros(len(kmaxs)).astype(bool) 
-    for kmax in [0.2, 0.3, 0.4, 0.5]: 
-        kmax_preset[(np.abs(kmaxs - kmax)).argmin()] = True
-    pk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_pk[kmax_preset,:].T)).T 
-    bk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_bk[kmax_preset,:].T)).T 
-    fpk = os.path.join(UT.doc_dir(), 'dat', 'pk_forecast_kmax.dat') 
-    np.savetxt(fpk, pk_dat, delimiter=', ', fmt='%.5f')
-    fbk = os.path.join(UT.doc_dir(), 'dat', 'bk_forecast_kmax.dat') 
-    np.savetxt(fbk, bk_dat, delimiter=', ', fmt='%.5f')
+    #kmax_preset = np.zeros(len(kmaxs)).astype(bool) 
+    #for kmax in [0.2, 0.3, 0.4, 0.5]: 
+    #    kmax_preset[(np.abs(kmaxs - kmax)).argmin()] = True
+    #pk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_pk[kmax_preset,:].T)).T 
+    #bk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_bk[kmax_preset,:].T)).T 
+    #fpk = os.path.join(UT.doc_dir(), 'dat', 'pk_forecast_kmax.dat') 
+    #np.savetxt(fpk, pk_dat, delimiter=', ', fmt='%.5f')
+    #fbk = os.path.join(UT.doc_dir(), 'dat', 'bk_forecast_kmax.dat') 
+    #np.savetxt(fbk, bk_dat, delimiter=', ', fmt='%.5f')
 
     sigma_theta_lims = [(5e-3, 1.), (1e-3, 1.), (1e-2, 10), (1e-2, 10.), (1e-2, 10.), (1e-2, 1e1)]
-    if planck: sigma_theta_lims = [(5e-3, 1e-1), (1e-4, 1e-2), (1e-3, 1e-1), (1e-3, 1e-2), (1e-2, 1e-1), (1e-2, 1.)]
+    if planck: sigma_theta_lims = [(5e-3, 1.), (5e-4, 1.), (5e-3, 10), (3e-3, 10), (5e-3, 10), (1e-2, 10.)]
 
     fig = plt.figure(figsize=(15,8))
     for i, theta in enumerate(thetas): 
         sub = fig.add_subplot(2,len(thetas)/2,i+1) 
         sub.plot(kmaxs[cond_pk], sig_pk[:,i][cond_pk], c='C0', ls='-') 
         sub.plot(kmaxs[cond_bk], sig_bk[:,i][cond_bk], c='C1', ls='-') 
+        if planck: 
+            sub.plot(kmaxs[cond_pk], sig_pk_planck[:,i][cond_pk], c='C0', ls=':', lw=0.75) 
+            _plt, =sub.plot(kmaxs[cond_bk], sig_bk_planck[:,i][cond_bk], c='C1', ls=':', lw=0.75) 
+            if theta == 'Mnu': 
+                sub.legend([_plt], ['w/ Planck'], loc='lower left', handletextpad=0.2, fontsize=15) 
         if LT: 
             if theta == 'Mnu': 
                 sub.plot(kmaxs, sig_pm[:,i], c='k', ls='--', label=r"$P^{\rm lin.}_{m}$") 
@@ -1184,12 +1254,12 @@ def forecast_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False, pl
         sub.set_yscale('log') 
         if i == 0: 
             sub.text(0.5, 0.45, r"$P$", ha='left', va='bottom', color='C0', transform=sub.transAxes, fontsize=24)
-            sub.text(0.3, 0.3, r"$B$", ha='right', va='top', color='C1', transform=sub.transAxes, fontsize=24)
+            sub.text(0.3, 0.35, r"$B$", ha='right', va='top', color='C1', transform=sub.transAxes, fontsize=24)
 
     bkgd = fig.add_subplot(111, frameon=False)
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
     bkgd.set_xlabel(r'$k_{\rm max}$', fontsize=28) 
-    bkgd.set_ylabel(r'marginalized $\sigma_\theta$', labelpad=10, fontsize=28) 
+    bkgd.set_ylabel(r'{\fontsize{28pt}{3em}\selectfont{}$\sigma_\theta~/$}{\fontsize{20pt}{3em}\selectfont{}$\sqrt{\frac{V}{1 ({\rm Gpc}/h)^3}}$}', labelpad=15)#, fontsize=28) 
     fig.subplots_adjust(wspace=0.2, hspace=0.15) 
 
     if theta_nuis is None: nuis_str = ''
@@ -2953,6 +3023,7 @@ if __name__=="__main__":
         for flag in ['ncv', 'reg']: B_theta(rsd='all', flag=flag)
         for flag in ['ncv', 'reg']: _dPdthetas(log=True, rsd=0, flag=flag, dmnu='fin')
         for flag in ['ncv', 'reg']: _dBdthetas(log=True, rsd=0, flag=flag, dmnu='fin')
+        dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin')
         dlogBdMnu(kmax=0.5, flag='reg')
         for flag in ['ncv', 'reg']: dlogPBdMnu(rsd='all', flag=flag)
         _dBdthetas_ncv(kmax=0.5, log=True, rsd=True, dmnu='fin')
