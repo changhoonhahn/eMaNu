@@ -25,7 +25,7 @@ mpl.rcParams['ytick.major.size'] = 5
 mpl.rcParams['ytick.major.width'] = 1.5
 mpl.rcParams['legend.frameon'] = False
 
-
+dir_fig = UT.fig_dir()
 kf = 2.*np.pi/1000. 
 
 
@@ -33,10 +33,12 @@ def pairedfixed_comparison(kmax=0.5):
     ''' compare the bispectrum of the fiducial and fiducial pair-fixed 
     '''
     # read in fiducial B regular N-body (45000 mocks) 
-    quij_fid = Obvs.quijoteBk('fiducial', rsd=True, flag='reg', silent=False) 
+    quij_fid = Obvs.quijoteBk('fiducial', rsd='all', flag='reg', silent=False) 
+    print(quij_fid['b123'].shape) 
     bk_fid = np.average(quij_fid['b123'], axis=0) 
     # read in fiducial B paired fixed (1500 mocks) 
-    quij_fid_ncv = Obvs.quijoteBk('fiducial', rsd=True, flag='ncv', silent=False) 
+    quij_fid_ncv = Obvs.quijoteBk('fiducial', rsd='all', flag='ncv', silent=False) 
+    print(quij_fid_ncv['b123'].shape) 
     bk_fid_ncv = np.average(quij_fid_ncv['b123'], axis=0) 
     
     # klimit  
@@ -46,8 +48,10 @@ def pairedfixed_comparison(kmax=0.5):
 
     fig = plt.figure(figsize=(20,10)) 
     sub = fig.add_subplot(211)
-    sub.plot(range(np.sum(klim)), bk_fid[klim][ijl], c='k', label='fiducial') 
-    sub.plot(range(np.sum(klim)), bk_fid_ncv[klim][ijl], c='C1', ls="--", label='fiducial NCV') 
+    #sub.plot(range(np.sum(klim)), bk_fid[klim][ijl], c='k', label='fiducial') 
+    #sub.plot(range(np.sum(klim)), bk_fid_ncv[klim][ijl], c='C1', ls="--", label='fiducial NCV') 
+    sub.plot(range(np.sum(klim)), bk_fid[klim], c='k', label='fiducial') 
+    sub.plot(range(np.sum(klim)), bk_fid_ncv[klim], c='C1', ls="--", label='fiducial NCV') 
     sub.legend(loc='upper right', fontsize=20) 
     sub.set_xlim(0, np.sum(klim))
     sub.set_ylabel('$B(k)$', fontsize=25)
@@ -55,7 +59,8 @@ def pairedfixed_comparison(kmax=0.5):
     sub.set_ylim(1e5, 1e10)
 
     sub = fig.add_subplot(212)
-    sub.plot(range(np.sum(klim)), bk_fid_ncv[klim][ijl]/bk_fid[klim][ijl], c='C0') 
+    #sub.plot(range(np.sum(klim)), bk_fid_ncv[klim][ijl]/bk_fid[klim][ijl], c='C0') 
+    sub.plot(range(np.sum(klim)), bk_fid_ncv[klim]/bk_fid[klim], c='C0') 
     sub.plot(range(np.sum(klim)), np.ones(np.sum(klim)), c='k', ls=':') 
     sub.legend(loc='upper right', fontsize=20) 
     sub.set_xlabel('triangle configuration', fontsize=25) 
@@ -63,7 +68,7 @@ def pairedfixed_comparison(kmax=0.5):
     sub.set_ylabel(r'$B^{\rm fid;NCV}/B^{\rm fid}$', fontsize=25)
     sub.set_ylim(0.9, 1.1)
 
-    ffig = os.path.join(UT.fig_dir(), 'quijote_fiducial_pairedfixed.kmax%.2f.png' % kmax) 
+    ffig = os.path.join(dir_fig, 'quijote_fiducial_pairedfixed.kmax%.2f.png' % kmax) 
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
