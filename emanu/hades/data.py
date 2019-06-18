@@ -60,9 +60,10 @@ def hadesMnuHalos(mneut, nreal, nzbin, mh_min=3200., dir=None, silent=True, over
         nzbin = 4 --> z=0
     '''
     if not silent: print('--- constructing %s ---' % f_halo)
-    if dir is none: 
-        if mneut == 0.1: dir = os.path.join(UT.dat_dir(), '0.10eV', str(nreal))
-        else: dir = os.path.join(UT.dat_dir(), '%seV' % str(mneut), str(nreal)])
+    if dir is None: 
+        _dir = os.path.join(UT.dat_dir(), 'halos', 'hades') 
+        if mneut == 0.1: dir = os.path.join(_dir, '0.10eV', str(nreal))
+        else: dir = os.path.join(_dir, '%seV' % str(mneut), str(nreal))
 
     # read in Gadget header (~65.1 microsec) 
     header = RS.read_gadget_header(os.path.join(dir, 'snapdir_%s' % str(nzbin).zfill(3), 'snap_%s' % str(nzbin).zfill(3)))
@@ -70,12 +71,10 @@ def hadesMnuHalos(mneut, nreal, nzbin, mh_min=3200., dir=None, silent=True, over
     # get cosmology from header 
     Ob = 0.049 # fixed baryon 
     ns = 0.9624 # fixed n_s 
-    _cosmo = NBlab.cosmology.Planck15.clone(
-            Omega_cdm=header['Omega_m']-Ob, 
-            Omega_b=Ob, 
-            h=header['h'],
-            n_s=ns, 
-            m_ncdm=mneut)
+    if mneut > 0.: 
+        _cosmo = NBlab.cosmology.Planck15.clone(Omega_cdm=header['Omega_m']-Ob, Omega_b=Ob, h=header['h'], n_s=ns, m_ncdm=mneut)
+    else: 
+        _cosmo = NBlab.cosmology.Planck15.clone(Omega_cdm=header['Omega_m']-Ob, Omega_b=Ob, h=header['h'], n_s=ns)
     s8dict = {0.0: 0.833, 0.06: 0.819, 0.1: 0.809, 0.15: 0.798} 
     cosmo = _cosmo.match(sigma8=s8dict[mneut])
     
