@@ -3056,7 +3056,6 @@ if __name__=="__main__":
             pbForecast(kmax=0.5, rsd='all', flag=flag, theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'], dmnu='fin', planck=True)
     '''
     # fisher forecasts as a function of kmax with different nuisance parameters 
-    forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'], planck=True)
     '''
         for flag in ['ncv', 'reg']: 
             Fii_kmax(rsd='all', flag=flag, dmnu='fin')
@@ -3073,6 +3072,8 @@ if __name__=="__main__":
             forecast_thetas_kmax(tts='lcdm', rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'])
     '''
     # --- convergence tests ---  
+    Fij_convergence('bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin')
+    #forecast_convergence('bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin')
     '''
         for flag in ['ncv', 'reg']: 
             dlogPBdtheta_Nfixedpair(rsd=True, flag=flag, dmnu='fin')

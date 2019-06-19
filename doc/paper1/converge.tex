@@ -1,42 +1,46 @@
 \section{Fisher Forecasts using $N$-body simulations} \label{sec:numerical}
-The two key elements in calculating the Fisher matrices we use in our forecasts
+The two key elements in calculating the Fisher matrices in our bispectrum forecasts
 are the bispectrum covariance matrix ($\bfi{C}$; Figure~\ref{fig:bk_cov}) and 
-the derivatives of the bispectrum along the cosmological and nuisance parameters, 
-$\partial B_0/\partial \theta_i$ (Section~\ref{sec:forecasts}). We compute 
+the derivatives of the bispectrum along the cosmological and nuisance parameters 
+($\partial B_0/\partial \theta$; Figure~\ref{fig:bk_deriv}). We compute 
 both these elements directly using the $N$-body simulations of the Quijote suite 
-(Section~\ref{sec:hades}). This takes advantage of the $N$-body simulations and 
-allows us to accurately quantify the constraining power of the bispectrum that 
-come from the nonlinear regime. However, to trust our forecast, we must ensure that 
-both $\bfi{C}$ has converged and that the numerically calculated 
-$\partial B_0/\partial \theta_i$ do not introduce any biases. Below, we tests 
-the convergence of $\bfi{C}$ and $\partial B_0/\partial \theta_i$ and discuss
-some of the subtleties and caveats of numerically calculating $\partial B_0/\partial \theta_i$ 
-from the Quijote simulations. 
-\ch{mention somewhere the P convergence looks good} 
+(Section~\ref{sec:hades}). This exploits the accuracy of $N$-body simulations in 
+the nonlinear regime and allows us to accurately quantify the constraining power of 
+the bispectrum beyond perturbation theory models. However, we must ensure that 
+both $\bfi{C}$ and $\partial B_0/\partial \theta$ have converged and that numerical 
+effects do not introduce any biases that impact our results. Below, we tests 
+the convergence of $\bfi{C}$ and $\partial B_0/\partial \theta$ and discuss
+some of the subtleties and caveats of our $\partial B_0/\partial \theta$ 
+calculations. 
 
-To estimate $\bfi{C}$, we use 15,000 Quijote $N$-body simulations at the 
-fiducial cosmology. This is a \emph{significantly} larger number of simulations 
-than previous bispectrum analyses; however, we also consider a larger number
-of triangle configurations --- $1898$ triangles out to $k_{\rm max} = 0.5~h/{\rm Mpc}$. 
-For reference, the recent \cite{gil-marin2017} analysis used 2048 simulations 
-to estimate the covariance matrix of the bispectrum with $825$ configurations. 
-We, therefore, check the convergence of $\bfi{C}$ by varying $N_{\rm fid}$, 
-the number of simulations used to estimate $\bfi{C}$, and examining whether 
-this significantly impacts the Fisher parameter constraints. We present 
-$\sigma_\theta(N_{\rm fid})/\sigma_\theta(N_{\rm fid} = 15,000)$, the ratio of 
-the 1$\sigma$ Fisher constraint for $\theta = \Om$, $\Ob$, $h$, $n_s$, $\sig$, 
-and $\smnu$ calculated with $N_{\rm fid}$ over the constraint calculated with 
-$N_{\rm fid} = 15,000$, as a function of $N_{\rm fid}$ (Figure~\ref{fig:converge} 
-left panel). The 1$\sigma$ Fisher constraints on the parameters 
-vary by $<10\%$ for $N_{\rm fid} > 7000$; in fact, the constraints vary by 
-$<1\%$ for $N_{\rm fid} > 14,000$. Hence, we conclude that we have a sufficient 
-number of simulations to estimate the bispectrum $\bfi{C}$ and our forecasts 
-are robust to the convergence of $\bfi{C}$. 
+We use 15,000 Quijote $N$-body simulations at the fiducial cosmology to 
+estimate $\bfi{C}$. This is a \emph{significantly} larger number of simulations 
+than any previous bispectrum analyses; however, we also consider 1898 triangle 
+configurations out to $k_{\rm max} = 0.5~\mpc$. For reference, \cite{gil-marin2017} 
+recently used 2048 simulations to estimate the covariance matrix of the 
+bispectrum with $825$ configurations. We check the convergence of covariance 
+matrix by varying the number of simulations used to estimate $\bfi{C}$, 
+$N_{\rm cov}$,and examining whether this significantly impacts the elements of 
+the Fisher matrix, $F_{ij}$ or the ultimate Fisher parameter constraints. 
+We present the ratio between $F_{ij}(N_{\rm cov})$, the Fisher matrix element 
+derived from $\bfi{C}$ calculated using $N_{\rm cov}$ simulations, and 
+$F_{ij}(N_{\rm cov} = 15,000)$ for all 36 elements of the matrix in 
+the left panel of Figure~\ref{fig:fij_converge}. We shade $\pm5\%$ deviations 
+in the ratios for reference. $F_{ij}$ varies by $\lesssim 5\%$ for $N_{\rm cov} > 5000$
+and $\lesssim 1\%$ for $N_{\rm cov} > 10,000$. Next, we present ratio between 
+$\sigma_\theta(N_{\rm cov})$, the marginalized $1\sigma$ constraints for 
+$\{\Om$, $\Ob$, $h$, $n_s$, $\sig$, $\smnu\}$ derived from $\bfi{C}$ 
+calculated using $N_{\rm cov}$ simulations, and $\sigma_\theta(N_{\rm cov} = 15,000)$ 
+in the left panel of Figure~\ref{fig:converge}. $\sigma_\theta$ vary by 
+$\lesssim 5\%$ for $N_{\rm cov} > 5000$ and $\lesssim 1\%$ for $N_{\rm cov} > 12000$. 
+Hence, $N_{\rm cov} = 15,000$ is sufficient to accurately estimate $\bfi{C}$
+and the convergence of $\bfi{C}$ does not impact our forecasts.
 
-We estimate $\partial B_0/\partial \theta_i$ numerically using 13 sets of 
-$N_{\rm fp} = 500$ fixed paired simulations~(Table~\ref{tab:sims}). To check 
-the convergence of $\partial B_0/\partial \theta_i$ and its impact on our forecast 
-we present the ratio of the 1$\sigma$ Fisher constraint for $\theta$ calculated 
+%%% continue edits from here 06/19/2019 
+We estimate $\partial B_0/\partial \theta$ using $N_{\rm deriv} = 1,500$ 
+$N$-body simulations at 13 different cosmologies listed in Table~\ref{tab:sims} 
+To check the convergence of $\partial B_0/\partial \theta$ and its impact on our 
+results, we present the ratio of the 1$\sigma$ Fisher constraint for $\theta$ calculated 
 using $N_{\rm fp}$ simulations over the constraint calculated with $N_{\rm fp} = 500$, 
 $\sigma_\theta(N_{\rm fp})/\sigma_\theta(N_{\rm fp} = 500)$, as a function of 
 $N_{\rm fp}$ (Figure~\ref{fig:converge} right panel). Unlike $\sigma_\theta(N_{\rm fid})$, 
@@ -80,6 +84,7 @@ robust for our Fisher forecasts.
 \begin{figure}
 \begin{center}
     \includegraphics[width=0.75\textwidth]{figs/quijote_bkFij_convergence_reg_dmnu_fin_kmax0_5.pdf}
+    \caption{{\em Left}: {\em Right}:}
 \label{fig:fij_converge}
 \end{center}
 \end{figure}
