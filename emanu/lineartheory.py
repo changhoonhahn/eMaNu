@@ -90,6 +90,10 @@ def dPmdMnu(k, npoints=5, log=False, flag=None):
         mnus = [0.0, 0.1, 0.2, 0.4]
         coeffs = [-21., 32., -12., 1.]
         fdenom = 1.2 
+    elif npoints == '0.05eV': 
+        mnus = [0.0, 0.1]
+        coeffs = [-1., 1.]
+        fdenom = 0.1 
     elif npoints == '0.1eV':
         mnus = [0.075, 0.125]
         coeffs = [-1., 1.]

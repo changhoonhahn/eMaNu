@@ -3045,6 +3045,9 @@ if __name__=="__main__":
         forecast_kmax_table(dmnu='fin', theta_nuis=None)
     '''
     # P+B fisher forecasts with different nuisance parameters 
+    pbForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin'], dmnu='fin0')
+    pbForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin'], dmnu='p')
+    pbForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin'], dmnu='fin')
     '''
         for flag in ['ncv', 'reg']: 
             pbForecast(kmax=0.5, rsd='all', flag=flag, theta_nuis=['Amp', 'Mmin'], dmnu='fin')
@@ -3072,7 +3075,6 @@ if __name__=="__main__":
             forecast_thetas_kmax(tts='lcdm', rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'])
     '''
     # --- convergence tests ---  
-    forecast_convergence('bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin')
     '''
         for flag in ['ncv', 'reg']: 
             dlogPBdtheta_Nfixedpair(rsd=True, flag=flag, dmnu='fin')
