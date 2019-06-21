@@ -55,6 +55,28 @@ def compare_dPmdMnu():
     return None 
 
 
+def compare_dPmdMnu_0p05eV(): 
+    ''' compare dPm/dMnu at 0eV and 0.05eV
+    '''
+    k_arr = np.logspace(-4, 1, 500)
+
+    fig = plt.figure(figsize=(8,8))
+    sub = fig.add_subplot(111)
+    # class derivative
+    for i_n, n in enumerate(['0.05eV', 5, 'quijote']): 
+        dPm_class = LT.dPmdMnu(k_arr, log=True, npoints=n)
+        sub.plot(k_arr, dPm_class, c='C%i' % i_n, lw=1, ls='-', label="CLASS %s" % str(n))
+    sub.legend(loc='lower left', fontsize=15) 
+    sub.set_xlabel('$k$', fontsize=20) 
+    sub.set_xscale('log') 
+    sub.set_xlim(1e-2, 1.) 
+    sub.set_ylabel(r'$d\log P_m/d M_\nu$', fontsize=20) 
+    #sub.set_yscale('symlog') 
+    #sub.set_ylim(-1e4, 2e4) 
+    fig.savefig(os.path.join(UT.fig_dir(), 'dPmdMnu.class.0.05eV.png'), bbox_inches='tight') 
+    return None 
+
+
 def compare_dPmdMnu_0p1eV(): 
     ''' compare the d P_m(k) / d Mnu at 0.1eV among the various calculations.
     finite differences
@@ -745,6 +767,7 @@ if __name__=="__main__":
     #compare_dlogPmcbdMnu()
     #compare_PmMnu_PmLCDM()
     #compare_dPmdMnu()
+    compare_dPmdMnu_0p05eV()
     #compare_dPmdMnu_0p1eV()
     #compare_dPdthetas() 
     #for npoints in ['0.1eV', 'paco', 'ema0.1eV']: #[5, '0.1eV', 'ema0.1eV']:#, 'quijote', '0.1eV', 'paco', 'ema']: 
@@ -756,7 +779,7 @@ if __name__=="__main__":
     #print np.sqrt(np.diag(np.linalg.inv(Fij_ema)))[::-1]
     #LT_sigma_kmax()
     #LT_sigma_kmax_fixAs()
-    LT_s8Mnu_kmax_fixAs()
+    #LT_s8Mnu_kmax_fixAs()
     #LT_sigma_kmax_cb_m()
     #LT_sigma_kmax(npoints='0.1eV', flag='cb')
     #LT_sigma_kmax(npoints='0.1eV', flag='ema')

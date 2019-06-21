@@ -44,17 +44,17 @@ results, we examine the ratio between $F_{ij}(N_{\rm deriv})$, the Fisher
 matrix element derived from $\partial B_0/\partial \theta$ calculated with 
 $N_{\rm deriv}$ simulations, and $F_{ij}(N_{\rm deriv} = 1,500)$ for all 
 36 elements of the Fisher matrix in the right panel of Figure~\ref{fig:fij_converge}.
-For $N_{\rm cov} > 1000$, $F_{ij}$ elements vary by $\lesssim 5\%$. Next, we
+For $N_{\rm deriv} > 1000$, $F_{ij}$ elements vary by $\lesssim 5\%$. Next, we
 present the ratio between $\sigma_\theta(N_{\rm deriv})$, the marginalized 
 $1\sigma$ constraints for $\{\Om$, $\Ob$, $h$, $n_s$, $\sig$, $\smnu\}$ 
 derived from $\partial B_0/\partial \theta$ calculated with $N_{\rm deriv}$ 
 simulations, and $\sigma_\theta(N_{\rm deriv} = 1,500)$ in the right panel 
 of Figure~\ref{fig:converge}. Unlike $\sigma_\theta(N_{\rm cov})$, 
 $\sigma_\theta(N_{\rm deriv})$ depend significantly on $\theta$. For instance, 
-\ch{$\sigma_\sig$ and $\sigma_\Om$ vary by $< 10\%$ for $N_{\rm deriv} > 300$ 
-and $< 2\%$ for $N_{\rm fp} > 450$. $\sigma_\theta$ for the other parameter 
-vary significantly more. Nonetheless, for $N_{\rm deriv} > 400$ and $450$ they vary by 
-$< 10$ and $5\%$, respectively.}
+$\sigma_{\sig}$ and $\sigma_{\Om}$ vary by $\lesssim 10\%$ for $N_{\rm deriv} > 600$ 
+and $\lesssim 1\%$ for $N_{\rm deriv} > 1200$. $\sigma_\theta$ for the other 
+parameter vary significantly more. Nonetheless, for $N_{\rm deriv} > 800$ and 
+$1200$ they vary by $\lesssim 10$ and $5\%$, respectively.
 
 For $\Om$, $\Ob$, $h$, $n_s$, $\sig$, and also the nuisance parameter $M_{\rm lim}$ 
 we estimate $\partial B_0/\partial \theta$ using a centered difference approximation 
@@ -64,42 +64,51 @@ forward difference approximation,
 \beq 
 \frac{\partial \overline{B}_0}{\partial \smnu} \approx \frac{\overline{B}_0(\smnu^{\rm fid}+\delta \smnu) - \overline{B}_0(\smnu^{\rm fid})}{\delta \smnu}, 
 \eeq
-the error goes as $\mathcal{O}(\delta \smnu)$. Instead, we use the Quijote 
-simulations at $\smnu^{+}$, $\smnu^{++}$, $\smnu^{+++}$, and the fiducial 
-cosmology in Eq.~\ref{eq:dbkdmnu}, a $\mathcal{O}(\delta \smnu^2)$ order 
-approximation. 
-%%%% continue editing 06/19/2019 %%%%
-We compare 
-$\partial \log B(k_1, k_2, k_3)/\partial M_\nu$ (right) and 
-$\partial \log P(k)/\partial M_\nu$ (left), computed using Eq.~\ref{eq:dbkdmnu} (blue) 
-and the forward difference approximation (green) in Figure~\ref{fig:dPBdmnu}.
-We also include $P$ and $B$ derivatives approximated using only simulations at $\smnu^{+}$,  
-$\smnu^{++}$, and the fiducial cosmology in orange. The three approximations for the 
-derivatives differ from one another by roughly $10\%$ with Eq.~\ref{eq:dbkdmnu} producing 
-the largest estimate for both $P_0$ and $B_0$. If we use the $\smnu^{+}$ and $\smnu^{++}$ 
-and forward difference derivatives instead of the Eq.~\ref{eq:dbkdmnu} for our Fisher 
-forecasts, we find the following marginalized $\smnu$ constraints for $k_{\rm max} = 0.5~h/{\rm Mpc}$: 
-$0.196$ and $0.294$eV for $P_0$ and  $0.0308$ and $0.0483$eV for $B_0$. These correspond 
-to a $\sim20$ and $80\%$ relative increase from our forecasts in Section~\ref{sec:forecasts}. 
-The forward difference derivatives have a significant impact on our forecasts; however, 
-we emphasize that this is a 
-$\mathcal{O}(\delta \smnu)$ approximation, unlike the other $\mathcal{O}(\delta \smnu^2)$ 
-approximations. Moreover, because the discrepancies in the derivative propogate similarly
-to the $P_0$ and $B_0$ constraints, the relative improvement of $B_0$ over $P_0$ remains
-roughly the same. Hence we conclude that the derivatives have sufficiently converged and 
-robust for our Fisher forecasts.
+the error goes as $\mathcal{O}(\delta \smnu)$. Instead, we use a finite difference
+approximation with the Quijote simulations at $\smnu^{+}$, $\smnu^{++}$, $\smnu^{+++}$, 
+and the fiducial cosmology, a $\mathcal{O}(\delta \smnu^2)$ order approximation 
+(Eq.~\ref{eq:dbkdmnu}). We can also use a finite difference approximation with 
+simulations at $\smnu^{+}$, $\smnu^{++}$, and the fiducial cosmology. We examine
+the stability of $\partial \log B(k_1, k_2, k_3)/\partial M_\nu$ (right) and 
+$\partial \log P(k)/\partial M_\nu$ (left) by comparing the derivatives computing
+using simulations at \{fiducial, $\smnu^{+}$, $\smnu^{++}$, $\smnu^{+++}$\} (blue), 
+\{fiducial, $\smnu^{+}$, $\smnu^{++}$\} (orange), and \{fiducial, $\smnu^{+}$\} 
+(green) in Figure~\ref{fig:dPBdmnu}. The three $\partial \log B/\partial \smnu$
+approximations differ from one another by $\sim10\%$ with Eq.~\ref{eq:dbkdmnu} 
+producing the largest estimate for both $P_0$ and $B_0$. If we the derivatives
+from \{fiducial, $\smnu^{+}$, $\smnu^{++}$\} and \{fiducial, $\smnu^{+}$\} instead
+of Eq.~\ref{eq:dbkdmnu} for our Fisher forecasts, the marginalized constraint on
+$\smnu$ for $k_{\rm max} = 0.5~\mpc$ increases to $0.238$ and $0.377$eV for $P_0$ 
+and $0.0416$ and $0.0657$eV for $B_0$. Compared to our $\sigma_{\smnu} = 0.0342$ eV 
+$B_0$ forecast, these correspond to a $\sim20$ and $90\%$ relative increase. 
+While the derivative estimated from \{fiducial, $\smnu^{+}$\} significantly impact 
+the forecasts, we emphasize that this is a $\mathcal{O}(\delta \smnu)$ approximation, 
+unlike the other $\mathcal{O}(\delta \smnu^2)$ approximations. In fact, the 
+\{fiducial, $\smnu^{+}$\} derivatives are better $\mathcal{O}(\delta \smnu^2)$ estimates
+for $\partial P/\partial \smnu$ and $\partial B/\partial \smnu$ at 0.05 eV. When we 
+compare the derivative of the linear theory power spectrum, $P^{(\rm LT)}$, we find 
+that $\partial P^{\rm LT}/\partial \smnu$ at 0.0 is larger than at 0.05 eV. Hence, 
+the differences between the \{fiducial, $\smnu^{+}$\} derivatives and the other 
+derivatives are not solely due to numerical stability. Moreover, because the 
+discrepancies in the derivative propogate similarly to the $P_0$ and $B_0$ forecasts, 
+the relative improvement of $B_0$ over $P_0$ remains roughly the same. Hence, we conclude 
+that the derivatives have sufficiently converged and robust for our Fisher forecasts.
 
 \begin{figure}
 \begin{center}
     \includegraphics[width=0.75\textwidth]{figs/quijote_bkFij_convergence_reg_dmnu_fin_kmax0_5.pdf}
-    \caption{{\em Left}: {\em Right}:}
+    \caption{
+        {\em Left}: We examine the convergence of the Fisher matrix elements, $F_{ij}$, by varying
+        the number of $N$-body simulations used to estimate the covariance matrix, $N_{\rm cov}$. 
+        {\em Right}:
+    }
 \label{fig:fij_converge}
 \end{center}
 \end{figure}
 
 \begin{figure}
 \begin{center}
-    \includegraphics[width=0.8\textwidth]{figs/quijote_bkFisher_convergence_dmnu_fin_kmax05.pdf}
+    \includegraphics[width=0.8\textwidth]{figs/quijote_bkFisher_convergence_reg_dmnu_fin_kmax0_5.pdf} %quijote_bkFisher_convergence_dmnu_fin_kmax05.pdf}
     \caption{{\bf Left}: The ratio of the 1$\sigma$ Fisher constraint for $\theta=\Om$, 
     $\Ob$, $h$, $n_s$, $\sig$, and $\smnu$ calculated using $N_{\rm fid}$ Quijote 
     simulations over the constraint calculated with all 15,000 simulations, 
