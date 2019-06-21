@@ -34,7 +34,7 @@ dir_hod = os.path.join(UT.dat_dir(), 'hod')
 dir_fig = os.path.join(UT.fig_dir(), 'hod')  # figure directory
 
 
-def hod_mcmc(Mr=-21.5, nwalkers=100, burn_in_chain=200, main_chain=1000): 
+def hod_fit(Mr=-21.5, nwalkers=100, burn_in_chain=200, main_chain=1000): 
     '''
     '''
     import emcee
@@ -68,16 +68,10 @@ def hod_mcmc(Mr=-21.5, nwalkers=100, burn_in_chain=200, main_chain=1000):
     def lnlike(tt): 
         ''' calculate the likelihood for wp 
         '''
-        # population halos 
-        hod = FM.hodGalaxies(halos, {'logMmin': tt[0], 'sigma_logM': tt[1], 'logM0': tt[2], 'alpha': tt[3], 'logM1': tt[4]}) 
-        # apply RSD 
-        xyz = FM.RSD(hod) 
-        # calculate wp 
-        _wp = wpCF(1000., 40., 1, rbins, xyz[:,0], xyz[:,1], xyz[:,2], verbose=False, output_rpavg=False) # calculate wp 
+        _wp = wp_model(halos, tt, rsd=True, rbins=rbins) 
         # calculate chi-squared 
-        dwp = _wp_sdss - _wp['wp'] 
+        dwp = _wp_sdss - _wp 
         chisq = np.sum(np.dot(dwp.T, np.dot(C_inv, dwp))) 
-        print(chisq)
         return -0.5 * chisq
 
     def lnpost(tt):
@@ -86,24 +80,71 @@ def hod_mcmc(Mr=-21.5, nwalkers=100, burn_in_chain=200, main_chain=1000):
             return -np.inf
         return lp + lnlike(tt) 
 
-    ndim = 5   
-    pos = [np.random.uniform(prior_lim[:,0], prior_lim[:,1]) for i in range(nwalkers)]
-
-    sampler = emcee.EnsembleSampler(nwalkers, ndim, lnpost)
-    print('running burn-in chain')
-    pos, prob, state = sampler.run_mcmc(pos, burn_in_chain)
-    sampler.reset()
-    print('running main chain')
-    sampler.run_mcmc(pos, main_chain)
+    #ndim = 5   
+    #pos = [np.random.uniform(prior_lim[:,0], prior_lim[:,1]) for i in range(nwalkers)]
+    #sampler = emcee.EnsembleSampler(nwalkers, ndim, lnpost)
+    #print('running burn-in chain')
+    #pos, prob, state = sampler.run_mcmc(pos, burn_in_chain)
+    #sampler.reset()
+    #print('running main chain')
+    #sampler.run_mcmc(pos, main_chain)
 
     # save chain
-    post = sampler.flatchain.copy()
-    fig = DFM.corner(post, labels=[r'$\log M_{\rm min}$', r'$\sigma_{\log M}$', r'$\log M_0$', r'$\alpha$', r'$\log M_1$'],
-            quantiles=[0.16, 0.5, 0.84], bins=20,
-            range=theta_lims, truths=theta_fid, truth_color='C1',
-            smooth=True, show_titles=True, label_kwargs={'fontsize': 20})
-    ffig = os.path.join(dir_fig, 'hod_mcmc.png')
-    fig.savefig(ffig, bbox_inch='tight')
+    #post = sampler.flatchain.copy()
+    #fig = DFM.corner(post, labels=[r'$\log M_{\rm min}$', r'$\sigma_{\log M}$', r'$\log M_0$', r'$\alpha$', r'$\log M_1$'],
+    #        quantiles=[0.16, 0.5, 0.84], bins=20,
+    #        range=theta_lims, truths=theta_fid, truth_color='C1',
+    #        smooth=True, show_titles=True, label_kwargs={'fontsize': 20})
+    #ffig = os.path.join(dir_fig, 'hod_mcmc.png')
+    #fig.savefig(ffig, bbox_inch='tight')
+    return None 
+
+
+def wp_model(halos, tt, rsd=True, rbins=None): 
+    ''' wrapper for populating halos and calculating wp 
+    '''
+    if rbins is None: 
+        rbins = np.array([0.1, 0.15848932, 0.25118864, 0.39810717, 0.63095734, 1., 1.58489319, 2.51188643, 3.98107171, 6.30957344, 10., 15.84893192, 25.11886432]) 
+    # population halos 
+    hod = FM.hodGalaxies(halos, {'logMmin': tt[0], 'sigma_logM': tt[1], 'logM0': tt[2], 'alpha': tt[3], 'logM1': tt[4]}) 
+    print(np.log10(np.array(hod['halo_mvir']).max()), np.log10(np.array(hod['halo_mvir']).min()))
+    print('%i out of %i galaxies have host halos < 2x10^13' % (np.sum(np.array(hod['halo_mvir']) < 2.*10**13), len(np.array(hod['halo_mvir'])))) 
+    # apply RSD 
+    if rsd: xyz = FM.RSD(hod) 
+    else: xyz = np.array(hod['Position']) 
+    # calculate wp 
+    _wp = wpCF(1000., 40., 1, rbins, xyz[:,0], xyz[:,1], xyz[:,2], verbose=False, output_rpavg=False) 
+    return _wp['wp']
+
+
+def _plot_wp_model(Mr=-21.5): 
+    ''' plot wp of models for some arbitrary parameters and compare with SDSS wp
+    '''
+    rp, _wp_sdss, cov = wp_sdss(Mr=Mr) 
+    # read in halo catalog 
+    ihalo = 1
+    fig = plt.figure(figsize=(5,5))
+    sub = fig.add_subplot(111)
+    for i, mhmin, ls in zip(range(4), [None, 1000., 2000., 3200.], ['-', '--', ':', '-.']): 
+        halos = hadesData.hadesMnuHalos(0., ihalo, 4, 
+                mh_min=mhmin, dir='/Users/ChangHoon/data/emanu/halos/hades/0.0eV/%i' % ihalo)
+        _wp = wp_model(halos, np.array([13.38, 0.51, 13.94, 1.04, 13.91]), rsd=True) 
+        sub.plot(rp, _wp, c='C2', ls=ls, label='Zheng+(2007) best-fit') 
+        _wp = wp_model(halos, np.array([13.53, 0.72, 13.13, 1.14, 14.52]), rsd=True) # Guo et al. (2015)  
+        sub.plot(rp, _wp, c='C1', ls=ls, label='Guo+(2015) best-fit') 
+        _wp = wp_model(halos, np.array([13.39, 0.56, 12.87, 1.26, 14.51]), rsd=True) 
+        sub.plot(rp, _wp, c='C0', ls=ls, label='Vakili \& Hahn (2019) best-fit') 
+        if i == 0: sub.legend(loc='lower left', fontsize=15) 
+    sub.errorbar(rp, _wp_sdss, yerr=np.sqrt(np.diag(cov)), fmt='.k') 
+    sub.set_xlabel(r'$r_p$ [$h^{-1}{\rm Mpc}$]', fontsize=25) 
+    sub.set_xscale('log') 
+    sub.set_xlim(1e-1, 25) 
+    sub.set_ylabel(r'$w_p(r_p)$', fontsize=25) 
+    sub.set_yscale('log') 
+    sub.set_ylim(2, 1e3) 
+    ffig = os.path.join(dir_fig, 'wp_model.png')
+    fig.savefig(ffig, bbox_inches='tight') 
+    plt.close() 
     return None 
 
 
@@ -160,4 +201,5 @@ def fvolume(Mr=-21.5):
 
 if __name__=='__main__': 
     #_plot_wp_sdss(Mr=-21.5)
-    hod_mcmc(Mr=-21.5)
+    _plot_wp_model()
+    #hod_mcmc(Mr=-21.5)
