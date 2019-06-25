@@ -30,6 +30,8 @@ mpl.rcParams['ytick.labelsize'] = 'x-large'
 mpl.rcParams['ytick.major.size'] = 5
 mpl.rcParams['ytick.major.width'] = 1.5
 
+kf = 2.*np.pi/1000. # fundamental mode 
+dir_doc = os.path.join(UT.doc_dir(), 'paper1', 'figs') # figures for paper 
 
 ##################################################################
 # powerspectrum comparison 
@@ -274,7 +276,6 @@ def compare_Bk(kmax=0.5, rsd=True):
         Bk_s8s.append(np.average(hades_i['b123'], axis=0)) 
 
     i_k, j_k, l_k = hades_i['k1'], hades_i['k2'], hades_i['k3']
-    kf = 2.*np.pi/1000. 
     klim = ((i_k * kf <= kmax) & (j_k * kf <= kmax) & (l_k * kf <= kmax)) 
 
     i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim] 
@@ -289,26 +290,32 @@ def compare_Bk(kmax=0.5, rsd=True):
     
     tri = np.arange(np.sum(klim))
     for ii, mnu, bk in zip(range(4), [0.0]+mnus, [Bk_fid]+Bk_Mnu):
-        _bk = bk[klim][ijl]
+        _bk = bk[klim]#[ijl]
         if mnu == 0.0: 
             sub2.plot(tri, _bk, c='C0') 
             axins2.plot(tri, _bk, c='C0') 
+        #sub.plot(tri+ii*0.05, _bk, c='C'+str(ii), label=str(mnu)+'eV') 
+        #axins.plot(tri+ii*0.05, _bk, c='C'+str(ii)) 
         sub.plot(tri, _bk, c='C'+str(ii), label=str(mnu)+'eV') 
-        axins.plot(tri, _bk, c='C'+str(ii), label=str(mnu)+'eV') 
+        axins.plot(tri, _bk, c='C'+str(ii)) 
 
-    for ii, sig8, bk in zip([4, 6, 8, 9], sig8s, Bk_s8s):
-        _bk = bk[klim][ijl]
+    for _ii, ii, sig8, bk in zip(range(4), [4, 6, 8, 9], sig8s, Bk_s8s):
+        _bk = bk[klim]#[ijl]
+        #sub2.plot(tri+_ii*0.05, _bk, c='C'+str(ii), label='$\sigma_8=%.3f$' % sig8) 
+        #axins2.plot(tri+_ii*0.05, _bk, c='C'+str(ii)) 
         sub2.plot(tri, _bk, c='C'+str(ii), label='$\sigma_8=%.3f$' % sig8) 
         axins2.plot(tri, _bk, c='C'+str(ii)) 
     #sub.plot(tri, Bk_sn[klim][ijl], c='k', ls=':') 
 
-    #print(i_k[ijl][480:500]) 
-    #print(j_k[ijl][480:500]) 
-    #print(l_k[ijl][480:500]) 
+    print(i_k[507:527]) 
+    print(j_k[507:527]) 
+    print(l_k[507:527]) 
 
-    sub2.text(0.02, 0.15, '0.0 eV', ha='left', va='bottom', transform=sub2.transAxes, fontsize=20)
-    sub.legend(loc='lower left', ncol=4, columnspacing=0.5, markerscale=4, handletextpad=0.25, fontsize=20) 
-    sub2.legend(loc='lower left', ncol=4, columnspacing=0.5, markerscale=4, handletextpad=0.25, fontsize=20) 
+    sub2.text(0.02, 0.1, '0.0 eV', ha='left', va='bottom', transform=sub2.transAxes, fontsize=20)
+    sub.legend(loc='lower left', bbox_to_anchor=(0., -0.05), bbox_transform=sub.transAxes,
+            ncol=4, columnspacing=0.5, markerscale=4, handletextpad=0.25, fontsize=20) 
+    sub2.legend(loc='lower left', bbox_to_anchor=(0., -0.05), bbox_transform=sub2.transAxes,
+            ncol=4, columnspacing=0.5, markerscale=4, handletextpad=0.25, fontsize=20) 
 
     sub.set_yscale('log') 
     axins.set_yscale('log') 
@@ -317,13 +324,13 @@ def compare_Bk(kmax=0.5, rsd=True):
     axins2.set_yscale('log') 
     if rsd:
         sub.set_xlim([0, 1898])
-        sub.set_ylim([1e6, 1e10]) 
-        axins.set_xlim(480, 500)
-        axins.set_ylim(5e7, 2e8) 
+        sub.set_ylim([8e5, 3e10]) 
+        axins.set_xlim(507, 527)
+        axins.set_ylim(2e7, 3e8) 
         sub2.set_xlim([0, 1898])
-        sub2.set_ylim([1e6, 1e10]) 
-        axins2.set_xlim(480, 500)
-        axins2.set_ylim(5e7, 2e8) 
+        sub2.set_ylim([8e5, 3e10]) 
+        axins2.set_xlim(507, 527)
+        axins2.set_ylim(2e7, 3e8) 
     else: 
         #sub.set_xlim([0, 1200])
         #sub.set_ylim([1e5, 5e9]) 
@@ -350,21 +357,22 @@ def compare_Bk(kmax=0.5, rsd=True):
     bkgd.set_ylabel('$\widehat{B}_0(k_1, k_2, k_3)$', labelpad=10, fontsize=25) 
     fig.subplots_adjust(hspace=0.15)
 
-    ffig = os.path.join(UT.doc_dir(), 'figs', 
-            'haloBk_amp_kmax%s%s.pdf' % (str(kmax).replace('.', ''), ['', '_rsd'][rsd]))
+    ffig = os.path.join(dir_doc, 'haloBk_amp_kmax%s%s.pdf' % (str(kmax).replace('.', ''), ['', '_rsd'][rsd]))
     fig.savefig(ffig, bbox_inches='tight') 
     
     # compare ratio of B(k) amplitude
     fig = plt.figure(figsize=(18,18))
 
-    bk_fid = Bk_fid[klim][ijl]
+    bk_fid = Bk_fid[klim]#[ijl]
     for i, mnu, sig8, bk, bks8 in zip(range(3), mnus, sig8s, Bk_Mnu, Bk_s8s): 
         sub = fig.add_subplot(3,1,i+1) 
 
-        db = bk[klim][ijl]/bk_fid - 1.
+        #db = bk[klim][ijl]/bk_fid - 1.
+        db = bk[klim]/bk_fid - 1.
         sub.plot(tri, db, lw=2, c='C'+str(i+1), label=str(mnu)+'eV') 
     
-        db = bks8[klim][ijl]/bk_fid - 1.
+        #db = bks8[klim][ijl]/bk_fid - 1.
+        db = bks8[klim]/bk_fid - 1.
         sub.plot(tri, db, lw=1, c='k', label='0.0 eV\n$\sigma_8=%.3f$' % sig8) 
         sub.plot([0, np.sum(klim)], [0., 0.], c='k', ls='--', lw=2)
         if rsd: 
@@ -385,8 +393,7 @@ def compare_Bk(kmax=0.5, rsd=True):
     bkgd.set_xlabel(r'triangle configurations', labelpad=15, fontsize=25) 
     bkgd.set_ylabel('$(\widehat{B}_0(k_1, k_2, k_3) - \widehat{B}_0^\mathrm{fid})/\widehat{B}_0^\mathrm{fid}$', labelpad=15, fontsize=30) 
     fig.subplots_adjust(hspace=0.1)
-    ffig = os.path.join(UT.doc_dir(), 'figs', 
-            'haloBk_residual_kmax%s%s.pdf' % (str(kmax).replace('.', ''), ['', '_rsd'][rsd]))
+    ffig = os.path.join(dir_doc, 'haloBk_residual_kmax%s%s.pdf' % (str(kmax).replace('.', ''), ['', '_rsd'][rsd]))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
