@@ -7,6 +7,8 @@ import numpy as np
 from emanu import util as UT
 from emanu import forwardmodel as FM
 from emanu.hades import data as hadesData
+# -- pyspectrum -- 
+from pyspectrum import pyspectrum as pySpec
 # --- corrfunc -- 
 from Corrfunc.theory import wp as wpCF
 # --- plotting --- 
@@ -449,6 +451,81 @@ def _plot_wp_model_pm_fiducial():
     return None 
 
 
+def _plot_dPdHOD_fiducials(): 
+    ''' plot the P derivatives w.r.t. HOD parameters for multiple fiducial 
+    parameter choices. The main goal is to see how much the derivatives 
+    change for higher sigmas 
+    '''
+    # r bin  
+    rbins = np.loadtxt(os.path.join(dir_hod, 'rbins.dat'), unpack=True, usecols=[0]) 
+    # hi res halo catalog
+    halos = hadesData.hadesMnuHalos(0., '1_hires', 4, 
+            mh_min=None, dir='/Users/ChangHoon/data/emanu/halos/hades/0.0eV/1_hires')
+    
+    dtt = np.array([0.1, 0.1, 0.3, 0.3, 0.1]) 
+    fid0 = np.array([13.85, 0.2, 13.94, 0.95, 14.3]) 
+    fid1 = np.array([13.85, 0.4, 13.94, 0.95, 14.3]) 
+    fid2 = np.array([13.85, 0.5, 13.94, 0.95, 14.3]) 
+    fids = [fid0, fid1, fid2]
+    
+    lbls = [r'$\log M_{\rm min}$', r'$\sigma_{\log M}$',r'$\log M_0$',r'$\alpha$',r'$\log M_1$']
+    names = ['logMmin', 'sig_logM', 'logM0', 'alpha', 'logM1']
+    fig = plt.figure(figsize=(30,8))
+    for i in range(5): 
+        sub = fig.add_subplot(2,3,i+1)
+        for i_tt, tt in enumerate(fids):  # loop through different fiducial values 
+            # theta + and theta - 
+            _ttp = tt.copy() 
+            _ttp[i] = tt[i] + dtt[i]
+            ttp_dict = {'logMmin': _ttp[0], 'sigma_logM': _ttp[1], 
+                    'logM0': _ttp[2], 'alpha': _ttp[3], 'logM1': _ttp[4]}
+            _ttm = tt.copy() 
+            _ttm[i] = tt[i] - dtt[i] 
+            ttm_dict = {'logMmin': _ttm[0], 'sigma_logM': _ttm[1], 
+                    'logM0': _ttm[2], 'alpha': _ttm[3], 'logM1': _ttm[4]}
+            print('%s+' % names[i], _ttp)
+            print('%s-' % names[i], _ttm)
+            
+            pkps, pkms = [], [] 
+            for _iii in range(1): # average over 10 
+                print('realization %i' % _iii) 
+                print('... populating theta+') 
+                hod = FM.hodGalaxies(halos, ttp_dict)
+                pos_p = np.array(hod['Position'])
+                print('... populating theta-') 
+                hod = FM.hodGalaxies(halos, ttm_dict)
+                pos_m = np.array(hod['Position'])
+                print('... calculating Pk') 
+                _pkpi = pySpec.Pk_periodic(pos_p.T, Lbox=1000, Ngrid=360, fft='pyfftw', silent=True)
+                _pkmi = pySpec.Pk_periodic(pos_m.T, Lbox=1000, Ngrid=360, fft='pyfftw', silent=True)
+
+                k = _pkpi['k'] 
+                pkps.append(_pkpi['p0k']) 
+                pkms.append(_pkmi['p0k']) 
+
+            pkp = np.average(pkps, axis=0) # average P 
+            pkm = np.average(pkms, axis=0) 
+            #dpdhod = 0.5*(pkp - pkm)/dtt[i] # derivative 
+            dlogpdhod = 0.5*(np.log(pkp) - np.log(pkm))/dtt[i] # log derivative 
+            sub.plot(k, dlogpdhod, c='C%i' % i_tt, ls='-', lw=1, label=r'$\sigma_{\log M}=%.2f$' % tt[1]) 
+        
+        sub.set_xscale('log') 
+        sub.set_xlim(5e-3, 0.5) 
+        #sub.set_ylim(ylims[i_tt]) 
+        sub.text(0.05, 0.95, r'%s' % lbls[i], ha='left', va='top', transform=sub.transAxes, fontsize=20)
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.set_xlabel('$k$', fontsize=25) 
+    bkgd.set_ylabel(r'${\rm d}\log P/{\rm d} \theta$', labelpad=10, fontsize=25) 
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+
+    fig.subplots_adjust(wspace=0.2) 
+    ffig = os.path.join(dir_fig, 'dPdHOD_fiducials.png') 
+    fig.savefig(ffig, bbox_inches='tight') 
+    plt.close() 
+    return None 
+
+
 def Ncen_Mh(tt, logMh): 
     ''' expected Ncen at Mh 
     '''
@@ -526,6 +603,7 @@ if __name__=='__main__':
     #    _plot_wp_model_pm(tt, Mr=-21.5, low_sigma=False)
     #    _plot_wp_model_pm(tt, Mr=-21.5, low_sigma=0.2)
     #    _plot_wp_model_pm(tt, Mr=-21.5, low_sigma=0.1)
-    _plot_wp_model_pm_fiducial()
+    #_plot_wp_model_pm_fiducial()
+    _plot_dPdHOD_fiducials()
 
     #hod_fit(Mr=-21.5)
