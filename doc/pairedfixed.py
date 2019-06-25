@@ -10,6 +10,7 @@ from copy import copy as copy
 # --- eMaNu --- 
 from emanu import util as UT
 from emanu import obvs as Obvs
+from emanu import plots as ePlots
 # --- plotting --- 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -25,8 +26,161 @@ mpl.rcParams['ytick.major.size'] = 5
 mpl.rcParams['ytick.major.width'] = 1.5
 mpl.rcParams['legend.frameon'] = False
 
-dir_fig = UT.fig_dir()
+
+dir_bk  = os.path.join(UT.dat_dir(), 'bispectrum') # bispectrum directory
+dir_fig = os.path.join(UT.fig_dir(), 'pairedfixed') 
 kf = 2.*np.pi/1000. 
+
+
+def PF_PkBk(rsd=0, kmax=0.3): 
+    '''
+    '''
+    # read in fiducial P regular N-body 
+    quij_fid = Obvs.quijotePk('fiducial', rsd=rsd, flag='reg') 
+    k = quij_fid['k'] 
+    # average P 
+    pk_fid = np.average(quij_fid['p0k'], axis=0) 
+    # standard deviation 
+    _, Cov_pk, _ = pkCov(rsd=rsd, flag='reg', silent=True) 
+    sig_pk = np.sqrt(np.diag(Cov_pk))
+    # read in fiducial P paired fixed (1500 mocks) 
+    quij_ncv = Obvs.quijotePk('fiducial', rsd=rsd, flag='ncv', silent=False) 
+    pks_ncv  = quij_ncv['p0k']
+
+    # read in fiducial B regular N-body (15000 mocks) 
+    quij_fid = Obvs.quijoteBk('fiducial', rsd=rsd, flag='reg', silent=False) 
+    i_k, j_k, l_k = quij_fid['k1'], quij_fid['k2'], quij_fid['k3']
+    klim = ((i_k * kf <= kmax) & (j_k * kf <= kmax) & (l_k * kf <= kmax)) 
+    # average B
+    bk_fid  = np.average(quij_fid['b123'], axis=0) 
+    # standard deviation 
+    _, _, _, Cov_bk, _ = bkCov(rsd=rsd, flag='reg', silent=True)
+    sig_fid = np.sqrt(np.diag(Cov_bk)) 
+
+    # read in fiducial B paired fixed (1500 mocks) 
+    quij_ncv = Obvs.quijoteBk('fiducial', rsd=rsd, flag='ncv', silent=False) 
+    bks_ncv  = quij_ncv['b123']
+    
+    fig = plt.figure(figsize=(50,8)) 
+    gs = mpl.gridspec.GridSpec(1, 2, figure=fig, width_ratios=[1,4], wspace=0.2) 
+    gs0 = mpl.gridspec.GridSpecFromSubplotSpec(2, 1, subplot_spec=gs[0])
+    gs1 = mpl.gridspec.GridSpecFromSubplotSpec(2, 1, subplot_spec=gs[1])
+    sub = plt.subplot(gs0[0,0])
+    sub.plot(k, pk_fid, c='k', ls='--')
+    sub.fill_between(k, pk_fid - sig_pk, pk_fid + sig_pk, color='k', linewidth=0, alpha=0.2) 
+    sub.plot(k, pks_ncv[0,:], lw=0.5, c='C0') 
+    sub.plot(k, pks_ncv[1,:], lw=0.5, c='C1') 
+    sub.scatter(k, 0.5*(pks_ncv[0,:] + pks_ncv[1,:]), c='r', s=15, lw=0, zorder=10) 
+    sub.plot(k, 0.5*(pks_ncv[0,:] + pks_ncv[1,:]), c='r', lw=0.5) 
+    sub.set_xlim(9e-3, kmax) 
+    sub.set_xscale('log') 
+    sub.set_xticklabels([]) 
+    sub.set_ylabel('$P_0(k)$', fontsize=25) 
+    sub.set_yscale('log') 
+    sub.set_ylim(1e3, 2e5) 
+
+    sub = plt.subplot(gs1[0,0])
+    sub.plot(range(np.sum(klim)), bk_fid[klim], c='k', ls='--', label='$N$-body') 
+    sub.fill_between(range(np.sum(klim)), bk_fid[klim] - sig_fid[klim], bk_fid[klim] + sig_fid[klim], 
+            color='k', linewidth=0, alpha=0.2) 
+    sub.plot(range(np.sum(klim)), bks_ncv[0,klim], lw=1, c='C0', label='paired-fixed $i^+$') 
+    sub.plot(range(np.sum(klim)), bks_ncv[1,klim], lw=1, c='C1', label='paired-fixed $i^-$') 
+    sub.scatter(range(np.sum(klim)), 0.5*(bks_ncv[0,klim] + bks_ncv[1,klim]), c='r', s=15, lw=0, zorder=10) 
+    sub.plot(range(np.sum(klim)), 0.5*(bks_ncv[0,klim] + bks_ncv[1,klim]), c='r', lw=1)
+    sub.legend(loc='upper right', fontsize=20) 
+    sub.set_xlim(0, np.sum(klim))
+    sub.set_xticklabels([]) 
+    sub.set_ylabel('$B(k_0, k_2, k_3)$', fontsize=25)
+    sub.set_yscale('log') 
+    if kmax == 0.2: 
+        sub.set_ylim(2e7, 1e10)
+    elif kmax == 0.3: 
+        sub.set_ylim(1e7, 1e10)
+    elif kmax == 0.5: 
+        sub.set_ylim(1e5, 1e10)
+    
+    sub = plt.subplot(gs0[1,0])
+    #sub.fill_between(k, 1. - sig_pk/pk_fid, 1. + sig_pk/pk_fid, color='k', linewidth=0, alpha=0.33) 
+    sub.fill_between([k[0], k[-1]], [-1., -1.], [1., 1.], color='k', linewidth=0, alpha=0.2) 
+    sub.plot(k, (pks_ncv[0,:]-pk_fid)/sig_pk, lw=1, c='C0') 
+    sub.plot(k, (pks_ncv[1,:]-pk_fid)/sig_pk, lw=1, c='C1') 
+    sub.plot(k, (0.5*(pks_ncv[0,:] + pks_ncv[1,:]) - pk_fid)/sig_pk, c='r', lw=0.5) 
+    sub.scatter(k, (0.5*(pks_ncv[0,:] + pks_ncv[1,:]) - pk_fid)/sig_pk, c='r', s=10, lw=0, zorder=10) 
+    sub.plot([k[0], k[-1]], [0., 0.], c='k', ls=':')
+    sub.set_xlabel('k', fontsize=25) 
+    sub.set_xlim(9e-3, kmax) 
+    sub.set_xscale('log') 
+    sub.set_ylabel(r'$\Delta_{P_0}/\sigma_{P_0}$', fontsize=25) 
+    sub.set_ylim(-2.5, 2.5) 
+
+    sub = plt.subplot(gs1[1,0])
+    #sub.fill_between(range(np.sum(klim)), ((bk_fid - sig_fid)/bk_fid)[klim], ((bk_fid + sig_fid)/bk_fid)[klim], 
+    #        color='k', linewidth=0, alpha=0.33) 
+    sub.fill_between([0., np.sum(klim)], [-1., -1.], [1., 1.], color='k', linewidth=0, alpha=0.2) 
+    sub.plot(range(np.sum(klim)), ((bks_ncv[0,:]-bk_fid)/sig_fid)[klim], lw=1, c='C0') 
+    sub.plot(range(np.sum(klim)), ((bks_ncv[1,:]-bk_fid)/sig_fid)[klim], lw=1, c='C1')
+    sub.plot([0., np.sum(klim)], [0., 0.], c='k', ls=':') 
+    sub.plot(range(np.sum(klim)), ((0.5*(bks_ncv[0] + bks_ncv[1]) - bk_fid)/sig_fid)[klim], c='r', lw=0.5) 
+    sub.scatter(range(np.sum(klim)), ((0.5*(bks_ncv[0] + bks_ncv[1]) - bk_fid)/sig_fid)[klim], c='r', s=10, lw=0, zorder=10) 
+    sub.set_xlabel('triangle configuration', fontsize=25) 
+    sub.set_xlim(0, np.sum(klim))
+    sub.set_ylabel(r'$\Delta_{B_0}/\sigma_{B_0}$', fontsize=25) 
+    sub.set_ylim(-2.5, 2.5)
+    fig.subplots_adjust(hspace=0.1) 
+    ffig = os.path.join(dir_fig, 'PkBk%s.kmax%.1f.png' % (_rsd_str(rsd), kmax)) 
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+
+def PF_deltaB_sigmaB(rsd=0, kmax=0.3, nbin=31): 
+    ''' examine the triangles where the average bispectrum of the paired fixed sims
+    deviates by more than 1sigma from the Nbody sim
+    '''
+    # read in fiducial B regular N-body (15000 mocks) 
+    quij_fid = Obvs.quijoteBk('fiducial', rsd=rsd, flag='reg', silent=False) 
+    i_k, j_k, l_k = quij_fid['k1'], quij_fid['k2'], quij_fid['k3']
+    klim = ((i_k * kf <= kmax) & (j_k * kf <= kmax) & (l_k * kf <= kmax)) 
+    # average B
+    bk_fid = np.average(quij_fid['b123'], axis=0) 
+    # standard deviation 
+    _, _, _, Cov_bk, _ = bkCov(rsd=rsd, flag='reg', silent=True)
+    sig_fid = np.sqrt(np.diag(Cov_bk)) 
+
+    # read in fiducial B paired fixed (1500 mocks) 
+    quij_ncv = Obvs.quijoteBk('fiducial', rsd=rsd, flag='ncv', silent=False) 
+    bk_ncv = np.average(quij_ncv['b123'], axis=0) 
+    
+    delB_sig = (bk_ncv[klim] - bk_fid[klim])/sig_fid[klim]
+
+    fig = plt.figure(figsize=(30,4)) 
+    gs = mpl.gridspec.GridSpec(1, 2, figure=fig, width_ratios=[3,1], wspace=0.15) 
+    gs0 = mpl.gridspec.GridSpecFromSubplotSpec(1, 1, subplot_spec=gs[0])
+    gs1 = mpl.gridspec.GridSpecFromSubplotSpec(1, 1, subplot_spec=gs[1])
+    sub = plt.subplot(gs0[0,0]) 
+    sub.plot(range(np.sum(klim)), delB_sig, c='C0', ls='-')
+    sub.plot([0., np.sum(klim)], [0, 0], c='k', ls=':')
+    sub.legend(loc='upper right', fontsize=20) 
+    sub.set_xlabel('triangle configuration', fontsize=25) 
+    sub.set_xlim(0, np.sum(klim))
+    sub.set_ylabel('$\Delta_{B_0}/\sigma_{B_0}$', fontsize=25)
+    sub.set_ylim(-0.2, 0.2) 
+    # shape 
+    sub = plt.subplot(gs1[0,0]) 
+    x_bins = np.linspace(0., 1., int(nbin)+1)
+    y_bins = np.linspace(0.5, 1., int(0.5*nbin)+1)
+    k3k1 = l_k.astype(float)/i_k.astype(float)
+    k2k1 = j_k.astype(float)/i_k.astype(float)
+    dBQgrid = ePlots._BorQgrid(k3k1[klim], k2k1[klim], delB_sig, np.ones(np.sum(klim)), x_bins, y_bins)
+    bplot = sub.pcolormesh(x_bins, y_bins, dBQgrid.T, vmin=-0.05, vmax=0.05, cmap='RdBu')
+    sub.set_xlabel('$k_3/k_1$', fontsize=25)
+    sub.set_ylabel('$k_2/k_1$', fontsize=25)
+    fig.subplots_adjust(wspace=0.15, hspace=0.2, right=0.99)
+    cbar_ax = fig.add_axes([0.995, 0.15, 0.01, 0.7])
+    cbar = fig.colorbar(bplot, cax=cbar_ax)
+    cbar.set_label('$\Delta_{B_0}/\sigma_{B_0}$', labelpad=10, rotation=90, fontsize=20)
+    ffig = os.path.join(dir_fig, 'deltaB_sigmaB%s.kmax%.1f.png' % (_rsd_str(rsd), kmax)) 
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
 
 
 def pairedfixed_theta(theta, kmax=0.5): 
@@ -129,9 +283,102 @@ def pairedfixed_allthetas():
     return None 
 
 
+############################################################
+# etc 
+############################################################
+def pkCov(rsd=2, flag='reg', silent=True): 
+    ''' calculate the covariance matrix of the RSD quijote powerspectrum. 
+    '''
+    assert flag == 'reg', "only n-body should be used for covariance"
+    assert rsd != 'all', "only one RSD direction should be used otherwise modes will be correlated" 
+
+    fcov = os.path.join(dir_bk, 'quijote_pCov_full%s%s.hdf5' % (_rsd_str(rsd), _flag_str(flag)))
+    if os.path.isfile(fcov): 
+        if not silent: print('reading ... %s' % os.path.basename(fcov))
+        Fcov = h5py.File(fcov, 'r') # read in fiducial covariance matrix 
+        C_pk = Fcov['C_pk'][...]
+        k = Fcov['k'][...]
+        Nmock = Fcov['Nmock'][...]
+    else:
+        if not silent: print('calculating ... %s' % os.path.basename(fcov))
+        # read in P(k) 
+        quij = Obvs.quijotePk('fiducial', rsd=rsd, flag=flag, silent=silent) 
+        pks = quij['p0k'] + quij['p_sn'][:,None] # shotnoise uncorrected P(k) 
+        C_pk = np.cov(pks.T) # covariance matrix 
+        k = quij['k'] 
+        Nmock = quij['p0k'].shape[0] 
+
+        f = h5py.File(fcov, 'w') # write to hdf5 file 
+        f.create_dataset('Nmock', data=Nmock)
+        f.create_dataset('C_pk', data=C_pk) 
+        f.create_dataset('k', data=k) 
+        f.close()
+    return k, C_pk, Nmock 
+
+
+def bkCov(rsd=0, flag='reg', silent=True): 
+    ''' return the full covariance matrix of the quijote bispectrum
+    computed using 
+    - rsd == 'all': 46500 simulations (15000 n-body x 3  + 500 ncv x 3) 
+    - rsd == 0: 15500 simulations (15000 n-body + 500 ncv) 
+    - rsd == 'real': 15500 simulations (15000 n-body + 500 ncv)
+    
+    at the fiducial parameter values. 
+
+    :return cov:
+        big ass covariance matrix of all the triangle configurations in 
+        the default ordering. 
+    '''
+    assert flag == 'reg', "only n-body should be used for covariance"
+    assert rsd != 'all', "only one RSD direction should be used otherwise modes will be correlated" 
+
+    fcov = os.path.join(dir_bk, 'quijote_bCov_full%s%s.hdf5' % (_rsd_str(rsd), _flag_str(flag)))
+    if os.path.isfile(fcov): 
+        if not silent: print('reading ... %s' % os.path.basename(fcov))
+        Fcov = h5py.File(fcov, 'r') # read in covariance matrix 
+        cov = Fcov['C_bk'][...]
+        k1, k2, k3 = Fcov['k1'][...], Fcov['k2'][...], Fcov['k3'][...]
+        Nmock = Fcov['Nmock'][...] 
+    else: 
+        if not silent: print('calculating ... %s' % os.path.basename(fcov))
+        quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag=flag, silent=silent) 
+        bks = quij['b123'] + quij['b_sn']
+        if not silent: print('%i Bk measurements' % bks.shape[0]) 
+        cov = np.cov(bks.T) # calculate the covariance
+        k1, k2, k3 = quij['k1'], quij['k2'], quij['k3']
+        Nmock = quij['b123'].shape[0]
+
+        f = h5py.File(fcov, 'w') # write to hdf5 file 
+        f.create_dataset('Nmock', data=Nmock)
+        f.create_dataset('C_bk', data=cov) 
+        f.create_dataset('k1', data=quij['k1']) 
+        f.create_dataset('k2', data=quij['k2']) 
+        f.create_dataset('k3', data=quij['k3']) 
+        f.close()
+    return k1, k2, k3, cov, Nmock
+
+
+def _rsd_str(rsd): 
+    # assign string based on rsd kwarg 
+    if rsd == 'all': return ''
+    elif rsd in [0, 1, 2]: return '.rsd%i' % rsd
+    elif rsd == 'real': return '.real'
+    else: raise NotImplementedError
+
+
+def _flag_str(flag): 
+    # assign string based on flag kwarg
+    return ['.%s' % flag, ''][flag is None]
+
+
 
 if __name__=="__main__": 
+    for kmax in [0.3]: 
+        PF_PkBk(rsd=0, kmax=kmax)
+        PF_PkBk(rsd='real', kmax=kmax)
+    PF_deltaB_sigmaB(rsd=0, kmax=0.5)
+    PF_deltaB_sigmaB(rsd='real', kmax=0.5)
     #for theta in ['fiducial', 'Om_m', 'Om_p', 'Ob2_m', 'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p', 
     #        'Mnu_p', 'Mnu_pp', 'Mnu_ppp']: 
     #    pairedfixed_theta(theta, kmax=0.5) 
-    pairedfixed_allthetas()
+    #pairedfixed_allthetas()

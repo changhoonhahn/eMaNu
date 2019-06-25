@@ -2485,7 +2485,7 @@ def B_detail(rsd='all', flag='reg'):
     sub.scatter(np.arange(np.sum(klim05))[equ], bk_fid[klim05][equ], marker='^', 
             facecolors='none', edgecolors='k', zorder=10, label='equilateral ($k_1 = k_2 = k_3$)') 
 
-    squ = ((1.75/i_k[klim05] <= 1./j_k[klim05]) & (1.75/i_k[klim05] <= 1./l_k[klim05]))
+    squ = ((1.8/i_k[klim05] <= 1./j_k[klim05]) & (1.8/i_k[klim05] <= 1./l_k[klim05]))
     sub.scatter(np.arange(np.sum(klim05))[squ], bk_fid[klim05][squ], marker='X', 
             facecolors='none', edgecolors='k', zorder=10, label='squeezed triangle ($k_1 \gg k_2, k_3$)') 
     print i_k[klim05][squ]
