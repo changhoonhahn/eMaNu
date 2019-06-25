@@ -2450,6 +2450,84 @@ def quijote_FisherTest(kmax=0.5, rsd=True, dmnu='fin', flag=None):
 ############################################################
 # real vs rsd
 ############################################################
+def B_detail(rsd='all', flag='reg'): 
+    ''' compare the B for theta- and theta+  
+    '''
+    # read in fiducial bispectrum
+    quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag='reg') 
+    bk_fid = np.average(quij['b123'], axis=0) 
+    i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
+
+    quij_real = Obvs.quijoteBk('fiducial', rsd='real', flag='reg') 
+    bk_real = np.average(quij_real['b123'], axis=0) 
+    
+    klim05 = ((i_k * kf <= 0.5) & (j_k * kf <= 0.5) & (l_k * kf <= 0.5)) 
+
+    #ijl = UT.ijl_order(i_k[klim], j_k[klim], l_k[klim], typ='GM') # order of triangles 
+
+    fig = plt.figure(figsize=(20,10))
+    # illustrate kmax 
+    sub = fig.add_subplot(311)
+    for kmax, clr in zip([0.5, 0.4, 0.3, 0.2, 0.1], ['C0', 'C1', 'C2', 'C3', 'C4']):  
+        klim = ((i_k * kf <= kmax) & (j_k * kf <= kmax) & (l_k * kf <= kmax)) 
+        if kmax == 0.5: sub.plot(range(np.sum(klim)), bk_fid[klim], c=clr, label=r'$k_{\rm max}=%.1f$' % kmax)   
+        else: sub.plot(range(np.sum(klim)), bk_fid[klim], c=clr, label=r'%.1f' % kmax)    
+    sub.legend(loc='upper right', ncol=5, fontsize=18) 
+    sub.set_xlim(0., np.sum(klim05))
+    sub.set_xticklabels([]) 
+    sub.set_yscale('log') 
+    sub.set_ylim(3e5, 2e10) 
+    
+    sub = fig.add_subplot(312)
+    sub.plot(range(np.sum(klim05)), bk_fid[klim05], c='C0')    
+
+    equ = ((i_k[klim05] == j_k[klim05]) & (l_k[klim05] == i_k[klim05]))
+    sub.scatter(np.arange(np.sum(klim05))[equ], bk_fid[klim05][equ], marker='^', 
+            facecolors='none', edgecolors='k', zorder=10, label='equilateral ($k_1 = k_2 = k_3$)') 
+
+    squ = ((1.75/i_k[klim05] <= 1./j_k[klim05]) & (1.75/i_k[klim05] <= 1./l_k[klim05]))
+    sub.scatter(np.arange(np.sum(klim05))[squ], bk_fid[klim05][squ], marker='X', 
+            facecolors='none', edgecolors='k', zorder=10, label='squeezed triangle ($k_1 \gg k_2, k_3$)') 
+    print i_k[klim05][squ]
+    
+    for i in range(508, 548)[::10]: 
+        sub.scatter([i], [bk_fid[i]], c='k') 
+        sub.text(i, 1e9, '(%i, %i, %i)' % (i_k[i], j_k[i], l_k[i]), 
+                ha='left', va='bottom', fontsize=5, rotation=60)
+    #colin = ((1./i_k[klim05] + 1./j_k[klim05]) == 1./l_k[klim05])
+    #print np.sum(colin) 
+    #print i_k[klim05][colin][:10]
+    #print j_k[klim05][colin][:10]
+    #print l_k[klim05][colin][:10]
+    #sub.scatter(np.arange(np.sum(klim05))[colin], bk_fid[klim05][colin], marker='D', 
+    #        facecolors='none', edgecolors='k', zorder=10, label='co-linear triangle') 
+
+    sub.legend(loc='upper right', handletextpad=0., ncol=5, fontsize=18) 
+    sub.set_xlim(0., np.sum(klim05))
+    sub.set_xticklabels([]) 
+    sub.set_yscale('log') 
+    sub.set_ylim(3e5, 2e10) 
+    
+    sub = fig.add_subplot(313)
+    sub.plot(range(np.sum(klim05)), bk_fid[klim05], c='C0', label='redshift-space')    
+    sub.plot(range(np.sum(klim05)), bk_real[klim05], c='C1', label='real-space')    
+    sub.legend(loc='upper right', fontsize=18) 
+    sub.set_xlim(0., np.sum(klim05))
+    sub.set_yscale('log') 
+    sub.set_ylim(3e5, 2e10) 
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.set_xlabel('triangle configurations', fontsize=25) 
+    bkgd.set_ylabel(r'$B(k_1, k_2, k_3)$', labelpad=10., fontsize=25) 
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+
+    fig.subplots_adjust(hspace=0.1) 
+    ffig = os.path.join(dir_doc, 'quijote_B_details.png') 
+    fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
+    return None
+
+
 def compare_Pk_rsd(krange=[0.01, 0.5]):  
     ''' Compare the amplitude of the fiducial HADES and quijote bispectrum 
     in redshift space versus real space. 
@@ -3097,6 +3175,7 @@ if __name__=="__main__":
             quijote_FisherTest(kmax=kmax, rsd=True, dmnu='fin')
     '''
     # rsd 
+    B_detail(rsd='all', flag='reg')
     #compare_Pk_rsd(krange=[0.01, 0.5])
     #compare_Bk_rsd(kmax=0.5)
     #compare_Qk_rsd(krange=[0.01, 0.5])
