@@ -122,6 +122,20 @@ def hod_fit(Mr=-21.5, nwalkers=100, burn_in_chain=200, main_chain=1000):
     return None 
 
 
+def pk_model(halos, tt, rsd=True, rbins=None): 
+    ''' wrapper for populating halos and calculating Pk 
+    '''
+    # population halos 
+    hod = FM.hodGalaxies(halos, {'logMmin': tt[0], 'sigma_logM': tt[1], 'logM0': tt[2], 'alpha': tt[3], 'logM1': tt[4]}) 
+    #print('%f w/ Mh < 1.32x10^13' % (float(np.sum(np.array(hod['halo_mvir']) < 1.32*10**13))/float(len(np.array(hod['halo_mvir'])))))
+    # apply RSD 
+    if rsd: xyz = FM.RSD(hod) 
+    else: xyz = np.array(hod['Position']) 
+    # calculate wp 
+    _pk = pySpec.Pk_periodic(xyz.T, Lbox=1000, Ngrid=360, fft='pyfftw', silent=True)
+    return _pk['k'], _pk['p0k']
+
+
 def wp_model(halos, tt, rsd=True, rbins=None): 
     ''' wrapper for populating halos and calculating wp 
     '''
@@ -353,7 +367,7 @@ def _plot_wp_model_pm_fiducial():
             mh_min=None, dir='/Users/ChangHoon/data/emanu/halos/hades/0.0eV/1_hires')
 
     dtt = np.array([0.1, 0.1, 0.3, 0.3, 0.1]) 
-    tt  = np.array([13.85, 0.175, 13.94, 0.95, 14.3]) 
+    tt  = np.array([14.2, 0.4, 14., 0.9, 14.5]) 
     ttm = tt - dtt
     ttp = tt + dtt 
 
@@ -365,6 +379,8 @@ def _plot_wp_model_pm_fiducial():
     Nsat_fid = Nsat_Mh(tt, np.log10(_Mhbins)) 
     wp_fid = wp_model(halos, tt, rsd=True) 
     wp_fid_hires = wp_model(halos_hires, tt, rsd=True) 
+    k, pk_fid = pk_model(halos, tt, rsd=True) 
+    _, pk_fid_hires = pk_model(halos_hires, tt, rsd=True) 
 
     tt_z07_21p5 = np.array([13.38, 0.51, 13.94, 1.04, 13.91])
     tt_z07_22p0 = np.array([14.22, 0.77, 14.00, 0.87, 14.69])
@@ -373,11 +389,11 @@ def _plot_wp_model_pm_fiducial():
     Ncen_z07_22p0 = Ncen_Mh(tt_z07_22p0, np.log10(_Mhbins))
     Nsat_z07_22p0 = Nsat_Mh(tt_z07_22p0, np.log10(_Mhbins))
     
-    fig = plt.figure(figsize=(40,8))
+    fig = plt.figure(figsize=(40,12))
     for i in range(5): 
         _ttm = tt.copy() 
         _ttm[i] = ttm[i] 
-        sub = fig.add_subplot(2,5,i+1)
+        sub = fig.add_subplot(3,5,i+1)
         tt_dict = {'logMmin': _ttm[0], 'sigma_logM': _ttm[1], 
                 'logM0': _ttm[2], 'alpha': _ttm[3], 'logM1': _ttm[4]}
         hod = FM.hodGalaxies(halos_hires, tt_dict)
@@ -415,7 +431,7 @@ def _plot_wp_model_pm_fiducial():
         if i == 4: sub.legend([plt_21p5, plt_22p0], ['SDSS $M_r < -21.5$', 'SDSS $M_r < -22$'],
                 loc='upper left', fontsize=12) 
 
-        sub = fig.add_subplot(2,5,i+6)
+        sub = fig.add_subplot(3,5,i+6)
         sub.plot(rp, wp_fid, c='k') 
         sub.plot(rp, wp_fid_hires, c='k', ls=':') 
         _wp = wp_model(halos, _ttm, rsd=True) 
@@ -426,10 +442,6 @@ def _plot_wp_model_pm_fiducial():
         sub.plot(rp, _wp, c='C1', ls=':') 
         _wp = wp_model(halos_hires, _ttp, rsd=True) 
         sub.plot(rp, _wp, c='C0', ls=':', label='High Res.') 
-        if i == 4: sub.legend(loc='lower left', fontsize=15) 
-        
-        sub.text(0.95, 0.95, '%s=$%s\pm %.1f$' % (lbls[i], str(tt[i]), dtt[i]), 
-                ha='right', va='top', transform=sub.transAxes, fontsize=15)
         sub.set_xscale('log') 
         sub.set_xlim(1e-1, 25) 
         sub.set_yscale('log') 
@@ -437,11 +449,36 @@ def _plot_wp_model_pm_fiducial():
         if i == 0: sub.set_ylabel(r'$w_p(r_p)$', fontsize=25) 
         else: sub.set_yticklabels([]) 
 
-    bkgd = fig.add_subplot(211, frameon=False)
+        sub = fig.add_subplot(3,5,i+11)
+        sub.plot(k, pk_fid, c='k') 
+        sub.plot(k, pk_fid_hires, c='k', ls=':') 
+        _, _pk = pk_model(halos, _ttm, rsd=True) 
+        sub.plot(k, _pk, c='C1', label=r'$\theta_-$') 
+        _, _pk = pk_model(halos, _ttp, rsd=True) 
+        sub.plot(k, _pk, c='C0', label=r'$\theta_+$') 
+        _, _pk = pk_model(halos_hires, _ttm, rsd=True) 
+        sub.plot(k, _pk, c='C1', ls=':') 
+        _, _pk = pk_model(halos_hires, _ttp, rsd=True) 
+        sub.plot(k, _pk, c='C0', ls=':', label='High Res.') 
+        if i == 4: sub.legend(loc='lower left', fontsize=15) 
+        
+        sub.text(0.95, 0.95, '%s=$%s\pm %.1f$' % (lbls[i], str(tt[i]), dtt[i]), 
+                ha='right', va='top', transform=sub.transAxes, fontsize=15)
+        sub.set_xscale('log') 
+        sub.set_xlim(5e-3, 0.5) 
+        sub.set_yscale('log') 
+        sub.set_ylim(2e3, 4e5) 
+        if i == 0: sub.set_ylabel(r'$P_0(k)$', fontsize=25) 
+        else: sub.set_yticklabels([]) 
+
+    bkgd = fig.add_subplot(311, frameon=False)
     bkgd.set_xlabel('$M_h$', fontsize=25) 
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-    bkgd = fig.add_subplot(212, frameon=False)
+    bkgd = fig.add_subplot(312, frameon=False)
     bkgd.set_xlabel(r'$r_p$ [$h^{-1}{\rm Mpc}$]', fontsize=25) 
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    bkgd = fig.add_subplot(313, frameon=False)
+    bkgd.set_xlabel(r'$k$', fontsize=25) 
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
 
     fig.subplots_adjust(wspace=0.05, hspace=0.3) 
@@ -451,7 +488,136 @@ def _plot_wp_model_pm_fiducial():
     return None 
 
 
+def _plot_dPdHOD_stepsize(): 
+    ''' detemrine the derivative step sizes by plotting dlogP/dtheta_HOD computed using
+    different derivative step sizes. 
+    '''
+    # r bin  
+    rbins = np.loadtxt(os.path.join(dir_hod, 'rbins.dat'), unpack=True, usecols=[0]) 
+    # hi res halo catalog
+    halos = hadesData.hadesMnuHalos(0., '1_hires', 4, 
+            mh_min=None, dir='/Users/ChangHoon/data/emanu/halos/hades/0.0eV/1_hires')
+    
+    dtt0 = np.array([0.1, 0.1, 0.3, 0.3, 0.1]) 
+    dtt1 = np.array([0.1, 0.1, 0.3, 0.3, 0.1]) 
+    dtt2 = np.array([0.1, 0.1, 0.3, 0.3, 0.1]) 
+    dtts = [dtt0, dtt1, dtt2] 
+    fid = np.array([13.85, 0.4, 13.94, 0.95, 14.3]) 
+    
+    lbls = [r'$\log M_{\rm min}$', r'$\sigma_{\log M}$',r'$\log M_0$',r'$\alpha$',r'$\log M_1$']
+    names = ['logMmin', 'sig_logM', 'logM0', 'alpha', 'logM1']
+    fig = plt.figure(figsize=(30,8))
+    for i in range(5): 
+        sub = fig.add_subplot(2,3,i+1)
+        for i_tt, dtt in enumerate(dtts):  # loop through different fiducial values 
+            # theta + and theta - 
+            _ttp = tt.copy() 
+            _ttp[i] = tt[i] + dtt[i]
+            _ttm = tt.copy() 
+            _ttm[i] = tt[i] - dtt[i] 
+            print('%s+' % names[i], _ttp)
+            print('%s-' % names[i], _ttm)
+            
+            pkps, pkms = [], [] 
+            for _iii in range(2): # average over a few realizations 
+                print('realization %i' % _iii) 
+                print('... calculating Pk') 
+                k, _pkpi = pk_model(halos, _ttp) 
+                _, _pkmi = pk_model(halos, _ttm) 
+                pkps.append(_pkpi) 
+                pkms.append(_pkmi) 
+
+            pkp = np.average(pkps, axis=0) # average P 
+            pkm = np.average(pkms, axis=0) 
+            #dpdhod = 0.5*(pkp - pkm)/dtt[i] # derivative 
+            dlogpdhod = 0.5*(np.log(pkp) - np.log(pkm))/dtt[i] # log derivative 
+            sub.plot(k, dlogpdhod, c='C%i' % i_tt, ls='-', lw=1, label=r'$\sigma_{\log M}=%.2f$' % tt[1]) 
+        sub.set_xscale('log') 
+        sub.set_xlim(5e-3, 0.5) 
+        #sub.set_ylim(ylims[i_tt]) 
+        sub.text(0.05, 0.95, r'%s' % lbls[i], ha='left', va='top', transform=sub.transAxes, fontsize=20)
+        if i == 4: sub.legend(loc='upper right', fontsize=15) 
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.set_xlabel('$k$', fontsize=25) 
+    bkgd.set_ylabel(r'${\rm d}\log P/{\rm d} \theta$', labelpad=10, fontsize=25) 
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+
+    fig.subplots_adjust(wspace=0.2) 
+    ffig = os.path.join(dir_fig, 'dPdHOD_fiducials.png') 
+    fig.savefig(ffig, bbox_inches='tight') 
+    plt.close() 
+    return None 
+
+
 def _plot_dPdHOD_fiducials(): 
+    ''' plot the P derivatives w.r.t. HOD parameters for multiple fiducial 
+    parameter choices. The main goal is to see how much the derivatives 
+    change for higher sigmas 
+    '''
+    # r bin  
+    rbins = np.loadtxt(os.path.join(dir_hod, 'rbins.dat'), unpack=True, usecols=[0]) 
+    # hi res halo catalog
+    halos = hadesData.hadesMnuHalos(0., '1_hires', 4, 
+            mh_min=None, dir='/Users/ChangHoon/data/emanu/halos/hades/0.0eV/1_hires')
+    
+    dtt = np.array([0.1, 0.1, 0.3, 0.3, 0.1]) 
+    fid0 = np.array([13.85, 0.4, 13.94, 0.95, 14.3]) 
+    fid1 = np.array([13.85, 0.5, 13.94, 0.95, 14.3]) 
+    fid2 = np.array([13.85, 0.7, 13.94, 0.95, 14.3]) 
+    fids = [fid0, fid1, fid2]
+    
+    lbls = [r'$\log M_{\rm min}$', r'$\sigma_{\log M}$',r'$\log M_0$',r'$\alpha$',r'$\log M_1$']
+    names = ['logMmin', 'sig_logM', 'logM0', 'alpha', 'logM1']
+    fig = plt.figure(figsize=(30,8))
+    for i in range(5): 
+        sub = fig.add_subplot(2,3,i+1)
+        for i_tt, tt in enumerate(fids):  # loop through different fiducial values 
+            # theta + and theta - 
+            _ttp = tt.copy() 
+            _ttp[i] = tt[i] + dtt[i]
+            _ttm = tt.copy() 
+            _ttm[i] = tt[i] - dtt[i] 
+            print('%s+' % names[i], _ttp)
+            print('%s-' % names[i], _ttm)
+            
+            pkps, pkms = [], [] 
+            for _iii in range(2): # average over a few realizations 
+                print('realization %i' % _iii) 
+                print('... calculating Pk') 
+                k, _pkpi = pk_model(halos, _ttp) 
+                _, _pkmi = pk_model(halos, _ttm) 
+                pkps.append(_pkpi) 
+                pkms.append(_pkmi) 
+
+            pkp = np.average(pkps, axis=0) # average P 
+            pkm = np.average(pkms, axis=0) 
+            #dpdhod = 0.5*(pkp - pkm)/dtt[i] # derivative 
+            dlogpdhod = 0.5*(np.log(pkp) - np.log(pkm))/dtt[i] # log derivative 
+            sub.plot(k, dlogpdhod, c='C%i' % i_tt, ls='-', lw=1, label=r'$\sigma_{\log M}=%.2f$' % tt[1]) 
+            if i_tt == 0: dlogpdhod_fid = dlogpdhod
+            else: 
+                print(dlogpdhod/dlogpdhod_fid) 
+                print(np.median(dlogpdhod/dlogpdhod_fid - 1.)) 
+        sub.set_xscale('log') 
+        sub.set_xlim(5e-3, 0.5) 
+        #sub.set_ylim(ylims[i_tt]) 
+        sub.text(0.05, 0.95, r'%s' % lbls[i], ha='left', va='top', transform=sub.transAxes, fontsize=20)
+        if i == 4: sub.legend(loc='upper right', fontsize=15) 
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.set_xlabel('$k$', fontsize=25) 
+    bkgd.set_ylabel(r'${\rm d}\log P/{\rm d} \theta$', labelpad=10, fontsize=25) 
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+
+    fig.subplots_adjust(wspace=0.2) 
+    ffig = os.path.join(dir_fig, 'dPdHOD_fiducials.png') 
+    fig.savefig(ffig, bbox_inches='tight') 
+    plt.close() 
+    return None 
+
+
+def _plot_dBdHOD_fiducials(): 
     ''' plot the P derivatives w.r.t. HOD parameters for multiple fiducial 
     parameter choices. The main goal is to see how much the derivatives 
     change for higher sigmas 
@@ -470,9 +636,9 @@ def _plot_dPdHOD_fiducials():
     
     lbls = [r'$\log M_{\rm min}$', r'$\sigma_{\log M}$',r'$\log M_0$',r'$\alpha$',r'$\log M_1$']
     names = ['logMmin', 'sig_logM', 'logM0', 'alpha', 'logM1']
-    fig = plt.figure(figsize=(30,8))
+    fig = plt.figure(figsize=(25,25))
     for i in range(5): 
-        sub = fig.add_subplot(2,3,i+1)
+        sub = fig.add_subplot(5,1,i+1)
         for i_tt, tt in enumerate(fids):  # loop through different fiducial values 
             # theta + and theta - 
             _ttp = tt.copy() 
@@ -486,7 +652,7 @@ def _plot_dPdHOD_fiducials():
             print('%s+' % names[i], _ttp)
             print('%s-' % names[i], _ttm)
             
-            pkps, pkms = [], [] 
+            bkps, bkms = [], [] 
             for _iii in range(1): # average over 10 
                 print('realization %i' % _iii) 
                 print('... populating theta+') 
@@ -495,32 +661,36 @@ def _plot_dPdHOD_fiducials():
                 print('... populating theta-') 
                 hod = FM.hodGalaxies(halos, ttm_dict)
                 pos_m = np.array(hod['Position'])
-                print('... calculating Pk') 
-                _pkpi = pySpec.Pk_periodic(pos_p.T, Lbox=1000, Ngrid=360, fft='pyfftw', silent=True)
-                _pkmi = pySpec.Pk_periodic(pos_m.T, Lbox=1000, Ngrid=360, fft='pyfftw', silent=True)
+                print('... calculating B') 
 
-                k = _pkpi['k'] 
-                pkps.append(_pkpi['p0k']) 
-                pkms.append(_pkmi['p0k']) 
+                _bkpi = pySpec.Bk_periodic(pos_p.T, Lbox=1000, Ngrid=360,  step=3, Ncut=40, Nmax=40, 
+                        fft='pyfftw', silent=True) 
+                _bkmi = pySpec.Bk_periodic(pos_m.T, Lbox=1000, Ngrid=360,  step=3, Ncut=40, Nmax=40, 
+                        fft='pyfftw', silent=True) 
+                i_k, j_k, l_k = _bkpi['i_k1'], _bkpi['i_k2'], _bkpi['i_k3'] 
+                bkps.append(_bkpi['b123']) 
+                bkms.append(_bkmi['b123']) 
+            
+            if i_tt == 0: klim = ((i_k * kf <= 0.5) & (j_k * kf <= 0.5) & (l_k * kf <= 0.5)) 
 
-            pkp = np.average(pkps, axis=0) # average P 
-            pkm = np.average(pkms, axis=0) 
+            bkp = np.average(bkps, axis=0) # average P 
+            bkm = np.average(bkms, axis=0) 
             #dpdhod = 0.5*(pkp - pkm)/dtt[i] # derivative 
-            dlogpdhod = 0.5*(np.log(pkp) - np.log(pkm))/dtt[i] # log derivative 
-            sub.plot(k, dlogpdhod, c='C%i' % i_tt, ls='-', lw=1, label=r'$\sigma_{\log M}=%.2f$' % tt[1]) 
+            dlogbdhod = 0.5*(np.log(bkp) - np.log(bkm))/dtt[i] # log derivative 
+            sub.plot(range(np.sum(klim)), dlogbdhod[klim], c='C%i' % i_tt, ls='-', lw=1, 
+                    label=r'$\sigma_{\log M}=%.2f$' % tt[1]) 
         
-        sub.set_xscale('log') 
-        sub.set_xlim(5e-3, 0.5) 
-        #sub.set_ylim(ylims[i_tt]) 
+        sub.set_xlim(0, np.sum(klim)) 
         sub.text(0.05, 0.95, r'%s' % lbls[i], ha='left', va='top', transform=sub.transAxes, fontsize=20)
+        if i == 4: sub.legend(loc='upper right', fontsize=15) 
 
     bkgd = fig.add_subplot(111, frameon=False)
-    bkgd.set_xlabel('$k$', fontsize=25) 
-    bkgd.set_ylabel(r'${\rm d}\log P/{\rm d} \theta$', labelpad=10, fontsize=25) 
+    bkgd.set_xlabel('triangle configurations', fontsize=25) 
+    bkgd.set_ylabel(r'${\rm d}\log B/{\rm d} \theta$', labelpad=10, fontsize=25) 
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
 
     fig.subplots_adjust(wspace=0.2) 
-    ffig = os.path.join(dir_fig, 'dPdHOD_fiducials.png') 
+    ffig = os.path.join(dir_fig, 'dBdHOD_fiducials.png') 
     fig.savefig(ffig, bbox_inches='tight') 
     plt.close() 
     return None 
@@ -605,5 +775,6 @@ if __name__=='__main__':
     #    _plot_wp_model_pm(tt, Mr=-21.5, low_sigma=0.1)
     #_plot_wp_model_pm_fiducial()
     _plot_dPdHOD_fiducials()
+    #_plot_dBdHOD_fiducials()
 
     #hod_fit(Mr=-21.5)
