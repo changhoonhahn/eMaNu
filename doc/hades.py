@@ -280,7 +280,7 @@ def compare_Bk(kmax=0.5, rsd=True):
 
     i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim] 
 
-    ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order of triangles 
+    #ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order of triangles 
 
     fig = plt.figure(figsize=(25,10))
     sub = fig.add_subplot(211)
@@ -307,9 +307,12 @@ def compare_Bk(kmax=0.5, rsd=True):
         axins2.plot(tri, _bk, c='C'+str(ii)) 
     #sub.plot(tri, Bk_sn[klim][ijl], c='k', ls=':') 
 
-    print(i_k[507:527]) 
-    print(j_k[507:527]) 
-    print(l_k[507:527]) 
+    print(i_k[508:527]) 
+    print(j_k[508:527]) 
+    print(l_k[508:527]) 
+    print(kf*i_k[508:527].min(), kf*i_k[507:527].max()) 
+    print(kf*j_k[508:527].min(), kf*j_k[507:527].max()) 
+    print(kf*l_k[508:527].min(), kf*l_k[507:527].max()) 
 
     sub2.text(0.02, 0.1, '0.0 eV', ha='left', va='bottom', transform=sub2.transAxes, fontsize=20)
     sub.legend(loc='lower left', bbox_to_anchor=(0., -0.05), bbox_transform=sub.transAxes,
@@ -1151,8 +1154,8 @@ if __name__=="__main__":
     for kmax in [0.5]: 
         #compare_Plk(kmax=0.5)
         #ratio_Plk(kmax=0.5) 
-        #compare_Bk(kmax=kmax, rsd=True)
-        compare_Bk_shape(kmax=kmax, rsd=True, nbin=31)
+        compare_Bk(kmax=kmax, rsd=True)
+        #compare_Bk_shape(kmax=kmax, rsd=True, nbin=31)
         #compare_Qk(kmax=kmax, rsd=True)
 
     #compare_Bk_SNuncorr(krange=[0.01, 0.5], rsd=True)

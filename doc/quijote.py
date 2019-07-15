@@ -168,8 +168,8 @@ def _bkCov(kmax=0.5, rsd=2, flag='reg'):
     bklim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # k limit
     C_bk = C_bk[bklim,:][:,bklim]
 
-    ijl = UT.ijl_order(i_k[bklim], j_k[bklim], l_k[bklim], typ='GM') # order of triangles 
-    C_bk = C_bk[ijl,:][:,ijl]
+    #ijl = UT.ijl_order(i_k[bklim], j_k[bklim], l_k[bklim], typ='GM') # order of triangles 
+    #C_bk = C_bk[ijl,:][:,ijl]
     print('covariance matrix condition number = %.5e' % np.linalg.cond(C_bk)) 
 
     # plot the covariance matrix 
@@ -181,7 +181,8 @@ def _bkCov(kmax=0.5, rsd=2, flag='reg'):
             fontsize=25, labelpad=10, rotation=90)
     ffig = os.path.join(dir_doc, 
             'quijote_bkCov_kmax%s%s%s.png' % (str(kmax).replace('.', ''), _rsd_str(rsd), _flag_str(flag)))
-    fig.savefig(ffig, bbox_inches='tight') 
+    #fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
     return None 
 
 
@@ -3082,6 +3083,7 @@ def _flag_str(flag):
 
 if __name__=="__main__": 
     # covariance matrices
+    _bkCov(kmax=0.5, rsd=1, flag='reg') # condition number 1.71010+08
     '''
         for rsd in [0, 1, 2]:  pkCov(rsd=rsd, flag='reg', silent=False) 
         for rsd in [0, 1, 2]:  bkCov(rsd=rsd, flag='reg', silent=False) 
@@ -3175,7 +3177,7 @@ if __name__=="__main__":
             quijote_FisherTest(kmax=kmax, rsd=True, dmnu='fin')
     '''
     # rsd 
-    B_detail(rsd='all', flag='reg')
+    #B_detail(rsd='all', flag='reg')
     #compare_Pk_rsd(krange=[0.01, 0.5])
     #compare_Bk_rsd(kmax=0.5)
     #compare_Qk_rsd(krange=[0.01, 0.5])
