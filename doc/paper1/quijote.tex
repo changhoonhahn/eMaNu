@@ -65,10 +65,10 @@ simulation suite is \emph{specifically} designed to answer this question
 through Fisher matrix forecast.
 
 First, the Quijote suite includes $N_{\rm cov} = 15,000$ $N$-body realizations run at a 
-fidicial cosmology: $\smnu{=}0.0$eV, $\Om{=}0.3175, \Ob{=}0.049, 
+fiducial cosmology: $\smnu{=}0.0$eV, $\Om{=}0.3175, \Ob{=}0.049, 
 n_s{=}0.9624, h{=}0.6711$, and $\sig{=}0.834$ (see Table~\ref{tab:sims}). 
 This allows us to robustly estimate the $1898\times1898$ covariance matrix 
-of the bispectrum, $\bfi{C}$ (Figure~\ref{fig:bk_cov}). Second, the Quijote 
+of the {\em full} bispectrum, $\bfi{C}$ (Figure~\ref{fig:bk_cov}). Second, the Quijote 
 suite includes $500$ $N$-body realizations evaluated at $13$ different 
 cosmologies, each a small step away from the fiducial cosmology parameter 
 values along one parameter (Section~\ref{sec:hades} and~Table~\ref{tab:sims}). 
@@ -171,8 +171,8 @@ over the power spectrum.} For $k_{\rm max} = 0.5~h/{\rm Mpc}$, the
 bispectrum tightens the marginalized $1\sigma$ constraints, $\sigma_\theta$, of $\Om$, 
 $\Ob$, $h$, $n_s$, and $\sig$ by factors of $\sim$3, 4, 5, 6, and 3 over 
 the power spectrum. {\em For $\smnu$, the bispectrum improves the constraint 
-from $\sigma_{\smnu}{=}~0.1962$ to $0.0342$eV --- a factor of 6 improvement 
-over the power spectrum}. This $\sigma_{\smnu}{=}0.0342$eV constraint is for 
+from $\sigma_{\smnu}{=}~0.1962$ to $0.0342$~eV --- a factor of 6 improvement 
+over the power spectrum}. This $\sigma_{\smnu}{=}0.0342$~eV constraint is for 
 the {\em bispectrum alone} and only for a $1h^{-1}{\rm Gpc}$ box. For a larger 
 volume, V, $\sigma_\theta$ scales as $\propto1/\sqrt{V}$. We list the precise
 marginalized Fisher parameter constraints of both cosmological and nuisance 
@@ -282,7 +282,7 @@ used covariance matrices that include non-Gaussian contributions calibrated with
 $N$-body simulations to find that the cumulative SNR of the halo bispectrum is 
 $\sim 30\%$ of the SNR of the halo power spectrum at $k_{\rm max} \sim 0.1~\mpc$ 
 and increases to $\sim 40\%$ at $k_{\rm max}\sim 0.35~\mpc$. While these simple 
-SNR measurements cannot be easily compared to Fisher analysis~\citep{}, % https://arxiv.org/abs/1506.00083, https://arxiv.org/abs/1512.05383
+SNR measurements cannot be easily compared to Fisher analysis~\citep{repp2015, blot2016}, 
 we note that they are roughly consistent with the unmarginalized constraints, 
 which loosely represent the SNRs of the derivatives. 
 Also, when we measure the the halo power spectrum and bispectrum SNRs using our 
@@ -340,16 +340,19 @@ with our forecasts as a function of $k_{\rm max}$ (Figure~\ref{fig:fish_kmax}).
 Also, consistent with their results, for $k_{\rm max} = 0.15~\mpc$, 
 we find similar posterior correlations between the $P_0$ and $B_0$ 
 constraints. At $k_{\rm max} = 0.5~\mpc$, however, we find the posterior 
-correlations are no longe rsimilar, which contribute to the constraining
+correlations are no longer similar, which contribute to the constraining
 power of $B_0$~(Figure~\ref{fig:bk_fish_05}).
 
-Various difference between our forecast and previous work prevent more 
-thorough comparisons. Two crucial aspects, however, distinguish our
+Various differences between our forecast and previous work prevent more 
+thorough comparisons. Three crucial aspects, however, distinguish our
 forecasts from other works. We present the first bispectrum forecasts 
 for a full set of cosmological parameters using bispectrum measured entirely 
 from $N$-body simulations. This allows us to go beyond perturbation theory 
 forecasts and quantify the full information content of the redshift-space 
-bispectrum out to nonlinear regimes. Second, we present the first bispectrum 
+bispectrum out to nonlinear regimes. Second, we present the first forecast 
+of the full bispectrum of all 1898 triangles out to $k_{\rm max} = 0.5~\mpc$, 
+which is only made possible with the immense number (42,000) of $N$-body
+simulations in the Quijote suite. Lastly, we present the first bispectrum 
 forecast of cosmological parameters that includes neutrinos and demonstrates 
 the constraining power of the bispectrum for $\smnu$. Below, we underline a 
 few caveats of our forecasts.
@@ -389,8 +392,8 @@ We argue that the constraining power of the bispectrum and its improvement
 over the power spectrum come from breaking degeneracies among the cosmological 
 parameters. However, numerical noise can impact our forecasts when we invert 
 the Fisher matrix. Since {\em Planck} constrain $\{\Om$, $\Ob$, $h$, $n_s$, $\sig\}$ 
-tighter than the $P_0$ and $B_0$ alone (\ch{@paco: citation to planck prior}), 
-the elements of the {\em Planck} prior matrix are larger than the elements of $P_0$ 
+tighter than the $P_0$ and $B_0$ alone, the elements of the {\em Planck} prior 
+matrix are larger than the elements of $P_0$ 
 and $B_0$ Fisher matrices. Including {\em Planck} priors (\emph{i.e.} adding the 
 prior matrix to the Fisher matrix) increases the numerical stability of the 
 matrix inversion. It also reveals whether the bispectrum still improves parameter 
@@ -409,26 +412,27 @@ the improvement from $B_0$ are numerically robust. Furthermore, $\sigma_\theta$
 as a function of $k_{\rm max}$ with {\em Planck} priors reveal that while the 
 constraining power of $P_0$ saturates at $k_{\rm max} = 0.2~\mpc$, the constraining 
 power of $B_0$ continues to increase out to $k_{\rm max} = 0.5~\mpc$ 
-(dotted; Figure~\ref{fig:fish_kmax}), 
+(dotted; Figure~\ref{fig:fish_kmax}). 
 
-Our forecasts are derived using the power spectrum and bispectrum in a 
-\emph{periodic box}. We do not consider a realistic geometry or radial selection 
+Our forecasts are derived using the power spectrum and bispectrum in
+\emph{periodic boxes}. We do not consider a realistic geometry or radial selection 
 function of actual observations from galaxy 
 surveys. A realistic selection function will smooth out the triangle 
 configuration dependence and consequently degrade the constraining power 
 of the bispectrum. In \cite{sefusatti2005}, for instance, they find that the 
 signal-to-noise of the bispectrum is significantly reduced once survey geometry 
-is included in their forecast. Survey geometry, however, also degrades the 
-signal-to-noise of their power spectrum forecasts. Hence, with the substantial 
-improvement in the $\smnu$ constraints of the bispectrum, even with survey 
-geometry we expect the bispectrum will significantly improve $\smnu$ constraints 
-over the power spectrum. 
+is included in their forecast. We also do not include super-sample covariance, 
+which may also degrade constraints. Survey geometry and super-sample covariance, 
+however, also degrades the signal-to-noise of their power spectrum forecasts. 
+Hence, with the substantial improvement in the $\smnu$ constraints of the bispectrum, 
+even with survey geometry we expect the bispectrum will significantly improve 
+$\smnu$ constraints over the power spectrum.  
 
 We include the nuisance parameter $\mmin$ in our forecasts to address the 
 difference in halo bias and number densities among the Quijote cosmologies. Although 
 we marginalize over $\mmin$, this may not fully account for the extra 
 information from $\bar{n}$ and nonlinear bias leaking into the derivatives. 
-To test this, we include extra nuisance parameters, $\}A_{\rm SN}$, 
+To test this, we include extra nuisance parameters, $\{A_{\rm SN}$, 
 $B_{\rm SN}$, $b_2$, $\gamma_2\}$, and examine their impact on our forecasts. 
 $A_{\rm SN}$ and $B_{\rm SN}$ are multiplicative factors of the first and
 second terms of Eq.~\ref{eq:bk_sn}, which we include to account for any 
