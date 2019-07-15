@@ -554,8 +554,8 @@ def compare_Bk_shape(kmax=0.5, rsd=True, nbin=31):
         BQgrid = ePlots._BorQgrid(k3k1[klim], k2k1[klim], bk[klim], counts[klim], x_bins, y_bins)
         bplot = sub.pcolormesh(x_bins, y_bins, BQgrid.T, norm=norm, cmap='RdBu')
         sub.text(0.05, 0.05, str(mnu)+'eV', ha='left', va='bottom', transform=sub.transAxes, fontsize=20)
+        sub.set_xticklabels([]) 
         if i > 0: 
-            sub.set_xticklabels([]) 
             sub.set_yticklabels([]) 
 
     for i, s8, bk in zip(range(3), sig8s, Bk_s8s): 
@@ -565,7 +565,45 @@ def compare_Bk_shape(kmax=0.5, rsd=True, nbin=31):
         sub.text(0.05, 0.05, '0.0eV', ha='left', va='bottom', transform=sub.transAxes, fontsize=20)
         sub.text(0.975, 0.025, '$\sigma_8 = %.3f$' % sig8s[i], ha='right', va='bottom', 
                 transform=sub.transAxes, fontsize=20)
-        if i > 0: sub.set_yticklabels([]) 
+        sub.set_yticklabels([]) 
+
+    # panel that illustrates the triangle shapes  
+    sub = fig.add_subplot(245)
+    sub.plot([0., 0.5], [1., 0.5], c='k') 
+    sub.plot([0.5, 1.], [0.5, 1.], c='k') 
+    
+    itri_i, itri_j, itri_l = 1., 1., 1.
+    theta23 = np.arccos(-0.5*(itri_l**2 - itri_i**2 - itri_j**2)/itri_i/itri_j)
+    trixy = np.zeros((3,2))
+    trixy[0,:] = np.array([0.8, 0.875])
+    trixy[1,:] = np.array([0.8 - 0.1*itri_i, 0.875]) 
+    trixy[2,:] = np.array([0.8 - 0.1*itri_j*np.cos(theta23), 0.875+0.9*0.1*itri_j*np.sin(theta23)])
+    tri = plt.Polygon(trixy, fill=None, edgecolor='k')
+    fig.gca().add_patch(tri)
+    sub.arrow(0.8, 0.915, 0.135, 0.06, head_width=0.02, fc='k', ec='k')
+    
+    itri_i, itri_j, itri_l = 1.48, 0.75, 0.75
+    theta23 = np.arccos(-0.5*(itri_l**2 - itri_i**2 - itri_j**2)/itri_i/itri_j)
+    trixy = np.zeros((3,2))
+    trixy[0,:] = np.array([0.574, 0.65])
+    trixy[1,:] = np.array([0.574 - 0.1*itri_i, 0.65]) 
+    trixy[2,:] = np.array([0.574 - 0.1*itri_j*np.cos(theta23), 0.65+0.9*0.1*itri_j*np.sin(theta23)])
+    tri = plt.Polygon(trixy, fill=None, edgecolor='k')
+    fig.gca().add_patch(tri)
+    sub.arrow(0.5, 0.635, 0., -0.08, head_width=0.02, fc='k', ec='k') 
+    
+    itri_i, itri_j, itri_l = 1.25, 1.25, 0.125
+    theta23 = np.arccos(-0.5*(itri_l**2 - itri_i**2 - itri_j**2)/itri_i/itri_j)
+    trixy = np.zeros((3,2))
+    trixy[0,:] = np.array([0.35, 0.9])
+    trixy[1,:] = np.array([0.35 - 0.1*itri_i, 0.9]) 
+    trixy[2,:] = np.array([0.35 - 0.1*itri_j*np.cos(theta23), 0.9+0.9*0.1*itri_j*np.sin(theta23)])
+    tri = plt.Polygon(trixy, fill=None, edgecolor='k')
+    fig.gca().add_patch(tri)
+    sub.arrow(0.2, 0.91, -0.135, 0.06, head_width=0.02, fc='k', ec='k') 
+
+    sub.set_xlim(0., 1.)
+    sub.set_ylim(0.5, 1.)
 
     bkgd = fig.add_subplot(111, frameon=False)
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
@@ -579,8 +617,7 @@ def compare_Bk_shape(kmax=0.5, rsd=True, nbin=31):
     #cbar_ax = fig.add_axes([0.95, 0.125, 0.0125, 0.35])
     #cbar = fig.colorbar(dbplot, cax=cbar_ax)
     #cbar.set_label('$B(k_1, k_2, k_3) - B^\mathrm{(fid)}$', rotation=90, fontsize=20)
-    ffig = os.path.join(UT.doc_dir(), 'figs', 'haloBk_shape_kmax%s%s.pdf' % 
-            (str(kmax).replace('.', ''), ['', '_rsd'][rsd]))
+    ffig = os.path.join(dir_doc, 'haloBk_shape_kmax%s%s.pdf' % (str(kmax).replace('.', ''), ['', '_rsd'][rsd]))
     fig.savefig(ffig, bbox_inches='tight') 
 
     # plot residual of the B(k) shape dependence 
@@ -617,8 +654,7 @@ def compare_Bk_shape(kmax=0.5, rsd=True, nbin=31):
     cbar = fig.colorbar(bplot, cax=cbar_ax)
     cbar.set_label(r'$\big(\widehat{B}_0(k_1, k_2, k_3) - \widehat{B}_0^\mathrm{fid} \big)/\widehat{B}_0^\mathrm{fid}$', 
             labelpad=15, rotation=90, fontsize=20)
-    ffig = os.path.join(UT.doc_dir(), 'figs', 'haloBk_dshape_kmax%s%s.pdf' % 
-            (str(kmax).replace('.', ''), ['', '_rsd'][rsd]))
+    ffig = os.path.join(dir_doc, 'haloBk_dshape_kmax%s%s.pdf' % (str(kmax).replace('.', ''), ['', '_rsd'][rsd]))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
@@ -1115,8 +1151,8 @@ if __name__=="__main__":
     for kmax in [0.5]: 
         #compare_Plk(kmax=0.5)
         #ratio_Plk(kmax=0.5) 
-        compare_Bk(kmax=kmax, rsd=True)
-        #compare_Bk_shape(kmax=kmax, rsd=True, nbin=31)
+        #compare_Bk(kmax=kmax, rsd=True)
+        compare_Bk_shape(kmax=kmax, rsd=True, nbin=31)
         #compare_Qk(kmax=kmax, rsd=True)
 
     #compare_Bk_SNuncorr(krange=[0.01, 0.5], rsd=True)
