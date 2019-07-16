@@ -2452,7 +2452,7 @@ def quijote_FisherTest(kmax=0.5, rsd=True, dmnu='fin', flag=None):
 # real vs rsd
 ############################################################
 def B_detail(rsd='all', flag='reg'): 
-    ''' compare the B for theta- and theta+  
+    ''' compare the B 
     '''
     # read in fiducial bispectrum
     quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag='reg') 
@@ -2485,16 +2485,20 @@ def B_detail(rsd='all', flag='reg'):
     equ = ((i_k[klim05] == j_k[klim05]) & (l_k[klim05] == i_k[klim05]))
     sub.scatter(np.arange(np.sum(klim05))[equ], bk_fid[klim05][equ], marker='^', 
             facecolors='none', edgecolors='k', zorder=10, label='equilateral ($k_1 = k_2 = k_3$)') 
-
-    squ = ((1.8/i_k[klim05] <= 1./j_k[klim05]) & (1.8/i_k[klim05] <= 1./l_k[klim05]))
-    sub.scatter(np.arange(np.sum(klim05))[squ], bk_fid[klim05][squ], marker='X', 
-            facecolors='none', edgecolors='k', zorder=10, label='squeezed triangle ($k_1 \gg k_2, k_3$)') 
-    print i_k[klim05][squ]
     
-    for i in range(508, 548)[::10]: 
-        sub.scatter([i], [bk_fid[i]], c='k') 
-        sub.text(i, 1e9, '(%i, %i, %i)' % (i_k[i], j_k[i], l_k[i]), 
-                ha='left', va='bottom', fontsize=5, rotation=60)
+    fld = (i_k[klim05] == j_k[klim05] + l_k[klim05]) 
+    sub.scatter(np.arange(np.sum(klim05))[fld], bk_fid[klim05][fld], marker='*', 
+            facecolors='none', edgecolors='darkgreen', zorder=10, label='folded triangle ($k_1 = k_2 + k_3$)') 
+
+    #squ = ((1.8/i_k[klim05] <= 1./j_k[klim05]) & (1.8/i_k[klim05] <= 1./l_k[klim05]))
+    squ = ((j_k[klim05]/i_k[klim05] > 0.8) & (l_k[klim05]/i_k[klim05] < 0.33) & ~fld) 
+    sub.scatter(np.arange(np.sum(klim05))[squ], bk_fid[klim05][squ], marker='X', 
+            facecolors='none', edgecolors='darkred', zorder=10, label='squeezed triangle ($k_1, k_2 \gg k_3$)') 
+
+    #for i in range(508, 548)[::10]: 
+    #    sub.scatter([i], [bk_fid[i]], c='k') 
+    #    sub.text(i, 1e9, '(%i, %i, %i)' % (i_k[i], j_k[i], l_k[i]), 
+    #            ha='left', va='bottom', fontsize=5, rotation=60)
     #colin = ((1./i_k[klim05] + 1./j_k[klim05]) == 1./l_k[klim05])
     #print np.sum(colin) 
     #print i_k[klim05][colin][:10]
@@ -3083,7 +3087,6 @@ def _flag_str(flag):
 
 if __name__=="__main__": 
     # covariance matrices
-    _bkCov(kmax=0.5, rsd=1, flag='reg') # condition number 1.71010+08
     '''
         for rsd in [0, 1, 2]:  pkCov(rsd=rsd, flag='reg', silent=False) 
         for rsd in [0, 1, 2]:  bkCov(rsd=rsd, flag='reg', silent=False) 
@@ -3177,7 +3180,7 @@ if __name__=="__main__":
             quijote_FisherTest(kmax=kmax, rsd=True, dmnu='fin')
     '''
     # rsd 
-    #B_detail(rsd='all', flag='reg')
+    B_detail(rsd='all', flag='reg')
     #compare_Pk_rsd(krange=[0.01, 0.5])
     #compare_Bk_rsd(kmax=0.5)
     #compare_Qk_rsd(krange=[0.01, 0.5])
