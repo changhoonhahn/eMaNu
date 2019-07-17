@@ -12,7 +12,6 @@ import nbodykit.lab as NBlab
 # --- emanu --- 
 from . import readfof 
 from . import readsnap as RS
-# --- emanu --- 
 from .. import util as UT
 from .. import forwardmodel as FM
 
@@ -38,6 +37,61 @@ def X_fid(nreal, nzbin, obvs='plk', Nsample=100, poles=[0], mneut=0.0, Nmesh=360
         return np.array(X) 
     else: 
         return obv_data['k'][klim], np.array(X) 
+
+
+def hqHalos(folder, snapnum, Ob=0.049, ns=0.9624, s8=None, silent=True): 
+    ''' read in halo catalog given the folder and snapshot # and store it as
+    a nbodykit HaloCatalog object. The HaloCatalog object is convenient for 
+    populating with galaxies and etc. Designed for the HADES and Quijote sim
+    suites (hence the HQ). 
+
+    parameters
+    ----------
+    folder : string
+        directory that contains the snapshot. e.g. in my local directory it'd be 
+        something like:
+        /Users/ChangHoon/data/emanu/halos/hades/0.0eV/1
+
+    snapnum : int 
+        redshift snapshot number 
+
+        snapnum = 0 --> z=3
+        snapnum = 1 --> z=2
+        snapnum = 2 --> z=1
+        snapnum = 3 --> z=0.5
+        snapnum = 4 --> z=0
+    '''
+    # read in Gadget header (~65.1 microsec) 
+    header = RS.read_gadget_header(os.path.join(folder, 'snapdir_%s' % str(snapnum).zfill(3), 'snap_%s' % str(snapnum).zfill(3)))
+    Om  = header['Omega_m']
+    Ol  = header['Omega_l']
+    z   = header['z']
+    h   = header['h'] 
+    Hz  = 100.0 * np.sqrt(Om * (1.0 + z)**3 + Ol) # km/s/(Mpc/h)
+
+    if 'sum_neutrino_masses' in header.keys(): 
+        mnu = header['sum_neutrino_masses'] # Mnu > 0 
+        cosmo = NBlab.cosmology.Planck15.clone(Omega_cdm=Om-Ob, Omega_b=Ob, h=h, n_s=ns, m_ncdm=mnu)
+    else: 
+        mnu = 0. # Mnu = 0 
+        cosmo = NBlab.cosmology.Planck15.clone(Omega_cdm=Om-Ob, Omega_b=Ob, h=h, n_s=ns)
+    if s8 is not None: 
+        cosmo = cosmo.match(sigma8=s8)
+
+    # read FOF catalog (~90.6 ms) 
+    Fof = readfof.FoF_catalog(folder, snapnum, long_ids=False, swap=False, SFR=False)
+    group_data = {}  
+    group_data['Length']    = Fof.GroupLen
+    group_data['Position']  = Fof.GroupPos/1e3
+    group_data['Velocity']  = Fof.GroupVel
+    group_data['Mass']      = Fof.GroupMass*1e10
+    # calculate velocity offset
+    rsd_factor = (1.+z) / Hz
+    group_data['VelocityOffset'] = group_data['Velocity'] * rsd_factor
+    # save to ArryCatalog for consistency
+    cat = NBlab.ArrayCatalog(group_data, BoxSize=np.array([1000., 1000., 1000.])) 
+    cat = NBlab.HaloCatalog(cat, cosmo=cosmo, redshift=z, mdef='vir') 
+    return cat
 
 
 def hadesMnuHalos(mneut, nreal, nzbin, mh_min=3200., dir=None, silent=True, overwrite=False): 
