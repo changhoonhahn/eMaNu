@@ -2,36 +2,69 @@
 % why $\smnu$ constraints with galaxy clustering? 
 A precise measurement of $\smnu$ can distinguish between the `normal' 
 and `inverted' neutrino mass hierarchy scenarios and reveal physics 
-beyond the Standard Model of particle physics. Neutrinos impact the  
-expansion history and the growth of cosmic structure in the Universe. 
-Measuring these effects from cosmological observables (\emph{e.g.} 
-CMB and large-scale structure) has the potential to provide more precise 
-$\smnu$ measurements than current and upcoming laboratory based experiments. 
-The current tighest cosmological $\smnu$ constraints come from combining 
-CMB data with other cosmological probes. The degeneracy between $\smnu$ 
-and $\tau$, the optical depth of reionization, however, is a major bottleneck 
-for $\smnu$ constraints from CMB data that will {\em not} be addressed 
-by upcoming ground-based CMB experiments. Measuring the imprint of neutrinos
-on the 3D clustering of galaxies provides, given the unprecedented cosmic 
-volumes that will be mapped by upcoming surveys, a promising alternative 
-to tightly constrain $\smnu$. 
+beyond the Standard Model of particle physics. The total neutrino mass, 
+through impact the  expansion history and the growth of cosmic structure 
+in the Universe, can be measured using cosmological observables (\emph{e.g.} 
+CMB and large-scale structure). In fact, cosmological probes have the 
+potential to more precisely measure $\smnu$ than current and upcoming 
+laboratory based experiments. The current tighest cosmological $\smnu$ 
+constraints come from combining CMB data with other cosmological probes. 
+The degeneracy between $\smnu$ and $\tau$, the optical depth of reionization, 
+however, is a major bottleneck for $\smnu$ constraints from CMB data 
+that will {\em not} be addressed by upcoming ground-based CMB experiments. 
+Measuring the imprint of neutrinos on the 3D clustering of galaxies 
+provides a promising alternative to tightly constrain $\smnu$, especially 
+with the unprecedented cosmic volumes that will be mapped by upcoming 
+surveys. 
 
 % why bispectrum?
-Previous works examining the impact of $\smnu$ on redshift-space matter
-and halo clustering find that the imprint of $\smnu$ and $\sig$ on the power 
-spectrum are degenerate and differ only by $< 1\%$.
-Although this strong $\smnu$ -- $\sig$ degeneracy poses a serious limitation 
-for constraining $\smnu$ with the power spectrum, information in the nonlinear 
-regime cascade from the power spectrum to higher-order statistics such as the 
-bispectrum. While previous works have demonstrated that the bispectrum
+Recent developments in simulation based emulation methods have improved 
+the accuracy of theoretical predictions beyond linear scales and address 
+the challenges of unlocking the information content in nonlinear clustering 
+to constrain $\smnu$. Yet, for power spectrum analyses, the strong 
+degeneracy between the imprints of $\smnu$ and $\sig$ poses a serious 
+limitation for constraining $\smnu$. Information in the nonlinear 
+regime, however, cascade from the power spectrum to higher-order statistics 
+such as the bispectrum. Previous works have demonstrated that the bispectrum
 has comparable signal-to-noise as the power spectrum on nonlinear scales~\citep{sefusatti2005, chan2017}
-and that it improves constraints on $\Lambda$CDM cosmological parameters~\citep{sefusatti2006, yankelevich2019}, 
-no work to date has quantified the full information content and constraining 
+and that it improves constraints on $\Lambda$CDM cosmological parameters~\citep{sefusatti2006, yankelevich2019}. 
+No work to date has quantified the full information content and constraining 
 power of the bispectrum down to nonlinear scales --- especially for $\smnu$. 
 
 % what's our methodology?
+In this work, we examine the effect of massive neutrinos on the redshift-space 
+halo bispectrum using more than 42,000 $N$-body simulations with massive neutrinos
+from the HADES and Quijote suite. Using $N$-body simulations and with such a massive 
+number of them, we directly address key challenges of accurately modeling the 
+bispectrum in the nonlinear regime and estimating its high dimensional covariance 
+matrix. More specifically, 
+\begin{itemize}
+    \item We examine the imprint of $\smnu$ and $\sig$ on the redshift-space halo bispetrum, 
+        $\BOk$, using two sets of HADES simulations. One with massive neutrinos, $\smnu = 0.0$, 0.06, 
+        0.1, and 0.15 eV; the other with $\smnu = 0.0$ eV and matching $\sig^{c}$. 
+        $\smnu$ and $\sig$ leave distinct imprints on $\BOk$ with significantly different 
+        scale and triangle shape dependences. Thus, we demonstrate that $\BOk$ helps 
+        break the $\smnu$-$\sig$ degeneracy found in the power spectrum. 
+    \item We quantify the full information content of $\BOk$ using a Fisher matrix forecast of 
+        $\{\Om$, $\Ob$, $h$, $n_s$, $\sig$, $\smnu\}$ using all 1898 triangle configurations
+        down to $k_{\rm max} = 0.5~\mpc$. The covariance matrix and derivatives for our forecasts 
+        are directly estimated from the Quijte suite of 42,000 $N$-body simulations. 
+    \item For $k_{\rm max}{=}0.5~\mpc$, the bispectrum produces $\Om$, $\Ob$, $h$, $n_s$, and 
+        $\sig$ constraints 3.1, 4.1, 5.1, 5.9, and 3.3 times tighter than the power spectrum. 
+        The bispectrum produces 1$\sigma$ $\smnu$ constraint of 0.0342 eV --- 6 times tigher 
+        than the power spectrum.
+\end{itemize}
+
+% what are the caveats our results? 
+paragraph on the caveats of our results. 
+we don't marginalize over a full bias model yet and will do that in the next paper. 
+sentence saying regardless our results are awesome.
+
+% what are the implications of our results? 
+implications for upcoming spectroscopic redshift surveys. We only use 1gpc. DESI PFS, Euclid and WFIRST are going to map out way more. In fact some of the main scientific goals of these surveys will be neutrinos. Based on our results, the bispectrum has the potentially to dramatically improve $\smnu$ constraints. Something about X sigma detection?  
+
 %In this work, we examine the effect of massive neutrinos on the redshift-space 
-%halo bispectrum using more than 42000 $N$-body simulations with massive neutrinos. 
+%halo bispectrum using more than 23000 $N$-body simulations with massive neutrinos. 
 %We first demonstrate that the bispectrum helps break the $\smnu$--$\sig$ degeneracy 
 %found in the power spectrum. Then we present the full information content of the 
 %bispectrum for all triangle configurations down to $k_{\rm max} = 0.5~\mpc$ using 
@@ -44,29 +77,6 @@ power of the bispectrum down to nonlinear scales --- especially for $\smnu$.
 %tackle challenges that come with analyzing the full galaxy bispectrum, such as data 
 %compression for reducing the dimensionality of the bispectrum. 
 
-\begin{itemize}
-\item whats our methodlogy 
-% what are our results? 
-\begin{itemize}
-    \item B helps break the $\smnu$-$\sig$ degeneracy 
-    \item we quantify for the first time, the full information of the redshift-space bispectrum down to nonlinear scales 
-    \item we demonstrate that the bispectrum improves all constraints 
-\end{itemize}
-% what are the caveats our results? 
-\item paragraph on the caveats of our results. we don't marginalize over a full bias model yet and will do that in the next paper. sentence saying regardless our results are awesome.
-% what are the implications of our results? 
-\item implications for upcoming spectroscopic redshift surveys. We only use 1gpc. DESI PFS, Euclid and WFIRST are going to map out way more. In fact some of the main scientific goals of these surveys will be neutrinos. Based on our results, the bispectrum has the potentially to dramatically improve $\smnu$ constraints. Something about X sigma detection?  
-\item 
-\end{itemize}
-
-
-%In this work, we examine the effect of massive neutrinos on the redshift-space 
-%halo bispectrum using more than 23000 $N$-body simulations with massive neutrinos. 
-%We first demonstrate that the bispectrum helps break the $\smnu$--$\sig$ degeneracy 
-%found in the power spectrum. Then we present the full information content of the 
-%bispectrum for all triangle configurations down to $k_{\rm max} = 0.5~\mpc$ using 
-%a Fisher forecast where we estimate the covariance matrix and derivatives with 
-%the large set of simulations from the Quijote suite (Villaescusa-Navarro et al. in preparation). 
 %This paper is the first of a series of papers that aim to demonstrate the potential 
 %of the galaxy bispectrum analysis in constraining $\smnu$. In the subsequent paper, 
 %we will include HOD parameters in our forecasts to quantify the full information 
