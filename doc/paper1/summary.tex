@@ -46,60 +46,52 @@ matrix. More specifically,
         scale and triangle shape dependences. Thus, we demonstrate that $\BOk$ helps 
         break the $\smnu$-$\sig$ degeneracy found in the power spectrum. 
     \item We quantify the full information content of $\BOk$ using a Fisher matrix forecast of 
-        $\{\Om$, $\Ob$, $h$, $n_s$, $\sig$, $\smnu\}$ using all 1898 triangle configurations
-        down to $k_{\rm max} = 0.5~\mpc$. The covariance matrix and derivatives for our forecasts 
-        are directly estimated from the Quijte suite of 42,000 $N$-body simulations. 
+        $\{\Om$, $\Ob$, $h$, $n_s$, $\sig$, $\smnu\}$. With bispectrum measured from 42,000 
+        $N$-body simulations from the Quijote suite, we are able to derive stable and converged 
+        covariance matrix and derivatives for our forecast. Furthermore, our simulation 
+        based approach allows us to extend beyond perturbation theory and use all 1898 
+        triangle configurations of the bispectrum down to $k_{\rm max} = 0.5~\mpc$.
     \item For $k_{\rm max}{=}0.5~\mpc$, the bispectrum produces $\Om$, $\Ob$, $h$, $n_s$, and 
         $\sig$ constraints 3.1, 4.1, 5.1, 5.9, and 3.3 times tighter than the power spectrum. 
-        The bispectrum produces 1$\sigma$ $\smnu$ constraint of 0.0342 eV --- 6 times tigher 
-        than the power spectrum.
+        For $\smnu$, we derive 1$\sigma$ constraint of 0.0342 eV --- 6 times tighter than 
+        the power spectrum. Even with priors from {\em Planck}, the bispectrum improves 
+        $\smnu$ constraints by a factor of 2.7. These constraints are derived for a 
+        $(1~h^{-1}{\rm Gpc})^3$ box, a substantially smaller volume than upcoming surveys.
 \end{itemize}
 
 % what are the caveats our results? 
-paragraph on the caveats of our results. 
-we don't marginalize over a full bias model yet and will do that in the next paper. 
-sentence saying regardless our results are awesome.
+While our results clearly showcase the advantages of the bispectrum for
+more precisely constraining $\smnu$, as well as the cosmological parameters, 
+a number of assumptions go into our forecast. Fisher matrix forecasts assume 
+that the posterior is approximately Gaussian and, as a result, they 
+underestimate the constraints for posteriors that are highly non-elliptical 
+or asymmetric. Furthremore, our forecasts are derived using the power spectrum 
+and bispectrum in periodic boxes, instead of a realistic geometry or 
+radial selection function of galaxy surveys, which degrades the constraining power. 
+We also do not account for super-sample covariance. Lastly, our forecast
+focuses on the halo bispectrum, while the \emph{galaxy} bispectrum is what is 
+actually measured from observations. We marginalize over a simplistic bias model 
+through $b'$ and $M_{\rm min}$; however, such a model is insufficient to 
+fleixbly describe how galaxies trace matter. A more realistic bias model 
+involve extra parameters that describe the distribution of central and satellite 
+galaxies. In the next paper of the series, we include HOD parameters in our
+forecasts and quantify the full information content of the redshift-space 
+galaxy bispectrum. 
 
 % what are the implications of our results? 
-implications for upcoming spectroscopic redshift surveys. We only use 1gpc. DESI PFS, Euclid and WFIRST are going to map out way more. In fact some of the main scientific goals of these surveys will be neutrinos. Based on our results, the bispectrum has the potentially to dramatically improve $\smnu$ constraints. Something about X sigma detection?  
-
-%In this work, we examine the effect of massive neutrinos on the redshift-space 
-%halo bispectrum using more than 23000 $N$-body simulations with massive neutrinos. 
-%We first demonstrate that the bispectrum helps break the $\smnu$--$\sig$ degeneracy 
-%found in the power spectrum. Then we present the full information content of the 
-%bispectrum for all triangle configurations down to $k_{\rm max} = 0.5~\mpc$ using 
-%a Fisher forecast where we estimate the covariance matrix and derivatives with 
-%the large set of simulations from the Quijote suite (Villaescusa-Navarro et al. in preparation). 
-%This paper is the first of a series of papers that aim to demonstrate the potential 
-%of the galaxy bispectrum analysis in constraining $\smnu$. In the subsequent paper, 
-%we will include HOD parameters in our forecasts to quantify the full information 
-%content of the galaxy bispectrum. In the series, we will also present methods to 
-%tackle challenges that come with analyzing the full galaxy bispectrum, such as data 
-%compression for reducing the dimensionality of the bispectrum. 
-
-%This paper is the first of a series of papers that aim to demonstrate the potential 
-%of the galaxy bispectrum analysis in constraining $\smnu$. In the subsequent paper, 
-%we will include HOD parameters in our forecasts to quantify the full information 
-%content of the galaxy bispectrum. In the series, we will also present methods to 
-%tackle challenges that come with analyzing the full galaxy bispectrum, such as data 
-%compression for reducing the dimensionality of the bispectrum. 
-
-%Massive neutrinos suppress the growth of structure below their free-streaming scale and leave an 
-%imprint on large-scale structure. Measuring this imprint allows us to constrain the sum of neutrino 
-%masses, $\smnu$, a key parameter in particle physics beyond the Standard Model. However, degeneracies 
-%among cosmological parameters, especially between $\smnu$ and $\sig$, limit the constraining power 
-%of standard two-point clustering statistics. In this work, we investigate whether we can break these 
-%degerancies and constrain $\smnu$ with the next higher-order correlation function --- the bispectrum. 
-%We first examine the redshift-space halo bispectrum of $800$ $N$-body simulations from the HADES suite 
-%and demonstrate that the bispectrum helps break the $\smnu$--$\sig$ degeneracy. Then using over 23000
-%$N$-body simulations of the Quijote suite, we quantify for the first time the full information content 
-%of the redshift-space halo bispectrum using a Fisher matrix forecast of $\{\Om$, $\Ob$, $h$, $n_s$, $\sig$, $\smnu\}$ 
-%down to nonlinear scales. For $k_{\rm max}{=}0.5~\mpc$, the bispectrum 
-%constrains $\Om$, $\Ob$, $h$, $n_s$, and $\sig$ 3.1, 4.1, 5.1, 5.9, and 3.3 times tighter than the 
-%power spectrum. For $\smnu$, the bispectrum improves the 1$\sigma$ constraint from 
-%0.1962 to 0.0342 eV --- 6 times tigher than the power spectrum. Even with priors from {\em Planck}, 
-%the bispectrum improves $\smnu$ constraints by a factor of 2.7. Although we reserve marginalizing 
-%over bias parameters to the next paper of the series, these constraints are derived for a 
-%$(1~h^{-1}{\rm Gpc})^3$ box, a substantially smaller volume than upcoming surveys. Thus, our results 
-%demonstrate that the bispectrum offers significant improvements over the power spectrum, especially 
-%for constraining $\smnu$.  
+The constraints from our forecasts are derived for a $(1~h^{-1}{\rm Gpc})^3$ 
+volume. These constraints roughly scale as $\propto1/\sqrt{V}$ with volume. 
+Upcoming spectroscopic galaxy surveys will map out vastly larger cosmic
+volumes: PFS $\sim 9~h^{-3}{\rm Gpc}^3$ and DESI $\sim 50~h^{-3}{\rm Gpc}^3$~\cite{takada2014, desicollaboration2016}. 
+Euclid and WFIRST, space-based surveys, will expand these volumes even 
+farther. A key science goal in these surveys will be constraining $\smnu$. 
+Scaling our 0.0342 eV $\smnu$ constraint from the bispectrum to the survey 
+volumes gives 0.0114 eV and 0.00484 eV $1\sigma$ constraints for PFS 
+and DESI. With such precision, we would detect $\smnu$ by $>5\sigma$ and 
+distinguish between the normal and inverted neutrino mass hierarchy scenarios 
+by $>3\sigma$. Such naive projections, however, should be taken with more than 
+a grain of salt, Nevertheless, the substantial improvement we find in 
+constraints with the bispectrum over the power spectrum, strongly advocate for 
+analyzing future surveys with more than the power spectrum. Our results also 
+demonstrate the potential of the bispectrum to tightly constrain $\smnu$ with 
+unprecedented precision.
