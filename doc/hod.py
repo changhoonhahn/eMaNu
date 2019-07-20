@@ -6,7 +6,7 @@ import numpy as np
 # --- eMaNu --- 
 from emanu import util as UT
 from emanu import forwardmodel as FM
-from emanu.hades import data as hadesData
+from emanu.sims import data as simData
 # -- pyspectrum -- 
 from pyspectrum import pyspectrum as pySpec
 # --- corrfunc -- 
@@ -34,95 +34,86 @@ mpl.rcParams['legend.frameon'] = False
 
 dir_hod = os.path.join(UT.dat_dir(), 'hod') 
 dir_fig = os.path.join(UT.fig_dir(), 'hod')  # figure directory
+dir_doc = os.path.join(UT.doc_dir(), 'paper2', 'figs') # figures for paper 
+dir_hades = os.path.join(UT.dat_dir(), 'halos/hades')
 
 
-def hod_fit(Mr=-21.5, nwalkers=100, burn_in_chain=200, main_chain=1000): 
+def HOD_fid():
+    ''' two panel plot of the fiducial HOD and its w_p 
     '''
-    '''
-    import emcee
-    import corner as DFM
-    # read in data 
-    rp, _wp_sdss, cov = wp_sdss(Mr=Mr) 
-    f_hart  = (400. - len(_wp_sdss) -2.)/(400. - 1.) # hartlap factor 400 is the number of jackknife fields 
-    f_vol   = fvolume(Mr=Mr)
-    print('hartlap factor = %f' % f_hart) 
-    print('volume factor = %f' % f_vol) 
-    C_inv   = f_hart * f_vol * np.linalg.inv(cov)  # apply volume and hartlap factors here.  
-    # read rbin
-    rbins = np.loadtxt(os.path.join(dir_hod, 'rbins.dat'), unpack=True, usecols=[0]) 
-    # read in halo catalog 
-    ihalo = 1
-    halos = hadesData.hadesMnuHalos(0., ihalo, 4, mh_min=None, dir='/Users/ChangHoon/data/emanu/halos/hades/0.0eV/%i' % ihalo)
-    print np.log10(np.array(halos['Mass']).min()), np.log10(np.array(halos['Mass']).max()) 
-    #halos = hadesData.hadesMnuHalos(0., ihalo, 4, 
-    #halos = hadesData.hadesMnuHalos(0., ihalo, 4, 
-    #        mh_min=3200., dir='/Users/ChangHoon/data/emanu/halos/hades/0.0eV/%i' % ihalo)
-
-    # prior range
-    prior_lim = np.array([[13.118305, 14.5], [0.5, 1.5], [13.118305, 14.5], [0.85, 1.45], [13.118305, 15.]]) 
-    def lnprior(tt): 
-        logMmin, sigma_logM, logM0, alpha, logM1 = tt # unpack array 
-        if ((prior_lim[0][0] < logMmin < prior_lim[0][1]) and 
-                (prior_lim[1][0] < sigma_logM < prior_lim[1][1]) and 
-                (prior_lim[2][0] < logM0 < prior_lim[2][1]) and 
-                (prior_lim[3][0] < alpha < prior_lim[3][1]) and 
-                (prior_lim[4][0] < logM1 < prior_lim[4][1])): 
-            return 0.0
-        return -np.inf 
-
-    def lnlike(tt): 
-        ''' calculate the likelihood for wp 
-        '''
-        _wp = wp_model(halos, tt, rsd=True, rbins=rbins) 
-        # calculate chi-squared 
-        dwp = _wp_sdss - _wp 
-        chisq = np.sum(np.dot(dwp.T, np.dot(C_inv, dwp))) 
-        print(tt) 
-        print('chi2=%f' % chisq) 
-        return -0.5 * chisq
-
-    def lnpost(tt):
-        lp = lnprior(tt)
-        if not np.isfinite(lp): 
-            return -np.inf
-        return lp + lnlike(tt) 
-
-    pos0 = np.array([13.39, 0.56, 12.87, 1.26, 14.51])   
-    objfn = lambda tt: -1.*lnpost(tt)
-    #res = sp.optimize.minimize(objfn, pos0, method="Nelder-Mead", options={"maxfev": 1e2})#, "maxiter":1e3})
-
-    fig = plt.figure(figsize=(5,5))
-    sub = fig.add_subplot(111)
-    _wp = wp_model(halos, np.array([13.39, 0.56, 12.87, 1.26, 14.51]), rsd=True) 
-    sub.plot(rp, _wp, c='C0', label='Vakili \& Hahn (2019) best-fit') 
-
-    model.param_dict['logMmin'] = 13.39
-    model.param_dict['sigma_logM'] = 0.56
-    model.param_dict['logM0'] = 12.87
-    model.param_dict['alpha'] = 1.26
-    model.param_dict['logM1'] = 14.51
-    model.populate_mock(halocat) 
-    _wp = wpCF(250., 40., 1, rbins, 
-            model.mock.galaxy_table['x'], model.mock.galaxy_table['y'], model.mock.galaxy_table['z'], 
-            verbose=False, output_rpavg=False) 
-    sub.plot(rp, _wp['wp'], c='k', ls=':') 
+    # read in halo catalogs 
+    dir_lr = os.path.join(dir_hades, '0.0eV/1') 
+    dir_hr = os.path.join(dir_hades, '0.0eV/1_hires') 
+    halos_lr = simData.hqHalos(dir_lr, 4)
+    halos_hr = simData.hqHalos(dir_hr, 4)  
     
-    #_wp = wp_model(halos, res['x'], rsd=True) 
-    #sub.plot(rp, _wp, c='C1', label='best-fit') 
-    sub.errorbar(rp, _wp_sdss, yerr=np.sqrt(np.diag(cov)), fmt='.k') 
-    sub.set_xlabel(r'$r_p$ [$h^{-1}{\rm Mpc}$]', fontsize=25) 
+    # halo mass limit of lower resolution Quijote  
+    Mh_min = np.log10(np.array(halos_lr['Mass']).min()) 
+    
+    # first HOD comparison 
+    z07_21_5 = np.array([13.38, 0.51, 13.94, 1.04, 13.91]) # Zheng+(2007) Mr<-21.5
+    z07_22_0 = np.array([14.22, 0.77, 14.00, 0.87, 14.69]) # Zheng+(2007) Mr<-22
+    hod_fid = np.array([13.65, 0.2, 14., 1.1, 14.]) # fiducial HOD parameter
+
+    logMbin = np.linspace(11., 16., 100) # logMh bins
+
+    fig = plt.figure(figsize=(9,4))
+    sub = fig.add_subplot(121)
+    sub.plot(10**logMbin, Ngal_Mh(z07_21_5, logMbin), label='Zheng+(2007) $M_r < -21.5$')
+    sub.plot(10**logMbin, Ngal_Mh(z07_22_0, logMbin), label='Zheng+(2007) $M_r < -22.$')
+    sub.plot(10**logMbin, Ngal_Mh(hod_fid, logMbin), c='k', label='fiducial')
+    sub.plot([10**Mh_min, 10**Mh_min], [1e-3, 1e3], c='k', ls='--', lw=0.5)
+    #sub.legend(loc='upper left', fontsize=20)
+    sub.set_xlabel('$M_h$', labelpad=10, fontsize=25)
+    sub.set_xscale('log')
+    sub.set_xlim(1e12, 5e15)
+    sub.set_ylabel(r'$<N_{\rm gal}>$', fontsize=25)
+    sub.set_yscale('log')
+    sub.set_ylim(1e-2, 5e1)
+
+    # w_p comparison 
+    #rbins = np.array([0.1, 0.15848932, 0.25118864, 0.39810717, 0.63095734, 1., 1.58489319, 2.51188643, 3.98107171, 6.30957344, 10., 15.84893192, 25.11886432]) 
+    #wp_21   = wp_model(halos_hr, z07_21_5, rsd=True) 
+    #wp_22   = wp_model(halos_hr, z07_22_0, rsd=True)
+    #wp_fid  = wp_model(halos_hr, hod_fid, rsd=True)
+    #
+    #sub = fig.add_subplot(122)
+    #_z21, = sub.plot(0.5*(rbins[1:]+rbins[:-1]), wp_21)
+    #_z22, = sub.plot(0.5*(rbins[1:]+rbins[:-1]), wp_22) 
+    #_fid, = sub.plot(0.5*(rbins[1:]+rbins[:-1]), wp_fid, c='k') 
+    #sub.legend([_fid, _z22, _z21], ['fiducial', '$M_r < -22.0$', '$M_r < -21.5$'], 
+    #        loc='lower left', handletextpad=0.2, fontsize=15)
+    #sub.set_xlabel('$r_p$', fontsize=25) 
+    #sub.set_xscale('log') 
+    #sub.set_xlim(1e-1, 25) 
+    #sub.set_ylabel('$w_p(r_p)$', fontsize=25) 
+    #sub.set_yscale('log') 
+    #sub.set_ylim(1e1, 1e4) 
+
+    # P(k) comparison 
+    k, pk_21   = pk_model(halos_hr, z07_21_5, rsd=True) 
+    k, pk_22   = pk_model(halos_hr, z07_22_0, rsd=True)
+    k, pk_fid  = pk_model(halos_hr, hod_fid, rsd=True)
+    
+    sub = fig.add_subplot(122)
+    _z21, = sub.plot(k, pk_21)
+    _z22, = sub.plot(k, pk_22) 
+    _fid, = sub.plot(k, pk_fid, c='k') 
+    sub.legend([_fid, _z22, _z21], ['fiducial', '$M_r < -22.0$', '$M_r < -21.5$'], 
+            loc='lower left', handletextpad=0.2, fontsize=15)
+    sub.set_xlabel('$k$', fontsize=25) 
     sub.set_xscale('log') 
-    sub.set_xlim(1e-1, 25) 
-    sub.set_ylabel(r'$w_p(r_p)$', fontsize=25) 
+    sub.set_xlim(5e-3, 0.5) 
+    sub.set_ylabel('$P_0(k)$', fontsize=25) 
     sub.set_yscale('log') 
-    #sub.set_ylim(2, 1e3) 
-    ffig = os.path.join(dir_fig, 'hod_fit.wp.png')
-    fig.savefig(ffig, bbox_inches='tight') 
-    plt.close() 
+    sub.set_ylim(2e3, 4e5) 
+    fig.subplots_adjust(wspace=0.35) 
+    ffig = os.path.join(dir_doc, 'hod_fid.png') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
     return None 
 
 
-def pk_model(halos, tt, rsd=True, rbins=None): 
+def pk_model(halos, tt, rsd=True): 
     ''' wrapper for populating halos and calculating Pk 
     '''
     # population halos 
@@ -696,6 +687,10 @@ def _plot_dBdHOD_fiducials():
     return None 
 
 
+def Ngal_Mh(tt, logMh): 
+    return Ncen_Mh(tt, logMh) + Nsat_Mh(tt, logMh)
+
+
 def Ncen_Mh(tt, logMh): 
     ''' expected Ncen at Mh 
     '''
@@ -767,6 +762,7 @@ def fvolume(Mr=-21.5):
 
 
 if __name__=='__main__': 
+    HOD_fid()
     #_plot_wp_sdss(Mr=-21.5)
     #for tt in ['guo2015']:#, 'vakili2019', 'zhengMr22']: #'zheng2007', 
     #    print tt 
@@ -774,7 +770,7 @@ if __name__=='__main__':
     #    _plot_wp_model_pm(tt, Mr=-21.5, low_sigma=0.2)
     #    _plot_wp_model_pm(tt, Mr=-21.5, low_sigma=0.1)
     #_plot_wp_model_pm_fiducial()
-    _plot_dPdHOD_fiducials()
+    #_plot_dPdHOD_fiducials()
     #_plot_dBdHOD_fiducials()
 
     #hod_fit(Mr=-21.5)
