@@ -103,6 +103,51 @@ def dPdtheta(theta, z=0, rsd='all', flag=None, silent=True):
     return None 
 
 
+def dP02dtheta(theta, z=0, rsd='all', flag=None, silent=True): 
+    ''' write out  derivatives of P with respect to theta to file in the following format: 
+    k, dP/dtheta, dlogP/dtheta.
+
+    The fiducial derivatives include all B calculations: n-body, fixed-paired, different rsd 
+    directions. If theta == 'Mnu', it will output all the different methods for calculating 
+    derivatives: 'fin', 'fin0', 'p', 'pp', 'ppp'. 
+   
+    :param theta: 
+        parameter value
+
+    :param z: (default: 0) 
+        redshift. currently only z=0 is implemented
+
+    '''
+    fderiv = os.path.join(UT.doc_dir(), 'dat', 'dP02dtheta.%s%s%s.dat' % (theta, _rsd_str(rsd), _flag_str(flag))) 
+    print("--- writing dP02/d%s to %s ---" % (theta, fderiv))
+
+    if theta == 'Mnu': 
+        for i_dmnu, dmnu in enumerate(['fin', 'fin0', 'p', 'pp', 'ppp']): 
+            # calculate dP/dtheta and dlogP/dtheta 
+            k, dpk = Forecast.quijote_dP02kdtheta(theta, log=False, z=z, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=None, silent=silent)
+            _, dlogpk = Forecast.quijote_dP02kdtheta(theta, log=True, z=z, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=None, silent=silent)
+            
+            if i_dmnu == 0: 
+                datastack = [k]
+                hdr = 'k,'
+                fmt = '%.5e'
+            datastack.append(dpk)
+            datastack.append(dlogpk) 
+            hdr += (', dP02/dtheta %s, dlogP02/dtheta %s' % (dmnu, dmnu)) # header
+            fmt += ' %.5e %.5e' # format 
+        
+        np.savetxt(fderiv, np.vstack(datastack).T, header=hdr, delimiter=',\t', fmt=fmt)
+    else: 
+        # calculate dP/dtheta and dlogP/dtheta 
+        k, dpk = Forecast.quijote_dP02kdtheta(theta, log=False, z=z, rsd=rsd, flag=flag, Nderiv=None, silent=silent)
+        _, dlogpk = Forecast.quijote_dP02kdtheta(theta, log=True, z=z, rsd=rsd, flag=flag, Nderiv=None, silent=silent)
+
+        hdr = 'k, dP02/dtheta, dlogP02/dtheta'
+        # save to file 
+        np.savetxt(fderiv, np.vstack([k, dpk, dlogpk]).T, header=hdr, delimiter=',\t', fmt='%.5e %.5e %.5e')
+    return None 
+
+
 def _rsd_str(rsd): 
     # assign string based on rsd kwarg 
     if rsd == 'all': return ''
@@ -121,8 +166,10 @@ if __name__=="__main__":
     for theta in thetas: 
         for rsd in [0, 1, 2, 'all']: #[True, 0, 'real']: 
             if theta not in ['Bsn', 'b2', 'g2']: 
-                dPdtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
-                dPdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
-            continue 
-            dBdtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
-            dBdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
+                #dPdtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
+                #dPdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
+                dP02dtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
+                dP02dtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
+            #continue 
+            #dBdtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
+            #dBdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 

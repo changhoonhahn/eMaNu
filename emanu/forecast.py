@@ -94,6 +94,95 @@ def quijote_dPkdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0, N
     return quij['k'], dpk / h + c_dpk 
 
 
+def quijote_dP02kdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0, Nderiv=None, silent=True):
+    ''' calculate the derivative d [P0(k), P2(k)] /d theta using the paired and fixed quijote simulations
+    run on perturbed theta 
+
+    :param theta: 
+        string that specifies the parameter to take the 
+        derivative by. 
+    '''
+    quijote_thetas = {
+            'Mnu': [0.1, 0.2, 0.4], # +, ++, +++ 
+            'Ob': [0.048, 0.050],   # others are - + 
+            'Ob2': [0.047, 0.051],   # others are - + 
+            'Om': [0.3075, 0.3275],
+            'h': [0.6511, 0.6911],
+            'ns': [0.9424, 0.9824],
+            's8': [0.819, 0.849]}
+
+    if z != 0: raise NotImplementedError
+    c_dpk = 0.
+    if theta == 'Mnu': 
+        if not silent: print("--- calculating dP/d%s using %s ---" % (theta, dmnu)) 
+        tts = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
+        if dmnu == 'p': 
+            coeffs = [-1., 1., 0., 0.]
+            h = 0.1
+        elif dmnu == 'pp': 
+            coeffs = [-1., 0., 1., 0.]
+            h = 0.2
+        elif dmnu == 'ppp': 
+            coeffs = [-1., 0., 0., 1.]
+            h = 0.4
+        elif dmnu == 'fin0': 
+            coeffs = [-3., 4., -1., 0.] # finite difference coefficient
+            h = 0.2
+        elif dmnu == 'fin': 
+            coeffs = [-21., 32., -12., 1.] # finite difference coefficient
+            h = 1.2
+    elif theta == 'Mmin': # halo mass limit 
+        if not silent: print("--- calculating dP/dMmin ---") 
+        tts = ['Mmin_m', 'Mmin_p'] 
+        coeffs = [-1., 1.] 
+        h = 0.2 # 3.3 - 3.1 x 10^13 Msun 
+    elif theta == 'Amp': 
+        if not silent: print("--- calculating dP/db' ---") 
+        # amplitude of P(k) is a free parameter
+        tts = ['fiducial'] 
+        coeffs = [0.] 
+        h = 1. 
+        quij = Obvs.quijotePk('fiducial', z=z, flag=flag, rsd=rsd, silent=silent)
+        _p02ks = np.concatenate([quij['p0k'], quij['p2k']], axis=1)
+        if not log: c_dpk = np.average(_p02ks, axis=0) 
+        else: c_dpk = np.ones(_p02ks.shape[1]) 
+    elif theta == 'Asn' : 
+        if not silent: print("--- calculating dP/dAsn ---") 
+        # constant shot noise term is a free parameter
+        tts = ['fiducial'] 
+        coeffs = [0.] 
+        h = 1. 
+        quij = Obvs.quijotePk('fiducial', z=z, flag=flag, rsd=rsd, silent=silent)
+        _p02ks = np.concatenate([quij['p0k'], quij['p2k']], axis=1)
+        if not log: c_dpk = np.ones(_p02ks.shape[1]) 
+        else: c_dpk = 1./np.average(_p02ks, axis=0) 
+    else: 
+        if not silent: print("--- calculating dP/d%s ---" % theta) 
+        tts = [theta+'_m', theta+'_p'] 
+        coeffs = [-1., 1.] 
+        h = quijote_thetas[theta][1] - quijote_thetas[theta][0]
+
+    for i_tt, tt, coeff in zip(range(len(tts)), tts, coeffs): 
+        quij = Obvs.quijotePk(tt, z=z, flag=flag, rsd=rsd, silent=silent) # read Pk 
+        if i_tt == 0: dpk = np.zeros(quij['p0k'].shape[1] + quij['p2k'].shape[1]) 
+    
+        p02ks = np.concatenate([quij['p0k'], quij['p2k']], axis=1) # [P0, P2] 
+        if Nderiv is not None: 
+            if (flag == 'reg') and (tt == 'fiducial'): 
+                _pk = np.average(p02ks, axis=0)  
+            else: 
+                __pk = p02ks[:Nderiv]
+                if not silent: print('only using %i of %i' % (__pk.shape[0], quij['p0k'].shape[0])) 
+                _pk = np.average(__pk, axis=0)  
+        else: 
+            _pk = np.average(p02ks, axis=0)  
+
+        if log: _pk = np.log(_pk) # log 
+
+        dpk += coeff * _pk 
+    return np.concatenate([quij['k'], quij['k']]) , dpk / h + c_dpk 
+
+
 def quijote_dBkdtheta(theta, log=False, rsd='all', flag=None, z=0, dmnu='fin', Nderiv=None, silent=True):
     ''' calculate d B(k)/d theta using quijote simulations run on perturbed theta 
 
