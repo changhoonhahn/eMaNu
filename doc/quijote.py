@@ -1677,7 +1677,7 @@ def forecastP02B_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False
     #np.savetxt(fbk, bk_dat, delimiter=', ', fmt='%.5f')
 
     sigma_theta_lims = [(5e-3, 1.), (1e-3, 1.), (1e-2, 10), (1e-2, 10.), (1e-2, 10.), (1e-2, 1e1)]
-    if planck: sigma_theta_lims = [(5e-3, 1.), (5e-4, 1.), (5e-3, 10), (3e-3, 10), (5e-3, 10), (1e-2, 10.)]
+    if planck: sigma_theta_lims = [(5e-3, 0.8), (5e-4, 1.), (5e-3, 10), (3e-3, 10), (5e-3, 10), (1e-2, 10.)]
 
     fig = plt.figure(figsize=(15,8))
     for i, theta in enumerate(thetas): 
@@ -1685,8 +1685,8 @@ def forecastP02B_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False
         sub.plot(kmaxs[cond_pk], sig_pk[:,i][cond_pk], c='C0', ls='-') 
         sub.plot(kmaxs[cond_bk], sig_bk[:,i][cond_bk], c='C1', ls='-') 
         if planck: 
-            sub.plot(kmaxs[cond_pk], sig_pk_planck[:,i][cond_pk], c='C0', ls=':', lw=0.75) 
-            _plt, =sub.plot(kmaxs[cond_bk], sig_bk_planck[:,i][cond_bk], c='C1', ls=':', lw=0.75) 
+            sub.plot(kmaxs[cond_pk], sig_pk_planck[:,i][cond_pk], c='C0', ls='--', lw=1) 
+            _plt, =sub.plot(kmaxs[cond_bk], sig_bk_planck[:,i][cond_bk], c='C1', ls='--', lw=1) 
             if theta == 'Mnu': 
                 sub.legend([_plt], ['w/ Planck'], loc='lower left', handletextpad=0.2, fontsize=15) 
         if LT: 
@@ -1701,7 +1701,7 @@ def forecastP02B_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False
         sub.set_ylim(sigma_theta_lims[i]) 
         sub.set_yscale('log') 
         if i == 0: 
-            sub.text(0.5, 0.45, r"$P_{\ell=0, 2}$", ha='left', va='bottom', color='C0', transform=sub.transAxes, fontsize=24)
+            sub.text(0.45, 0.4, r"$P_0,~P_2$", ha='left', va='bottom', color='C0', transform=sub.transAxes, fontsize=24)
             sub.text(0.3, 0.35, r"$B$", ha='right', va='top', color='C1', transform=sub.transAxes, fontsize=24)
 
     bkgd = fig.add_subplot(111, frameon=False)
@@ -2273,6 +2273,17 @@ def forecast_convergence(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_n
 
 ############################################################
 def quijote_nbars(): 
+    '''some calculations involving nbar''' 
+    # fiducial 
+    quij = Obvs.quijotePk('fiducial')
+    nbar_fid = (np.average(quij['Nhalos'])/1.e9)
+    p0k = np.average(quij['p0k'], axis=0) 
+    p0k_0p1 = p0k[np.abs(quij['k'] - 0.1).argmin()]
+    print('At fiducial cosmology...')
+    print('Nhalo = %f' % np.average(quij['Nhalos']))
+    print('nbar = %f' % nbar_fid) 
+    print('nbar x P0(k=%f) = %f' % (quij['k'][np.abs(quij['k'] - 0.1).argmin()], p0k_0p1 * nbar_fid)) 
+    raise ValueError
     thetas = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'Ob_m', 'Ob_p', 'Om_m', 'Om_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p']
     nbars = [] 
     for sub in thetas:
@@ -3606,6 +3617,8 @@ if __name__=="__main__":
             forecast_kmax(rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin'], planck=True)
             forecast_kmax(rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'])
             forecast_kmax(rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'])
+            forecastP02B_kmax(rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
+            forecastP02B_kmax(rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin'], planck=True)
     '''
     # fisher forecasts as a function of kmax excluding some cosmo. parameters with different nuisance parameters 
     '''
