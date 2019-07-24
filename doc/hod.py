@@ -59,36 +59,18 @@ def HOD_fid():
 
     fig = plt.figure(figsize=(9,4))
     sub = fig.add_subplot(121)
-    sub.plot(10**logMbin, Ngal_Mh(z07_21_5, logMbin), label='Zheng+(2007) $M_r < -21.5$')
-    sub.plot(10**logMbin, Ngal_Mh(z07_22_0, logMbin), label='Zheng+(2007) $M_r < -22.$')
+    sub.plot(10**logMbin, Ngal_Mh(z07_21_5, logMbin), ls='--', label='Zheng+(2007) $M_r < -21.5$')
+    sub.plot(10**logMbin, Ngal_Mh(z07_22_0, logMbin), ls='--', label='Zheng+(2007) $M_r < -22.$')
     sub.plot(10**logMbin, Ngal_Mh(hod_fid, logMbin), c='k', label='fiducial')
-    sub.plot([10**Mh_min, 10**Mh_min], [1e-3, 1e3], c='k', ls='--', lw=0.5)
+    sub.plot([10**Mh_min, 10**Mh_min], [1e-3, 1e3], c='k', ls=':', lw=0.5)
+    sub.text(1.1*10**Mh_min, 15, r'$M_{\rm lim}$', ha='left', va='bottom', fontsize=20)
     #sub.legend(loc='upper left', fontsize=20)
-    sub.set_xlabel('$M_h$', labelpad=10, fontsize=25)
+    sub.set_xlabel('$M_h$', labelpad=10, fontsize=20)
     sub.set_xscale('log')
     sub.set_xlim(1e12, 5e15)
-    sub.set_ylabel(r'$<N_{\rm gal}>$', fontsize=25)
+    sub.set_ylabel(r'$\langle N_{\rm gal} \rangle$', fontsize=20)
     sub.set_yscale('log')
     sub.set_ylim(1e-2, 5e1)
-
-    # w_p comparison 
-    #rbins = np.array([0.1, 0.15848932, 0.25118864, 0.39810717, 0.63095734, 1., 1.58489319, 2.51188643, 3.98107171, 6.30957344, 10., 15.84893192, 25.11886432]) 
-    #wp_21   = wp_model(halos_hr, z07_21_5, rsd=True) 
-    #wp_22   = wp_model(halos_hr, z07_22_0, rsd=True)
-    #wp_fid  = wp_model(halos_hr, hod_fid, rsd=True)
-    #
-    #sub = fig.add_subplot(122)
-    #_z21, = sub.plot(0.5*(rbins[1:]+rbins[:-1]), wp_21)
-    #_z22, = sub.plot(0.5*(rbins[1:]+rbins[:-1]), wp_22) 
-    #_fid, = sub.plot(0.5*(rbins[1:]+rbins[:-1]), wp_fid, c='k') 
-    #sub.legend([_fid, _z22, _z21], ['fiducial', '$M_r < -22.0$', '$M_r < -21.5$'], 
-    #        loc='lower left', handletextpad=0.2, fontsize=15)
-    #sub.set_xlabel('$r_p$', fontsize=25) 
-    #sub.set_xscale('log') 
-    #sub.set_xlim(1e-1, 25) 
-    #sub.set_ylabel('$w_p(r_p)$', fontsize=25) 
-    #sub.set_yscale('log') 
-    #sub.set_ylim(1e1, 1e4) 
 
     # P(k) comparison 
     k, pk_21   = pk_model(halos_hr, z07_21_5, rsd=True) 
@@ -96,18 +78,18 @@ def HOD_fid():
     k, pk_fid  = pk_model(halos_hr, hod_fid, rsd=True)
     
     sub = fig.add_subplot(122)
-    _z21, = sub.plot(k, pk_21)
-    _z22, = sub.plot(k, pk_22) 
+    _z21, = sub.plot(k, pk_21, ls='--')
+    _z22, = sub.plot(k, pk_22, ls='--') 
     _fid, = sub.plot(k, pk_fid, c='k') 
     sub.legend([_fid, _z22, _z21], ['fiducial', '$M_r < -22.0$', '$M_r < -21.5$'], 
             loc='lower left', handletextpad=0.2, fontsize=15)
-    sub.set_xlabel('$k$', fontsize=25) 
+    sub.set_xlabel('$k$', fontsize=20) 
     sub.set_xscale('log') 
     sub.set_xlim(5e-3, 0.5) 
-    sub.set_ylabel('$P_0(k)$', fontsize=25) 
+    sub.set_ylabel('$P_0(k)$', labelpad=-5, fontsize=20) 
     sub.set_yscale('log') 
     sub.set_ylim(2e3, 4e5) 
-    fig.subplots_adjust(wspace=0.35) 
+    fig.subplots_adjust(wspace=0.25) 
     ffig = os.path.join(dir_doc, 'hod_fid.png') 
     fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
     return None 
