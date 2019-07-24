@@ -750,7 +750,7 @@ def _dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin'):
     if not log: bkgd.set_ylabel(r'$|{\rm d}B/{\rm d} \theta|$', labelpad=10, fontsize=25) 
     else: bkgd.set_ylabel(r'${\rm d}\log B/{\rm d} \theta$', labelpad=10, fontsize=25) 
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-    ffig = os.path.join(fig_doc, 'quijote_d%sBdthetas%s%s.%s.png' % (['', 'log'][log], _rsd_str(rsd), _flag_str(flag), dmnu))
+    ffig = os.path.join(dir_doc, 'quijote_d%sBdthetas%s%s.%s.png' % (['', 'log'][log], _rsd_str(rsd), _flag_str(flag), dmnu))
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
@@ -804,24 +804,44 @@ def dlogBdMnu(kmax=0.5, flag='reg'):
     for dmnu in ['fin', 'fin0', 'p', 'pp', 'ppp']: 
         i_k, j_k, l_k, dpdt = dBkdtheta('Mnu', log=True, rsd='all', flag=flag, dmnu=dmnu, returnks=True) 
         klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
-        
         i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim]
-        #equ = (i_k == j_k) & (j_k == l_k) 
-        #fld = (i_k == j_k + l_k) 
-        #squ = (i_k > 3 * l_k) & (j_k > 3 * l_k) & ~fld 
 
         sub.plot(np.arange(np.sum(klim)), dpdt[klim], label=dmnu)
-        #sub.plot(np.arange(np.sum(klim)), (dpdt[klim]), c='k')
-        #sub.scatter(np.arange(np.sum(klim))[equ], (dpdt[klim][equ]), zorder=7, s=3, c='C0', label='equ.') 
-        #sub.scatter(np.arange(np.sum(klim))[squ], (dpdt[klim][squ]), zorder=8, s=3, c='C1', label='squeezed') 
-        #sub.scatter(np.arange(np.sum(klim))[fld], (dpdt[klim][fld]), zorder=9, s=3, c='C2', label='folded') 
     sub.legend(loc='upper left', markerscale=10, fontsize=20, ncol=2) 
     sub.set_xlim(0, np.sum(klim)) 
     #sub.set_yscale('log') 
     sub.set_ylim(-1, 2) 
     sub.set_xlabel('triangle configuration', fontsize=25) 
     sub.set_ylabel(r'${\rm d}\log B/{\rm d} M_\nu$', labelpad=10, fontsize=25) 
-    ffig = os.path.join(UT.fig_dir(), 'quijote_dlogBdMnu.kmax%s%s.png' % (str(kmax), _flag_str(flag))) 
+    ffig = os.path.join(dir_fig, 'quijote_dlogBdMnu.kmax%s%s.png' % (str(kmax), _flag_str(flag))) 
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
+
+
+def dlogBdMnu_IC(kmax=0.5): 
+    ''' compare dlogB/dMnu estimate at 0.2eV: one calculate 
+    only with ZA sims (Mnu = 0.1, 0.2, 0.4eV), the other 
+    calculated with 2LPT + ZA sims (Mnu = 0, 0.1, 0.2, 0.4eV) 
+    to see if the difference in IC makes a significant impact.
+    '''
+    i_k, j_k, l_k, dbdmnu_za = Forecast.quijote_dBkdtheta('Mnu', log=True, rsd='all', flag='reg', dmnu='0.2eV_ZA', silent=False)
+    _, _, _, dbdmnu_2lpt = Forecast.quijote_dBkdtheta('Mnu', log=True, rsd='all', flag='reg', dmnu='0.2eV_2LPTZA', silent=False)
+    
+    klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
+
+    fig = plt.figure(figsize=(20, 5))
+    sub = fig.add_subplot(111)
+    sub.plot(np.arange(np.sum(klim)), dbdmnu_za[klim], 
+            label=r'Only ZA IC sims ($M_\nu = 0.1, 0.2, 0.4$eV)')
+    sub.plot(np.arange(np.sum(klim)), dbdmnu_2lpt[klim], 
+            label=r'ZA + 2LPT IC sims ($M_\nu = 0.0, 0.1, 0.2, 0.4$eV)')
+    sub.legend(loc='upper left', markerscale=10, fontsize=20, ncol=2) 
+    sub.set_xlim(0, np.sum(klim)) 
+    #sub.set_yscale('log') 
+    sub.set_ylim(-1, 2) 
+    sub.set_xlabel('triangle configuration', fontsize=25) 
+    sub.set_ylabel(r'${\rm d}\log B/{\rm d} M_\nu$', labelpad=10, fontsize=25) 
+    ffig = os.path.join(dir_fig, 'quijote_dlogBdMnu.kmax%s.IC.png' % (str(kmax))) 
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
@@ -859,21 +879,27 @@ def dlogPBdMnu(rsd='all', flag='reg'):
     
     # dlogP/dMnu
     sub0 = plt.subplot(gs0[0,0])
-    for dmnu, lbl, c in zip(dmnus, dmnus_lbls, colors): 
-        k_pk, dpk = dPkdtheta('Mnu', log=True, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True) 
-        pklim = (k_pk <= 0.5) 
-        sub0.plot(k_pk[pklim], dpk[pklim], c=c, label=lbl) 
+    for i, dmnu, lbl, c in zip(range(len(dmnus)), dmnus, dmnus_lbls, colors): 
+        k_pk, dpk = dP02kdtheta('Mnu', log=True, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True) 
+        nk = len(k_pk) 
+        k_p0k, dp0k = k_pk[:nk/2], dpk[:nk/2]
+        k_p2k, dp2k = k_pk[nk/2:], dpk[nk/2:]
+        p0klim = (k_p0k <= 0.5) 
+        p2klim = (k_p2k <= 0.5) 
+        sub0.plot(k_p0k[p0klim], dp0k[p0klim], c=c, label='$\ell = 0$') 
+        sub0.plot(k_p2k[p2klim], 0.5+dp2k[p2klim], c=c, ls=':', label='$\ell=2$') 
         if dmnu == 'fin': _dpk = dpk 
         else: 
             ratio = (dpk/_dpk)
             print('(%s)/(fin) = %f' % (dmnu, np.median(ratio[np.isfinite(ratio)]))) 
+        if i == 0: sub0.legend(loc='lower left', handletextpad=0.2, fontsize=15) 
     sub0.set_xlabel('$k$', fontsize=25) 
     sub0.set_xscale('log') 
     sub0.set_xlim(5e-3, 1.0) 
     sub0.set_xticks([0.02, 0.1, 0.5])
     sub0.set_xticklabels([0.02, 0.1, 0.5])
-    sub0.set_ylabel(r'${\rm d}\log P_0(k)/{\rm d} M_\nu$', fontsize=25) 
-    sub0.set_ylim(0., 0.5) 
+    sub0.set_ylabel(r'${\rm d}\log P_\ell(k)/{\rm d} M_\nu + \ell/4$', fontsize=25) 
+    sub0.set_ylim(0., 1.) 
     # dlogB/dMnu
     sub1 = plt.subplot(gs1[0,0])
     splts = [] 
@@ -1666,15 +1692,15 @@ def forecastP02B_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False
     #    print('%.3f %s' % (kmaxs[i_k], ', '.join(['%.3f' % fpb for fpb in sig_pk[i_k]/sig_bk[i_k]])))
 
     # write out to table
-    #kmax_preset = np.zeros(len(kmaxs)).astype(bool) 
-    #for kmax in [0.2, 0.3, 0.4, 0.5]: 
-    #    kmax_preset[(np.abs(kmaxs - kmax)).argmin()] = True
-    #pk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_pk[kmax_preset,:].T)).T 
-    #bk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_bk[kmax_preset,:].T)).T 
-    #fpk = os.path.join(UT.doc_dir(), 'dat', 'pk_forecast_kmax.dat') 
-    #np.savetxt(fpk, pk_dat, delimiter=', ', fmt='%.5f')
-    #fbk = os.path.join(UT.doc_dir(), 'dat', 'bk_forecast_kmax.dat') 
-    #np.savetxt(fbk, bk_dat, delimiter=', ', fmt='%.5f')
+    kmax_preset = np.zeros(len(kmaxs)).astype(bool) 
+    for kmax in [0.2, 0.3, 0.4, 0.5]: 
+        kmax_preset[(np.abs(kmaxs - kmax)).argmin()] = True
+    pk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_pk[kmax_preset,:].T)).T 
+    bk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_bk[kmax_preset,:].T)).T 
+    fpk = os.path.join(UT.doc_dir(), 'dat', 'p02k_forecast_kmax.dat') 
+    np.savetxt(fpk, pk_dat, delimiter=', ', fmt='%.5f')
+    fbk = os.path.join(UT.doc_dir(), 'dat', 'bk_forecast_kmax.dat') 
+    np.savetxt(fbk, bk_dat, delimiter=', ', fmt='%.5f')
 
     sigma_theta_lims = [(5e-3, 1.), (1e-3, 1.), (1e-2, 10), (1e-2, 10.), (1e-2, 10.), (1e-2, 1e1)]
     if planck: sigma_theta_lims = [(5e-3, 0.8), (5e-4, 1.), (5e-3, 10), (3e-3, 10), (5e-3, 10), (1e-2, 10.)]
@@ -1943,7 +1969,7 @@ def dlogPBdtheta_Nfixedpair(rsd='all', flag='reg', dmnu='fin'):
         sub2 = fig2.add_subplot(6,1,i+1)
 
         for nderiv in nderivs: 
-            k, dpk_dti = Forecast.quijote_dPkdtheta(par, log=True, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=nderiv)
+            k, dpk_dti = Forecast.quijote_dP02kdtheta(par, log=True, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=nderiv)
             i_k, j_k, l_k, dbk_dti = Forecast.quijote_dBkdtheta(par, log=True, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=nderiv)
             if i == 0: 
                 pklim = (k < kmax)
@@ -2023,6 +2049,22 @@ def FisherMatrix_convergence(obs, kmax=0.5, rsd='all', flag=None, dmnu='fin', th
             nmock = Ncov
         klim = (quij['k'] <= kmax) # determine k limit 
         C_fid = _Cfid[:,klim][klim,:]
+    elif obs == 'p02k': # monopole and quadrupole 
+        # read in P(k) 
+        quij = Obvs.quijotePk('fiducial', rsd=2, flag='reg', silent=silent) 
+        p0ks = quij['p0k'] + quij['p_sn'][:,None] # shotnoise uncorrected P0 
+        p2ks = quij['p2k'] # P2 
+        pks = np.concatenate([p0ks, p2ks], axis=1)  # concatenate P0 and P2
+
+        if Ncov is None: 
+            _Cfid = np.cov(pks.T) # covariance matrix 
+            nmock = pks.shape[0]
+        else: 
+            _Cfid = np.cov(pks[:Ncov,:].T) # covariance matrix 
+            nmock = Ncov
+        k = np.concatenate([quij['k'], quij['k']]) 
+        klim = (k <= kmax) # determine k limit 
+        C_fid = _Cfid[:,klim][klim,:]
     elif obs == 'bk':
         quij = Obvs.quijoteBk('fiducial', rsd=2, flag='reg', silent=silent) # this is hardcoded
         bks = quij['b123'] + quij['b_sn']
@@ -2052,6 +2094,9 @@ def FisherMatrix_convergence(obs, kmax=0.5, rsd='all', flag=None, dmnu='fin', th
     for par in _thetas: 
         if obs == 'pk': 
             _, dobs_dti = Forecast.quijote_dPkdtheta(par, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=Nderiv, silent=silent)
+            dobs_dt.append(dobs_dti[klim])
+        elif obs == 'p02k': 
+            _, dobs_dti = Forecast.quijote_dP02kdtheta(par, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=Nderiv, silent=silent)
             dobs_dt.append(dobs_dti[klim])
         elif obs == 'bk': 
             # rsd and flag kwargs are passed to the derivatives
@@ -3561,6 +3606,7 @@ if __name__=="__main__":
         _pkbkCov(kmax=0.5)      # condition number 1.74845e+08
     '''
     # deriatives 
+    dlogPBdMnu(rsd='all', flag='reg')
     '''
         for flag in ['ncv', 'reg']: P_theta(rsd=0, flag=flag)
         for flag in ['ncv', 'reg']: P02_theta(rsd=0, flag=flag)
@@ -3631,10 +3677,12 @@ if __name__=="__main__":
     '''
         for flag in ['ncv', 'reg']: 
             dlogPBdtheta_Nfixedpair(rsd=True, flag=flag, dmnu='fin')
-            Fij_convergence('pk', kmax=0.5, rsd='all', flag=None, dmnu='fin')
+            Fij_convergence('pk', kmax=0.5, rsd='all', flag=flag, dmnu='fin')
+            Fij_convergence('p02k', kmax=0.5, rsd='all', flag=flag, dmnu='fin')
             Fij_convergence('bk', kmax=0.5, rsd='all', flag=flag, dmnu='fin')
         for flag in ['ncv', 'reg']: 
             forecast_convergence('pk', kmax=0.5, rsd='all', flag=flag, dmnu='fin')
+            forecast_convergence('p02k', kmax=0.5, rsd='all', flag=flag, dmnu='fin')
             forecast_convergence('bk', kmax=0.5, rsd='all', flag=flag, dmnu='fin')
             forecast_convergence('pk', kmax=0.5, rsd='all', flag=flag, dmnu='fin', planck=True)
             forecast_convergence('bk', kmax=0.5, rsd='all', flag=flag, dmnu='fin', planck=True)

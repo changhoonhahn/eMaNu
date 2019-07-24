@@ -240,6 +240,14 @@ def quijote_dBkdtheta(theta, log=False, rsd='all', flag=None, z=0, dmnu='fin', N
         elif dmnu == 'fin': 
             coeffs = [-21., 32., -12., 1.] # finite difference coefficient
             h = 1.2
+        elif dmnu == '0.2eV_2LPTZA': # derivative @ 0.2 eV (not using 0.0eV which has 2LPT IC) 
+            coeffs = [0., -20., 15., 5.] 
+            h = 3. 
+        elif dmnu == '0.2eV_ZA': # derivative @ 0.2 eV (not using 0.0eV which has 2LPT IC) 
+            coeffs = [15., -80., 60., 5.] 
+            h = 6. 
+        else: 
+            raise NotImplementedError
     elif theta == 'Mmin': 
         if not silent: print("--- calculating dB/dMmin ---") 
         tts = ['Mmin_m', 'Mmin_p'] 

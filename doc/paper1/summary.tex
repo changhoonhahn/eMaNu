@@ -32,7 +32,7 @@ No work to date has quantified the full information content and constraining
 power of the bispectrum down to nonlinear scales --- especially for $\smnu$. 
 
 % what's our methodology?
-In this work, we examine the effect of massive neutrinos on the redshift-space 
+In this work, we examined the effect of massive neutrinos on the redshift-space 
 halo bispectrum using more than 42,000 $N$-body simulations with massive neutrinos
 from the HADES and Quijote suite. Using $N$-body simulations and with such a massive 
 number of them, we directly address key challenges of accurately modeling the 
@@ -64,15 +64,17 @@ While our results clearly showcase the advantages of the bispectrum for
 more precisely constraining $\smnu$, as well as the cosmological parameters, 
 a number of assumptions go into our forecast. Fisher matrix forecasts assume 
 that the posterior is approximately Gaussian and, as a result, they 
-underestimate the constraints for posteriors that are highly non-elliptical 
-or asymmetric. Furthremore, our forecasts are derived using the power spectrum 
+overestimate the constraints for posteriors that are highly non-elliptical 
+or asymmetric. Furthermore, our forecasts are derived using the power spectrum 
 and bispectrum in periodic boxes, instead of a realistic geometry or 
 radial selection function of galaxy surveys, which degrades the constraining power. 
-We also do not account for super-sample covariance. Lastly, our forecast
+\ch{Since we use periodic boundary conditions, we also do not account for super-sample
+covariance, which in practice results from a non-trivial survey geometry.}
+Lastly, our forecast
 focuses on the halo bispectrum, while the \emph{galaxy} bispectrum is what is 
 actually measured from observations. We marginalize over a simplistic bias model 
 through $b'$ and $M_{\rm min}$; however, such a model is insufficient to 
-fleixbly describe how galaxies trace matter. A more realistic bias model 
+flexibly describe how galaxies trace matter. A more realistic bias model 
 involve extra parameters that describe the distribution of central and satellite 
 galaxies. In the next paper of the series, we include HOD parameters in our
 forecasts and quantify the full information content of the redshift-space 
