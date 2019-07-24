@@ -63,11 +63,13 @@ def HOD_fid():
     sub.plot(10**logMbin, Ngal_Mh(z07_22_0, logMbin), ls='--', label='Zheng+(2007) $M_r < -22.$')
     sub.plot(10**logMbin, Ngal_Mh(hod_fid, logMbin), c='k', label='fiducial')
     sub.plot([10**Mh_min, 10**Mh_min], [1e-3, 1e3], c='k', ls=':', lw=0.5)
-    sub.text(1.1*10**Mh_min, 15, r'$M_{\rm lim}$', ha='left', va='bottom', fontsize=20)
+    sub.text(1.1*10**Mh_min, 20, 
+            r'$M_{\rm lim} = %.2f \times 10^{13} M_\odot$' % (10**Mh_min/1e13), 
+            ha='left', va='bottom', fontsize=15)
     #sub.legend(loc='upper left', fontsize=20)
     sub.set_xlabel('$M_h$', labelpad=10, fontsize=20)
     sub.set_xscale('log')
-    sub.set_xlim(1e12, 5e15)
+    sub.set_xlim(2e12, 5e15)
     sub.set_ylabel(r'$\langle N_{\rm gal} \rangle$', fontsize=20)
     sub.set_yscale('log')
     sub.set_ylim(1e-2, 5e1)
@@ -81,14 +83,14 @@ def HOD_fid():
     _z21, = sub.plot(k, pk_21, ls='--')
     _z22, = sub.plot(k, pk_22, ls='--') 
     _fid, = sub.plot(k, pk_fid, c='k') 
-    sub.legend([_fid, _z22, _z21], ['fiducial', '$M_r < -22.0$', '$M_r < -21.5$'], 
-            loc='lower left', handletextpad=0.2, fontsize=15)
+    sub.legend([_fid, _z22, _z21], ['fiducial HOD', '$M_r < -22.0$', '$M_r < -21.5$'], 
+            loc='lower left', handletextpad=0.3, fontsize=15)
     sub.set_xlabel('$k$', fontsize=20) 
     sub.set_xscale('log') 
     sub.set_xlim(5e-3, 0.5) 
     sub.set_ylabel('$P_0(k)$', labelpad=-5, fontsize=20) 
     sub.set_yscale('log') 
-    sub.set_ylim(2e3, 4e5) 
+    sub.set_ylim(1e3, 2.5e5) 
     fig.subplots_adjust(wspace=0.25) 
     ffig = os.path.join(dir_doc, 'hod_fid.png') 
     fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
