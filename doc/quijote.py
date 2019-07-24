@@ -2974,6 +2974,7 @@ def B_detail(rsd='all', flag='reg'):
     sub = fig.add_subplot(311)
     for kmax, clr in zip([0.5, 0.4, 0.3, 0.2, 0.1], ['C0', 'C1', 'C2', 'C3', 'C4']):  
         klim = ((i_k * kf <= kmax) & (j_k * kf <= kmax) & (l_k * kf <= kmax)) 
+        print('kmax=%.1f, %i triangles' % (kmax, np.sum(klim)))
         if kmax == 0.5: sub.plot(range(np.sum(klim)), bk_fid[klim], c=clr, label=r'$k_{\rm max}=%.1f$' % kmax)   
         else: sub.plot(range(np.sum(klim)), bk_fid[klim], c=clr, label=r'%.1f' % kmax)    
     sub.legend(loc='upper right', ncol=5, fontsize=18) 
@@ -3606,7 +3607,6 @@ if __name__=="__main__":
         _pkbkCov(kmax=0.5)      # condition number 1.74845e+08
     '''
     # deriatives 
-    dlogPBdMnu(rsd='all', flag='reg')
     '''
         for flag in ['ncv', 'reg']: P_theta(rsd=0, flag=flag)
         for flag in ['ncv', 'reg']: P02_theta(rsd=0, flag=flag)
@@ -3701,7 +3701,4 @@ if __name__=="__main__":
             quijote_FisherTest(kmax=kmax, rsd=True, dmnu='fin')
     '''
     # rsd 
-    #B_detail(rsd='all', flag='reg')
-    #compare_Pk_rsd(krange=[0.01, 0.5])
-    #compare_Bk_rsd(kmax=0.5)
-    #compare_Qk_rsd(krange=[0.01, 0.5])
+    B_detail(rsd='all', flag='reg')
