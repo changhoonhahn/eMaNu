@@ -316,8 +316,8 @@ here~\citep{scoccimarro1998a, scoccimarro1999a, sefusatti2010, pollack2012, gil-
 }
 %break down on small scales. In a comparison to $N$-body simulations, \cite{lazanu2016} find that perturbation theory models of the matter bispectrum deviate by $>5\%$ at $k_{\rm max} \gtrsim 0.15~\mpc$. 
 
-\cite{yankelevich2019} present Fisher forecasts for $\Omega_{\rm cdm}$, $\Ob$, 
-$h$, $n_s$, $A_s$, $w_0$, and $w_0$ for a 
+\cite{yankelevich2019} present Fisher forecasts for $\Omega_{\rm cdm}$, 
+$\Ob$, $h$, $n_s$, $A_s$, $w_0$, and $w_0$ for a 
 Euclid-like survey~\citep{laureijs2011} in 14 non-overlapping redshift 
 bins over $0.65 < z < 2.05$. They use the full redshift-space bispectrum,
 rather than just the monopole, and a more sophisticated bias expansion 
@@ -329,12 +329,14 @@ spectrum only moderately improves parameter constraints because posterior
 correlations are similar for $P$ and $B$. While this seemingly conflicts 
 with the results we present, there are significant differences between our 
 forecasts. For instance, their forecasts are at higher redshifts, $z > 0.7$,
-where we expect the constraining power of $B$ to be weaker than at $z=0$. 
+\ch{for a realistically forecast of Euclid; however,}
+we expect the constraining power of $B$ to be weaker than at $z=0$. 
 They also forecast the {\em galaxy} $P$ and $B$ and marginalizes over 
 56 nuisance parameters (14 $z$ bins each with 3 bias parameters and 1 
 RSD parameter). They also neglect non-Gaussian contributions to the $B$ 
-covariance matrix, which substantially impact the constraints especially 
-on small scales~\citep{chan2017}. %; for $k_{\rm max} \sim 0.14~\mpc$, neglecting these contributions overestimates the SNR of the bispectrum by a factor of $\sim 3$~\citep{chan2017}. 
+covariance matrix, which 
+\ch{play a significant role on small scales~\citep{chan2017} and may 
+impact the constraints}.  % for $k_{\rm max} \sim 0.14~\mpc$, neglecting these contributions overestimates the SNR of the bispectrum by a factor of $\sim 3$~\citep{chan2017}. 
 Despite differences, \cite{yankelevich2019} find that the constraining 
 power of $B$ relative to $P_\ell$ increases for higher $k_{\rm max}$, consistent 
 with our forecasts as a function of $k_{\rm max}$ (Figure~\ref{fig:fish_kmax}). 
@@ -343,6 +345,37 @@ we find similar posterior correlations between the $P_\ell$ and $B_0$
 constraints. At $k_{\rm max} = 0.5~\mpc$, however, we find the posterior 
 correlations are no longer similar, which contribute to the constraining
 power of $B_0$~(Figure~\ref{fig:bk_fish_05}).
+
+\ch{
+Finally, \cite{chudaykin2019} present power spectrum and bispectrum 
+forecasts for $\omega_{\rm cdm}$, $\omega_b$, $h$, $n_s$, $A_s$, $n_s$, 
+and $\smnu$ of a Euclid-like survey~\citep{laureijs2011} in 8 
+non-overlapping redshift bins over $0.5 < z < 2.1$. They use a perturbation
+theory model for the redshift-space $\ell = 0, 2, 4$ power spectrum 
+multipoles and the bispectrum monopole with a bias model and a Markov-Chain
+Monte-Carlo (MCMC) approach to derive their parameter constraints. Rather 
+than imposing a $k_{\rm max}$ to limit their forecast to scales where 
+their perturbation theory model can be trusted, they use a theoretical 
+error covariance model~\citep{baldauf2016} and extend down to $k = 0.5~\mpc$
+}
+
+%with a galaxy bias model that has 4 bias 
+%and 4 counterterm normalization parameters at each redshift bin. Rather
+%than Fisher, they use an MCMC approach to derive the parameter constraints
+%
+%Such forecasts make 
+%the assumption that the posterior is approximately Gaussian and, as a result, 
+%they underestimate the constraints for posteriors that are highly 
+%non-elliptical or asymmetric~\cite{wolz2012}
+
+%than \cite{sefusatti2006} but use a perturbation theory bispectrum model, 
+%which consequently limit their forecast to $k_{\rm max} = 0.15~\mpc$. 
+%They find similar constraining power on cosmological parameters from $B$ 
+%alone as $P$.  They also find that combining the bispectrum with the power 
+%spectrum only moderately improves parameter constraints because posterior 
+%correlations are similar for $P$ and $B$. While this seemingly conflicts 
+%with the results we present, there are significant differences between our 
+%forecasts.
 
 Various differences between our forecast and previous work prevent more 
 thorough comparisons. Three crucial aspects, however, distinguish our
@@ -476,7 +509,7 @@ power at high $k$. \cite{hand2017}, for instance, with their 13 parameter
 model only find a 15-30\% improvement in $f\sig$ when they extend their power 
 spectrum multipole analysis from $0.2~\mpc$ to $0.4~\mpc$. However, jointly 
 analyzing power spectrum and bispectrum will help break parameter degeneracies 
-and improve constraints on cosmological parameters~\citep{sefusatti2006, yankelevich2019}. 
+and improve constraints on cosmological parameters~\citep{sefusatti2006, yankelevich2019, chudyakin2019}. 
 We again emphasize that the constraints we present is for a $1h^{-1}{\rm Gpc}$ box, 
 a substantially smaller volume than upcoming surveys. Thus, even if the constraining 
 power at high $k$ is reduced, our forecasts suggest that the bispectrum offers 
