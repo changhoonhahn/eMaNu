@@ -324,7 +324,7 @@ rather than just the monopole, and a more sophisticated bias expansion
 than \cite{sefusatti2006} but use a perturbation theory bispectrum model, 
 which consequently limit their forecast to $k_{\rm max} = 0.15~\mpc$. 
 They find similar constraining power on cosmological parameters from $B$ 
-alone as $P$.  They also find that combining the bispectrum with the power 
+alone as $P$. They also find that combining the bispectrum with the power 
 spectrum only moderately improves parameter constraints because posterior 
 correlations are similar for $P$ and $B$. While this seemingly conflicts 
 with the results we present, there are significant differences between our 
@@ -350,51 +350,66 @@ power of $B_0$~(Figure~\ref{fig:bk_fish_05}).
 Finally, \cite{chudaykin2019} present power spectrum and bispectrum 
 forecasts for $\omega_{\rm cdm}$, $\omega_b$, $h$, $n_s$, $A_s$, $n_s$, 
 and $\smnu$ of a Euclid-like survey~\citep{laureijs2011} in 8 
-non-overlapping redshift bins over $0.5 < z < 2.1$. They use a perturbation
-theory model for the redshift-space $\ell = 0, 2, 4$ power spectrum 
-multipoles and the bispectrum monopole with a bias model and a Markov-Chain
-Monte-Carlo (MCMC) approach to derive their parameter constraints. Rather 
-than imposing a $k_{\rm max}$ to limit their forecast to scales where 
-their perturbation theory model can be trusted, they use a theoretical 
-error covariance model~\citep{baldauf2016} and extend down to $k = 0.5~\mpc$
+non-overlapping redshift bins over $0.5 < z < 2.1$. They use
+a one-loop perturbation theory model for the redshift-space $\ell = 0, 2, 4$ 
+power spectrum multipoles and a tree-level model for bispectrum monopole. 
+Also, rather than imposing a $k_{\rm max}$ cutoff to restrict their 
+forecasts to scales where their perturbation theory model can be trusted, 
+they use a theoretical error covariance model approach from~\cite{baldauf2016} 
+and extend down to $k = 0.5~\mpc$. They find $\sim1.4$, 1.5, 1.2, 1.5, and 
+1.3 times tighter constraints from $P_\ell$ and $B_0$ than from 
+$P_\ell$ alone. For $\smnu$, they find a factor of 1.4 improvement, from 
+0.038 eV to 0.028 eV. Overall, \cite{chudaykin2019} find more modest improvements 
+in the constraints from including $B_0$ than the improvements we find in o
+ur $k_{\rm max} = 0.5~\mpc$ $B_0$ constraints over $P_\ell$. 
+
+Among the differences from our forecast, most notably, \cite{chudaykin2019}  
+marginalize over 64 parameters of their bias model (4 bias and 4 counterterm 
+normalization parameters at each redshift bin). Furthermore, the Alcock-Paczynski 
+(AP) effect, which they include for $P_\ell$, significantly improves the 
+$P_\ell$ parameter constraints (\emph{e.g.} tightens $\smnu$ constraints by $\sim30\%$). 
+They however, do not include AP effects in $B_0$. Also, while \cite{chudaykin2019} 
+use theoretical error covariance models to extend down to $k_{\rm max} = 0.5~\mpc$, 
+well beyond the accuracy of the tree-level $B_0$ model, at $k \gtrsim 0.2~\mpc$ these 
+theoretical errors for $B_0$ quickly dominate~\citep[see Figure 1 in][]{chudaykin2019}. 
+This suggests that their forecasts do not include the significant constraining 
+power we find in $B_0$ on nonlinear scales. Furthermore, the theoretical error 
+model they use is derived from the 
+tree-level $B_0$ and is only validated against the one and two-loop dark matter 
+perturbation theory bispectra, which are only marginally more accurate than the 
+tree-level~\citep{lazanu2018}, instead of against $N$-body simulations. Also 
+different from our analysis, \cite{chudaykin2019} use an Markov-Chain Monte-Carlo 
+(MCMC) approach, which derives more accurate parameter constraints for non-elliptical 
+or asymmetric posteriors than our Fisher approach~\citep{wolz2012}. They, however, 
+neglect non-Gaussian contributions to both the $P_\ell$ and $B_0$ covariance 
+matrices and they also do not include the covariance between $P_\ell$ and 
+$B_0$ in their joint constraints. Nonetheless, \cite{chudaykin2019} and our 
+results both find significant improves in cosmological parameter constraints 
+from including $B_0$. In fact, taking the theoretical errors into account, 
+the improvements from $B_0$ they find are loosely consistent with our results
+at $k_{\rm max} \sim  0.2~\mpc$. 
 }
 
-%with a galaxy bias model that has 4 bias 
-%and 4 counterterm normalization parameters at each redshift bin. Rather
-%than Fisher, they use an MCMC approach to derive the parameter constraints
-%
-%Such forecasts make 
-%the assumption that the posterior is approximately Gaussian and, as a result, 
-%they underestimate the constraints for posteriors that are highly 
-%non-elliptical or asymmetric~\cite{wolz2012}
-
-%than \cite{sefusatti2006} but use a perturbation theory bispectrum model, 
-%which consequently limit their forecast to $k_{\rm max} = 0.15~\mpc$. 
-%They find similar constraining power on cosmological parameters from $B$ 
-%alone as $P$.  They also find that combining the bispectrum with the power 
-%spectrum only moderately improves parameter constraints because posterior 
-%correlations are similar for $P$ and $B$. While this seemingly conflicts 
-%with the results we present, there are significant differences between our 
-%forecasts.
-
 Various differences between our forecast and previous work prevent more 
-thorough comparisons. Three crucial aspects, however, distinguish our
-forecasts from other works. We present the first bispectrum forecasts 
-for a full set of cosmological parameters using bispectrum measured entirely 
-from $N$-body simulations. This allows us to go beyond perturbation theory 
-forecasts and quantify the full information content of the redshift-space 
-bispectrum out to nonlinear regimes. Second, we present the first forecast 
-of the full bispectrum of all 1898 triangles out to $k_{\rm max} = 0.5~\mpc$, 
-which is only made possible with the immense number (42,000) of $N$-body
-simulations in the Quijote suite. Lastly, we present the first bispectrum 
-forecast of cosmological parameters that includes neutrinos and demonstrates 
-the constraining power of the bispectrum for $\smnu$. Below, we underline a 
-few caveats of our forecasts.
+thorough comparisons. However, crucial aspects of our simulation driven 
+approach distinguish our forecasts from other works. %Three crucial aspects, however, distinguish our forecasts from other works.
+We present the first bispectrum forecasts for a full set of cosmological 
+parameters using bispectrum measured entirely from $N$-body simulations.
+This allows us to go beyond perturbation theory forecasts and accurately 
+quantify the full information content of the redshift-space bispectrum out to 
+nonlinear regimes. Furthermore, we present the first forecast of the full 
+bispectrum of all 1898 triangles out to $k_{\rm max} = 0.5~\mpc$, which is 
+only made possible with the immense number ($\sim42,000$) of $N$-body 
+simulations in the Quijote suite. %Lastly, we present the first bispectrum forecast of cosmological parameters that includes neutrinos and demonstrates the constraining power of the bispectrum for $\smnu$. 
+Below, we underline a few caveats of our forecasts.
 
 Our forecasts are derived from Fisher matrices. Such forecasts make 
 the assumption that the posterior is approximately Gaussian and, as a result, 
 they underestimate the constraints for posteriors that are highly 
-non-elliptical or asymmetric~\cite{wolz2012}. Fisher matrices also rely 
+non-elliptical or asymmetric~\citep{wolz2012}. 
+\ch{We note, however, that the posteriors from~\cite{chudaykin2019}, which are
+derived using MCMC, are generally elliptical and symmetric}. 
+Fisher matrices also rely 
 on the stability, and in our case also convergence, of numerical derivatives. 
 We examine the stability of the $P_\ell$ and $B_0$ derivatives with respect 
 to $\smnu$ by comparing the derivatives computed using $N$-body simulations 
