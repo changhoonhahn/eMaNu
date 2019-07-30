@@ -26,7 +26,7 @@
     $\Delta \BOk/\BOk^\mathrm{fid}$, for all $1898$ triangle configurations with 
     $k_1, k_2, k_3 \leq 0.5~\mpc$. We compare $\Delta \BOk/\BOk^\mathrm{fid}$ 
     of the $\smnu = 0.06$ (top), $0.10$ (middle), and $0.15$ eV (bottom) HADES simulations 
-    to $\Delta \BOk/\BOk^\mathrm{fid}$ of $\smnu{=}~0.0$ eV $\sig{=}~0.822$, $0.818$, and 
+    to $\Delta \BOk/\BOk^\mathrm{fid}$ of $\smnu{=}~0.0$ eV, $\sig{=}~0.822$, $0.818$, and 
     $0.807$ simulations. The imprint of $\smnu$ on the bispectrum has a significantly different 
     amplitude than the imprint of $\sig$. For instance, $\smnu{=}~0.15\,\mathrm{eV}$ (red) 
     has a $\sim 5\%$ stronger impact on the bispectrum than $\smnu{=}~0.0$ eV  
@@ -46,9 +46,9 @@ only differ by $< 1\%$ (see Figure~\ref{fig:plk} and~\citealt{villaescusa-navarr
 The HADES suite, which has simulations with $\smnu = 0.0, 0.06, 0.10$, 
 and $0.15$ eV as well as $\smnu = 0.0$ eV simulations with matching $\sig^{c}$, 
 %--- $\sig{=}~0.822$, $0.818$, and $0.807$ , 
-provides an ideal set of simulations to separate the impact of $\smnu$ and 
+provides an ideal set of simulations to disentangle the impact of $\smnu$ and 
 examine the degeneracy between $\smnu$ and $\sig$ (Section~\ref{sec:hades} and Table~\ref{tab:sims}). 
-We measure the bispectrum of the HADES simulations (Figure~\ref{fig:bk_shape} and~\ref{fig:bk_amp}), 
+We measure the bispectrum of the HADES simulations (Figure~\ref{fig:bk_shape} and~\ref{fig:bk_amp}) 
 and present how the bispectrum can significantly improve $\smnu$ constraints 
 by breaking the $\smnu$ -- $\sig$ degeneracy. 
 
@@ -60,7 +60,7 @@ in the upper panels and 0.0~eV $\sig{=}~0.822$, $0.818$, and $0.807$ in the
 bottom panels. The simulations in the top and bottom panels of each column 
 have matching $\sig^{c}$. Overall, as $\smnu$ increases, the amplitude of the 
 bispectrum increases for all triangle shapes (top panels). This increase is due to halo 
-bias~\citep[][see also Figure~\ref{fig:plk}]{villaescusa-navarro2018}. We 
+bias~\citep[][see also Figure~\ref{fig:plk}]{villaescusa-navarro2018}. Since we 
 impose a fixed $M_{\rm lim}$ on our halos so lower values of $\sig$ translate 
 to a larger halo bias, which boosts the amplitude of the bispectrum. Within the 
 overall increase in amplitude, however, there is a significant triangle dependence. 
@@ -91,7 +91,7 @@ imprint of $\smnu$ on the bispectrum cannot be replicated by varying $\sig$ ---
 unlike the power spectrum. 
 
 We next examine the amplitude of the $\smnu$ imprint on the redshift-space halo 
-bispectrum versus $\sig$ alone for all triangle configurations. We present 
+bispectrum versus $\sig$ alone as a function of all triangle configurations. We present 
 $\Delta \BOk/\BOk^{\rm fid}$ for all $1898$ possible triangle configurations 
 with $k_1, k_2, k_3 < k_{\rm max} = 0.5~h/{\rm Mpc}$ in Figure~\ref{fig:dbk_amp}. 
 We compare $\Delta \BOk/\BOk^{\rm fid}$ of the $\smnu = 0.06, 0.10$, and 
@@ -106,8 +106,9 @@ even though their power spectra differ by $< 1\%$ (Figure~\ref{fig:plk}).
 The comparison in the panels of Figure~\ref{fig:dbk_amp} confirms the difference 
 in the configuration dependence in $\Delta \BOk/\BOk^\mathrm{fid}$ between $\smnu$ 
 versus $\sig$. The triangle configurations are ordered by looping through $k_3$ 
-in the inner most loop and $k_1$ in the outer most loop such that $k_1 \leq k_2 \leq k_3$. 
-In this ordering, $k_1$ increases from left to right. $\Delta \BOk/\BOk^\mathrm{fid}$ 
+in the inner most loop and $k_1$ in the outer most loop such that $k_1 \geq k_2 \geq k_3$. 
+In this ordering, $k_1$ increases from left to right (see Figure~\ref{fig:bk_details} 
+and Appendix~\ref{sec:bk_details}). $\Delta \BOk/\BOk^\mathrm{fid}$ 
 of $\smnu$ expectedly increases with $k_1$: for small $k_1$ (on large scales), 
 neutrinos behave like CDM and therefore the impact is reduced. However, 
 $\Delta \BOk/\BOk^\mathrm{fid}$ of $\smnu$ has a smaller $k_1$ dependence than 

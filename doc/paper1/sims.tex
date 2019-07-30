@@ -1,13 +1,13 @@
 \section{HADES and Quijote Simulation Suites} \label{sec:hades} 
 The HADES\footnote{https://franciscovillaescusa.github.io/hades.html} and Quijote 
 suites are sets of, 42000 total, $N$-body simulations run on multiple cosmologies,
-include those with massive neutrinos ($\smnu > 0$ eV). In this work, 
+including those with massive neutrinos ($\smnu > 0$ eV). In this work, 
 we use a subset of the HADES and Quijote simulations. Below, we briefly describe these simulations; 
 a summary of the simulations can be found in Table~\ref{tab:sims}. 
 The HADES simulations start from Zel'dovich approximated initial conditions 
 generated at $z=99$ using the~\cite{zennaro2017a} rescaling method and follow 
 the gravitational evolution of $N_{\rm cdm}=512^3$ CDM, plus $N_{\nu}=512^3$ 
-neutrino particles (for $\smnu > 0$ eV cosmologies), to $z=0$. They are run using 
+neutrino particles for $\smnu > 0$ eV cosmologies, to $z=0$. They are run using 
 the {\sc GADGET-III} TreePM+SPH code~\citep{springel2005} in a periodic 
 $(1~h^{-1}{\rm Gpc})^3$ box. All of the HADES simulations share the following 
 cosmological parameter values, which are in good agreement with Planck 
@@ -19,7 +19,7 @@ of $\smnu = $ 0.06, 0.10, and 0.15 eV. These simulations are run using the
 ``particle method'', where neutrinos are described as a collisionless 
 and pressureless fluid and therefore modeled as particles, same as 
 CDM~\citep{brandbyge2008,viel2010}. HADES also includes simulations with massless 
-neutrino and different values of $\sigma_8$ to examine the $\smnu--\sigma_8$ 
+neutrino and different values of $\sigma_8$ to examine the $\smnu-\sigma_8$ 
 degeneracy. The $\sigma_8$ values were chosen to match either $\sigma_8^m$ or 
 $\sigma_8^{c}$ --- $\sigma_8$ computed with respect to total matter 
 (CDM + baryons + $\nu$) or CDM + baryons --- of the massive neutrino simulations: 
@@ -29,22 +29,22 @@ trace the CDM+baryon field rather than the total matter field and neutrinos
 have negligible contribution to halo masses~\citep[\emph{e.g.}][]{ichiki2012, castorina2014, loverde2014, villaescusa-navarro2014}.
 Hence, dark matter halos are identified in each realization using the Friends-of-Friends 
 algorithm~\cite[FoF;][]{davis1985} with linking length $b=0.2$ on the CDM + baryon
-distribution: only halos with masses above $3.2\times 10^{13} h^{-1}M_\odot$ 
-are included. We refer readers to~\cite{villaescusa-navarro2018} for more details 
-on the HADES simulations. 
+distribution. We limit the halo catalogs to halos with masses above 
+$M_{\rm lim} = 3.2\times 10^{13} h^{-1}M_\odot$. We refer readers
+to~\cite{villaescusa-navarro2018} for more details on the HADES simulations. 
 
 In addition to HADES, we use simulations from the Quijote suite, a
 set of 42,000 $N$-body simulations that in total contain more than 8 trillion 
 ($8\times10^{12}$) particles over a volume of $42000 (h^{-1}{\rm Gpc})^3$. 
 These simulations were designed to quantify the information content of 
 different cosmological observables using Fisher matrix forecasting 
-technique~(Section~\ref{sec:forecasts}). They are therefore designed to accurately calculate 
-the covariance matrices of observables and the derivatives of observables with 
-respect to cosmological parameters. The suite considers 6 cosmological parameters: 
+technique~(Section~\ref{sec:forecasts}). They are therefore designed to accurately 
+calculate the covariance matrices of observables and the derivatives of observables with 
+respect to cosmological parameters: 
 $\Om$, $\Ob$, $h$, $n_s$, $\sig$, and $\smnu$.
 
-To calculate covariance matrices, Quijote includes $N_{\rm cov} = 15,000$ $N$-body 
-simulations run at a fiducial cosmology ($\Om{=}0.3175$, $\Ob{=}0.049$, $h{=}0.6711$, 
+To calculate covariance matrices, Quijote includes $N_{\rm cov}{=}15,000$ $N$-body 
+simulations at a fiducial cosmology ($\Om{=}0.3175$, $\Ob{=}0.049$, $h{=}0.6711$, 
 $n_s{=}0.9624$, $\sig{=}0.834$, and $\smnu{=}0.0$ eV). It also includes sets 
 of 500 $N$-body simulations run at different cosmologies where only one parameter 
 is varied from the fiducial cosmology at a time for the derivatives. Along $\Om$, 
@@ -62,7 +62,7 @@ massive neutrinos. Like HADES, the initial conditions of simulations with massiv
 neutrinos take their scale-dependent growth factors/rates into account using the
 \cite{zennaro2017a} method. From the initial conditions, all of the simulations 
 follow the gravitational evolution of $512^3$ dark matter particles, and $512^3$ 
-neutrino particles (for massive neutrino models), to $z=0$ using {\sc Gadget-III}
+neutrino particles for massive neutrino models, to $z=0$ using {\sc Gadget-III}
 TreePM+SPH code (same as HADES). 
 \ch{Halos are then identified using the same FoF scheme and mass limit as HADES. 
 For the fiducial cosmology, the halo catalogs have ${\sim}156,000$ halos 
@@ -75,8 +75,8 @@ on the Quijote simulations.
 \begin{center}
 \includegraphics[width=0.9\textwidth]{figs/haloPlk_rsd_ratio.pdf}
     \caption{Impact of $\smnu$ and $\sig$ on the redshift-space halo power 
-    spectrum monopole, $P_0$, and quadrupole, $P_2$, measured using the 
-    HADES simulation suite. The $P_\ell$ measurements at each cosmology is
+    spectrum monopole, $P_0$, and quadrupole, $P_2$, of the HADES simulation 
+    suite. The $P_\ell$ measurements at each cosmology is
     averaged over 100 $N$-body realizations. $\smnu$ and $\sig$ produce 
     almost identical effects on halo clustering on small scales 
     ($k > 0.1\hmpc$). This degeneracy can be partially broken through 
@@ -126,7 +126,7 @@ on the Quijote simulations.
 \end{tabular} \label{tab:sims}
 \end{center}
     {\bf \em Top}: The HADES suite includes sets of 100 $N$-body simulations with degenerate massive neutrinos 
-    of $\smnu = $ 0.06, 0.10, and 0.15 eV as well as sets of simulations with massless neutrino and 
+    of $\smnu = $ 0.06, 0.10, and 0.15 eV as well as sets of simulations with $\smnu = 0.0$ eV and 
     $\sigma_8 = $ 0.822, 0.818, 0.807, and 0.798 to examine the $\smnu-\sigma_8$ degeneracy. 
     {\bf \em Bottom}: The Quijote suite includes 15,000 $N$-body simulations at the fiducial 
     cosmology to accurately estimate the covariance matrices. It also includes sets of 500 
