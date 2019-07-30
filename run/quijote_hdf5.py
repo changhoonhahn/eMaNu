@@ -32,7 +32,7 @@ def quijoteP_hdf5(subdir, machine='mbp', rsd=0, flag=None):
         in all the files in the directory 
     '''
     # directory where the quijote bispectrum are at 
-    if machine in ['mbp', 'cori']: dir_quij = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote', subdir) 
+    if machine in ['mbp', 'cori']: dir_quij = os.path.join(UT.dat_dir(), 'powerspectrum', 'quijote', subdir) 
     else: raise NotImplementedError 
     
     if rsd not in [0, 1, 2, 'real']: raise ValueError 
@@ -66,23 +66,42 @@ def quijoteP_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     
     # load in all the files 
     for i, fpk in enumerate(fpks):
-        k, _p0k, _p2k, _p4k = np.loadtxt(os.path.join(dir_quij, fpk), skiprows=1, unpack=True, usecols=range(4)) 
-        hdr = open(os.path.join(dir_quij, fpk)).readline().rstrip() 
-        # Nhalos=159315 BoxSize=1000.000
-        Nhalo = int(hdr.split(' ')[0].split('Nhalo=')[-1])
-        nbar = float(Nhalo)/1000.**3 
- 
-        if i == 0: 
-            Nhalos = np.zeros((nbk)) 
-            p0k = np.zeros((nbk, len(k)))
-            p2k = np.zeros((nbk, len(k)))
-            p4k = np.zeros((nbk, len(k)))
-            psn = np.zeros((nbk))
-        Nhalos[i] = Nhalo
-        psn[i] = 1./nbar
-        p0k[i,:] = _p0k - 1./nbar 
-        p2k[i,:] = _p2k
-        p4k[i,:] = _p4k
+        if rsd != 'real': 
+            print(fpk)
+            pkdat =  np.loadtxt(os.path.join(dir_quij, fpk), skiprows=1, unpack=True, usecols=range(4)) 
+            k = pkdat[0]
+            _p0k = pkdat[1]
+            _p2k = pkdat[2] 
+            _p4k = pkdat[3]
+            hdr = open(os.path.join(dir_quij, fpk)).readline().rstrip() 
+            # Nhalos=159315 BoxSize=1000.000
+            Nhalo = int(hdr.split('Box')[0].split('Nhalos=')[-1])
+            nbar = float(Nhalo)/1000.**3 
+     
+            if i == 0: 
+                Nhalos = np.zeros((npk)) 
+                p0k = np.zeros((npk, len(k)))
+                p2k = np.zeros((npk, len(k)))
+                p4k = np.zeros((npk, len(k)))
+                psn = np.zeros((npk))
+            Nhalos[i] = Nhalo
+            psn[i] = 1./nbar
+            p0k[i,:] = _p0k - 1./nbar 
+            p2k[i,:] = _p2k
+            p4k[i,:] = _p4k
+        else: # real-space
+            k, _p0k = np.loadtxt(os.path.join(dir_quij, fpk), skiprows=1, unpack=True, usecols=range(2)) 
+            hdr = open(os.path.join(dir_quij, fpk)).readline().rstrip() 
+            Nhalo = int(hdr.split('Box')[0].split('Nhalos=')[-1])
+            nbar = float(Nhalo)/1000.**3 
+     
+            if i == 0: 
+                Nhalos = np.zeros((npk)) 
+                p0k = np.zeros((npk, len(k)))
+                psn = np.zeros((npk))
+            Nhalos[i] = Nhalo
+            psn[i] = 1./nbar
+            p0k[i,:] = _p0k - 1./nbar 
 
     # save to hdf5 file 
     quij_dir = os.path.join(UT.dat_dir(), 'powerspectrum', 'quijote', 'z0') 
@@ -91,11 +110,12 @@ def quijoteP_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     else: 
         fhdf5 = os.path.join(quij_dir, 'quijote_%s.%s.real.hdf5' % (subdir, flag))
     f = h5py.File(fhdf5, 'w') 
-    f.create_dataset('k', data=i_k)
-    f.create_dataset('p0k', data=p0k1) 
-    f.create_dataset('p2k', data=p0k2) 
-    f.create_dataset('p4k', data=p0k3) 
-    f.create_dataset('p_sn', data=bsn) 
+    f.create_dataset('k', data=k)
+    f.create_dataset('p0k', data=p0k) 
+    if rsd != 'real': 
+        f.create_dataset('p2k', data=p2k) 
+        f.create_dataset('p4k', data=p4k) 
+    f.create_dataset('p_sn', data=psn) 
     f.create_dataset('Nhalos', data=Nhalos) 
     f.create_dataset('files', data=fpks) 
     f.close()
@@ -128,6 +148,7 @@ def quijoteB_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     if rsd not in [0, 1, 2, 'real']: raise ValueError 
     if subdir == 'fiducial' and flag == 'reg': nmocks = 15000
     elif subdir == 'fiducial' and flag == 'ncv': nmocks = 500
+    elif subdir == 'fiducial_za': nmocks=82
     else: nmocks = 500 
 
     fbks = [] 
@@ -201,13 +222,21 @@ def quijoteB_hdf5(subdir, machine='mbp', rsd=0, flag=None):
 
 
 if __name__=="__main__": 
+    '''
     thetas = ['Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'Om_m', 'Om_p', 'Ob2_m', 'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p', 
             'Mmin_m', 'Mmin_p', 'fiducial']
+    
+    for rsd in [2, 'real']: 
+        quijoteP_hdf5('fiducial', rsd=rsd, flag='ncv')
+        quijoteP_hdf5('fiducial', rsd=rsd, flag='reg')
     for sub in thetas:
         print('---%s---' % sub) 
         for rsd in [0, 1, 2, 'real']: 
+            continue 
             quijoteP_hdf5(sub, rsd=rsd, flag='ncv')
             quijoteP_hdf5(sub, rsd=rsd, flag='reg')
-            continue 
             quijoteB_hdf5(sub, rsd=rsd, flag='ncv')
             quijoteB_hdf5(sub, rsd=rsd, flag='reg')
+    '''
+    for rsd in [0, 1, 2, 'real']: 
+        quijoteB_hdf5('fiducial_za', rsd=rsd, flag='reg')
