@@ -1323,7 +1323,8 @@ def p02bForecast(kmax=0.5, rsd=True, flag=None, theta_nuis=None, dmnu='fin', pla
     _theta_lbls = copy(theta_lbls) + [theta_nuis_lbls[tt] for tt in theta_nuis]
     _theta_fid = theta_fid.copy() # fiducial thetas
     for tt in theta_nuis: _theta_fid[tt] = theta_nuis_fids[tt]
-    _theta_lims = [(0.25, 0.385), (0.02, 0.08), (0.3, 1.1), (0.6, 1.3), (0.77, 0.9), (-0.4, 0.4)]
+    # theta_fid = { 's8': 0.834} # fiducial theta 
+    _theta_lims = [(0.28, 0.355), (0.028, 0.07), (0.4422, 0.9), (0.7248, 1.2), (0.788, 0.88), (-0.25, 0.25)]
     if kmax < 0.2: _theta_lims = [(0.1, 0.5), (0.0, 0.15), (0.0, 1.6), (0., 2.), (0.5, 1.3), (0, 2.)]
     if planck: 
         _theta_lims = [(_theta_fid[tt] - dtt, _theta_fid[tt] + dtt) for tt, dtt in zip(thetas, [0.03, 0.003, 0.02, 0.01, 0.05, 0.2])] 
@@ -1683,9 +1684,12 @@ def forecastP02B_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False
     if LT: 
         sig_pm  = np.array(sig_pm)
         sig_pcb = np.array(sig_pcb)
-    
-    cond_pk = (kmaxs > len(sig_pk[-1]) * kf)
+     
+    #cond_pk = (kmaxs > float(len(sig_pk[-1])) * kf)
+    cond_pk = (kmaxs > 5. * kf)
     cond_bk = (kmaxs > 12. * kf)
+    print('PK kmax > %f' % (5. * kf)) 
+    print('BK kmax > %f' %  (12. * kf))
 
     #print('improvement of B over P') 
     #for i_k in range(len(kmaxs)): 
@@ -3641,6 +3645,7 @@ if __name__=="__main__":
         forecast_kmax_table(dmnu='fin', theta_nuis=None)
     '''
     # P+B fisher forecasts with different nuisance parameters 
+    p02bForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin'], dmnu='fin', planck=True)
     '''
         for flag in ['ncv', 'reg']: 
             pbForecast(kmax=0.5, rsd='all', flag=flag, theta_nuis=['Amp', 'Mmin'], dmnu='fin')
@@ -3701,4 +3706,4 @@ if __name__=="__main__":
             quijote_FisherTest(kmax=kmax, rsd=True, dmnu='fin')
     '''
     # rsd 
-    B_detail(rsd='all', flag='reg')
+    #B_detail(rsd='all', flag='reg')
