@@ -9,7 +9,7 @@ experiments, however, are insensitive to the absolute neutrino mass scales.
 Other laboratory experiments sensitive to $\smnu$ (\emph{e.g.} double beta 
 decay and tritium beta decay experiments) have the potential to place upper 
 bounds of $\smnu < 0.2$ eV in upcoming experiments~\citep{bonn2011, drexlin2013}. 
-These upper bound alone are not insufficient to distinguish between the mass
+However, these upper bound alone are not insufficient to distinguish between the mass
 hiearchies. Neutrinos, through the cosmic neutrino background, affect the 
 expansion history and the growth of cosmic structure. Measuring these effects 
 with cosmological observables provides complementary and potentially more 
@@ -36,9 +36,9 @@ combining CMB data with other cosmological probes. Temperture and large
 angle polarization data from the {\em Planck} satellite places an upper 
 bound of $\smnu < 0.54$ eV with 95\% confidence level~\citep{planckcollaboration2018}. 
 Adding the Baryon Acoustic Oscillation (BAO) to the {\em Planck} 
-likelihood breaks geometrical degeneracies ($\smnu$, $h$, $\Om$) 
+likelihood breaks geometrical degeneracies (among $\smnu$, $h$, $\Om$) 
 and significantly tightens the upper bound to $\smnu < 0.16$ eV. CMB 
-lensing further tightens the bound further to $\smnu < 0.13$ eV, though 
+lensing further tightens the bound to $\smnu < 0.13$ eV, though 
 not as significantly. Combining these probes, however, introduce a strong 
 correlation between $\smnu$ and $A_s$, the scale amplitude. Since CMB 
 experiments measure the combined quantity $A_s e^{-2\tau}$, where 
@@ -47,7 +47,7 @@ degeneracy between $\smnu$ and $\tau$~\citep{allison2015, liu2016, archidiacono2
 
 The $\tau-\smnu$ degeneracy will continue to be a major bottleneck 
 for $\smnu$ constraints from CMB data. The best constraints on $\tau$ 
-currently come from {\em Planck}: $\tau\sim0.06$. However, upcoming 
+currently come from {\em Planck} --- $\tau\sim0.06$. However, upcoming 
 ground-based CMB experiments ({\em e.g.} CMB-S4) will not observe scales 
 larger than $\ell < 30$, and therefore will not directly constrain 
 $\tau$~\citep{abazajian2016}. Meanwhile, proposed future space-based 
@@ -56,9 +56,9 @@ COrE\footnote{http://www.core-mission.org/}, which have the potential
 to precisely measure $\tau$, have yet to be confirmed. CMB data, however, 
 is not the only way to improve $\smnu$ constraints. The imprint of 
 neutrinos on 3D clustering of galaxies can be measured to constrain 
-$\smnu$ and with the sheer cosmic volumes mapped by upcoming surveys, 
-\emph{e.g.} DESI\footnote{https://www.desi.lbl.gov/}, PFS\footnote{https://pfs.ipmu.jp/}, 
-EUCLID\footnote{http://sci.esa.int/euclid/}, and WFIRST\footnote{https://wfirst.gsfc.nasa.gov/}, 
+$\smnu$ and with the sheer cosmic volumes mapped, upcoming surveys such 
+as DESI\footnote{https://www.desi.lbl.gov/}, PFS\footnote{https://pfs.ipmu.jp/}, 
+EUCLID\footnote{http://sci.esa.int/euclid/}, and WFIRST\footnote{https://wfirst.gsfc.nasa.gov/} 
 will be able tightly constrain 
 $\smnu$~\citep{audren2013, font-ribera2014, petracca2016, sartoris2016, boyle2018}.
 
@@ -67,7 +67,7 @@ predictions beyond linear scales, for bias tracers, and in redshift space.
 Simulations have made huge strides in accurately and efficiently modeling 
 nonlinear structure formation with massive neutrinos~\citep[\emph{e.g.}][]{brandbyge2008, 
 villaescusa-navarro2013, castorina2015, adamek2017, emberson2017, villaescusa-navarro2018}. 
-In conjuction, new simulation based `emulation` models that exploit the 
+In conjuction, new simulation based `emulation' models that exploit the 
 accuracy of $N$-body simulations while minimizing the computing budget 
 have been applied to analyze small-scale galaxy clustering with remarkable 
 success~\citep[\emph{e.g.}][]{heitmann2009, kwan2015, euclidcollaboration2018, mcclintock2018, zhai2018, wibking2019}. 
@@ -82,47 +82,52 @@ and in redshift-space~\citep{marulli2011, castorina2015, upadhye2016}. Most rece
 using a suite of more than 1000 simulations, \cite{villaescusa-navarro2018} 
 examined the impact of $\smnu$ on the redshift-space matter and halo power 
 spectrum to find that the imprint of $\smnu$ and $\sig$ on the power spectrum are 
-degenerate and differ only by $< 1\%$. The strong $\smnu$ -- $\sig$ degeneracy
+degenerate and differ by $< 1\%$. The strong $\smnu$ -- $\sig$ degeneracy
 poses a serious limitation of constraining $\smnu$ with the power spectrum. 
 However, information in the nonlinear regime cascade from the power spectrum 
 to higher-order statistics--- \emph{e.g.} the bispectrum. In fact, the 
 bispectrum has a comparable signal-to-noise ratio to the power spectrum
 on nonlinear scales~\citep{sefusatti2005, chan2017}. Furthermore, although $\smnu$ 
-is not included in their analysis, \cite{sefusatti2006} and \cite{yankelevich2019} 
-have shown that including the bispectrum in analyses improves constraints on 
-cosmological parameters. \cite{ruggeri2018} presented the first measurement of 
-the bispectrum for $N$-body simulations with massive neutrinos. 
+is not included in their analyses, \cite{sefusatti2006} and \cite{yankelevich2019} 
+have shown that including the bispectrum significantly improves constraints on 
+cosmological parameters. %\cite{ruggeri2018} presented the first measurement of the bispectrum for $N$-body simulations with massive neutrinos. 
 \ch{
-Most recently, \cite{chudaykin2019}, in their forecast for the power spectrum 
-and bispectrum of a Euclid-like survey, find that including the bispectrum 
-significantly improves constraints for $\smnu$. Limitations of their analytic 
-modeling, covariances, and treatement of theoretical errors, however, prevent 
-them from accurately quantifying the information content of the nonlinear 
+In their forecast that includes $\smnu$, \cite{chudaykin2019} find that 
+including the bispectrum significantly improves constraints for $\smnu$. 
+Limitations in their analytic modeling, covariances, and treatement of 
+theoretical errors, however, prevent them from accurately quantifying the
+information content of the nonlinear 
 scales (Section~\ref{sec:forecasts}). No work to date has quantified the total 
 information content and constraining power of the full bispectrum down to
 nonlinear scales --- especially for $\smnu$. 
 }
 
 In this work, we examine the effect of massive neutrinos on the redshift-space 
-halo bispectrum using more than 42000 $N$-body simulations with massive neutrinos. 
+halo bispectrum using more than 42,000 $N$-body simulations with massive neutrinos. 
 We first demonstrate that the bispectrum helps break the $\smnu$--$\sig$ degeneracy 
 found in the power spectrum. Then we present the full information content of the 
 bispectrum for all triangle configurations down to $k_{\rm max} = 0.5~\mpc$ using 
 a Fisher forecast where we estimate the covariance matrix and derivatives with 
 the large set of simulations from the Quijote suite (Villaescusa-Navarro et al. in preparation). 
 This paper is the first of a series of papers that aim to demonstrate the potential 
-of the galaxy bispectrum analysis in constraining $\smnu$. In the subsequent paper, 
+of galaxy bispectrum analyses in constraining $\smnu$.
+\ch{
+In particular, with this series we aim to establish the potential of galaxy 
+bispectrum analyses using simulation based emulation models that extend to nonlinear
+scales to constrain cosmological parameters including $\smnu$ for upcoming galaxy surveys.
+}
+In the subsequent paper, 
 we will include HOD parameters in our forecasts to quantify the full information 
 content of the galaxy bispectrum. In the series, we will also present methods to 
 tackle challenges that come with analyzing the full galaxy bispectrum, such as data 
 compression for reducing the dimensionality of the bispectrum. 
 
-In Section~\ref{sec:hades} we describe the two simulation suites, HADES and Quijote, 
-and the halo catalogs cosntructed from them, used throughout the paper. We then 
-describe in Section~\ref{sec:bk}, how we measure the bispectrum using these simulations. 
+In Section~\ref{sec:hades}, we describe the two $N$-body simulation suites, HADES and Quijote, 
+and the halo catalogs cosntructed from them. We then describe in Section~\ref{sec:bk}, 
+how we measure the bispectrum of these simulations. 
 We then use the redshift-space halo bispectra to demonstrate the distinct imprint of 
 $\smnu$ on the bispectrum, which allows the bispectrum to break the degeneracy between 
-$\smnu$ and $\sig$ in Section~\ref{sec:mnusig}. Finally, in Section~\ref{sec:forecasts} 
+$\smnu$ and $\sig$, in Section~\ref{sec:mnusig}. Finally, in Section~\ref{sec:forecasts} 
 we present the full information content of the halo bispectrum with a Fisher forecast 
-of cosmological parameters and demonstrate how the bispectrum dramatically improves 
+of cosmological parameters and demonstrate how the bispectrum significantly improves 
 the constraints on the cosmological parameters: $\Om$, $\Ob$, $h$, $n_s$, $\sig$, and {\em especially} $\smnu$. 
