@@ -91,6 +91,11 @@ class Compressor(object):
         Cx = np.cov(X.T) 
         if np.linalg.cond(Cx) >= 1e16: print('Covariance matrix is ill-conditioned') 
         iCx = np.linalg.inv(Cx) 
+
+        ndata       = X.shape[1]
+        nmock       = X.shape[0]
+        f_hartlap   = float(nmock - ndata - 2)/float(nmock - 1) 
+        iCx         *= f_hartlap
         
         B = np.zeros((ntheta, X.shape[1]))  
         for itheta in range(ntheta): 

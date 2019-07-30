@@ -198,10 +198,9 @@ def Pk_compression(method='KL', kmax=0.5):
         cCinv   = np.linalg.inv(cCpk) 
         _cCpk   = np.cov(_cpks.T) 
         _cCinv  = np.linalg.inv(_cCpk) 
-        print('trace ratio %f' % (np.trace(_cCinv)/np.trace(cCinv)))
+        #print('trace ratio %f' % (np.trace(_cCinv)/np.trace(cCinv)))
 
-        ndata       = pks.shape[1]
-        nmock       = cpks.shape[0]
+        nmock, ndata = cpks.shape
         f_hartlap   = float(nmock - ndata - 2)/float(nmock - 1) 
         cCinv       *= f_hartlap
         cCinv       = _cCinv
@@ -209,6 +208,7 @@ def Pk_compression(method='KL', kmax=0.5):
         cFij    = Forecast.Fij(dcpkdt, cCinv) # fisher 
         cFinv   = np.linalg.inv(cFij) # invert fisher matrix 
 
+        print('Nmock=%i; cP0 1/sqrt(Fii) %s' % (Nmock, ', '.join(['%.2e' % sii for sii in 1./np.sqrt(np.diag(cFij))]))) 
         print('Nmock=%i; cP0 sigmas %s' % (Nmock, ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(cFinv))]))) 
         Finvs.append(cFinv) 
 
@@ -291,7 +291,7 @@ def traceCy(method='KL', kmax=0.5):
         cCpk    = np.cov(cpks.T) 
         cCinv   = f_hartlap(Nmock) * np.linalg.inv(cCpk) 
         cCpk_true   = np.cov(_cpks.T) 
-        cCinv_true  = np.linalg.inv(cCpk_true) 
+        cCinv_true  = f_hartlap(15000) * np.linalg.inv(cCpk_true) 
         pk_trace_ratio.append(np.trace(cCinv_true)/np.trace(cCinv)) 
 
     # read in Quijote B 
@@ -319,15 +319,16 @@ def traceCy(method='KL', kmax=0.5):
         elif method == 'PCA': # PCA compression
             cmpsr = Comp.Compressor(method='PCA')      
             cmpsr.fit(bks[:Nmock], n_components=100, whiten=False)   
-        cbks    = cmpsr.transform(bks[:Nmock])     # compressed P 
+        cbks    = cmpsr.transform(bks[:Nmock])     # compressed B 
         _cbks   = cmpsr.transform(bks)
 
         cCbk    = np.cov(cbks.T) 
         cCinv   = f_hartlap(Nmock) * np.linalg.inv(cCbk) 
         cCbk_true   = np.cov(_cbks.T) 
-        cCinv_true  = np.linalg.inv(cCbk_true) 
+        cCinv_true  = f_hartlap(15000) * np.linalg.inv(cCbk_true) 
         bk_trace_ratio.append(np.trace(cCinv_true)/np.trace(cCinv)) 
 
+    ############################################
     fig = plt.figure(figsize=(6,6)) 
     sub = fig.add_subplot(111)
     sub.plot(pkNmocks, np.array(pk_trace_ratio))
@@ -337,7 +338,7 @@ def traceCy(method='KL', kmax=0.5):
     sub.set_xlabel(r'$N_{\rm mocks}$', fontsize=20)
     sub.set_xlim(0, 15000) 
     sub.set_ylabel(r'Tr($C_Y^{-1}$)/Tr($\hat{C}_Y^{-1})$', fontsize=20) 
-    sub.set_ylim(0.85, 1.05) 
+    sub.set_ylim(0.5, 1.3) 
     ffig = os.path.join(dir_fig, 'traceCy.%s.png' % method) 
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
@@ -399,7 +400,7 @@ def _flag_str(flag):
 
 if __name__=='__main__': 
     #Pk_compression(method='KL')
-    #Pk_compression(method='PCA')
+    Pk_compression(method='PCA')
     #Bk_compression(method='KL')
     #Bk_compression(method='PCA')
-    traceCy(method='KL')
+    #traceCy(method='KL')
