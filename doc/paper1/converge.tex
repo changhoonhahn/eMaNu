@@ -20,7 +20,7 @@ configurations out to $k_{\rm max} = 0.5~\mpc$. For reference, \cite{gil-marin20
 recently used 2048 simulations to estimate the covariance matrix of the 
 bispectrum with $825$ configurations. To check the convergence of covariance 
 matrix, we vary the number of simulations used to estimate $\bfi{C}$, 
-$N_{\rm cov}$, and see whether this significantly impacts the elements 
+$N_{\rm cov}$, and determine whether this significantly impacts the elements 
 of the Fisher matrix, $F_{ij}$, or the final marginalized Fisher parameter 
 constraints, $\sigma_\theta$. In the left panel of Figure~\ref{fig:fij_converge}, 
 we present the ratio between $F_{ij}(N_{\rm cov})$, $F_{ij}$ derived from 
@@ -69,8 +69,8 @@ approximation with the Quijote simulations at $\smnu^{+}$, $\smnu^{++}$, $\smnu^
 and the fiducial cosmology, a $\mathcal{O}(\delta \smnu^2)$ order approximation 
 (Eq.~\ref{eq:dbkdmnu}). We can also use a finite difference approximation with 
 simulations at $\smnu^{+}$, $\smnu^{++}$, and the fiducial cosmology. We examine
-the stability of $\partial \log B(k_1, k_2, k_3)/\partial M_\nu$ (right) and 
-$\partial \log P(k)/\partial M_\nu$ (left) by comparing the derivatives computing
+the stability of $\partial \log B_0/\partial M_\nu$ (right) and 
+$\partial \log P_\ell/\partial M_\nu$ (left) by comparing the derivatives computing
 using simulations at \{fiducial, $\smnu^{+}$, $\smnu^{++}$, $\smnu^{+++}$\} (blue), 
 \{fiducial, $\smnu^{+}$, $\smnu^{++}$\} (orange), and \{fiducial, $\smnu^{+}$\} 
 (green) in Figure~\ref{fig:dPBdmnu}. The three $\partial \log B/\partial \smnu$
@@ -78,20 +78,20 @@ approximations differ from one another by $\sim10\%$ with Eq.~\ref{eq:dbkdmnu}
 producing the largest estimate for both $P_0$ and $B_0$. If we use the
 \{fiducial, $\smnu^{+}$, $\smnu^{++}$\} derivative and \{fiducial, $\smnu^{+}$\} derivative 
 instead of Eq.~\ref{eq:dbkdmnu} for our Fisher forecasts, the marginalized constraint on
-$\smnu$ for $k_{\rm max} = 0.5~\mpc$ increases to $0.238$ and $0.377$eV for $P_0$ 
-and $0.0416$ and $0.0657$eV for $B_0$. Compared to our $\sigma_{\smnu} = 0.0342$ eV 
+$\smnu$ for $k_{\rm max} = 0.5~\mpc$ increases to $0.199$ and $0.309$ eV for $P_\ell$ 
+and $0.0416$ and $0.0657$ eV for $B_0$. Compared to our $\sigma_{\smnu} = 0.0342$ eV 
 $B_0$ forecast, these correspond to a $\sim20$ and $90\%$ relative increase. 
 While the derivative estimated from \{fiducial, $\smnu^{+}$\} significantly impact 
 the forecasts, we emphasize that this is a $\mathcal{O}(\delta \smnu)$ approximation, 
 unlike the other $\mathcal{O}(\delta \smnu^2)$ approximations. In fact, the 
 \{fiducial, $\smnu^{+}$\} derivatives are better $\mathcal{O}(\delta \smnu^2)$ estimates
-for $\partial P/\partial \smnu$ and $\partial B/\partial \smnu$ at 0.05 eV. When we 
+for $\partial P_\ell/\partial \smnu$ and $\partial B_0/\partial \smnu$ at 0.05 eV. When we 
 compare the derivative of the linear theory power spectrum, $P^{(\rm LT)}$, we find 
-that $\partial P^{\rm LT}/\partial \smnu$ at 0.0 is larger than at 0.05 eV. Hence, 
+that $\partial P^{(\rm LT)}/\partial \smnu$ at 0.0 is larger than at 0.05 eV. Hence, 
 the differences between the \{fiducial, $\smnu^{+}$\} derivatives and the other 
 derivatives are not solely due to numerical stability. Moreover, because the 
-discrepancies in the derivative propogate similarly to the $P_0$ and $B_0$ forecasts, 
-the relative improvement of $B_0$ over $P_0$ remains roughly the same. Hence, we conclude 
+discrepancies in the derivative propogate similarly to both $P_\ell$ and $B_0$ forecasts, 
+the relative improvement of $B_0$ over $P_\ell$ remains roughly the same. Hence, we conclude 
 that the derivatives with respect to $\smnu$ are sufficiently stable and robust for 
 our Fisher forecasts.
 
@@ -104,7 +104,7 @@ our Fisher forecasts.
         estimate the covariance matrix, $\bfi{C}$. We present the ratio between 
         $F_{ij}(N_{\rm cov})$, $F_{ij}$ derived from $\bfi{C}$ calculated with 
         $N_{\rm cov}$ simulations, and $F_{ij}(N_{\rm cov} = 15,000)$. We mark 
-        $\pm5\%$ deviations in the ratios with the shaded regions, for reference. 
+        $\pm5\%$ deviations in the ratios with the shaded regions for reference. 
         All $F_{ij}$ elements vary by $\lesssim 5\%$ for $N_{\rm cov} > 5000$ and 
         $\lesssim 1\%$ for $N_{\rm cov} > 10,000$.
         {\em Right}: The convergence of $F_{ij}$ as a function of $N_{\rm deriv}$, 
@@ -126,14 +126,12 @@ our Fisher forecasts.
     for \{$\Om$, $\Ob$, $h$, $n_s$, $\sig$, $\smnu$\}, $\sigma_\theta$, as a function of 
     $N_{\rm cov}$, the number of Quijote simulations used to estimate $\bfi{C}$. We 
     plot the ratio between $\sigma_\theta(N_{\rm cov})$, derived from $\bfi{C}$ with 
-    $N_{\rm cov}$ simulations, and $\sigma_\theta(N_{\rm cov} = 15,000)$, derived 
-    with all 15,000 simulations. $\sigma_\theta$ vary by $\lesssim 5$ and $1\%$ for 
+    $N_{\rm cov}$ simulations, and $\sigma_\theta(N_{\rm cov} = 15,000)$. $\sigma_\theta$ vary by $\lesssim 5$ and $1\%$ for 
     $N_{\rm cov} > 5000$ and $12,000$, respectively. 
     {\em Right}: The convergence of $\sigma_\theta$ as a function of $N_{\rm deriv}$, 
-    the number of simulated used to estimate $\partial B/\partial \smnu$. We plot 
+    the number of simulated used to estimate $\partial B_0/\partial \smnu$. We plot 
     the ratio between $\sigma_\theta(N_{\rm deriv})$, derived from $\partial B/\partial \smnu$
-    with $N_{\rm deriv}$ simulations, and $\sigma_\theta(N_{\rm deriv} = 1,500)$, 
-    derived with all 1,500 simulations. Although 
+    with $N_{\rm deriv}$ simulations, and $\sigma_\theta(N_{\rm deriv} = 1,500)$. Although 
     $\sigma_\theta(N_{\rm deriv})/\sigma_\theta(N_{\rm deriv} = 1,500)$ vary among 
     the parameters, the ratio vary by $\lesssim 10$ and $5\%$ for $N_{\rm deriv} > 800$ 
     and $1200$, respectively. Hence, {\em we have a sufficient number of simulations 
@@ -147,18 +145,18 @@ our Fisher forecasts.
 \begin{figure}
 \begin{center}
     \includegraphics[width=\textwidth]{figs/quijote_dPBdMnu_dmnu_reg.pdf} 
-    \caption{Comparison of $\partial \log B(k_1, k_2, k_3)/\partial M_\nu$ (right) 
-    and $\partial \log P(k)/\partial M_\nu$ (left), computed using Quijote simulations 
+    \caption{Comparison of $\partial \log B_0(k_1, k_2, k_3)/\partial M_\nu$ (right) 
+    and $\partial \log P_\ell(k)/\partial M_\nu$ (left), computed using Quijote simulations 
     at \{fiducial, $\smnu^{+}$, $\smnu^{++}$, $\smnu^{+++}$\} (blue), 
     \{fiducial, $\smnu^{+}$, $\smnu^{++}$\} (orange), and \{fiducial, $\smnu^{+}$\} 
     (green). The derivative approximations differ from one another by $\sim10\%$ with 
-    Eq.~\ref{eq:dbkdmnu} producing the largest estimate for both $P_0$ and $B_0$.
+    Eq.~\ref{eq:dbkdmnu} producing the largest estimate for both $P_\ell$ and $B_0$.
     Using the \{fiducial, $\smnu^{+}$, $\smnu^{++}$\} derivatives instead of the 
     Eq.~\ref{eq:dbkdmnu} derivatives, increases the marginalized constraint on $\smnu$ 
     by $\sim 20\%$. However, the differences in the derivatives propogate similarly to 
-    the $P_0$ and $B_0$ forecasts so the relative improvement of $B_0$ over $P_0$
-    remains the same. Hence, we conclude that the derivatives with respect to $\smnu$ 
-    are sufficiently stable and robust for our Fisher forecasts.
+    the $P_\ell$ and $B_0$ forecasts so the relative improvement of $B_0$ over $P_\ell$
+    remains the same. Hence, we conclude that {\em the derivatives with respect to $\smnu$ 
+    are sufficiently stable and robust for our Fisher forecasts}.
     }
 \label{fig:dPBdmnu}
 \end{center}
