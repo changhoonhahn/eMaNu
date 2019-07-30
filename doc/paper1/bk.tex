@@ -3,17 +3,18 @@
     \includegraphics[width=\textwidth]{figs/haloBk_shape_kmax05_rsd.pdf} 
     \caption{The redshift-space halo bispectrum, $\BOk(k_1, k_2, k_3)$, as a 
     function of triangle configuration shape for $\smnu = 0.0, 0.06, 0.10$, 
-    and $0.15\,\mathrm{eV}$ (upper panels) and $\sig = 0.822, 0.818$, and 
+    and $0.15\,\mathrm{eV}$ (upper panels) and $\smnu=0.0$ eV, $\sig = 0.822, 0.818$, and 
     $0.807$ (lower panels). The $\BOk$ for each cosmology (each panel) is 
     averaged over 100 $N$-body realizations. The HADES simulations of the top 
     and bottom panels in the three right-most columns, have matching $\sig$ values 
     (Section~\ref{sec:hades}). We describe the triangle configuration shape 
-    by the ratio of the triangle sides: $k_3/k_1$ and $k_2/k_1$. In each
-    panel, the upper left bin contains squeezed triangles ($k_1 = k_2 \gg k_3$); 
-    the upper right bin contains equilateral triangles ($k_1 = k_2 = k_3$); 
-    and the bottom center bin contains folded triangles ($k_1 = 2 k_2 = 2 k_3$). 
-    We include all 1898 triangle configurations with 
-    $k_1, k_2, k_3 \leq k_{\rm max} = 0.5~\mpc$ and use the $\BOk$ estimator in Section~\ref{sec:bk}.}
+    by the ratio of the triangle sides: $k_3/k_1$ and $k_2/k_1$. As we describe 
+    schematically in the lower leftmost panel, in each panel, the upper left bin 
+    contains squeezed triangles ($k_1 = k_2 \gg k_3$), the upper right bin 
+    contains equilateral triangles ($k_1 = k_2 = k_3$), and the bottom center bin 
+    contains folded triangles ($k_1 = 2 k_2 = 2 k_3$). We include all 1898 triangle 
+    configurations with $k_1, k_2, k_3 \leq k_{\rm max} = 0.5~\mpc$ and use the
+    $\BOk$ estimator in Section~\ref{sec:bk}.}
 \label{fig:bk_shape}
 \end{center}
 \end{figure}
@@ -28,9 +29,11 @@
     realizations. We include all possible triangle configurations 
     with $k_1, k_2, k_3 \leq k_{\rm max} = 0.5~\mpc$ where we order
     the configurations by looping through $k_3$ in the inner most loop and 
-    $k_1$ in the outer most loop satisfying $k_1 \geq k_2 \geq k_3$. In the 
+    $k_1$ in the outer most loop satisfying $k_1 \geq k_2 \geq k_3$ 
+    (see Appendix~\ref{sec:bk_details} for more details). In the 
     insets of the panels we zoom into triangle configurations with 
-    $k_1 = 0.320$, $0.170 \leq k_2 \leq 0.302$, and $0.094 \leq k_3 \leq 0.302~h/{\rm Mpc}$.}
+    $k_1 = 0.320$, $0.170 \leq k_2 \leq 0.302$, and 
+    $0.094 \leq k_3 \leq 0.302~h/{\rm Mpc}$.}
 \label{fig:bk_amp}
 \end{center}
 \end{figure}
@@ -55,12 +58,12 @@ To measure the bispectrum of our halo catalogs, we begin by interpolating the ha
 positions to a grid, $\delta({\bfi x})$, and Fourier transforming the grid to get 
 $\delta({\bfi k})$. We use a fourth-order interpolation to get interlaced grids, 
 which has advantageous anti-aliasing properties that allow unbias measurements 
-up to the Nyquist frequency~\citep{hockney1981,sefusatti2016}. Then, using 
-$\delta({\bfi k})$, we measure the bispectrum monopole as 
+up to the Nyquist frequency~\citep{hockney1981,sefusatti2016}. Then using 
+$\delta({\bfi k})$ we measure the bispectrum monopole as 
 \beq \label{eq:bk} 
 \widehat{B}_{\ell = 0}(k_1,k_2, k_3) = \frac{1}{V_B} \int\limits_{k_1}{\rm d}^3q_1 \int\limits_{k_2}{\rm d}^3q_2 \int\limits_{k_3}{\rm d}^3q_3~\delta_{\rm D}({\bfi q_{123}})~\delta({\bfi q_1})~\delta({\bfi q_2})~\delta({\bfi q_3}) - B^{\rm SN}_{\ell = 0}.
 \eeq
-$\delta_{\rm D}$ above is a Dirac delta function and hence $\delta_{\rm D}({\bfi q_{123}}) = \delta_{\rm D}({\bfi q_1} + {\bfi q_2} + {\bfi q_3})$ 
+$\delta_{\rm D}$ is the Dirac delta function and hence $\delta_{\rm D}({\bfi q_{123}}) = \delta_{\rm D}({\bfi q_1} + {\bfi q_2} + {\bfi q_3})$ 
 ensures that the ${\bfi q}_i$ triplet actually forms a closed triangle. Each of the integrals 
 above represent an integral over a spherical shell in $k$-space with radius $\delta k$ 
 centered at ${\bfi k}_i$: 
@@ -103,24 +106,25 @@ We present the redshift-space halo bispectrum of the HADES simulations measured 
 the estimator above in two ways: one that emphasizes the triangle shape dependence 
 (Figure~\ref{fig:bk_shape}) and the other that emphasizes the amplitude 
 (Figure~\ref{fig:bk_amp}). In Figure~\ref{fig:bk_shape}, we plot $\BOk(k_1, k_2, k_3)$ 
-as a function of $k_2/k_1$ and $k_3/k_1$, which describe the triangle configuration shape. 
+as a function of $k_2/k_1$ and $k_3/k_1$, which describe the triangle configuration shapes. 
 In each panel, the colormap of the ($k_2/k_1$, $k_3/k_1$) bins represent the weighted 
 average $\BOk$ amplitude of all triangle configurations in the bins. The upper left 
-bins contain squeezed triangles ($k_1 = k_2 \gg k_3$); the upper right bins contain 
-equilateral triangles ($k_1 = k_2 = k_3$); and the bottom center bins contain folded 
-triangles ($k_1 = 2 k_2 = 2 k_3$). 
+bins contain squeezed triangles ($k_1 = k_2 \gg k_3$), the upper right bins contain 
+equilateral triangles ($k_1 = k_2 = k_3$), and the bottom center bins contain folded 
+triangles ($k_1 = 2 k_2 = 2 k_3$) as schematically highlighted in the lower leftmost panel. 
 We include all possible 1898 triangle configurations with $k_1, k_2, k_3 < k_{\rm max} = 0.5~\mpc$. 
 $\BOk$ in the upper panels are HADES models with 
 $(\smnu,~\sig) = (0.0~{\rm eV},~0.833)$ (fiducial), $(0.06~{\rm eV},~0.822), (0.10~{\rm eV},~0.815)$, 
-and $(0.15~{\rm eV},~0.806)$; $\BOk$ in the lower panels are  HADES models with $\smnu = 0.0$ eV and 
+and $(0.15~{\rm eV},~0.806)$. $\BOk$ in the lower panels are  HADES models with $\smnu = 0.0$ eV and 
 $\sig = 0.822, 0.818$, and $0.807$. The top and bottom panels of the three right-most 
 columns have matching $\sig$ values (Section~\ref{sec:hades}).
 
-Next, in Figure~\ref{fig:bk_amp}, we plot $\BOk(k_1, k_2, k_3)$ for all possible triangle 
+Next, in Figure~\ref{fig:bk_amp} we plot $\BOk(k_1, k_2, k_3)$ for all possible triangle 
 configurations with $k_1, k_2, k_3 < k_{\rm max} = 0.5~\mpc$ where we order the 
 configurations by looping through $k_3$ in the inner most loop and $k_1$ in the outer most 
 loop with $k_1 \geq k_2 \geq k_3$. In the top panel, we present $\BOk$ of HADES models 
 with $\smnu = 0.0, 0.06, 0.10$, and $0.15\,\mathrm{eV}$; in the lower panel, we present 
 $\BOk$ of HADES models with $\smnu = 0.0$ eV and $\sig = 0.822, 0.818$, and $0.807$. We 
 zoom into triangle configurations with $k_1 = 0.320$, $0.170 \leq k_2 \leq 0.302$, and 
-$0.094 \leq k_3 \leq 0.302~h/{\rm Mpc}$ in the insets of the panels. 
+$0.094 \leq k_3 \leq 0.302~h/{\rm Mpc}$ in the insets of the panels. For further details on the
+redshift-space bispectrum, we refer to Appendix~\ref{sec:bk_details}. 
