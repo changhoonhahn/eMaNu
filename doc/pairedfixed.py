@@ -6,6 +6,7 @@ investigate paired-fixed simulations for the bispectrum
 import os 
 import h5py
 import numpy as np 
+from scipy.stats import skew, skewtest
 from copy import copy as copy
 # --- eMaNu --- 
 from emanu import util as UT
@@ -59,7 +60,7 @@ def pf_Pk(rsd=0):
     p0ks_pfd = quij['p0k'] # P0 
     p2ks_pfd = quij['p2k'] # P2 
     # read in covariance matrix 
-    _, Cov_pk, _ = p02kCov(rsd=rsd, flag='reg', silent=False) 
+    _, Cov_pk, _ = p02kCov(rsd=2, flag='reg', silent=False) 
     sig_p0k = np.sqrt(np.diag(Cov_pk))[:p0ks_std.shape[1]]
     sig_p2k = np.sqrt(np.diag(Cov_pk))[p0ks_std.shape[1]:]
 
@@ -86,7 +87,7 @@ def pf_Pk(rsd=0):
     lbls = ['fid.', r'$\Omega_m^{-}$', r'$\Omega_m^{+}$', r'$\Omega_b^{-}$', r'$\Omega_b^{+}$', r'$h^{-}$', r'$h^{+}$', 
             r'$n_s^{-}$', r'$n_s^{+}$', r'$\sigma_8^{-}$', r'$\sigma_8^{+}$']
     plts = []
-    for theta in thetas: 
+    for i, theta in enumerate(thetas): 
         # read in power spectrum (standard)
         quij = Obvs.quijotePk(theta, rsd=rsd, flag='reg', silent=False) 
         p0ks_std = quij['p0k'] # P0 
@@ -95,13 +96,15 @@ def pf_Pk(rsd=0):
         quij = Obvs.quijotePk(theta, rsd=rsd, flag='ncv', silent=False) 
         p0ks_pfd = quij['p0k'] # P0 
         p2ks_pfd = quij['p2k'] # P2 
-
+        
+        clr = c='k'
+        if i > 0: clr = 'C%i' % (i-1)
         delP0_sig = (np.average(p0ks_pfd, axis=0) - np.average(p0ks_std, axis=0))/sig_p0k
-        _plt, = sub1.plot(k, delP0_sig, lw=1, zorder=10)  
+        _plt, = sub1.plot(k, delP0_sig, lw=1, c=clr, zorder=10)  
         plts.append(_plt) 
         
         delP2_sig = (np.average(p2ks_pfd, axis=0) - np.average(p2ks_std, axis=0))/sig_p2k
-        sub2.plot(k, delP2_sig, lw=1, zorder=10)  
+        sub2.plot(k, delP2_sig, lw=1, c=clr, zorder=10)  
 
     # Delta0/sigma comparison
     sub1.plot([9e-3, 0.5], [0, 0], c='k', ls=':') 
@@ -151,7 +154,7 @@ def pf_Bk(rsd=0, kmax=0.5):
     quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag='ncv', silent=False) 
     bks_pfd = quij['b123'][:,klim] # P0 
     # read in covariance matrix 
-    _, _, _, Cov_bk, _ = bkCov(rsd=rsd, flag='reg', silent=False) 
+    _, _, _, Cov_bk, _ = bkCov(rsd=2, flag='reg', silent=False) 
     sig_bk = np.sqrt(np.diag(Cov_bk))[klim]
 
     # Pell comparison
@@ -160,6 +163,7 @@ def pf_Bk(rsd=0, kmax=0.5):
     # average B0
     sub0.plot(range(np.sum(klim)), np.average(bks_std, axis=0), c='C0', label='%i standard $N$-body' % bks_std.shape[0])
     sub0.scatter(range(np.sum(klim)),np.average(bks_pfd, axis=0), color='C1', s=5, label='%i paired-fixed' % bks_pfd.shape[0], zorder=10) 
+    sub0.text(0.95, 0.95, r'redshift-space $B_0^{\rm halo}$', ha='right', va='top', transform=sub0.transAxes, fontsize=20)
     sub0.legend(loc='lower left', markerscale=5, handletextpad=0.2, fontsize=20) 
     sub0.set_xlim(0, np.sum(klim))
     sub0.set_xticklabels([]) 
@@ -205,7 +209,7 @@ def pf_DelB_sigB(rsd=0, kmax=0.5):
     sub = fig.add_subplot(111)
     
     # read in covariance matrix 
-    i_k, j_k, l_k, Cov_bk, _ = bkCov(rsd=rsd, flag='reg', silent=False) 
+    i_k, j_k, l_k, Cov_bk, _ = bkCov(rsd=2, flag='reg', silent=False) 
     klim = ((i_k * kf <= kmax) & (j_k * kf <= kmax) & (l_k * kf <= kmax)) # klim 
     sig_bk = np.sqrt(np.diag(Cov_bk))[klim]
 
@@ -213,7 +217,7 @@ def pf_DelB_sigB(rsd=0, kmax=0.5):
     thetas = ['fiducial', 'Om_m', 'Om_p', 'Ob2_m', 'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p']
     lbls = ['fid.', r'$\Omega_m^{-}$', r'$\Omega_m^{+}$', r'$\Omega_b^{-}$', r'$\Omega_b^{+}$', r'$h^{-}$', r'$h^{+}$', 
             r'$n_s^{-}$', r'$n_s^{+}$', r'$\sigma_8^{-}$', r'$\sigma_8^{+}$']
-    for theta, lbl in zip(thetas, lbls): 
+    for i, theta, lbl in zip(range(len(thetas)), thetas, lbls): 
         # read in power spectrum (standard)
         quij = Obvs.quijoteBk(theta, rsd=rsd, flag='reg', silent=False) 
         bks_std = quij['b123'][:,klim] # P0 
@@ -226,8 +230,10 @@ def pf_DelB_sigB(rsd=0, kmax=0.5):
         if theta == 'fiducial':  
             sub.hist(delB0_sig, density=True, range=(-3., 3.), bins=30, histtype='step', color='k', label=lbl)
         else: 
-            sub.hist(delB0_sig, density=True, range=(-3., 3.), bins=30, histtype='step', label=lbl)
-
+            sub.hist(delB0_sig, density=True, range=(-3., 3.), bins=30, histtype='step', color='C%i' % (i-1), label=lbl)
+            #sub.plot([np.mean(delB0_sig), np.mean(delB0_sig)], [0., 0.6], c='C%i' % (i-1))
+            print(theta, skew(delB0_sig), skewtest(delB0_sig)) 
+    sub.plot([0., 0.], [0., 0.6], c='k', ls='--') 
     sub.legend(loc='upper left', ncol=6, handletextpad=0.4, fontsize=12) 
     sub.set_xlabel('$\Delta_{B_0}/\sigma_{B_0}$', fontsize=25) 
     sub.set_xlim(-3, 3)
@@ -235,6 +241,71 @@ def pf_DelB_sigB(rsd=0, kmax=0.5):
     ffig = os.path.join(dir_fig, 'pf_DelB_sigB%s.png' % (_rsd_str(rsd))) 
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
+
+
+def pf_dlogPdtheta(rsd=0, kmax=0.5): 
+    ''' Comparison of dlogP/dtheta from paired-fixed vs standard N-body
+    '''
+    thetas  = ['Om', 'Ob2', 'h', 'ns', 's8']
+    lbls    = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$']
+    ylims0  = [(-10., 0.), (0., 15.), (-3., -0.5), (-3.5, -0.8), (-1.6, -0.1)]
+    ylims1  = [(-1., 0.75), (-1.5, 1.5), (-0.1, 0.5), (-0.3, 0.3), (-0.4, 0.4)]
+    
+    # get k and klim 
+    k, _ = dP02kdtheta('Om', log=True, rsd=rsd, flag='reg', dmnu='fin', returnks=True)
+    k0lim = ((k <= kmax) & (np.arange(len(k)) < len(k)/2))
+    k2lim = ((k <= kmax) & (np.arange(len(k)) >= len(k)/2))
+    
+    fig = plt.figure(figsize=(35,15))
+    for i_tt, tt, lbl in zip(range(len(thetas)), thetas, lbls): 
+        sub = fig.add_subplot(len(thetas),3,3*i_tt+1)
+
+        dpdt_std = dP02kdtheta(tt, log=True, rsd=rsd, flag='reg', dmnu='fin')
+        dpdt_pfd = dP02kdtheta(tt, log=True, rsd=rsd, flag='ncv', dmnu='fin')
+
+        sub.plot(k[k0lim], dpdt_std[k0lim], c='C0', label='standard $N$-body')
+        sub.plot(k[k0lim], dpdt_pfd[k0lim], c='C1', label='paired-fixed')
+
+        sub.set_xlim(9e-3, 0.5) 
+        sub.set_xscale('log') 
+        sub.set_ylim(ylims0[i_tt]) 
+        if tt != thetas[-1]: sub.set_xticklabels([]) 
+        if i_tt == 2: sub.set_ylabel(r'${\rm d}\log P_0/{\rm d} \theta$', fontsize=25) 
+        if i_tt == 4: sub.set_xlabel('$k$', fontsize=25)
+        if i_tt == 0: sub.legend(loc='upper left', fontsize=20)
+        #sub.text(0.975, 0.925, lbl, ha='right', va='top', transform=sub.transAxes, fontsize=25)
+        
+        sub = fig.add_subplot(len(thetas),3,3*i_tt+2)
+
+        sub.plot(k[k2lim], dpdt_std[k2lim], c='C0')
+        sub.plot(k[k2lim], dpdt_pfd[k2lim], c='C1')
+
+        sub.set_xlim(9e-3, 0.5) 
+        sub.set_xscale('log') 
+        #sub.set_ylim(ylims0[i_tt]) 
+        if tt != thetas[-1]: sub.set_xticklabels([]) 
+        if i_tt == 2: sub.set_ylabel(r'${\rm d}\log P_2/{\rm d} \theta$', fontsize=25) 
+        if i_tt == 4: sub.set_xlabel('$k$', fontsize=25)
+        if i_tt == 0: sub.legend(loc='upper left', fontsize=20)
+        #sub.text(0.975, 0.925, lbl, ha='right', va='top', transform=sub.transAxes, fontsize=25)
+
+        sub = fig.add_subplot(len(thetas),3,3*i_tt+3) 
+        sub.plot(k[k0lim], dpdt_std[k0lim] - dpdt_pfd[k0lim], label='$\ell=0$')
+        sub.plot(k[k2lim], dpdt_std[k2lim] - dpdt_pfd[k2lim], label='$\ell=2$')
+        sub.plot(k[k0lim], np.zeros(np.sum(k0lim)), c='k', ls='--')
+        sub.set_xlim(9e-3, 0.5) 
+        sub.set_xscale('log') 
+        sub.set_ylim(ylims1[i_tt]) 
+        if tt != thetas[-1]: sub.set_xticklabels([]) 
+        if i_tt == 0: sub.legend(loc='lower left', fontsize=20)
+        if i_tt == 2: sub.set_ylabel(r'$\Delta {\rm d}\log P_\ell/{\rm d} \theta$', fontsize=25) 
+        if i_tt == 4: sub.set_xlabel('$k$', fontsize=25)
+        sub.text(0.975, 0.925, lbl, ha='right', va='top', transform=sub.transAxes, fontsize=25)
+
+    fig.subplots_adjust(hspace=0.075, wspace=0.3) 
+    ffig = os.path.join(dir_fig, 'pf_dlogPdtheta%s.kmax%.1f.png' % (_rsd_str(rsd), kmax))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
 
 
 def pf_dlogBdtheta(rsd=0, kmax=0.5): 
@@ -311,7 +382,7 @@ def pf_Fij(rsd=0, kmax=0.5):
 
     fig = plt.figure(figsize=(5,5))
     sub = fig.add_subplot(111) 
-    cm = sub.pcolormesh(Fij_pfd/Fij_std - 1, vmin=-0.1, vmax=0.1)
+    cm = sub.pcolormesh(Fij_pfd/Fij_std - 1, vmin=-0.1, vmax=0.1, cmap='RdBu')
     cbar_ax = fig.add_axes([0.95, 0.15, 0.0125, 0.7])
     cbar = fig.colorbar(cm, cax=cbar_ax)
     sub.set_xticks(np.arange(len(thetas))+0.5)
@@ -822,9 +893,10 @@ if __name__=="__main__":
     #        'Mnu_p', 'Mnu_pp', 'Mnu_ppp']: 
     #    pairedfixed_theta(theta, kmax=0.5) 
     #pairedfixed_allthetas()
-    #pf_Pk(rsd=0)
-    #pf_Bk(rsd=0, kmax=0.3)
-    #pf_DelB_sigB(rsd=0, kmax=0.5)
-    #pf_dlogBdtheta(rsd=0, kmax=0.5)
-    #pf_Fij(rsd='all', kmax=0.5)
-    pf_posterior(rsd='all', kmax=0.5)
+    #pf_Pk(rsd='all')
+    #pf_Bk(rsd='all', kmax=0.3)
+    #pf_DelB_sigB(rsd='all', kmax=0.5)
+    #pf_dlogPdtheta(rsd='all', kmax=0.5)
+    #pf_dlogBdtheta(rsd='all', kmax=0.5)
+    pf_Fij(rsd='all', kmax=0.5)
+    #pf_posterior(rsd='all', kmax=0.5)
