@@ -57,23 +57,26 @@ def HOD_fid():
 
     logMbin = np.linspace(11., 16., 100) # logMh bins
 
-    fig = plt.figure(figsize=(9,4))
-    sub = fig.add_subplot(121)
-    sub.plot(10**logMbin, Ngal_Mh(z07_21_5, logMbin), ls='--', label='Zheng+(2007) $M_r < -21.5$')
-    sub.plot(10**logMbin, Ngal_Mh(z07_22_0, logMbin), ls='--', label='Zheng+(2007) $M_r < -22.$')
+    fig = plt.figure(figsize=(5,5))
+    sub = fig.add_subplot(111)
+    sub.plot(10**logMbin, Ngal_Mh(z07_21_5, logMbin), ls='--', label='$M_r < -21.5$')
+    sub.plot(10**logMbin, Ngal_Mh(z07_22_0, logMbin), ls='--', label='$M_r < -22.$')
     sub.plot(10**logMbin, Ngal_Mh(hod_fid, logMbin), c='k', label='fiducial')
     sub.plot([10**Mh_min, 10**Mh_min], [1e-3, 1e3], c='k', ls=':', lw=0.5)
-    sub.text(1.1*10**Mh_min, 20, 
+    sub.text(4*10**12, 52, 
             r'$M_{\rm lim} = %.2f \times 10^{13} M_\odot$' % (10**Mh_min/1e13), 
             ha='left', va='bottom', fontsize=15)
     #sub.legend(loc='upper left', fontsize=20)
-    sub.set_xlabel('$M_h$', labelpad=10, fontsize=20)
+    sub.set_xlabel('$M_h$', labelpad=10, fontsize=25)
     sub.set_xscale('log')
     sub.set_xlim(2e12, 5e15)
-    sub.set_ylabel(r'$\langle N_{\rm gal} \rangle$', fontsize=20)
+    sub.set_ylabel(r'$\langle N_{\rm gal} \rangle$', fontsize=25)
     sub.set_yscale('log')
     sub.set_ylim(1e-2, 5e1)
-
+    sub.legend(loc='lower right', handletextpad=0.2, fontsize=18) 
+    ffig = os.path.join(dir_doc, 'hod_fid.png') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
+    return None 
     # P(k) comparison 
     k, pk_21   = pk_model(halos_hr, z07_21_5, rsd=True) 
     k, pk_22   = pk_model(halos_hr, z07_22_0, rsd=True)
