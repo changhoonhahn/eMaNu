@@ -42,6 +42,10 @@ dir_doc = os.path.join(UT.doc_dir(), 'paper3', 'figs') # figures for paper
 dir_fig = os.path.join(UT.fig_dir(), 'compress')  # figure directory
 kf = 2.*np.pi/1000. # fundmaentla mode
 
+thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']
+theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
+theta_fid = [0.3175, 0.049, 0.6711, 0.9624, 0.834, 0.] # fiducial theta 
+
 
 def Bk_compression(method='KL', kmax=0.5):
     ''' Comparison of compressed B0 versus full B0
@@ -151,112 +155,129 @@ def Bk_compression(method='KL', kmax=0.5):
     return None 
 
 
-def Pk_compression(method='KL', kmax=0.5):
-    ''' Comparison of compressed P0 versus full P0
+def compressedFisher(obvs='pk', method='KL', kmax=0.5, n_components=20):
+    ''' Comparison of the Fisher forecast of compressed P0 versus full P0 
     '''
-    # read in Quijote P0
-    quij    = Obvs.quijotePk('fiducial', rsd=0, flag='reg') 
-    # k limit 
-    klim = (quij['k'] <= kmax) 
-    # calculate P0 covariance
-    pks     = quij['p0k'][:,klim] + quij['p_sn'][:,None] # shotnoise uncorrected P(k)
-    Cpk     = np.cov(pks.T) 
-    Cinv    = np.linalg.inv(Cpk) 
-    if np.linalg.cond(Cpk) >= 1e16: print('Covariance matrix is ill-conditioned') 
-    ndata       = Cpk.shape[0]
-    nmock       = pks.shape[0]
-    f_hartlap   = float(nmock - ndata - 2)/float(nmock - 1) 
-    Cinv        *= f_hartlap
+    X, Cov, Cinv, dXdt = load_X(obvs=obvs, kmax=kmax)
+    if method == 'PCA': print('%i-dimensional data being PCA compressed to %i-dimensions' % (X.shape[1], n_components))
+    # "true" Fisher 
+    Fij_true = Forecast.Fij(dXdt, Cinv) 
+    # invert "true" Fisher 
+    Finv_true = np.linalg.inv(Fij_true) 
+    print('FULL; 1-sigmas %s' % 
+            (', '.join(['%s: %.2e' % (tt, sii) for tt, sii in zip(thetas, np.sqrt(np.diag(Finv_true)))])))
     
-    # derivative of P w.r.t theta
-    dpkdt = [] 
-    for par in ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']: 
-        dpkdt_i = dPkdtheta(par, rsd='all', flag='reg', dmnu='fin')
-        dpkdt.append(dpkdt_i[klim])
-    dpkdt = np.array(dpkdt) 
-    
-    # true fisher 
-    Fij     = Forecast.Fij(dpkdt, Cinv) 
-    # invert fisher matrix 
-    Finv    = np.linalg.inv(Fij) 
-    print('P0 sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(Finv))]))
-
+    # now lets calculate the Fisher matrices for compressions derived
+    # from different number of simulations 
     Finvs = []
-    Nmocks = [1000, 3000, 5000][::-1]
+    Nmocks = [15000, 12000, 10000, 5000, 3000, 1000]
     for Nmock in Nmocks: 
+        # fit the compressor
         if method == 'KL':
             cmpsr = Comp.Compressor(method='KL')   # KL compression 
-            cmpsr.fit(pks[:Nmock], dpkdt) # fit compression matrix
+            cmpsr.fit(X[:Nmock], dXdt) # fit compression matrix
         elif method == 'PCA': # PCA compression
             cmpsr = Comp.Compressor(method='PCA')      
-            cmpsr.fit(pks[:Nmock], n_components=20, whiten=False)   
-        cpks = cmpsr.transform(pks[:Nmock])
-        _cpks = cmpsr.transform(pks)               # compressed P 
-        dcpkdt = cmpsr.transform(dpkdt)           # compressed dP/dtheta
-
-        cCpk    = np.cov(cpks.T) 
-        cCinv   = np.linalg.inv(cCpk) 
-        _cCpk   = np.cov(_cpks.T) 
-        _cCinv  = np.linalg.inv(_cCpk) 
-        #print('trace ratio %f' % (np.trace(_cCinv)/np.trace(cCinv)))
-
-        nmock, ndata = cpks.shape
-        f_hartlap   = float(nmock - ndata - 2)/float(nmock - 1) 
+            cmpsr.fit(X[:Nmock], n_components=n_components, whiten=False)   
+        
+        # transform X and dXdt 
+        cX      = cmpsr.transform(X[:Nmock])
+        dcXdt   = cmpsr.transform(dXdt)
+        # get covariance and precision matrices for compressed data 
+        cCov    = np.cov(cX.T) 
+        cCinv   = np.linalg.inv(cCov) 
+        _nmock, _ndata = cX.shape
+        f_hartlap   = float(_nmock - _ndata - 2)/float(_nmock - 1) 
         cCinv       *= f_hartlap
-        cCinv       = _cCinv
-
-        cFij    = Forecast.Fij(dcpkdt, cCinv) # fisher 
+        
+        # get compressed Fisher 
+        cFij    = Forecast.Fij(dcXdt, cCinv) # fisher 
         cFinv   = np.linalg.inv(cFij) # invert fisher matrix 
 
-        print('Nmock=%i; cP0 1/sqrt(Fii) %s' % (Nmock, ', '.join(['%.2e' % sii for sii in 1./np.sqrt(np.diag(cFij))]))) 
-        print('Nmock=%i; cP0 sigmas %s' % (Nmock, ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(cFinv))]))) 
+        print('Nmock=%i; 1-sigmas %s' % 
+                (Nmock, ', '.join(['%s: %.2e' % (tt, sii) for tt, sii in zip(thetas, np.sqrt(np.diag(cFinv)))])))
         Finvs.append(cFinv) 
 
-    theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
-    theta_fid = [0.3175, 0.049, 0.6711, 0.9624, 0.834, 0.] # fiducial theta 
     theta_lims = [(0.25, 0.385), (0.02, 0.08), (0.3, 1.1), (0.6, 1.3), (0.77, 0.9), (-0.4, 0.4)]
-    ntheta = len(theta_fid)
 
-    fig = plt.figure(figsize=(10, 10))
-    for i in range(ntheta): 
-        for j in range(i+1, ntheta): 
-            sub = fig.add_subplot(ntheta-1,ntheta-1,(ntheta-1)*(j-1)+i+1)
-            
-            theta_fid_i, theta_fid_j = theta_fid[i], theta_fid[j] # fiducial parameter 
-            for _i, _Finv in enumerate(Finvs[::-1]):
-                Finv_sub = np.array([[_Finv[i,i], _Finv[i,j]], [_Finv[j,i], _Finv[j,j]]]) # sub inverse fisher matrix 
-                Forecast.plotEllipse(Finv_sub, sub, theta_fid_ij=[theta_fid_i, theta_fid_j], color='C%i' % (_i+1))
-            Finv_sub = np.array([[Finv[i,i], Finv[i,j]], [Finv[j,i], Finv[j,j]]]) # sub inverse fisher matrix 
-            Forecast.plotEllipse(Finv_sub, sub, theta_fid_ij=[theta_fid_i, theta_fid_j], color='C0')
+    # marginalized constraints
+    onesigma_true = np.sqrt(np.diag(Finv_true)) # the "true" marginalized constraints
+    onesigma = []
+    for _Finv in Finvs: 
+        onesigma.append(np.sqrt(np.diag(_Finv)))
+    onesigma = np.array(onesigma) 
 
-            sub.set_xlim(theta_lims[i])
-            sub.set_ylim(theta_lims[j])
-            if i == 0:   
-                sub.set_ylabel(theta_lbls[j], labelpad=5, fontsize=28) 
-                sub.get_yaxis().set_label_coords(-0.35,0.5)
-            else: 
-                sub.set_yticks([])
-                sub.set_yticklabels([])
-            
-            if j == ntheta-1: 
-                sub.set_xlabel(theta_lbls[i], fontsize=26) 
-            else: 
-                sub.set_xticks([])
-                sub.set_xticklabels([]) 
-
+    fig = plt.figure(figsize=(12,6))
     bkgd = fig.add_subplot(111, frameon=False)
-
-    for i, Nmock in enumerate(Nmocks[::-1]):
-        bkgd.fill_between([],[],[], color='C%i' % (i+1), 
-                label=r'%s comp. w/ $N_{\rm mock} = %i$' % (method.replace('_', ' '), Nmock))
-    bkgd.fill_between([],[],[], color='C0', label=r'$P_0(k)$') 
-    bkgd.legend(loc='upper right', bbox_to_anchor=(0.95, 0.95), fontsize=15)
-    bkgd.text(0.8, 0.61, r'$k_{\rm max} = %.1f$; $z=0.$' % kmax, ha='right', va='bottom', transform=bkgd.transAxes, fontsize=15)
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-    fig.subplots_adjust(wspace=0.05, hspace=0.05) 
-    ffig = os.path.join(dir_fig, 'pkcompress.%s.png' % method) 
+    bkgd.set_xlabel(r'$N_{\rm mock}$', labelpad=15, fontsize=25) 
+
+    for i, theta in enumerate(thetas): 
+        sub = fig.add_subplot(2,len(thetas)/2,i+1) 
+        sub.plot(Nmocks, onesigma[:,i]) 
+        sub.set_xlim(1000, 15000) 
+        sub.plot(sub.get_xlim(), [onesigma_true[i], onesigma_true[i]], c='k', ls='--') 
+        sub.set_ylim(0.9*onesigma_true[i], 0.5*(theta_lims[i][1]-theta_lims[i][0]))
+        if i < 3: sub.set_xticklabels([]) 
+        sub.set_ylabel(r'$\sigma_{%s}$' % theta_lbls[i].strip('$'), fontsize=20) 
+    fig.subplots_adjust(wspace=0.35, hspace=0.05) 
+    ffig = os.path.join(dir_fig, 'pkcompress.%s.1sigma.png' % method) 
+    fig.savefig(ffig, bbox_inches='tight') 
+
+    fig = Forecast.plotFisher(Finvs[::-1]+[Finv_true], theta_fid, ranges=theta_lims, labels=theta_lbls, 
+            colors=['C5', 'C4', 'C3', 'C2', 'C1', 'C0', 'k']) 
+    ffig = os.path.join(dir_fig, 'pkcompress.%s.contours.png' % method) 
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
+
+
+def load_X(obvs='pk', kmax=0.5):
+    ''' read in data X, covariance matrix, and derivatives w.r.t thetas (which in our 
+    case are ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']. This is an attempt to make everything
+    more modular and agnostic to the observables
+    
+    parameters
+    ----------
+    obvs : str
+        (default: 'pk') string specifying the cosmological observable
+    kmax : float
+        (default: 0.5) specify the kmax value.  
+
+    returns
+    -------
+    X : array
+        (Nsim x Ndata) array of the data vectors of the simulation
+    Cov : array
+        (Ndata x Ndata) array of the covariance matrix
+    Cinv : array
+        (Ndata x Ndata) array of the inverse covariance matrix 
+        **hartlap factor is included here**
+    dXdt : 
+        arrays of the derivatives of X w.r.t. the thetas. 
+    '''
+    if obvs == 'pk': 
+        # read in Quijote P0
+        quij    = Obvs.quijotePk('fiducial', rsd=0, flag='reg') 
+        klim    = (quij['k'] <= kmax) # k limit 
+        X       = quij['p0k'][:,klim] + quij['p_sn'][:,None] # shotnoise uncorrected P(k)
+        # calculate covariance
+        Cov     = np.cov(X.T) 
+        if np.linalg.cond(Cov) >= 1e16: print('Covariance matrix is ill-conditioned') 
+        # calculate inverse covariance
+        Cinv    = np.linalg.inv(Cov) 
+        nmock, ndata = X.shape
+        f_hartlap = float(nmock - ndata - 2)/float(nmock - 1) # hartlap factor
+        Cinv    *= f_hartlap
+    
+        dXdt = [] 
+        for par in thetas: 
+            dXdt_i = dPkdtheta(par, rsd='all', flag='reg', dmnu='fin')
+            dXdt.append(dXdt_i[klim])
+        dXdt = np.array(dXdt) 
+    else: 
+        raise NotImplementedError 
+
+    return X, Cov, Cinv, dXdt 
 
 
 def traceCy(method='KL', kmax=0.5):
@@ -399,8 +420,9 @@ def _flag_str(flag):
 
 
 if __name__=='__main__': 
+    compressedFisher(obvs='pk', method='PCA', kmax=0.5, n_components=40)
     #Pk_compression(method='KL')
-    Pk_compression(method='PCA')
+    #Pk_compression(method='PCA')
     #Bk_compression(method='KL')
     #Bk_compression(method='PCA')
     #traceCy(method='KL')

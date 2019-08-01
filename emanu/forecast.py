@@ -379,8 +379,75 @@ def plotEllipse(Finv_sub, sub, theta_fid_ij=None, color='C0'):
         e = Ellipse(xy=(theta_fid_i, theta_fid_j), 
                 width=alpha * a, height=alpha * b, angle=theta * 360./(2.*np.pi))
         sub.add_artist(e)
-        if ii == 0: alpha = 0.7
-        if ii == 1: alpha = 1.
-        e.set_alpha(alpha)
+        if ii == 0: e.set_alpha(0.7)
+        if ii == 1: e.set_alpha(1.0)
         e.set_facecolor(color) 
     return sub
+
+
+def plotFisher(Finvs, theta_fid, colors=None, ranges=None, labels=None): 
+    ''' Given a list of inverse Fisher matrices, plot the Fisher contours
+    '''
+    ntheta = Finvs[0].shape[0] # number of parameters 
+    assert ntheta == len(theta_fid)
+    
+    # check inputs 
+    if colors is None: colors = ['C%i' % i for i in range(len(Finvs))]
+    else: assert len(Finvs) == len(colors) 
+
+    if ranges is not None: assert ntheta == len(ranges) 
+    if labels is not None: assert ntheta == len(labels) 
+    
+    # calculate the marginalized constraints 
+    onesigmas = [np.sqrt(np.diag(_Finv)) for _Finv in Finvs]
+
+    fig = plt.figure(figsize=(3*ntheta, 3*ntheta))
+    for i in range(ntheta): 
+        for j in range(i,ntheta): 
+            sub = fig.add_subplot(ntheta,ntheta,ntheta*j+i+1)
+
+            if i != j: # 2D contour 
+                theta_fid_i, theta_fid_j = theta_fid[i], theta_fid[j] # fiducial parameter 
+                for _i, _Finv in enumerate(Finvs):
+                    Finv_sub = np.array([[_Finv[i,i], _Finv[i,j]], [_Finv[j,i], _Finv[j,j]]]) # sub inverse fisher matrix 
+                    plotEllipse(Finv_sub, sub, theta_fid_ij=[theta_fid_i, theta_fid_j], color=colors[_i])
+            
+                if ranges is not None: 
+                    sub.set_xlim(ranges[i])
+                    sub.set_ylim(ranges[j])
+                # y-axes
+                if i == 0:   
+                    if labels is not None: 
+                        sub.set_ylabel(labels[j], labelpad=5, fontsize=28) 
+                        sub.get_yaxis().set_label_coords(-0.35,0.5)
+                else: 
+                    sub.set_yticks([])
+                    sub.set_yticklabels([])
+                # x-axes
+                if j == ntheta-1: 
+                    if labels is not None: 
+                        sub.set_xlabel(labels[i], fontsize=26) 
+                else: 
+                    sub.set_xticks([])
+                    sub.set_xticklabels([]) 
+
+            elif i == j: # marginalized gaussian constraints on the diagonal  
+                if ranges is None: 
+                    x = np.linspace(0.5 * theta_fid[i], 1.5 * theta_fid[i], 100) 
+                else: 
+                    x = np.linspace(ranges[i][0], ranges[i][1], 100) 
+                for _i, onesigma in enumerate(onesigmas): 
+                    sub.plot(x, _gaussian(x, theta_fid[i], onesigma[i]), c=colors[_i])
+
+                if ranges is not None: sub.set_xlim(ranges[i])
+                if j != ntheta-1: 
+                    sub.set_xticklabels([]) 
+                sub.set_ylim(0., None) 
+                sub.set_yticks([]) 
+                sub.set_yticklabels([]) 
+    fig.subplots_adjust(wspace=0.05, hspace=0.05) 
+    return fig 
+
+
+def _gaussian(x, mu, sig):
+    return np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))

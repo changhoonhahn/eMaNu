@@ -50,7 +50,8 @@ class Compressor(object):
             (N x Ncomp) compressed array 
         '''
         if self.method == 'PCA': 
-            cY = self._pca.transform(Y)
+            #cY = self._pca.transform(Y)
+            cY = np.dot(Y, self.cM.T) 
         else: 
             if self.cM is None: raise ValueError('first fit the compression') 
             assert self.cM.shape[1] == Y.shape[1] 
@@ -117,12 +118,11 @@ class Compressor(object):
         '''
         #self.Xbar = np.mean(X, axis=0) 
         #X -= self.Xbar
-        #Cx = np.cov(X.T)  
-        #print Cx.shape
-        #l, principal_axes = np.linalg.eig(Cx) 
-        #isort = l.argsort()[::-1]
-        #self.cM = principal_axes[:n_components,isort]
-        self._pca = PCA(copy=True, n_components=n_components, whiten=whiten)
-        self._pca.fit(X) 
-        self.cM = self._pca.components_
+        Cx = np.cov(X.T)  
+        l, principal_axes = np.linalg.eig(Cx) 
+        isort = l.argsort()[::-1]
+        self.cM = principal_axes[:n_components,isort]
+        #self._pca = PCA(copy=True, n_components=n_components, whiten=whiten)
+        #self._pca.fit(X) 
+        #self.cM = self._pca.components_
         return None 
