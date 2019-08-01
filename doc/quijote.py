@@ -3587,36 +3587,60 @@ def zeldovich_ICtest(rsd=0):
     quij_zeld   = Obvs.quijoteBk('fiducial_za', rsd=rsd, flag='reg', silent=True) 
     k1, k2, k3  = quij_zeld['k1'], quij_zeld['k2'], quij_zeld['k3']
     bks_zeld    = quij_zeld['b123']
+    pks_zeld    = quij_zeld['p0k1']
     n_zeld      = bks_zeld.shape[0] 
     
     # read in the 2lpt fiducial 
     quij_2lpt   = Obvs.quijoteBk('fiducial', rsd=rsd, flag='reg', silent=True)
     bks_2lpt    = quij_2lpt['b123'][:n_zeld,:]
+    pks_2lpt    = quij_2lpt['p0k1'][:n_zeld,:]
+   
+    fig = plt.figure(figsize=(16, 8)) 
+    gs = mpl.gridspec.GridSpec(2, 2, figure=fig, width_ratios=[1,3], wspace=0.2) 
+    gs0 = plt.subplot(gs[0]) 
+    gs1 = plt.subplot(gs[1]) 
+    gs2 = plt.subplot(gs[2]) 
+    gs3 = plt.subplot(gs[3]) 
+
+    # first Pk 
+    kmax = 0.5 
+    klim = (k1*kf < kmax) 
+    gs0.plot(kf*k1[klim], np.average(pks_2lpt, axis=0)[klim], c='k', label="Zel'dovich") 
+    gs0.plot(kf*k1[klim], np.average(pks_zeld, axis=0)[klim], c='C1', lw=0.95, label='2LPT') 
+    gs0.set_xlim(1e-2, 0.5)
+    gs0.set_xscale('log') 
+    gs0.set_xticklabels([]) 
+    gs0.set_ylabel('$P_0(k)$', fontsize=20) 
+    gs0.set_yscale('log') 
+    gs0.set_ylim([1e3, 1e5]) 
+
+    gs2.plot(kf*k1[klim], np.average(pks_zeld, axis=0)[klim]/np.average(pks_2lpt, axis=0)[klim], c='C0') 
+    gs2.plot([1e-3, 1.], [1., 1.], c='k', ls='--') 
+    gs2.set_xlabel('$k$', fontsize=20) 
+    gs2.set_xlim(1e-2, 0.5)
+    gs2.set_xscale('log') 
+    gs2.set_ylabel(r'$P_0^{\rm ZA}/P_0^{\rm 2LPT}$', fontsize=20) 
+    gs2.set_ylim(0.9, 1.1) 
 
     # kmax = 0.5 
-    kmax = 0.5 
     klim = ((k1*kf < kmax) & (k2*kf < kmax) & (k3*kf < kmax)) 
 
-    fig = plt.figure(figsize=(10,8))
+    gs1.plot(range(np.sum(klim)), np.average(bks_2lpt, axis=0)[klim], c='k', label="Zel'dovich") 
+    gs1.plot(range(np.sum(klim)), np.average(bks_zeld, axis=0)[klim], c='C1', lw=0.95, label='2LPT') 
+    gs1.set_xlim(0, np.sum(klim))
+    gs1.set_xticklabels([]) 
+    gs1.set_ylabel('$B_0(k_1, k_2, k_3)$', fontsize=20) 
+    gs1.set_yscale('log') 
+    gs1.set_ylim([8e5, 3e10]) 
 
-    sub = fig.add_subplot(211) 
-    sub.plot(range(np.sum(klim)), np.average(bks_2lpt, axis=0)[klim], c='k', label="Zel'dovich") 
-    sub.plot(range(np.sum(klim)), np.average(bks_zeld, axis=0)[klim], c='C1', lw=0.95, label='2LPT') 
-    sub.set_xlim(0, np.sum(klim))
-    sub.set_xticklabels([]) 
-    sub.set_ylabel('$B_0(k_1, k_2, k_3)$', fontsize=20) 
-    sub.set_yscale('log') 
-    sub.set_ylim([8e5, 3e10]) 
-
-    sub = fig.add_subplot(212) 
     #for i in range(n_zeld): 
     #    sub.plot(range(np.sum(klim)), bks_zeld[i,klim]/bks_2lpt[i,klim], c='k', lw=0.1, alpha=0.1) 
-    sub.plot(range(np.sum(klim)), np.average(bks_zeld, axis=0)[klim]/np.average(bks_2lpt, axis=0)[klim], c='C0') 
-    sub.plot([0., np.sum(klim)], [1., 1.], c='k', ls='--') 
-    sub.set_xlabel('triangle configurations', fontsize=20) 
-    sub.set_xlim(0, np.sum(klim))
-    sub.set_ylabel(r'$B_0^{\rm ZA}/B_0^{\rm 2LPT}$', fontsize=20) 
-    sub.set_ylim(0.9, 1.1) 
+    gs3.plot(range(np.sum(klim)), np.average(bks_zeld, axis=0)[klim]/np.average(bks_2lpt, axis=0)[klim], c='C0') 
+    gs3.plot([0., np.sum(klim)], [1., 1.], c='k', ls='--') 
+    gs3.set_xlabel('triangle configurations', fontsize=20) 
+    gs3.set_xlim(0, np.sum(klim))
+    gs3.set_ylabel(r'$B_0^{\rm ZA}/B_0^{\rm 2LPT}$', fontsize=20) 
+    gs3.set_ylim(0.9, 1.1) 
     ffig = os.path.join(dir_doc, 'zeldovich_ICtest%s.png' % (_rsd_str(rsd)))
     fig.savefig(ffig, bbox_inches='tight') 
     return None
@@ -3752,4 +3776,4 @@ if __name__=="__main__":
     # rsd 
     #B_detail(rsd='all', flag='reg')
     zeldovich_ICtest(rsd='real')
-    #zeldovich_ICtest(rsd=1)
+    zeldovich_ICtest(rsd=1)
