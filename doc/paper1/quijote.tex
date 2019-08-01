@@ -26,35 +26,14 @@
     and~\ref{fig:dbk_amp} (Appendix~\ref{sec:bk_details}). 
     \ch{
         By using $N$-body simulations for the derivatives, we rely on fewer assumptions and 
-        approximations than analytic methods (perturbation theory). \emph{Furthermore, with 
-        their accuracy on small scales, these simulation based derivatives enable us to quantify, 
-        for the first time, the information content of the bispectrum in the nonlinear regime.} 
+        approximations than analytic methods (\emph{i.e.} perturbation theory). \emph{Furthermore, with 
+        their accuracy on small scales, these derivatives enable us to quantify, for the first time, 
+        the information content of the bispectrum in the nonlinear regime.} 
     }
     }
 \label{fig:bk_deriv}
 \end{center}
 \end{figure}
-
-
-%\begin{figure}
-%\begin{center}
-%    \includegraphics[width=\textwidth]{figs/quijote_pbkFisher_freeMmin_dmnu_fin_kmax02.pdf}
-%    \caption{Fisher matrix constraints for $\smnu$ and other cosmological parameters 
-%    for the redshift-space halo bispectrum monopole (orange). For comparison, we 
-%    include Fisher parameter constraints for the redshift-space halo powerspectrum monopole 
-%    in blue. The contours mark the $68\%$ and $95\%$ confidence interals. We set 
-%    $k_{\rm max} = 0.2~h/{\rm Mpc}$ for both power spectrum and bispectrum. We 
-%    include in our forecasts $b'$ and $M_{\rm min}$, a free amplitude scaling factor
-%    and halo mass limit, respectively. They serve as a simplistic bias model and we 
-%    marginalize over them to that our constraints do not include extra constraining 
-%    power from the difference in bias/number density in the different Quijote cosmologies.
-%    The bispectrum {\em substantially} improves constraints on all of the cosmological parameters 
-%    over the power spectrum. {\em For $\smnu$, the bispectrum improves the constraint
-%    from $\sigma_{\smnu}{=}~1.163$ to $0.112$ eV --- an order of magnitude improvement 
-%    over the power spectrum}.}
-%\label{fig:bk_fish_02}
-%\end{center}
-%\end{figure}
 
 \subsection{$\smnu$ and other Cosmological Parameter Forecasts} \label{sec:forecasts}
 We demonstrate in the previous section with the HADES simulations, that 
@@ -87,7 +66,7 @@ of the bispectrum with respect to each of the cosmological parameters.
         for the redshift-space halo bispectrum monopole (orange). We include Fisher
         parameter constraints for the redshift-space halo power spectrum monopole and 
         quadrupole in blue for comparison. The contours mark the $68\%$ and $95\%$ 
-        confidence interals.  We set $k_{\rm max} = 0.5~h/{\rm Mpc}$ for both power 
+        confidence intervals.  We set $k_{\rm max} = 0.5~h/{\rm Mpc}$ for both power 
         spectrum and bispectrum. We include in our forecasts $b'$ and $M_{\rm min}$, a 
         free amplitude scaling factor and halo mass limit, respectively. They serve as 
         a simplistic bias model and we marginalize over them so that our constraints do 
@@ -145,7 +124,7 @@ assumptions and approximations. In fact, these $N$-body simulation estimated
 derivatives are key in enabling us to quantify, for the first time, the total information 
 content of the redshift-space bispectrum in the non-linear regime. We present the 
 bispectrum derivatives for all triangle configurations in Figure~\ref{fig:bk_deriv} and  
-discuss subtleties of the bispectrum derivatives and tests of convegence and stability 
+discuss subtleties of the bispectrum derivatives and tests of convergence and stability 
 in Appendix~\ref{sec:numerical}. 
 
 We present the constraints on $\smnu$ and other cosmological parameters 
@@ -153,7 +132,7 @@ $\{\Om, \Ob, h, n_s, \sig\}$ derived from the redshift-space halo bispectrum
 Fisher matrix for $k_{\rm max} = 0.5~h/{\rm Mpc}$ in Figure~\ref{fig:bk_fish_05}. 
 We include Fisher constraints for the redshift-space halo power spectrum 
 monopole and quadrupole with the same $k_{\rm max}$ for comparison (blue). 
-The shaded contours mark the $68\%$ and $95\%$ confidence interals. We include 
+The shaded contours mark the $68\%$ and $95\%$ confidence intervals. We include 
 in our Fisher constraints the following nuisance parameters: $b'$ and $M_{\rm min}$. 
 $b'$ is a scaling factor on the bispectrum amplitude, analogous to linear bias. 
 And $M_{\rm min}$ is the halo mass limit, which we choose as a nuisance
@@ -265,15 +244,15 @@ comes from the bispectrum breaking degeneracies among the cosmological and
 nuisance parameters. This is evident when we compare the unmarginalized 
 constraints from $P_\ell$ and $B_0$: $1/\sqrt{F_{ii}}$ where $F_{ii}$ is a 
 diagonal element of the Fisher matrix. For $k < 0.4~\mpc$, the unmarginalized 
-cosntraints from $P_\ell$ are tighter than those from $B_0$. Yet, once we 
+constraints from $P_\ell$ are tighter than those from $B_0$. Yet, once we 
 marginalize the constraints over the other parameters, the $P_\ell$ constraints 
-are degraded and the $B_0$ constraints are tigher for $k > 0.1~\mpc$. The derivatives, 
+are degraded and the $B_0$ constraints are tighter for $k > 0.1~\mpc$. The derivatives, 
 $\partial B_0/\partial \theta_i$, also shed light on how $B_0$ breaks parameter 
 degeneracies. The parameter degeneracies in the $P_\ell$ forecasts of Figure~\ref{fig:bk_fish_05} 
 are consistent with similarities in the shape and scale dependence of 
 $P_\ell$ derivatives $\partial P_0/\partial \theta$ and $\partial P_2/\partial \theta$. 
 On the other hand, the $B_0$ derivatives with respect to the parameters 
-have significant different scale and triangle shape dependences, as seen 
+have significant different scale and triangle shape dependencies, as seen 
 in Figure~\ref{fig:bk_deriv}.
 
 By exploiting the massive number of $N$-body simulations of the Quijote 
@@ -356,17 +335,17 @@ Finally, \cite{chudaykin2019} present power spectrum and bispectrum
 forecasts for $\omega_{\rm cdm}$, $\omega_b$, $h$, $n_s$, $A_s$, $n_s$, 
 and $\smnu$ of a Euclid-like survey in 8 non-overlapping redshift bins 
 over $0.5 < z < 2.1$. They use
-a one-loop perturbation theory model for the redshift-space $\ell = 0, 2, 4$ 
-power spectrum multipoles and a tree-level model for bispectrum monopole. 
+a one-loop perturbation theory model for the redshift-space  power spectrum
+multipoles ($\ell = 0, 2, 4$) and a tree-level bispectrum monopole model. 
 Also, rather than imposing a $k_{\rm max}$ cutoff to restrict their 
 forecasts to scales where their perturbation theory model can be trusted, 
 they use a theoretical error covariance model approach from~\cite{baldauf2016} 
-and extend down to $k_{\rm max} = 0.5~\mpc$. They find $\sim1.4$, 1.5, 1.2, 1.5, and 
+and extend down to $k_{\rm max} = 0.5~\mpc$. They find ${\sim}1.4$, 1.5, 1.2, 1.5, and 
 1.3 times tighter constraints from $P_\ell$ and $B_0$ than from 
 $P_\ell$ alone. For $\smnu$, they find a factor of 1.4 improvement, from 
 0.038 eV to 0.028 eV. Overall, \cite{chudaykin2019} find more modest improvements 
-in the constraints from including $B_0$ than the improvements we find in 
-our $k_{\rm max} = 0.5~\mpc$ $B_0$ constraints over the $P_\ell$ constraints. 
+from including $B_0$ than the improvements we find in our $k_{\rm max} = 0.5~\mpc$ 
+$B_0$ constraints over the $P_\ell$ constraints. 
 
 Among the differences from our forecast, most notably, \cite{chudaykin2019}  
 marginalize over 64 parameters of their bias model (4 bias and 4 counterterm 
@@ -387,8 +366,8 @@ are only marginally more accurate than the tree-level~\citep{lazanu2018}. Also
 different from our analysis, \cite{chudaykin2019} use an Markov-Chain Monte-Carlo 
 (MCMC) approach, which derives more accurate parameter constraints than our 
 Fisher approach. They, however, neglect non-Gaussian contributions to both 
-the $P_\ell$ and $B_0$ covariance matrices and they also do not include the 
-covariance between $P_\ell$ and $B_0$ for their joint constraints. Nonetheless, \cite{chudaykin2019} and our 
+the $P_\ell$ and $B_0$ covariance matrices and do not include the covariance
+between $P_\ell$ and $B_0$ for their joint constraints. Nonetheless, \cite{chudaykin2019} and our 
 results both find significant improves in cosmological parameter constraints 
 from including $B_0$. In fact, taking the theoretical errors into account, 
 the improvements from $B_0$ they find are loosely consistent with our results
@@ -404,9 +383,9 @@ parameters using bispectrum measured entirely from $N$-body simulations.
     By using the simulations, we go beyond perturbation theory models and 
     accurately model the redshift-space bispectrum to the nonlinear regime. 
     Furthermore, by exploiting the immense number of simulations, we 
-    accuratey estimate the full high-dimensional covariance matrix of 
+    accurately estimate the full high-dimensional covariance matrix of 
     the bispectrum. With these advantages, we present the first forecast
-    of the bispectrum down to nonlinear scales of cosmological parameters 
+    of cosmological parameters from the bispectrum down to nonlinear scales
     and demonstrate the constraining power of the bispectrum for $\smnu$. 
 }    
 Below, we underline a few caveats of our forecasts.
@@ -436,7 +415,7 @@ the $P_\ell$ constraints is \emph{not} impacted.
 In addition to the stability, because we use $N$-body simulations, we test 
 whether the convergence of our covariance matrix and derivatives impact 
 our forecasts by varying the number of simulations 
-used to estimate them: $N_{\rm cov}$ and $N_{\rm deriv}$, repsectively. 
+used to estimate them: $N_{\rm cov}$ and $N_{\rm deriv}$, respectively. 
 For $N_{\rm cov}$, we find $< 5\%$ variation in the Fisher matrix elements, 
 $F_{ij}$, for $N_{\rm cov} > 5000$ and $< 1\%$ variation in $\sigma_\theta$
 for $N_{\rm cov} > 12000$.  For $N_{\rm deriv}$, we find $< 5\%$ variation 
@@ -444,7 +423,7 @@ in the $F_{ij}$ elements and $< 5\%$ variation in $\sigma_\theta$ for
 $N_{\rm deriv} > 1200$. Since our constraints vary by $< 10\%$ for sufficient 
 $N_{\rm cov}$ and $N_{\rm deriv}$, the convergence of the covariance matrix 
 and derivatives do not impact our forecasts to the accuracy level of Fisher 
-forecasting. We refer readers to Apprendix~\ref{sec:numerical} for a more 
+forecasting. We refer readers to Appendix~\ref{sec:numerical} for a more 
 details on the robustness of our results to the stability of the derivatives 
 and convergence. 
 
@@ -527,7 +506,7 @@ such as a halo occupation distribution (HOD) model involve extra parameters
 that describe the distribution of central and satellite galaxies in 
 halos~\citep[\emph{e.g.}][]{zheng2005,leauthaud2012,tinker2013,zentner2016,vakili2019}. 
 We, therefore, refrain from a more exhaustive investigation of the impact of 
-halo bias on our results and focus quantifying the constraing power of 
+halo bias on our results and focus quantifying the constraining power of 
 the galaxy bispectrum in the next paper of this series. 
 
 Marginalizing over galaxy bias parameters, will likely reduce the constraining 
