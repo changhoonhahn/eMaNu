@@ -887,7 +887,7 @@ def dlogPBdMnu(rsd='all', flag='reg'):
         p0klim = (k_p0k <= 0.5) 
         p2klim = (k_p2k <= 0.5) 
         sub0.plot(k_p0k[p0klim], dp0k[p0klim], c=c, label='$\ell = 0$') 
-        sub0.plot(k_p2k[p2klim], 0.5+dp2k[p2klim], c=c, ls=':', label='$\ell=2$') 
+        sub0.plot(k_p2k[p2klim], 0.5+dp2k[p2klim], c=c, ls='--', label='$\ell=2$') 
         if dmnu == 'fin': _dpk = dpk 
         else: 
             ratio = (dpk/_dpk)
@@ -914,7 +914,7 @@ def dlogPBdMnu(rsd='all', flag='reg'):
     sub1.legend(splts[::-1], dmnus_lbls[::-1], loc='lower left', fontsize=18) 
     sub1.set_xlabel('triangle configurations', fontsize=25) 
     sub1.set_xlim(0, np.sum(bklim)) 
-    sub1.set_ylabel(r'${\rm d}\log B(k_1, k_2, k_3)/{\rm d} M_\nu$', labelpad=-5, fontsize=25) 
+    sub1.set_ylabel(r'${\rm d}\log B_0(k_1, k_2, k_3)/{\rm d} M_\nu$', labelpad=-5, fontsize=25) 
     sub1.set_ylim(-0.65, 1.5) 
     sub1.set_yticks([-0.5, 0., 0.5, 1., 1.5]) 
     ffig = os.path.join(dir_doc, 'quijote_dPBdMnu_dmnu%s%s.png' % (_rsd_str(rsd), _flag_str(flag)))
@@ -3577,6 +3577,51 @@ def _ChanBlot_SN():
     return None 
 
 
+def zeldovich_ICtest(rsd=0): 
+    ''' In the quijote suite, the massless neutrino sims are run with 2LPT initial
+    conditions, while the Mnu > 0 eV are run with zeldovich initial conditions. 
+    Paco ran a handful of Mnu=0 sims with zeldovich IC in order to test the impact
+    on the bispectrum 
+    '''
+    # read in the zeldovich fiducial 
+    quij_zeld   = Obvs.quijoteBk('fiducial_za', rsd=rsd, flag='reg', silent=True) 
+    k1, k2, k3  = quij_zeld['k1'], quij_zeld['k2'], quij_zeld['k3']
+    bks_zeld    = quij_zeld['b123']
+    n_zeld      = bks_zeld.shape[0] 
+    
+    # read in the 2lpt fiducial 
+    quij_2lpt   = Obvs.quijoteBk('fiducial', rsd=rsd, flag='reg', silent=True)
+    bks_2lpt    = quij_2lpt['b123'][:n_zeld,:]
+
+    # kmax = 0.5 
+    kmax = 0.5 
+    klim = ((k1*kf < kmax) & (k2*kf < kmax) & (k3*kf < kmax)) 
+
+    fig = plt.figure(figsize=(10,8))
+
+    sub = fig.add_subplot(211) 
+    sub.plot(range(np.sum(klim)), np.average(bks_2lpt, axis=0)[klim], c='k', label="Zel'dovich") 
+    sub.plot(range(np.sum(klim)), np.average(bks_zeld, axis=0)[klim], c='C1', lw=0.95, label='2LPT') 
+    sub.set_xlim(0, np.sum(klim))
+    sub.set_xticklabels([]) 
+    sub.set_ylabel('$B_0(k_1, k_2, k_3)$', fontsize=20) 
+    sub.set_yscale('log') 
+    sub.set_ylim([8e5, 3e10]) 
+
+    sub = fig.add_subplot(212) 
+    #for i in range(n_zeld): 
+    #    sub.plot(range(np.sum(klim)), bks_zeld[i,klim]/bks_2lpt[i,klim], c='k', lw=0.1, alpha=0.1) 
+    sub.plot(range(np.sum(klim)), np.average(bks_zeld, axis=0)[klim]/np.average(bks_2lpt, axis=0)[klim], c='C0') 
+    sub.plot([0., np.sum(klim)], [1., 1.], c='k', ls='--') 
+    sub.set_xlabel('triangle configurations', fontsize=20) 
+    sub.set_xlim(0, np.sum(klim))
+    sub.set_ylabel(r'$B_0^{\rm ZA}/B_0^{\rm 2LPT}$', fontsize=20) 
+    sub.set_ylim(0.9, 1.1) 
+    ffig = os.path.join(dir_doc, 'zeldovich_ICtest%s.png' % (_rsd_str(rsd)))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
+
+
 ############################################################
 # etc 
 ############################################################
@@ -3645,7 +3690,6 @@ if __name__=="__main__":
         forecast_kmax_table(dmnu='fin', theta_nuis=None)
     '''
     # P+B fisher forecasts with different nuisance parameters 
-    p02bForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin'], dmnu='fin', planck=True)
     '''
         for flag in ['ncv', 'reg']: 
             pbForecast(kmax=0.5, rsd='all', flag=flag, theta_nuis=['Amp', 'Mmin'], dmnu='fin')
@@ -3707,3 +3751,5 @@ if __name__=="__main__":
     '''
     # rsd 
     #B_detail(rsd='all', flag='reg')
+    zeldovich_ICtest(rsd='real')
+    #zeldovich_ICtest(rsd=1)
