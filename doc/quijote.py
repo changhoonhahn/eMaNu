@@ -3643,6 +3643,62 @@ def zeldovich_ICtest(rsd=0):
     gs3.set_ylim(0.9, 1.1) 
     ffig = os.path.join(dir_doc, 'zeldovich_ICtest%s.png' % (_rsd_str(rsd)))
     fig.savefig(ffig, bbox_inches='tight') 
+
+    # now lets test the derivative w.r.t. Mnu 
+    quij = Obvs.quijoteBk('Mnu_p', rsd=rsd, flag='reg', silent=True)
+    bk_mnup = np.average(quij['b123'][:n_zeld,:], axis=0) 
+    pk_mnup = np.average(quij['p0k1'][:n_zeld,:], axis=0) 
+    
+    quij = Obvs.quijoteBk('Mnu_pp', rsd=rsd, flag='reg', silent=True)
+    bk_mnupp = np.average(quij['b123'][:n_zeld,:], axis=0) 
+    pk_mnupp = np.average(quij['p0k1'][:n_zeld,:], axis=0) 
+    
+    quij = Obvs.quijoteBk('Mnu_ppp', rsd=rsd, flag='reg', silent=True)
+    bk_mnuppp = np.average(quij['b123'][:n_zeld,:], axis=0)
+    pk_mnuppp = np.average(quij['p0k1'][:n_zeld,:], axis=0)
+    
+    dPdMnu_zeld = (-21. * np.log(np.average(pks_zeld, axis=0)) + 32. * np.log(pk_mnup) - 12. * np.log(pk_mnupp) + np.log(pk_mnuppp)) / 1.2
+    dPdMnu_2lpt = (-21. * np.log(np.average(pks_2lpt, axis=0)) + 32. * np.log(pk_mnup) - 12. * np.log(pk_mnupp) + np.log(pk_mnuppp)) / 1.2
+    
+    dBdMnu_zeld = (-21. * np.log(np.average(bks_zeld, axis=0)) + 32. * np.log(bk_mnup) - 12. * np.log(bk_mnupp) + np.log(bk_mnuppp)) / 1.2
+    dBdMnu_2lpt = (-21. * np.log(np.average(bks_2lpt, axis=0)) + 32. * np.log(bk_mnup) - 12. * np.log(bk_mnupp) + np.log(bk_mnuppp)) / 1.2
+
+    pklim = (k1*kf < kmax) 
+    fig = plt.figure(figsize=(6,8))
+    sub = fig.add_subplot(211)
+    sub.plot(kf*k1[pklim], dPdMnu_zeld[pklim], label="Zel'dovich")
+    sub.plot(kf*k1[pklim], dPdMnu_2lpt[pklim], label='2LPT')
+    sub.set_xlim(1e-2, 0.5)
+    sub.set_xscale('log') 
+    sub.set_ylabel(r'$\partial \log P_0/\partial M_\nu$', fontsize=20) 
+    sub.set_yscale('log') 
+    
+    sub = fig.add_subplot(212)
+    sub.plot(kf*k1[pklim], dPdMnu_zeld[pklim]/dPdMnu_2lpt[pklim])
+    sub.plot([1e-3, 1.], [1., 1.], c='k', ls='--') 
+    sub.set_xlim(1e-2, 0.5)
+    sub.set_xscale('log') 
+    sub.set_ylabel(r'$(\partial \log P_0/\partial M_\nu)^{\rm ZA}/(\partial \log P_0/\partial M_\nu)^{\rm 2LPT}$', fontsize=20) 
+    sub.set_ylim(0., 2.) 
+    ffig = os.path.join(dir_doc, 'zeldovich_ICtest.dPdMnu%s.png' % (_rsd_str(rsd)))
+    fig.savefig(ffig, bbox_inches='tight') 
+
+    fig = plt.figure(figsize=(10,8))
+    sub = fig.add_subplot(211)
+    sub.plot(range(np.sum(klim)), dBdMnu_zeld[klim], label="Zel'dovich")
+    sub.plot(range(np.sum(klim)), dBdMnu_2lpt[klim], label='2LPT')
+    sub.set_xlim(0, np.sum(klim))
+    sub.set_ylabel(r'$\partial \log B_0/\partial M_\nu$', fontsize=20) 
+    sub.set_yscale('log') 
+    
+    sub = fig.add_subplot(212)
+    sub.plot(range(np.sum(klim)), dBdMnu_zeld[klim]/dBdMnu_2lpt[klim])
+    sub.plot([0., np.sum(klim)], [1., 1.], c='k', ls='--') 
+    sub.set_xlim(0, np.sum(klim))
+    sub.set_ylabel(r'$(\partial \log B_0/\partial M_\nu)^{\rm ZA}/(\partial \log B_0/\partial M_\nu)^{\rm 2LPT}$', fontsize=20) 
+    sub.set_ylim(0.0, 2) 
+    ffig = os.path.join(dir_doc, 'zeldovich_ICtest.dBdMnu%s.png' % (_rsd_str(rsd)))
+    fig.savefig(ffig, bbox_inches='tight') 
     return None
 
 
@@ -3775,5 +3831,6 @@ if __name__=="__main__":
     '''
     # rsd 
     #B_detail(rsd='all', flag='reg')
-    zeldovich_ICtest(rsd='real')
-    zeldovich_ICtest(rsd=1)
+    #zeldovich_ICtest(rsd='real')
+    #zeldovich_ICtest(rsd=1)
+    zeldovich_ICtest(rsd='all')
