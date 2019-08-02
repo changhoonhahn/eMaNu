@@ -32,6 +32,7 @@ mpl.rcParams['legend.frameon'] = False
 
 dir_bk  = os.path.join(UT.dat_dir(), 'bispectrum') # bispectrum directory
 dir_fig = os.path.join(UT.fig_dir(), 'pairedfixed') 
+dir_doc = os.path.join(UT.doc_dir(), 'paper4', 'figs') # figures for paper 
 kf = 2.*np.pi/1000. 
 
 
@@ -74,12 +75,11 @@ def pf_Pk(rsd=0):
     # average P2
     sub0.plot(k, np.average(p2ks_std, axis=0), c='C0')
     sub0.scatter(k, np.average(p2ks_pfd, axis=0), color='C1', s=5, zorder=10) 
-    sub0.text(0.95, 0.95, r'redshift-space $P_\ell^{\rm halo}$', ha='right', va='top', transform=sub0.transAxes, fontsize=20)
     sub0.legend(loc='lower left', markerscale=5, handletextpad=0.2, fontsize=20) 
     sub0.set_xlim(9e-3, 0.5) 
     sub0.set_xscale('log') 
     sub0.set_xticklabels([]) 
-    sub0.set_ylabel('$P_\ell(k)$', fontsize=25) 
+    sub0.set_ylabel('redshift-space halo $P_\ell(k)$', fontsize=25) 
     sub0.set_yscale('log') 
     sub0.set_ylim(1e3, 2e5) 
     
@@ -126,8 +126,81 @@ def pf_Pk(rsd=0):
     sub2.set_ylabel('$\Delta_{P_2}(k)/\sigma_{P_2}(k)$', fontsize=20) 
     sub2.set_ylim(-0.3, 0.3) 
 
-    ffig = os.path.join(dir_fig, 'pf_Pk%s.png' % (_rsd_str(rsd))) 
+    ffig = os.path.join(dir_doc, 'pf_Pk%s.png' % (_rsd_str(rsd))) 
     fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') 
+    return None 
+
+
+def pf_Pk_real(): 
+    ''' comparison of the paired-fixed P_l to standard N-body replicating 
+    Fig. 2 in Angulo & Pontzen (2016). 
+
+    3 panel plot: 
+    - top: P_ell(k) comparison
+    - center: Delta P0 / sigma P0
+    - bottom: Delta P2 / sigma P2 
+    '''
+    fig = plt.figure(figsize=(8, 8))
+    gs = mpl.gridspec.GridSpec(2, 1, figure=fig, height_ratios=[2,1], hspace=0.05) 
+    sub0 = plt.subplot(gs[0])
+    sub1 = plt.subplot(gs[1]) 
+    
+    # read in power spectrum (standard)
+    quij = Obvs.quijotePk('fiducial', rsd='real', flag='reg', silent=False) 
+    k = quij['k']
+    p0ks_std = quij['p0k'] # P0 
+    # read in power spectrum (pairedfixed)
+    quij = Obvs.quijotePk('fiducial', rsd='real', flag='ncv', silent=False) 
+    p0ks_pfd = quij['p0k'] # P0 
+    # read in covariance matrix 
+    _, Cov_pk, _ = pkCov(rsd='real', flag='reg', silent=False) 
+    sig_p0k = np.sqrt(np.diag(Cov_pk))[:p0ks_std.shape[1]]
+
+    # Pell comparison
+    for i in range(p0ks_std.shape[0])[::100]:  
+        sub0.plot(k, p0ks_std[i], c='k', lw=0.1, alpha=0.2)
+    # average P0
+    sub0.plot(k, np.average(p0ks_std, axis=0), c='C0', label='%i standard $N$-body' % p0ks_std.shape[0])
+    sub0.scatter(k, np.average(p0ks_pfd, axis=0), color='C1', s=5, label='%i paired-fixed' % p0ks_pfd.shape[0], zorder=10) 
+    sub0.legend(loc='lower left', markerscale=5, handletextpad=0.2, fontsize=20) 
+    sub0.set_xlim(9e-3, 0.5) 
+    sub0.set_xscale('log') 
+    sub0.set_xticklabels([]) 
+    sub0.set_ylabel(r'real-space halo $P(k)$', fontsize=25) 
+    sub0.set_yscale('log') 
+    sub0.set_ylim(1e3, 2e5) 
+    
+    thetas = ['fiducial', 'Om_m', 'Om_p', 'Ob2_m', 'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p']
+    lbls = ['fid.', r'$\Omega_m^{-}$', r'$\Omega_m^{+}$', r'$\Omega_b^{-}$', r'$\Omega_b^{+}$', r'$h^{-}$', r'$h^{+}$', 
+            r'$n_s^{-}$', r'$n_s^{+}$', r'$\sigma_8^{-}$', r'$\sigma_8^{+}$']
+    plts = []
+    for i, theta in enumerate(thetas): 
+        # read in power spectrum (standard)
+        quij = Obvs.quijotePk(theta, rsd='real', flag='reg', silent=False) 
+        p0ks_std = quij['p0k'] # P0 
+        # read in power spectrum (pairedfixed)
+        quij = Obvs.quijotePk(theta, rsd='real', flag='ncv', silent=False) 
+        p0ks_pfd = quij['p0k'] # P0 
+        
+        clr = c='k'
+        if i > 0: clr = 'C%i' % (i-1)
+        delP0_sig = (np.average(p0ks_pfd, axis=0) - np.average(p0ks_std, axis=0))/sig_p0k
+        _plt, = sub1.plot(k, delP0_sig, lw=1, c=clr, zorder=10)  
+        plts.append(_plt) 
+
+    # Delta0/sigma comparison
+    sub1.plot([9e-3, 0.5], [0, 0], c='k', ls=':') 
+    #sub1.fill_between([9e-3, 0.5], [-1., -1.], [1., 1.], facecolor='k', linewidth=0, alpha=0.2) 
+    sub1.legend(plts, lbls, loc='lower left', ncol=6, handletextpad=0.4, fontsize=12) 
+    sub1.set_xlim(9e-3, 0.5) 
+    sub1.set_xlabel('$k$', fontsize=25) 
+    sub1.set_xscale('log') 
+    sub1.set_ylabel('$\Delta_{P}(k)/\sigma_{P}(k)$', fontsize=20) 
+    sub1.set_ylim(-0.3, 0.3) 
+    ffig = os.path.join(dir_doc, 'pf_Pk_real.png') 
+    fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') 
     return None 
 
 
@@ -154,7 +227,10 @@ def pf_Bk(rsd=0, kmax=0.5):
     quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag='ncv', silent=False) 
     bks_pfd = quij['b123'][:,klim] # P0 
     # read in covariance matrix 
-    _, _, _, Cov_bk, _ = bkCov(rsd=2, flag='reg', silent=False) 
+    if rsd == 'real': 
+        _, _, _, Cov_bk, _ = bkCov(rsd='real', flag='reg', silent=False) 
+    else: 
+        _, _, _, Cov_bk, _ = bkCov(rsd=2, flag='reg', silent=False) 
     sig_bk = np.sqrt(np.diag(Cov_bk))[klim]
 
     # Pell comparison
@@ -163,11 +239,14 @@ def pf_Bk(rsd=0, kmax=0.5):
     # average B0
     sub0.plot(range(np.sum(klim)), np.average(bks_std, axis=0), c='C0', label='%i standard $N$-body' % bks_std.shape[0])
     sub0.scatter(range(np.sum(klim)),np.average(bks_pfd, axis=0), color='C1', s=5, label='%i paired-fixed' % bks_pfd.shape[0], zorder=10) 
-    sub0.text(0.95, 0.95, r'redshift-space $B_0^{\rm halo}$', ha='right', va='top', transform=sub0.transAxes, fontsize=20)
-    sub0.legend(loc='lower left', markerscale=5, handletextpad=0.2, fontsize=20) 
+    #sub0.text(0.95, 0.95, r'redshift-space $B_0^{\rm halo}$', ha='right', va='top', transform=sub0.transAxes, fontsize=20)
+    sub0.legend(loc='upper right', markerscale=5, handletextpad=0.2, fontsize=20) 
     sub0.set_xlim(0, np.sum(klim))
     sub0.set_xticklabels([]) 
-    sub0.set_ylabel('$B_0(k_1, k_2, k_3)$', fontsize=25)
+    if rsd == 'real': 
+        sub0.set_ylabel('real-space halo $B_0(k_1, k_2, k_3)$', fontsize=20)
+    else: 
+        sub0.set_ylabel('redshift-space halo $B_0(k_1, k_2, k_3)$', fontsize=20)
     sub0.set_yscale('log') 
     sub0.set_ylim(1e5, 1e10)
 
@@ -197,8 +276,9 @@ def pf_Bk(rsd=0, kmax=0.5):
     sub1.set_xlim(0, np.sum(klim))
     sub1.set_ylabel('$\Delta_{B_0}/\sigma_{B_0}$', fontsize=20) 
     sub1.set_ylim(-0.4, 0.4) 
-    ffig = os.path.join(dir_fig, 'pf_Bk%s.png' % (_rsd_str(rsd))) 
+    ffig = os.path.join(dir_doc, 'pf_Bk%s.png' % (_rsd_str(rsd))) 
     fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') 
     return None 
 
 
@@ -243,67 +323,125 @@ def pf_DelB_sigB(rsd=0, kmax=0.5):
     return None 
 
 
-def pf_dlogPdtheta(rsd=0, kmax=0.5): 
+def pf_dlogPdtheta(rsd=0): 
     ''' Comparison of dlogP/dtheta from paired-fixed vs standard N-body
     '''
     thetas  = ['Om', 'Ob2', 'h', 'ns', 's8']
     lbls    = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$']
-    ylims0  = [(-10., 0.), (0., 15.), (-3., -0.5), (-3.5, -0.8), (-1.6, -0.1)]
-    ylims1  = [(-1., 0.75), (-1.5, 1.5), (-0.1, 0.5), (-0.3, 0.3), (-0.4, 0.4)]
+    ylims0  = [(-10., 0.), (0., 15.), (-3., 0.), (-3.5, -0.5), (-1.6, -0.2)]
+    ylims1  = [(-10., 0.), (0., 15.), (-3., 0.), (-3.5, -0.5), (-2.5, 1.5)]
+    ylims2  = [(-0.75, 0.75), (-1.5, 1.5), (-0.4, 0.4), (-0.3, 0.3), (-0.3, 0.3)]
     
     # get k and klim 
     k, _ = dP02kdtheta('Om', log=True, rsd=rsd, flag='reg', dmnu='fin', returnks=True)
-    k0lim = ((k <= kmax) & (np.arange(len(k)) < len(k)/2))
-    k2lim = ((k <= kmax) & (np.arange(len(k)) >= len(k)/2))
+    k0lim = (np.arange(len(k)) < len(k)/2)
+    k2lim = (np.arange(len(k)) >= len(k)/2)
     
-    fig = plt.figure(figsize=(35,15))
+    fig = plt.figure(figsize=(30,8))
+    gs = mpl.gridspec.GridSpec(3, 1, figure=fig, height_ratios=[2,2,1], hspace=0.05) 
+    gs0 = mpl.gridspec.GridSpecFromSubplotSpec(1, len(thetas), subplot_spec=gs[0])
+    gs1 = mpl.gridspec.GridSpecFromSubplotSpec(1, len(thetas), subplot_spec=gs[1])
+    gs2 = mpl.gridspec.GridSpecFromSubplotSpec(1, len(thetas), subplot_spec=gs[2])
+
+    plt.rc('ytick', labelsize=8)
     for i_tt, tt, lbl in zip(range(len(thetas)), thetas, lbls): 
-        sub = fig.add_subplot(len(thetas),3,3*i_tt+1)
+        sub = plt.subplot(gs0[0, i_tt]) 
 
         dpdt_std = dP02kdtheta(tt, log=True, rsd=rsd, flag='reg', dmnu='fin')
         dpdt_pfd = dP02kdtheta(tt, log=True, rsd=rsd, flag='ncv', dmnu='fin')
 
         sub.plot(k[k0lim], dpdt_std[k0lim], c='C0', label='standard $N$-body')
         sub.plot(k[k0lim], dpdt_pfd[k0lim], c='C1', label='paired-fixed')
+        sub.text(0.975, 0.975, lbl, ha='right', va='top', transform=sub.transAxes, fontsize=25)
 
-        sub.set_xlim(9e-3, 0.5) 
+        sub.set_xlim(9e-3, 0.7) 
         sub.set_xscale('log') 
         sub.set_ylim(ylims0[i_tt]) 
-        if tt != thetas[-1]: sub.set_xticklabels([]) 
-        if i_tt == 2: sub.set_ylabel(r'${\rm d}\log P_0/{\rm d} \theta$', fontsize=25) 
-        if i_tt == 4: sub.set_xlabel('$k$', fontsize=25)
-        if i_tt == 0: sub.legend(loc='upper left', fontsize=20)
+        sub.set_xticklabels([]) 
+        if i_tt == 0: sub.set_ylabel(r'${\rm d}\log P_0/{\rm d} \theta$', fontsize=20) 
+        if i_tt == len(thetas)-1: sub.legend(loc='lower left', handletextpad=0.2, fontsize=15)
         #sub.text(0.975, 0.925, lbl, ha='right', va='top', transform=sub.transAxes, fontsize=25)
         
-        sub = fig.add_subplot(len(thetas),3,3*i_tt+2)
+        sub = plt.subplot(gs1[0, i_tt]) 
 
         sub.plot(k[k2lim], dpdt_std[k2lim], c='C0')
         sub.plot(k[k2lim], dpdt_pfd[k2lim], c='C1')
 
-        sub.set_xlim(9e-3, 0.5) 
+        sub.set_xlim(9e-3, 0.7) 
         sub.set_xscale('log') 
-        #sub.set_ylim(ylims0[i_tt]) 
-        if tt != thetas[-1]: sub.set_xticklabels([]) 
-        if i_tt == 2: sub.set_ylabel(r'${\rm d}\log P_2/{\rm d} \theta$', fontsize=25) 
-        if i_tt == 4: sub.set_xlabel('$k$', fontsize=25)
+        sub.set_ylim(ylims1[i_tt]) 
+        sub.set_xticklabels([]) 
+        if i_tt == 0: sub.set_ylabel(r'${\rm d}\log P_2/{\rm d} \theta$', fontsize=20) 
         if i_tt == 0: sub.legend(loc='upper left', fontsize=20)
         #sub.text(0.975, 0.925, lbl, ha='right', va='top', transform=sub.transAxes, fontsize=25)
 
-        sub = fig.add_subplot(len(thetas),3,3*i_tt+3) 
-        sub.plot(k[k0lim], dpdt_std[k0lim] - dpdt_pfd[k0lim], label='$\ell=0$')
-        sub.plot(k[k2lim], dpdt_std[k2lim] - dpdt_pfd[k2lim], label='$\ell=2$')
+        sub = plt.subplot(gs2[0, i_tt]) 
+        sub.plot(k[k0lim], dpdt_std[k0lim] - dpdt_pfd[k0lim], c='C3', label='$\ell=0$')
+        sub.plot(k[k2lim], dpdt_std[k2lim] - dpdt_pfd[k2lim], c='C7', label='$\ell=2$')
         sub.plot(k[k0lim], np.zeros(np.sum(k0lim)), c='k', ls='--')
-        sub.set_xlim(9e-3, 0.5) 
+        sub.set_xlim(9e-3, 0.7) 
+        sub.set_xscale('log') 
+        sub.set_ylim(ylims2[i_tt]) 
+        if i_tt == 0: sub.legend(loc='upper left', ncol=2, handletextpad=0.2, fontsize=15)
+        if i_tt == 0: sub.set_ylabel(r'$\Delta {\rm d}\log P_\ell/{\rm d} \theta$', fontsize=20) 
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.set_xlabel('$k$', labelpad=10, fontsize=25) 
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    fig.subplots_adjust(hspace=0.075, wspace=0.15) 
+    ffig = os.path.join(dir_fig, 'pf_dlogPdtheta%s.png' % (_rsd_str(rsd)))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
+
+
+def pf_dlogPdtheta_real(): 
+    ''' Comparison of dlogP/dtheta from paired-fixed vs standard N-body 
+    **in real-space**
+    '''
+    thetas  = ['Om', 'Ob2', 'h', 'ns', 's8']
+    lbls    = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$']
+    ylims0  = [(-10., 0.), (0., 15.), (-3., 0.), (-3.5, -0.5), (-1.6, -0.2)]
+    ylims1  = [(-0.75, 0.75), (-1.5, 1.5), (-0.1, 0.1), (-0.3, 0.3), (-0.3, 0.3)]
+    
+    # get k and klim 
+    k, _ = dPkdtheta('Om', log=True, rsd='real', flag='reg', dmnu='fin', returnks=True)
+    
+    fig = plt.figure(figsize=(30,5))
+    gs = mpl.gridspec.GridSpec(2, 1, figure=fig, height_ratios=[2,1], hspace=0.05) 
+    gs0 = mpl.gridspec.GridSpecFromSubplotSpec(1, len(thetas), subplot_spec=gs[0])
+    gs1 = mpl.gridspec.GridSpecFromSubplotSpec(1, len(thetas), subplot_spec=gs[1])
+
+    plt.rc('ytick', labelsize=8)
+    for i_tt, tt, lbl in zip(range(len(thetas)), thetas, lbls): 
+        sub = plt.subplot(gs0[0,i_tt])
+
+        dpdt_std = dPkdtheta(tt, log=True, rsd='real', flag='reg', dmnu='fin')
+        dpdt_pfd = dPkdtheta(tt, log=True, rsd='real', flag='ncv', dmnu='fin')
+
+        sub.plot(k, dpdt_std, c='C0', label='standard $N$-body')
+        sub.plot(k, dpdt_pfd, c='C1', label='paired-fixed')
+
+        sub.set_xlim(9e-3, 0.7) 
+        sub.set_xscale('log') 
+        sub.set_ylim(ylims0[i_tt]) 
+        sub.set_xticklabels([]) 
+        sub.text(0.975, 0.975, lbl, ha='right', va='top', transform=sub.transAxes, fontsize=25)
+        if i_tt == 0: sub.set_ylabel(r'${\rm d}\log P/{\rm d} \theta$', fontsize=20) 
+        if i_tt == len(thetas)-1: sub.legend(loc='lower left', handletextpad=0.2, fontsize=15)
+
+        sub = plt.subplot(gs1[0,i_tt])
+        sub.plot(k, dpdt_std - dpdt_pfd, c='C3', label='$\ell=0$')
+        sub.plot(k, np.zeros(len(k)), c='k', ls='--')
+        sub.set_xlim(9e-3, 0.7) 
         sub.set_xscale('log') 
         sub.set_ylim(ylims1[i_tt]) 
-        if tt != thetas[-1]: sub.set_xticklabels([]) 
-        if i_tt == 0: sub.legend(loc='lower left', fontsize=20)
-        if i_tt == 2: sub.set_ylabel(r'$\Delta {\rm d}\log P_\ell/{\rm d} \theta$', fontsize=25) 
-        if i_tt == 4: sub.set_xlabel('$k$', fontsize=25)
-        sub.text(0.975, 0.925, lbl, ha='right', va='top', transform=sub.transAxes, fontsize=25)
-
-    fig.subplots_adjust(hspace=0.075, wspace=0.3) 
-    ffig = os.path.join(dir_fig, 'pf_dlogPdtheta%s.kmax%.1f.png' % (_rsd_str(rsd), kmax))
+        if i_tt == 0: sub.set_ylabel(r'$\Delta {\rm d}\log P/{\rm d} \theta$', fontsize=20) 
+    
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.set_xlabel('$k$', labelpad=10, fontsize=25) 
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    fig.subplots_adjust(hspace=0.075, wspace=0.15) 
+    ffig = os.path.join(dir_fig, 'pf_dlogPdtheta.real.png')
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
@@ -314,7 +452,7 @@ def pf_dlogBdtheta(rsd=0, kmax=0.5):
     thetas  = ['Om', 'Ob2', 'h', 'ns', 's8']
     lbls    = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$']
     ylims0  = [(-15., 5.), (-2., 24.), (-4., 0.5), (-5., -0.5), (-6., 0)]
-    ylims1  = [(-5., 7.), (-10., 25.), (-4., 2.5), (-3., 3), (-5., 5.)]
+    ylims1  = [(-7., 7.), (-25., 25.), (-4., 4), (-3., 3), (-5., 5.)]
     
     # get k1, k2, k3 and klim 
     i_k, j_k, l_k, _ = dpdt = dBkdtheta('Om', log=True, rsd=rsd, flag='reg', dmnu='fin', returnks=True)
@@ -346,7 +484,7 @@ def pf_dlogBdtheta(rsd=0, kmax=0.5):
         if tt != thetas[-1]: sub.set_xticklabels([]) 
         if i_tt == 2: sub.set_ylabel(r'$\Delta {\rm d}\log B/{\rm d} \theta$', fontsize=25) 
         if i_tt == 4: sub.set_xlabel('triangle configurations', fontsize=25)
-        sub.text(0.975, 0.925, lbl, ha='right', va='top', transform=sub.transAxes, fontsize=25)
+        sub.text(0.025, 0.925, lbl, ha='left', va='top', transform=sub.transAxes, fontsize=25)
 
     fig.subplots_adjust(hspace=0.075) 
     ffig = os.path.join(dir_fig, 'pf_dlogBdtheta%s.kmax%.1f.png' % (_rsd_str(rsd), kmax))
@@ -359,7 +497,10 @@ def pf_Fij(rsd=0, kmax=0.5):
     standard n-body derivatives
     '''
     # read in covariance matrix 
-    i_k, j_k, l_k, Cov_bk, nmock = bkCov(rsd=0, flag='reg', silent=False) 
+    if rsd != 'real':
+        i_k, j_k, l_k, Cov_bk, nmock = bkCov(rsd=0, flag='reg', silent=False) 
+    else: 
+        i_k, j_k, l_k, Cov_bk, nmock = bkCov(rsd='real', flag='reg', silent=False) 
     klim = ((i_k * kf <= kmax) & (j_k * kf <= kmax) & (l_k * kf <= kmax)) # klim 
     Cov_bk = Cov_bk[:,klim][klim,:]
     
@@ -425,30 +566,8 @@ def pf_posterior(rsd=0, kmax=0.5):
     
     Finv_std = np.linalg.inv(Fij_std) # invert fisher matrix 
     Finv_pfd = np.linalg.inv(Fij_pfd) # invert fisher matrix 
-
-    fig = plt.figure(figsize=(11, 10))
-    for i in range(len(thetas)+1): 
-        for j in range(i+1, len(thetas)): 
-            sub = fig.add_subplot(len(thetas)-1, len(thetas)-1, (len(thetas)-1) * (j-1) + i + 1) 
-            for ii, _Finv in enumerate([Finv_std, Finv_pfd]): 
-                # sub inverse fisher matrix 
-                Finv_sub = np.array([[_Finv[i,i], _Finv[i,j]], [_Finv[j,i], _Finv[j,j]]]) 
-                # plot the ellipse
-                Forecast.plotEllipse(Finv_sub, sub, theta_fid_ij=[theta_fid[i], theta_fid[j]], color='C%i' % ii)
-            sub.set_xlim(theta_lims[i])
-            sub.set_ylim(theta_lims[j])
-            if i == 0:   
-                sub.set_ylabel(lbls[j], fontsize=30) 
-            else: 
-                sub.set_yticks([])
-                sub.set_yticklabels([])
-            
-            if j == len(thetas)-1: 
-                sub.set_xlabel(lbls[i], labelpad=10, fontsize=30) 
-            else: 
-                sub.set_xticks([])
-                sub.set_xticklabels([]) 
-
+    
+    fig = Forecast.
     bkgd = fig.add_subplot(111, frameon=False)
     bkgd.fill_between([],[],[], color='C0', label=r'standard $N$-body') 
     bkgd.fill_between([],[],[], color='C1', label=r'paired fixed') 
@@ -828,6 +947,27 @@ def bkCov(rsd=0, flag='reg', silent=True):
     return k1, k2, k3, cov, Nmock
 
 
+def dPkdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin', returnks=False, silent=True):
+    ''' read d P(k)/d theta  
+
+    :param theta: 
+        string that specifies the parameter to take the 
+        derivative by. 
+    '''
+    dir_dat = os.path.join(UT.doc_dir(), 'dat') 
+    fdpk = os.path.join(dir_dat, 'dPdtheta.%s%s%s.dat' % (theta, _rsd_str(rsd), _flag_str(flag))) 
+    if not silent: print('--- reading %s ---' % fdpk) 
+    i_dpk = 1 
+    if theta == 'Mnu': 
+        index_dict = {'fin': 1, 'fin0': 3, 'p': 5, 'pp': 7, 'ppp': 9}  
+        i_dpk = index_dict[dmnu] 
+    if log: i_dpk += 1 
+
+    k, dpdt = np.loadtxt(fdpk, skiprows=1, unpack=True, usecols=[0,i_dpk]) 
+    if not returnks: return dpdt 
+    else: return k, dpdt 
+
+
 def dP02kdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin', returnks=False, silent=True):
     ''' read in derivatives d P(k)/d theta  
 
@@ -884,19 +1024,15 @@ def _flag_str(flag):
 
 
 if __name__=="__main__": 
-    #for kmax in [0.3]: 
-    #    PF_PkBk(rsd=0, kmax=kmax)
-    #    PF_PkBk(rsd='real', kmax=kmax)
-    #PF_deltaB_sigmaB(rsd=0, kmax=0.5)
-    #PF_deltaB_sigmaB(rsd='real', kmax=0.5)
-    #for theta in ['fiducial', 'Om_m', 'Om_p', 'Ob2_m', 'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p', 
-    #        'Mnu_p', 'Mnu_pp', 'Mnu_ppp']: 
-    #    pairedfixed_theta(theta, kmax=0.5) 
-    #pairedfixed_allthetas()
+    #pf_Pk_real()
     #pf_Pk(rsd='all')
-    #pf_Bk(rsd='all', kmax=0.3)
+    #pf_Bk(rsd='real', kmax=0.5)
+    #pf_Bk(rsd='all', kmax=0.5)
     #pf_DelB_sigB(rsd='all', kmax=0.5)
-    #pf_dlogPdtheta(rsd='all', kmax=0.5)
+    #pf_dlogPdtheta(rsd='all')
+    #pf_dlogPdtheta_real()
+    #pf_dlogBdtheta(rsd='real', kmax=0.5)
     #pf_dlogBdtheta(rsd='all', kmax=0.5)
+    pf_Fij(rsd='real', kmax=0.5)
     pf_Fij(rsd='all', kmax=0.5)
     #pf_posterior(rsd='all', kmax=0.5)
