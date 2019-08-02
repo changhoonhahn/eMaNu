@@ -164,12 +164,11 @@ def _flag_str(flag):
 if __name__=="__main__": 
     thetas = ['Mnu', 'Om', 'Ob2', 'h', 'ns', 's8', 'Mmin', 'Amp', 'Asn', 'Bsn', 'b2', 'g2']
     for theta in thetas: 
-        for rsd in [0, 1, 2, 'all']: #[True, 0, 'real']: 
+        for rsd in ['real']:#0, 1, 2, 'all']: #[True, 0, 'real']: 
             if theta not in ['Bsn', 'b2', 'g2']: 
-                #dPdtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
-                #dPdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
-                dP02dtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
-                dP02dtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
-            #continue 
-            #dBdtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
-            #dBdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
+                dPdtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
+                dPdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
+                #dP02dtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
+                #dP02dtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
+            dBdtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
+            dBdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
