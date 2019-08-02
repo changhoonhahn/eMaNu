@@ -492,7 +492,58 @@ def pf_dlogBdtheta(rsd=0, kmax=0.5):
     return None
 
 
-def pf_Fij(rsd=0, kmax=0.5): 
+def pf_P_Fij(rsd=0, kmax=0.5): 
+    ''' compare the fisher matrix derived from paired-fixed derivatives vs 
+    standard n-body derivatives
+    '''
+    # read in covariance matrix 
+    if rsd != 'real': 
+        k, Cov_pk, nmock = p02kCov(rsd=2, flag='reg', silent=False) 
+    else: 
+        k, Cov_pk, nmock = pkCov(rsd='real', flag='reg', silent=False) 
+    klim = (k < kmax) # klim 
+    Cov_pk = Cov_pk[:,klim][klim,:]
+    
+    # get precision matrix 
+    ndata = np.sum(klim) 
+    f_hartlap = float(nmock - ndata - 2)/float(nmock - 1) 
+    C_inv = f_hartlap * np.linalg.inv(Cov_pk) # invert the covariance 
+    
+    thetas      = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']
+    theta_fid   = [0.3175, 0.049, 0.6711, 0.9624, 0.834, 0.0] # fiducial theta 
+    theta_lims  = [(0.28, 0.355), (0.028, 0.07), (0.4922, 0.85), (0.7748, 1.15), (0.808, 0.86), (-0.25, 0.25)]
+    lbls        = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
+
+    dpdts_std, dpdts_pfd = [], [] 
+    for theta in thetas:
+        if rsd != 'real': 
+            dpdt_std = dP02kdtheta(theta, log=False, rsd=rsd, flag='reg', dmnu='fin')
+            dpdt_pfd = dP02kdtheta(theta, log=False, rsd=rsd, flag='ncv', dmnu='fin')
+        else: 
+            dpdt_std = dPkdtheta(theta, log=False, rsd=rsd, flag='reg', dmnu='fin')
+            dpdt_pfd = dPkdtheta(theta, log=False, rsd=rsd, flag='ncv', dmnu='fin')
+        dpdts_std.append(dpdt_std[klim]) 
+        dpdts_pfd.append(dpdt_pfd[klim]) 
+
+    Fij_std = Forecast.Fij(dpdts_std, C_inv) 
+    Fij_pfd = Forecast.Fij(dpdts_pfd, C_inv) 
+
+    fig = plt.figure(figsize=(5,5))
+    sub = fig.add_subplot(111) 
+    cm = sub.pcolormesh(Fij_pfd/Fij_std - 1, vmin=-0.1, vmax=0.1, cmap='RdBu')
+    cbar_ax = fig.add_axes([0.95, 0.15, 0.0125, 0.7])
+    cbar = fig.colorbar(cm, cax=cbar_ax)
+    sub.set_xticks(np.arange(len(thetas))+0.5)
+    sub.set_xticklabels(lbls) 
+    sub.set_yticks(np.arange(len(thetas))+0.5)
+    sub.set_yticklabels(lbls) 
+    sub.set_title(r'$(F^{\rm PF}_{ij} - F_{ij})/ F_{ij}$', fontsize=20) 
+    ffig = os.path.join(dir_fig, 'pf_P_Fij%s.kmax%.1f.png' % (_rsd_str(rsd), kmax))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+
+def pf_B_Fij(rsd=0, kmax=0.5): 
     ''' compare the fisher matrix derived from paired-fixed derivatives vs 
     standard n-body derivatives
     '''
@@ -531,17 +582,73 @@ def pf_Fij(rsd=0, kmax=0.5):
     sub.set_yticks(np.arange(len(thetas))+0.5)
     sub.set_yticklabels(lbls) 
     sub.set_title(r'$(F^{\rm PF}_{ij} - F_{ij})/ F_{ij}$', fontsize=20) 
-    ffig = os.path.join(dir_fig, 'pf_Fij%s.kmax%.1f.png' % (_rsd_str(rsd), kmax))
+    ffig = os.path.join(dir_fig, 'pf_B_Fij%s.kmax%.1f.png' % (_rsd_str(rsd), kmax))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
 
-def pf_posterior(rsd=0, kmax=0.5): 
+def pf_P_posterior(rsd=0, kmax=0.5): 
     ''' compare the fisher matrix derived from paired-fixed derivatives vs 
     standard n-body derivatives
     '''
     # read in covariance matrix 
-    i_k, j_k, l_k, Cov_bk, nmock = bkCov(rsd=0, flag='reg', silent=False) 
+    if rsd != 'real': 
+        k, Cov_pk, nmock = p02kCov(rsd=2, flag='reg', silent=False) 
+    else: 
+        k, Cov_pk, nmock = pkCov(rsd='real', flag='reg', silent=False) 
+    klim = (k < kmax) # klim 
+    Cov_pk = Cov_pk[:,klim][klim,:]
+    
+    # get precision matrix 
+    ndata = np.sum(klim) 
+    f_hartlap = float(nmock - ndata - 2)/float(nmock - 1) 
+    C_inv = f_hartlap * np.linalg.inv(Cov_pk) # invert the covariance 
+    
+    thetas      = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']
+    theta_fid   = [0.3175, 0.049, 0.6711, 0.9624, 0.834, 0.0] # fiducial theta 
+    theta_lims  = [(0.28, 0.355), (0.028, 0.07), (0.4922, 0.85), (0.7748, 1.15), (0.808, 0.86), (-0.25, 0.25)]
+    lbls        = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
+
+    dpdts_std, dpdts_pfd = [], [] 
+    for theta in thetas:
+        if rsd != 'real': 
+            dpdt_std = dP02kdtheta(theta, log=False, rsd=rsd, flag='reg', dmnu='fin')
+            dpdt_pfd = dP02kdtheta(theta, log=False, rsd=rsd, flag='ncv', dmnu='fin')
+        else: 
+            dpdt_std = dPkdtheta(theta, log=False, rsd=rsd, flag='reg', dmnu='fin')
+            dpdt_pfd = dPkdtheta(theta, log=False, rsd=rsd, flag='ncv', dmnu='fin')
+        dpdts_std.append(dpdt_std[klim]) 
+        dpdts_pfd.append(dpdt_pfd[klim]) 
+
+    Fij_std = Forecast.Fij(dpdts_std, C_inv) 
+    Fij_pfd = Forecast.Fij(dpdts_pfd, C_inv) 
+    
+    Finv_std = np.linalg.inv(Fij_std) # invert fisher matrix 
+    Finv_pfd = np.linalg.inv(Fij_pfd) # invert fisher matrix 
+    
+    fig = Forecast.plotFisher([Finv_pfd, Finv_std], theta_fid, ranges=theta_lims, colors=['C1', 'C0'], labels=lbls)
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.fill_between([],[],[], color='C0', label=r'standard $N$-body') 
+    bkgd.fill_between([],[],[], color='C1', label=r'paired fixed') 
+    bkgd.legend(loc='upper right', bbox_to_anchor=(0.8, 0.8), handletextpad=0.5, fontsize=20)
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+
+    fig.subplots_adjust(wspace=0.05, hspace=0.05) 
+    ffig = os.path.join(dir_fig, 'pf_P_posterior%s.kmax%.1f.png' % (_rsd_str(rsd), kmax))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+
+def pf_B_posterior(rsd=0, kmax=0.5): 
+    ''' compare the fisher matrix derived from paired-fixed derivatives vs 
+    standard n-body derivatives
+    '''
+    # read in covariance matrix 
+    if rsd != 'real': 
+        i_k, j_k, l_k, Cov_bk, nmock = bkCov(rsd=0, flag='reg', silent=False) 
+    else: 
+        i_k, j_k, l_k, Cov_bk, nmock = bkCov(rsd='real', flag='reg', silent=False) 
     klim = ((i_k * kf <= kmax) & (j_k * kf <= kmax) & (l_k * kf <= kmax)) # klim 
     Cov_bk = Cov_bk[:,klim][klim,:]
     
@@ -550,10 +657,11 @@ def pf_posterior(rsd=0, kmax=0.5):
     f_hartlap = float(nmock - ndata - 2)/float(nmock - 1) 
     C_inv = f_hartlap * np.linalg.inv(Cov_bk) # invert the covariance 
     
-    thetas      = ['Om', 'Ob2', 'h', 'ns', 's8']
-    theta_fid   = [0.3175, 0.049, 0.6711, 0.9624, 0.834] # fiducial theta 
-    theta_lims  = [(0.3, 0.335), (0.038, 0.06), (0.5922, 0.75), (0.8748, 1.05), (0.808, 0.86)]
-    lbls        = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$']
+    thetas      = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']
+    theta_fid   = [0.3175, 0.049, 0.6711, 0.9624, 0.834, 0.0] # fiducial theta 
+    theta_lims  = [(0.3, 0.335), (0.038, 0.06), (0.5922, 0.75), (0.8748, 1.05), (0.808, 0.86), (-0.125, 0.125)]
+
+    lbls        = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
     dbdts_std, dbdts_pfd = [], [] 
     for theta in thetas:
         dbdt_std = dBkdtheta(theta, log=False, rsd=rsd, flag='reg', dmnu='fin')
@@ -567,22 +675,16 @@ def pf_posterior(rsd=0, kmax=0.5):
     Finv_std = np.linalg.inv(Fij_std) # invert fisher matrix 
     Finv_pfd = np.linalg.inv(Fij_pfd) # invert fisher matrix 
     
-    fig = Forecast.
+    fig = Forecast.plotFisher([Finv_pfd, Finv_std], theta_fid, ranges=theta_lims, colors=['C1', 'C0'], labels=lbls)
+
     bkgd = fig.add_subplot(111, frameon=False)
     bkgd.fill_between([],[],[], color='C0', label=r'standard $N$-body') 
     bkgd.fill_between([],[],[], color='C1', label=r'paired fixed') 
-    bkgd.legend(loc='upper right', bbox_to_anchor=(0.63, 0.95), handletextpad=0.2, fontsize=15)
-    
-    bkgd.text(0.9, 0.96, '$%s$' % ', '.join(['\sigma_{%s}' % lbl.strip('$') for lbl in lbls]), ha='right', va='top', 
-            transform=bkgd.transAxes, fontsize=15)
-    bkgd.text(0.95, 0.92, '$%s$' % ', '.join(['%.3f' % sii for sii in np.sqrt(np.diag(Finv_std))]), ha='right', va='top', 
-            transform=bkgd.transAxes, fontsize=15)
-    bkgd.text(0.95, 0.89, '$%s$' % ', '.join(['%.3f' % sii for sii in np.sqrt(np.diag(Finv_pfd))]), ha='right', va='top', 
-            transform=bkgd.transAxes, fontsize=15)
+    bkgd.legend(loc='upper right', bbox_to_anchor=(0.8, 0.8), handletextpad=0.5, fontsize=20)
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
 
     fig.subplots_adjust(wspace=0.05, hspace=0.05) 
-    ffig = os.path.join(dir_fig, 'pf_posterior%s.kmax%.1f.png' % (_rsd_str(rsd), kmax))
+    ffig = os.path.join(dir_fig, 'pf_B_posterior%s.kmax%.1f.png' % (_rsd_str(rsd), kmax))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
@@ -1033,6 +1135,11 @@ if __name__=="__main__":
     #pf_dlogPdtheta_real()
     #pf_dlogBdtheta(rsd='real', kmax=0.5)
     #pf_dlogBdtheta(rsd='all', kmax=0.5)
-    pf_Fij(rsd='real', kmax=0.5)
-    pf_Fij(rsd='all', kmax=0.5)
-    #pf_posterior(rsd='all', kmax=0.5)
+    pf_P_Fij(rsd='real', kmax=0.5)
+    pf_P_Fij(rsd='all', kmax=0.5)
+    pf_B_Fij(rsd='real', kmax=0.5)
+    pf_B_Fij(rsd='all', kmax=0.5)
+    #pf_P_posterior(rsd='real', kmax=0.5)
+    #pf_P_posterior(rsd='all', kmax=0.5)
+    #pf_B_posterior(rsd='real', kmax=0.5)
+    #pf_B_posterior(rsd='all', kmax=0.5)
