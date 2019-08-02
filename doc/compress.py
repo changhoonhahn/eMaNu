@@ -335,7 +335,7 @@ def _flag_str(flag):
 
 
 if __name__=='__main__': 
-    for ncomp in [20, 40, 60, 70]: 
-        compressedFisher(obvs='pk', method='PCA', kmax=0.5, n_components=ncomp)
+    #for ncomp in [20, 40, 60, 70]: 
+    #    compressedFisher(obvs='pk', method='PCA', kmax=0.5, n_components=ncomp)
     for ncomp in [50, 100, 200, 300, 500]: 
         compressedFisher(obvs='bk', method='PCA', kmax=0.5, n_components=ncomp)
