@@ -1135,6 +1135,7 @@ if __name__=="__main__":
     #pf_dlogPdtheta_real()
     #pf_dlogBdtheta(rsd='real', kmax=0.5)
     #pf_dlogBdtheta(rsd='all', kmax=0.5)
+<<<<<<< HEAD
     pf_P_Fij(rsd='real', kmax=0.5)
     pf_P_Fij(rsd='all', kmax=0.5)
     pf_B_Fij(rsd='real', kmax=0.5)
@@ -1143,3 +1144,8 @@ if __name__=="__main__":
     #pf_P_posterior(rsd='all', kmax=0.5)
     #pf_B_posterior(rsd='real', kmax=0.5)
     #pf_B_posterior(rsd='all', kmax=0.5)
+=======
+    pf_Fij(rsd='real', kmax=0.5)
+    pf_Fij(rsd='all', kmax=0.5)
+    #pf_posterior(rsd='all', kmax=0.5)
+>>>>>>> 4366a2f2f91680c8080ecccb89cdbb25dd5cd359
