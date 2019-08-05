@@ -58,11 +58,16 @@ in the Quijote suite.
 
 The initial conditions for all Quijote simulations were generated at $z=127$ using 
 2LPT for simulations with massless neutrinos and the Zel’dovich approximation for 
-massive neutrinos. Like HADES, the initial conditions of simulations with massive
-neutrinos take their scale-dependent growth factors/rates into account using the
-\cite{zennaro2017a} method. From the initial conditions, all of the simulations 
-follow the gravitational evolution of $512^3$ dark matter particles, and $512^3$ 
-neutrino particles for massive neutrino models, to $z=0$ using {\sc Gadget-III}
+massive neutrinos. 
+\ch{
+    The suite also includes a set of simulations at fiducial $\smnu = 0$ eV cosmology 
+    with Zel'dovich approximation initial conditions, which we use later in Section~\ref{sec:forecast}. 
+}
+Like HADES, the initial conditions 
+of simulations with massive neutrinos take their scale-dependent growth factors/rates 
+into account using the \cite{zennaro2017a} method. From the initial conditions, all 
+of the simulations follow the gravitational evolution of $512^3$ dark matter particles, 
+and $512^3$ neutrino particles for massive neutrino models, to $z=0$ using {\sc Gadget-III}
 TreePM+SPH code (same as HADES). 
 \ch{Halos are then identified using the same FoF scheme and mass limit as HADES. 
 For the fiducial cosmology, the halo catalogs have ${\sim}156,000$ halos 
@@ -94,34 +99,35 @@ on the Quijote simulations.
 \begin{table}
 \caption{Specifications of the HADES and Quijote simulation suites.} 
 \begin{center}
-\begin{tabular}{ccccccccc} \toprule
-    Name  &$\smnu$ & $\Omega_m$ & $\Omega_b$ & $h$ & $n_s$ & $\sigma^m_8$ & $\sigma^c_8$ & realizations \\
+\begin{tabular}{cccccccccc} \toprule
+    Name  &$\smnu$ & $\Omega_m$ & $\Omega_b$ & $h$ & $n_s$ & $\sigma^m_8$ & $\sigma^c_8$ & ICs & realizations \\
       &({\footnotesize eV}) & & & & & ({\footnotesize $10^{10}h^{-1}M_\odot$}) & ({\footnotesize $10^{10}h^{-1}M_\odot$}) & \\[3pt] \hline\hline
     \multicolumn{9}{c}{HADES suite} \\ \hline
-    Fiducial    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.833 & 0.833 & 100 \\ 
-                & 0.06  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.819 & 0.822 & 100 \\ 
-                & 0.10  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.809 & 0.815 & 100 \\ 
-                & 0.15  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.798 & 0.806 & 100 \\ 
-                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.822 & 0.822 & 100 \\ 
-                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.818 & 0.818 & 100 \\ 
-                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.807 & 0.807 & 100 \\ 
-                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.798 & 0.798 & 100 \\[3pt]
+    Fiducial    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.833 & 0.833 & Zel'dovich & 100 \\ 
+                & 0.06  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.819 & 0.822 & Zel'dovich & 100 \\ 
+                & 0.10  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.809 & 0.815 & Zel'dovich & 100 \\ 
+                & 0.15  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.798 & 0.806 & Zel'dovich & 100 \\ 
+                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.822 & 0.822 & Zel'dovich & 100 \\ 
+                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.818 & 0.818 & Zel'dovich & 100 \\ 
+                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.807 & 0.807 & Zel'dovich & 100 \\ 
+                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.798 & 0.798 & Zel'dovich & 100 \\[3pt]
     \hline \hline
     \multicolumn{9}{c}{Qujiote suite} \\ \hline
-    Fiducial 	    & 0.0         & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 15,000 \\ 
-    $\smnu^+$       & \underline{0.1}   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $\smnu^{++}$    & \underline{0.2}   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $\smnu^{+++}$   & \underline{0.4}   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $\Omega_m^+$    & 0.0   & \underline{ 0.3275} & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $\Omega_m^-$    & 0.0   & \underline{ 0.3075} & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $\Omega_b^+$    & 0.0   & 0.3175 & \underline{0.051} & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $\Omega_b^-$    & 0.0   & 0.3175 & \underline{0.047} & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $h^+$           & 0.0   & 0.3175 & 0.049 & \underline{0.6911} & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $h^-$           & 0.0   & 0.3175 & 0.049 & \underline{0.6511} & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $n_s^+$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9824} & 0.834 & 0.834 & 500 \\ 
-    $n_s^-$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9424} & 0.834 & 0.834 & 500 \\ 
-    $\sigma_8^+$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.849} & \underline{0.849} & 500 \\ 
-    $\sigma_8^-$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.819} & \underline{0.819} & 500 \\[3pt]
+    Fiducial 	    & 0.0         & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 2LPT & 15,000 \\ 
+    Fiducial ZA     & 0.0         & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & Zel'dovich& 500 \\ 
+    $\smnu^+$       & \underline{0.1}   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & Zel'dovich & 500 \\ 
+    $\smnu^{++}$    & \underline{0.2}   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & Zel'dovich & 500 \\ 
+    $\smnu^{+++}$   & \underline{0.4}   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & Zel'dovich & 500 \\ 
+    $\Omega_m^+$    & 0.0   & \underline{ 0.3275} & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 2LPT & 500 \\ 
+    $\Omega_m^-$    & 0.0   & \underline{ 0.3075} & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 2LPT & 500 \\ 
+    $\Omega_b^+$    & 0.0   & 0.3175 & \underline{0.051} & 0.6711 & 0.9624 & 0.834 & 0.834 & 2LPT & 500 \\ 
+    $\Omega_b^-$    & 0.0   & 0.3175 & \underline{0.047} & 0.6711 & 0.9624 & 0.834 & 0.834 & 2LPT & 500 \\ 
+    $h^+$           & 0.0   & 0.3175 & 0.049 & \underline{0.6911} & 0.9624 & 0.834 & 0.834 & 2LPT & 500 \\ 
+    $h^-$           & 0.0   & 0.3175 & 0.049 & \underline{0.6511} & 0.9624 & 0.834 & 0.834 & 2LPT & 500 \\ 
+    $n_s^+$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9824} & 0.834 & 0.834 & 2LPT & 500 \\ 
+    $n_s^-$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9424} & 0.834 & 0.834 & 2LPT & 500 \\ 
+    $\sigma_8^+$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.849} & \underline{0.849} & 2LPT & 500 \\ 
+    $\sigma_8^-$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.819} & \underline{0.819} & 2LPT & 500 \\[3pt]
     \hline
 \end{tabular} \label{tab:sims}
 \end{center}
