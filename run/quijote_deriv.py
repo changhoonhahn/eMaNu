@@ -31,7 +31,7 @@ def dBdtheta(theta, z=0, rsd='all', flag=None, silent=True):
     print("--- writing dB/d%s to %s ---" % (theta, fderiv))
 
     if theta == 'Mnu': 
-        for i_dmnu, dmnu in enumerate(['fin', 'fin0', 'p', 'pp', 'ppp', 'fin_za']): 
+        for i_dmnu, dmnu in enumerate(['fin', 'fin0', 'p', 'pp', 'ppp', 'fin_2lpt']): 
             # calculate dB/dtheta and dlogB/dtheta 
             k1, k2, k3, dbk = Forecast.quijote_dBkdtheta(theta, log=False, z=z, dmnu=dmnu, flag=flag, rsd=rsd, Nderiv=None,
                                                          silent=silent)
@@ -77,7 +77,7 @@ def dPdtheta(theta, z=0, rsd='all', flag=None, silent=True):
     print("--- writing dP/d%s to %s ---" % (theta, fderiv))
 
     if theta == 'Mnu': 
-        for i_dmnu, dmnu in enumerate(['fin', 'fin0', 'p', 'pp', 'ppp']): 
+        for i_dmnu, dmnu in enumerate(['fin', 'fin0', 'p', 'pp', 'ppp', 'fin_2lpt']): 
             # calculate dP/dtheta and dlogP/dtheta 
             k, dpk = Forecast.quijote_dPkdtheta(theta, log=False, z=z, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=None, silent=silent)
             _, dlogpk = Forecast.quijote_dPkdtheta(theta, log=True, z=z, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=None, silent=silent)
@@ -122,7 +122,7 @@ def dP02dtheta(theta, z=0, rsd='all', flag=None, silent=True):
     print("--- writing dP02/d%s to %s ---" % (theta, fderiv))
 
     if theta == 'Mnu': 
-        for i_dmnu, dmnu in enumerate(['fin', 'fin0', 'p', 'pp', 'ppp', 'fin_za']): 
+        for i_dmnu, dmnu in enumerate(['fin', 'fin0', 'p', 'pp', 'ppp', 'fin_2lpt']): 
             # calculate dP/dtheta and dlogP/dtheta 
             k, dpk = Forecast.quijote_dP02kdtheta(theta, log=False, z=z, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=None, silent=silent)
             _, dlogpk = Forecast.quijote_dP02kdtheta(theta, log=True, z=z, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=None, silent=silent)
@@ -167,8 +167,8 @@ if __name__=="__main__":
         for rsd in [0, 1, 2, 'all']: #[True, 0, 'real']: 
             if theta not in ['Bsn', 'b2', 'g2']: 
                 #dPdtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
-                #dPdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
+                dPdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
                 #dP02dtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
                 dP02dtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
             #dBdtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
-            #dBdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
+            dBdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 

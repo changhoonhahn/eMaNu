@@ -371,7 +371,7 @@ def dPkdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin', returnks=Fals
     if not silent: print('--- reading %s ---' % fdpk) 
     i_dpk = 1 
     if theta == 'Mnu': 
-        index_dict = {'fin': 1, 'fin0': 3, 'p': 5, 'pp': 7, 'ppp': 9}  
+        index_dict = {'fin': 1, 'fin0': 3, 'p': 5, 'pp': 7, 'ppp': 9, 'fin_2lpt': 11}  
         i_dpk = index_dict[dmnu] 
     if log: i_dpk += 1 
 
@@ -392,7 +392,7 @@ def dP02kdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin', returnks=Fa
     if not silent: print('--- reading %s ---' % fdpk) 
     i_dpk = 1 
     if theta == 'Mnu': 
-        index_dict = {'fin': 1, 'fin0': 3, 'p': 5, 'pp': 7, 'ppp': 9}  
+        index_dict = {'fin': 1, 'fin0': 3, 'p': 5, 'pp': 7, 'ppp': 9, 'fin_2lpt': 11}  
         i_dpk = index_dict[dmnu] 
     if log: i_dpk += 1 
 
@@ -412,7 +412,7 @@ def dBkdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', returnks=False
     fdbk = os.path.join(dir_dat, 'dBdtheta.%s%s%s.dat' % (theta, _rsd_str(rsd), _flag_str(flag))) 
     i_dbk = 3 
     if theta == 'Mnu': 
-        index_dict = {'fin': 3, 'fin0': 5, 'p': 7, 'pp': 9, 'ppp': 11}  
+        index_dict = {'fin': 3, 'fin0': 5, 'p': 7, 'pp': 9, 'ppp': 11,  'fin_2lpt': 13}  
         i_dbk = index_dict[dmnu] 
     if log: i_dbk += 1 
 
@@ -861,9 +861,9 @@ def dlogPBdMnu(rsd='all', flag='reg'):
     '''
     dmnus = ['fin', 'fin0', 'p']
     #dmnus_lbls = ['0.0, 0.1, 0.2, 0.4 eV', '0.0, 0.1, 0.2 eV', '0.0, 0.1eV']
-    dmnus_lbls = [r'$M^{\rm fid}_\nu, M^{+}_\nu, M^{++}_\nu, M^{+++}_\nu$ (Eq.12)', 
-                  r'$M^{\rm fid}_\nu, M^{+}_\nu, M^{++}_\nu$', 
-                  r'$M^{\rm fid}_\nu, M^{+}_\nu$']
+    dmnus_lbls = [r'$\theta^{\rm ZA}_{\rm fid}, M^{+}_\nu, M^{++}_\nu, M^{+++}_\nu$ (Eq.12)', 
+                  r'$\theta^{\rm ZA}_{\rm fid}, M^{+}_\nu, M^{++}_\nu$', 
+                  r'$\theta^{\rm ZA}_{\rm fid}, M^{+}_\nu$']
     colors = ['C0', 'C1', 'C2']
     kmax=0.5
 
@@ -915,8 +915,8 @@ def dlogPBdMnu(rsd='all', flag='reg'):
     sub1.set_xlabel('triangle configurations', fontsize=25) 
     sub1.set_xlim(0, np.sum(bklim)) 
     sub1.set_ylabel(r'${\rm d}\log B_0(k_1, k_2, k_3)/{\rm d} M_\nu$', labelpad=-5, fontsize=25) 
-    sub1.set_ylim(-0.65, 1.5) 
-    sub1.set_yticks([-0.5, 0., 0.5, 1., 1.5]) 
+    sub1.set_ylim(-0.65, 1.) 
+    sub1.set_yticks([-0.5, 0., 0.5, 1.]) 
     ffig = os.path.join(dir_doc, 'quijote_dPBdMnu_dmnu%s%s.png' % (_rsd_str(rsd), _flag_str(flag)))
     fig.savefig(ffig, bbox_inches='tight') 
     fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
@@ -1122,7 +1122,7 @@ def forecast_kmax_table(rsd='all', flag='reg', theta_nuis=None, dmnu='fin'):
         derivative finite differences setup
     '''
     if theta_nuis is None: theta_nuis = [] 
-    for obs in ['pk', 'bk']:  
+    for obs in ['p02k', 'bk']:  
         for kmax in [0.2, 0.3, 0.4, 0.5]: 
             Fij = FisherMatrix(obs, kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=theta_nuis) # marg. over nuisance param. 
             cond = np.linalg.cond(Fij)
@@ -1324,7 +1324,7 @@ def p02bForecast(kmax=0.5, rsd=True, flag=None, theta_nuis=None, dmnu='fin', pla
     _theta_fid = theta_fid.copy() # fiducial thetas
     for tt in theta_nuis: _theta_fid[tt] = theta_nuis_fids[tt]
     # theta_fid = { 's8': 0.834} # fiducial theta 
-    _theta_lims = [(0.28, 0.355), (0.028, 0.07), (0.4422, 0.9), (0.7248, 1.2), (0.788, 0.88), (-0.25, 0.25)]
+    _theta_lims = [(0.28, 0.355), (0.028, 0.07), (0.4422, 0.9), (0.7248, 1.2), (0.778, 0.89), (-0.39, 0.39)]
     if kmax < 0.2: _theta_lims = [(0.1, 0.5), (0.0, 0.15), (0.0, 1.6), (0., 2.), (0.5, 1.3), (0, 2.)]
     if planck: 
         _theta_lims = [(_theta_fid[tt] - dtt, _theta_fid[tt] + dtt) for tt, dtt in zip(thetas, [0.03, 0.003, 0.02, 0.01, 0.05, 0.2])] 
@@ -3737,84 +3737,64 @@ if __name__=="__main__":
     '''
     # deriatives 
     '''
-        for flag in ['ncv', 'reg']: P_theta(rsd=0, flag=flag)
-        for flag in ['ncv', 'reg']: P02_theta(rsd=0, flag=flag)
-        for flag in ['ncv', 'reg']: B_theta(rsd=0, flag=flag)
-        for flag in ['ncv', 'reg']: P_theta(rsd='all', flag=flag)
-        for flag in ['ncv', 'reg']: P02_theta(rsd='all', flag=flag)
-        for flag in ['ncv', 'reg']: B_theta(rsd='all', flag=flag)
-        for flag in ['ncv', 'reg']: _dPdthetas(log=True, rsd=0, flag=flag, dmnu='fin')
-        for flag in ['ncv', 'reg']: _dP02dthetas(log=True, rsd=0, flag=flag, dmnu='fin')
-        for flag in ['ncv', 'reg']: _dBdthetas(log=True, rsd=0, flag=flag, dmnu='fin')
+        for flag in ['reg']: P_theta(rsd=0, flag=flag)
+        for flag in ['reg']: P02_theta(rsd=0, flag=flag)
+        for flag in ['reg']: B_theta(rsd=0, flag=flag)
+        for flag in ['reg']: P_theta(rsd='all', flag=flag)
+        for flag in ['reg']: P02_theta(rsd='all', flag=flag)
+        for flag in ['reg']: B_theta(rsd='all', flag=flag)
+        for flag in ['reg']: _dPdthetas(log=True, rsd=0, flag=flag, dmnu='fin')
+        for flag in ['reg']: _dP02dthetas(log=True, rsd=0, flag=flag, dmnu='fin')
+        for flag in ['reg']: _dBdthetas(log=True, rsd=0, flag=flag, dmnu='fin')
         dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin')
         dlogBdMnu(kmax=0.5, flag='reg')
-        for flag in ['ncv', 'reg']: dlogPBdMnu(rsd='all', flag=flag)
+        dlogPBdMnu(rsd='all', flag='reg')
         _dBdthetas_ncv(kmax=0.5, log=True, rsd=True, dmnu='fin')
     ''' 
     # fisher forecasts with different nuisance parameters 
     '''
-        for flag in ['ncv', 'reg']: 
-            forecast('pk', kmax=0.5, rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
-            forecast('pk', kmax=0.5, rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn'])
-            forecast('p02k', kmax=0.5, rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
-            forecast('p02k', kmax=0.5, rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn'])
-            forecast('bk', kmax=0.5, rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
-            forecast('bk', kmax=0.5, rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'])
-            forecast('bk', kmax=0.5, rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'])
-        for flag in ['ncv', 'reg']: 
-            forecast('pk', kmax=0.5, rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin'], planck=True)
-            forecast('pk', kmax=0.5, rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn'], planck=True)
-            forecast('bk', kmax=0.5, rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin'], planck=True)
-            forecast('bk', kmax=0.5, rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'], planck=True)
-            forecast('bk', kmax=0.5, rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'], planck=True)
-        forecast_kmax_table(dmnu='fin', theta_nuis=None)
+        forecast('pk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'])
+        forecast('pk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn'])
+        forecast('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'])
+        forecast('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn'])
+        forecast('bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'])
+        forecast('bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'])
+        forecast('bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'])
+        # planck priors
+        forecast('pk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'], planck=True)
+        forecast('pk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn'], planck=True)
+        forecast('bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'], planck=True)
+        forecast('bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'], planck=True)
+        forecast('bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'], planck=True)
+        forecast_kmax_table(dmnu='fin', theta_nuis=['Amp', 'Mmin'])
     '''
     # P+B fisher forecasts with different nuisance parameters 
     '''
-        for flag in ['ncv', 'reg']: 
-            pbForecast(kmax=0.5, rsd='all', flag=flag, theta_nuis=['Amp', 'Mmin'], dmnu='fin')
-            pbForecast(kmax=0.5, rsd='all', flag=flag, theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'], dmnu='fin')
-            pbForecast(kmax=0.5, rsd='all', flag=flag, theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'], dmnu='fin')
-        for flag in ['ncv', 'reg']: 
-            p02bForecast(kmax=0.5, rsd='all', flag=flag, theta_nuis=['Amp', 'Mmin'], dmnu='fin')
-            p02bForecast(kmax=0.5, rsd='all', flag=flag, theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'], dmnu='fin')
-            p02bForecast(kmax=0.5, rsd='all', flag=flag, theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'], dmnu='fin')
-        for flag in ['ncv', 'reg']: 
-            pbForecast(kmax=0.5, rsd='all', flag=flag, theta_nuis=['Amp', 'Mmin'], dmnu='fin', planck=True)
-            pbForecast(kmax=0.5, rsd='all', flag=flag, theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'], dmnu='fin', planck=True)
-            pbForecast(kmax=0.5, rsd='all', flag=flag, theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'], dmnu='fin', planck=True)
+        p02bForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin'], dmnu='fin')
+        p02bForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'], dmnu='fin')
+        p02bForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'], dmnu='fin')
     '''
     # fisher forecasts as a function of kmax with different nuisance parameters 
     '''
-        for flag in ['ncv', 'reg']: 
-            Fii_kmax(rsd='all', flag=flag, dmnu='fin')
-            forecast_kmax(rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
-            forecast_kmax(rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin'], planck=True)
-            forecast_kmax(rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'])
-            forecast_kmax(rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'])
-            forecastP02B_kmax(rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
-            forecastP02B_kmax(rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin'], planck=True)
-    '''
-    # fisher forecasts as a function of kmax excluding some cosmo. parameters with different nuisance parameters 
-    '''
-        for flag in ['ncv', 'reg']: 
-            forecast_thetas_kmax(tts='lcdm', rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin'])
-            forecast_thetas_kmax(tts='lcdm', rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'])
-            forecast_thetas_kmax(tts='lcdm', rsd='all', flag=flag, dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'])
+        Fii_kmax(rsd='all', flag='reg', dmnu='fin')
+        forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'])
+        forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'], planck=True)
+        forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'])
+        forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'])
+        forecastP02B_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'])
+        forecastP02B_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'], planck=True)
     '''
     # --- convergence tests ---  
     '''
-        for flag in ['ncv', 'reg']: 
-            dlogPBdtheta_Nfixedpair(rsd=True, flag=flag, dmnu='fin')
-            Fij_convergence('pk', kmax=0.5, rsd='all', flag=flag, dmnu='fin')
-            Fij_convergence('p02k', kmax=0.5, rsd='all', flag=flag, dmnu='fin')
-            Fij_convergence('bk', kmax=0.5, rsd='all', flag=flag, dmnu='fin')
-        for flag in ['ncv', 'reg']: 
-            forecast_convergence('pk', kmax=0.5, rsd='all', flag=flag, dmnu='fin')
-            forecast_convergence('p02k', kmax=0.5, rsd='all', flag=flag, dmnu='fin')
-            forecast_convergence('bk', kmax=0.5, rsd='all', flag=flag, dmnu='fin')
-            forecast_convergence('pk', kmax=0.5, rsd='all', flag=flag, dmnu='fin', planck=True)
-            forecast_convergence('bk', kmax=0.5, rsd='all', flag=flag, dmnu='fin', planck=True)
+        dlogPBdtheta_Nfixedpair(rsd=True, flag='reg', dmnu='fin')
+        Fij_convergence('pk', kmax=0.5, rsd='all', flag='reg', dmnu='fin')
+        Fij_convergence('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin')
+        Fij_convergence('bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin')
+        forecast_convergence('pk', kmax=0.5, rsd='all', flag='reg', dmnu='fin')
+        forecast_convergence('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin')
+        forecast_convergence('bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin')
+        forecast_convergence('pk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', planck=True)
+        forecast_convergence('bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', planck=True)
     ''' 
     # calculations 
     '''
@@ -3824,13 +3804,8 @@ if __name__=="__main__":
         Cov_gauss(Mnu=0.0, validate=False)
         Cov_gauss(Mnu=0.1, validate=False)
     '''
-    # --- fisher matrix test --- 
-    '''
-        for kmax in [0.05, 0.1, 0.2, 0.3, 0.4, 0.5]: 
-            quijote_FisherTest(kmax=kmax, rsd=True, dmnu='fin')
-    '''
     # rsd 
     #B_detail(rsd='all', flag='reg')
     #zeldovich_ICtest(rsd='real')
     #zeldovich_ICtest(rsd=1)
-    zeldovich_ICtest(rsd='all')
+    #zeldovich_ICtest(rsd='all')

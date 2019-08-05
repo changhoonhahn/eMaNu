@@ -29,7 +29,7 @@ def quijote_dPkdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0, N
     c_dpk = 0.
     if theta == 'Mnu': 
         if not silent: print("--- calculating dP/d%s using %s ---" % (theta, dmnu)) 
-        tts = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
+        tts = ['fiducial_za', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
         if dmnu == 'p': 
             coeffs = [-1., 1., 0., 0.]
             h = 0.1
@@ -45,8 +45,8 @@ def quijote_dPkdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0, N
         elif dmnu == 'fin': 
             coeffs = [-21., 32., -12., 1.] # finite difference coefficient
             h = 1.2
-        elif dmnu == 'fin_za': 
-            tts = ['fiducial_za', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
+        elif dmnu == 'fin_2lpt': 
+            tts = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
             coeffs = [-21., 32., -12., 1.] # finite difference coefficient
             h = 1.2
     elif theta == 'Mmin': # halo mass limit 
@@ -119,7 +119,7 @@ def quijote_dP02kdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0,
     c_dpk = 0.
     if theta == 'Mnu': 
         if not silent: print("--- calculating dP/d%s using %s ---" % (theta, dmnu)) 
-        tts = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
+        tts = ['fiducial_za', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
         if dmnu == 'p': 
             coeffs = [-1., 1., 0., 0.]
             h = 0.1
@@ -135,8 +135,8 @@ def quijote_dP02kdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0,
         elif dmnu == 'fin': 
             coeffs = [-21., 32., -12., 1.] # finite difference coefficient
             h = 1.2
-        elif dmnu == 'fin_za': 
-            tts = ['fiducial_za', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
+        elif dmnu == 'fin_2lpt': 
+            tts = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
             coeffs = [-21., 32., -12., 1.] # finite difference coefficient
             h = 1.2
     elif theta == 'Mmin': # halo mass limit 
@@ -232,7 +232,7 @@ def quijote_dBkdtheta(theta, log=False, rsd='all', flag=None, z=0, dmnu='fin', N
     if theta == 'Mnu': 
         if not silent: print("--- calculating dB/d%s using %s ---" % (theta, dmnu)) 
         # derivative w.r.t. Mnu using 0, 0.1, 0.2, 0.4 eV
-        tts = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
+        tts = ['fiducial_za', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
         if dmnu == 'p': 
             coeffs = [-1., 1., 0., 0.]  # derivative at 0.05eV
             h = 0.1
@@ -248,8 +248,8 @@ def quijote_dBkdtheta(theta, log=False, rsd='all', flag=None, z=0, dmnu='fin', N
         elif dmnu == 'fin': 
             coeffs = [-21., 32., -12., 1.] # finite difference coefficient
             h = 1.2
-        elif dmnu == 'fin_za': 
-            tts = ['fiducial_za', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp'] # use ZA inital conditions
+        elif dmnu == 'fin_2lpt': 
+            tts = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp'] # use ZA inital conditions
             coeffs = [-21., 32., -12., 1.] # finite difference coefficient
             h = 1.2
         elif dmnu == '0.2eV_2LPTZA': # derivative @ 0.2 eV (not using 0.0eV which has 2LPT IC) 
