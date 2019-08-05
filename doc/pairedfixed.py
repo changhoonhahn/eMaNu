@@ -66,16 +66,19 @@ def pf_Pk(rsd=0):
     sig_p2k = np.sqrt(np.diag(Cov_pk))[p0ks_std.shape[1]:]
 
     # Pell comparison
-    for i in range(p0ks_std.shape[0])[::100]:  
-        sub0.plot(k, p0ks_std[i], c='k', lw=0.1, alpha=0.2)
-        sub0.plot(k, p2ks_std[i], c='k', lw=0.1, alpha=0.2)
+    #for i in range(p0ks_std.shape[0])[::100]:  
+    #    sub0.plot(k, p0ks_std[i], c='k', lw=0.1, alpha=0.2)
+    #    sub0.plot(k, p2ks_std[i], c='k', lw=0.1, alpha=0.2)
     # average P0
     sub0.plot(k, np.average(p0ks_std, axis=0), c='C0', label='%i standard $N$-body' % p0ks_std.shape[0])
     sub0.scatter(k, np.average(p0ks_pfd, axis=0), color='C1', s=5, label='%i paired-fixed' % p0ks_pfd.shape[0], zorder=10) 
     # average P2
     sub0.plot(k, np.average(p2ks_std, axis=0), c='C0')
     sub0.scatter(k, np.average(p2ks_pfd, axis=0), color='C1', s=5, zorder=10) 
-    sub0.legend(loc='lower left', markerscale=5, handletextpad=0.2, fontsize=20) 
+
+    sub0.text(0.33, 0.8, r'$\ell = 0$', ha='left', va='bottom', transform=sub0.transAxes, fontsize=20)
+    sub0.text(0.2, 0.53, r'$\ell = 2$', ha='left', va='bottom', transform=sub0.transAxes, fontsize=20)
+    sub0.legend(loc='lower left', markerscale=5, handletextpad=0.2, frameon=True, fontsize=20) 
     sub0.set_xlim(9e-3, 0.5) 
     sub0.set_xscale('log') 
     sub0.set_xticklabels([]) 
@@ -108,7 +111,8 @@ def pf_Pk(rsd=0):
 
     # Delta0/sigma comparison
     sub1.plot([9e-3, 0.5], [0, 0], c='k', ls=':') 
-    #sub1.fill_between([9e-3, 0.5], [-1., -1.], [1., 1.], facecolor='k', linewidth=0, alpha=0.2) 
+    inv_V = 1./np.sqrt(float(p0ks_pfd.shape[0]))
+    sub1.fill_between([9e-3, 0.5], [-1.*inv_V, -1.*inv_V], [inv_V, inv_V], facecolor='k', linewidth=0, alpha=0.2) 
     sub1.legend(plts[:6], lbls[:6], loc='lower left', ncol=6, handletextpad=0.4, fontsize=12) 
     sub1.set_xlim(9e-3, 0.5) 
     sub1.set_xscale('log') 
@@ -118,7 +122,7 @@ def pf_Pk(rsd=0):
 
     # Delta2/sigma comparison
     sub2.plot([9e-3, 0.5], [0, 0], c='k', ls=':') 
-    #sub2.fill_between([9e-3, 0.5], [-1., -1.], [1., 1.], facecolor='k', linewidth=0, alpha=0.2) 
+    sub2.fill_between([9e-3, 0.5], [-1.*inv_V, -1.*inv_V], [inv_V, inv_V], facecolor='k', linewidth=0, alpha=0.2) 
     sub2.legend(plts[6:], lbls[6:], loc='lower left', ncol=6, handletextpad=0.4, fontsize=12) 
     sub2.set_xlim(9e-3, 0.5) 
     sub2.set_xlabel('$k$', fontsize=25) 
@@ -158,8 +162,8 @@ def pf_Pk_real():
     sig_p0k = np.sqrt(np.diag(Cov_pk))[:p0ks_std.shape[1]]
 
     # Pell comparison
-    for i in range(p0ks_std.shape[0])[::100]:  
-        sub0.plot(k, p0ks_std[i], c='k', lw=0.1, alpha=0.2)
+    #for i in range(p0ks_std.shape[0])[::100]:  
+    #    sub0.plot(k, p0ks_std[i], c='k', lw=0.1, alpha=0.2)
     # average P0
     sub0.plot(k, np.average(p0ks_std, axis=0), c='C0', label='%i standard $N$-body' % p0ks_std.shape[0])
     sub0.scatter(k, np.average(p0ks_pfd, axis=0), color='C1', s=5, label='%i paired-fixed' % p0ks_pfd.shape[0], zorder=10) 
@@ -191,8 +195,9 @@ def pf_Pk_real():
 
     # Delta0/sigma comparison
     sub1.plot([9e-3, 0.5], [0, 0], c='k', ls=':') 
-    #sub1.fill_between([9e-3, 0.5], [-1., -1.], [1., 1.], facecolor='k', linewidth=0, alpha=0.2) 
     sub1.legend(plts, lbls, loc='lower left', ncol=6, handletextpad=0.4, fontsize=12) 
+    inv_V = 1./np.sqrt(float(p0ks_pfd.shape[0]))
+    sub1.fill_between([9e-3, 0.5], [-1.*inv_V, -1.*inv_V], [1.*inv_V, 1.*inv_V], facecolor='k', linewidth=0, alpha=0.2) 
     sub1.set_xlim(9e-3, 0.5) 
     sub1.set_xlabel('$k$', fontsize=25) 
     sub1.set_xscale('log') 
@@ -1127,7 +1132,7 @@ def _flag_str(flag):
 
 if __name__=="__main__": 
     #pf_Pk_real()
-    #pf_Pk(rsd='all')
+    pf_Pk(rsd='all')
     #pf_Bk(rsd='real', kmax=0.5)
     #pf_Bk(rsd='all', kmax=0.5)
     #pf_DelB_sigB(rsd='all', kmax=0.5)
@@ -1135,17 +1140,11 @@ if __name__=="__main__":
     #pf_dlogPdtheta_real()
     #pf_dlogBdtheta(rsd='real', kmax=0.5)
     #pf_dlogBdtheta(rsd='all', kmax=0.5)
-<<<<<<< HEAD
-    pf_P_Fij(rsd='real', kmax=0.5)
-    pf_P_Fij(rsd='all', kmax=0.5)
-    pf_B_Fij(rsd='real', kmax=0.5)
-    pf_B_Fij(rsd='all', kmax=0.5)
+    #pf_P_Fij(rsd='real', kmax=0.5)
+    #pf_P_Fij(rsd='all', kmax=0.5)
+    #pf_B_Fij(rsd='real', kmax=0.5)
+    #pf_B_Fij(rsd='all', kmax=0.5)
     #pf_P_posterior(rsd='real', kmax=0.5)
     #pf_P_posterior(rsd='all', kmax=0.5)
     #pf_B_posterior(rsd='real', kmax=0.5)
     #pf_B_posterior(rsd='all', kmax=0.5)
-=======
-    pf_Fij(rsd='real', kmax=0.5)
-    pf_Fij(rsd='all', kmax=0.5)
-    #pf_posterior(rsd='all', kmax=0.5)
->>>>>>> 4366a2f2f91680c8080ecccb89cdbb25dd5cd359
