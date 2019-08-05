@@ -385,7 +385,7 @@ def plotEllipse(Finv_sub, sub, theta_fid_ij=None, color='C0'):
     return sub
 
 
-def plotFisher(Finvs, theta_fid, colors=None, ranges=None, labels=None): 
+def plotFisher(Finvs, theta_fid, ranges=None, labels=None, colors=None, linestyles=None): 
     ''' Given a list of inverse Fisher matrices, plot the Fisher contours
     '''
     ntheta = Finvs[0].shape[0] # number of parameters 
@@ -437,7 +437,10 @@ def plotFisher(Finvs, theta_fid, colors=None, ranges=None, labels=None):
                 else: 
                     x = np.linspace(ranges[i][0], ranges[i][1], 100) 
                 for _i, onesigma in enumerate(onesigmas): 
-                    sub.plot(x, _gaussian(x, theta_fid[i], onesigma[i]), c=colors[_i])
+                    if linestyles is None: 
+                        sub.plot(x, _gaussian(x, theta_fid[i], onesigma[i]), c=colors[_i])
+                    else: 
+                        sub.plot(x, _gaussian(x, theta_fid[i], onesigma[i]), c=colors[_i], ls=linestyles[_i])
 
                 if ranges is not None: sub.set_xlim(ranges[i])
                 if j != ntheta-1: 
