@@ -31,7 +31,7 @@ def dBdtheta(theta, z=0, rsd='all', flag=None, silent=True):
     print("--- writing dB/d%s to %s ---" % (theta, fderiv))
 
     if theta == 'Mnu': 
-        for i_dmnu, dmnu in enumerate(['fin', 'fin0', 'p', 'pp', 'ppp']): 
+        for i_dmnu, dmnu in enumerate(['fin', 'fin0', 'p', 'pp', 'ppp', 'fin_za']): 
             # calculate dB/dtheta and dlogB/dtheta 
             k1, k2, k3, dbk = Forecast.quijote_dBkdtheta(theta, log=False, z=z, dmnu=dmnu, flag=flag, rsd=rsd, Nderiv=None,
                                                          silent=silent)
@@ -122,7 +122,7 @@ def dP02dtheta(theta, z=0, rsd='all', flag=None, silent=True):
     print("--- writing dP02/d%s to %s ---" % (theta, fderiv))
 
     if theta == 'Mnu': 
-        for i_dmnu, dmnu in enumerate(['fin', 'fin0', 'p', 'pp', 'ppp']): 
+        for i_dmnu, dmnu in enumerate(['fin', 'fin0', 'p', 'pp', 'ppp', 'fin_za']): 
             # calculate dP/dtheta and dlogP/dtheta 
             k, dpk = Forecast.quijote_dP02kdtheta(theta, log=False, z=z, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=None, silent=silent)
             _, dlogpk = Forecast.quijote_dP02kdtheta(theta, log=True, z=z, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=None, silent=silent)
@@ -162,14 +162,13 @@ def _flag_str(flag):
 
 
 if __name__=="__main__": 
-    thetas = ['Mnu', 'Om', 'Ob2', 'h', 'ns', 's8', 'Mmin', 'Amp', 'Asn', 'Bsn', 'b2', 'g2']
+    thetas = ['Mnu']#, 'Om', 'Ob2', 'h', 'ns', 's8', 'Mmin', 'Amp', 'Asn', 'Bsn', 'b2', 'g2']
     for theta in thetas: 
         for rsd in [0, 1, 2, 'all']: #[True, 0, 'real']: 
             if theta not in ['Bsn', 'b2', 'g2']: 
                 #dPdtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
                 #dPdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
-                dP02dtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
+                #dP02dtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
                 dP02dtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
-            #continue 
             #dBdtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
             #dBdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 

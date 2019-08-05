@@ -45,6 +45,10 @@ def quijote_dPkdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0, N
         elif dmnu == 'fin': 
             coeffs = [-21., 32., -12., 1.] # finite difference coefficient
             h = 1.2
+        elif dmnu == 'fin_za': 
+            tts = ['fiducial_za', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
+            coeffs = [-21., 32., -12., 1.] # finite difference coefficient
+            h = 1.2
     elif theta == 'Mmin': # halo mass limit 
         if not silent: print("--- calculating dP/dMmin ---") 
         tts = ['Mmin_m', 'Mmin_p'] 
@@ -129,6 +133,10 @@ def quijote_dP02kdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0,
             coeffs = [-3., 4., -1., 0.] # finite difference coefficient
             h = 0.2
         elif dmnu == 'fin': 
+            coeffs = [-21., 32., -12., 1.] # finite difference coefficient
+            h = 1.2
+        elif dmnu == 'fin_za': 
+            tts = ['fiducial_za', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
             coeffs = [-21., 32., -12., 1.] # finite difference coefficient
             h = 1.2
     elif theta == 'Mmin': # halo mass limit 
@@ -238,6 +246,10 @@ def quijote_dBkdtheta(theta, log=False, rsd='all', flag=None, z=0, dmnu='fin', N
             coeffs = [-3., 4., -1., 0.] # finite difference coefficient
             h = 0.2
         elif dmnu == 'fin': 
+            coeffs = [-21., 32., -12., 1.] # finite difference coefficient
+            h = 1.2
+        elif dmnu == 'fin_za': 
+            tts = ['fiducial_za', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp'] # use ZA inital conditions
             coeffs = [-21., 32., -12., 1.] # finite difference coefficient
             h = 1.2
         elif dmnu == '0.2eV_2LPTZA': # derivative @ 0.2 eV (not using 0.0eV which has 2LPT IC) 
