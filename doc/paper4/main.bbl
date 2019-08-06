@@ -2,4 +2,31 @@
 \providecommand\natexlab[1]{#1}
 \providecommand\JournalTitle[1]{#1}
 
+\bibitem[{Brandbyge {et~al.}(2008)Brandbyge, Hannestad, Haugb{\o}lle, \&
+  Thomsen}]{brandbyge2008}
+Brandbyge, J., Hannestad, S., Haugb{\o}lle, T., \& Thomsen, B. 2008,
+  \href{http://dx.doi.org/10.1088/1475-7516/2008/08/020}{\JournalTitle{Journal
+  of Cosmology and Astro-Particle Physics}, 08, 020}
+
+\bibitem[{Davis {et~al.}(1985)Davis, Efstathiou, Frenk, \& White}]{davis1985}
+Davis, M., Efstathiou, G., Frenk, C.~S., \& White, S. D.~M. 1985,
+  \href{http://dx.doi.org/10.1086/163168}{\JournalTitle{The Astrophysical
+  Journal}, 292, 371}
+
+\bibitem[{Springel(2005)}]{springel2005}
+Springel, V. 2005,
+  \href{http://dx.doi.org/10.1111/j.1365-2966.2005.09655.x}{\JournalTitle{Monthly
+  Notices of the Royal Astronomical Society}, 364, 1105}
+
+\bibitem[{Viel {et~al.}(2010)Viel, Haehnelt, \& Springel}]{viel2010}
+Viel, M., Haehnelt, M.~G., \& Springel, V. 2010,
+  \href{http://dx.doi.org/10.1088/1475-7516/2010/06/015}{\JournalTitle{Journal
+  of Cosmology and Astro-Particle Physics}, 06, 015}
+
+\bibitem[{Zennaro {et~al.}(2017)Zennaro, Bel, {Villaescusa-Navarro}, Carbone,
+  Sefusatti, \& Guzzo}]{zennaro2017a}
+Zennaro, M., Bel, J., {Villaescusa-Navarro}, F., {et~al.} 2017,
+  \href{http://dx.doi.org/10.1093/mnras/stw3340}{\JournalTitle{Monthly Notices
+  of the Royal Astronomical Society}, 466, 3244}
+
 \end{thebibliography}
