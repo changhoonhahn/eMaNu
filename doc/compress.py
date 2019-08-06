@@ -9,6 +9,7 @@ data compression methods for the bispectrum analysis
 import os 
 import h5py 
 import numpy as np 
+import GPy
 from sklearn.decomposition import PCA
 # --- eMaNu --- 
 from emanu import util as UT
@@ -108,7 +109,10 @@ def compressedFisher(obvs='pk', method='KL', kmax=0.5, n_components=20):
     sub.set_xlim(1000, 15000) 
     sub.plot(sub.get_xlim(), [1., 1.], c='k', ls='--') 
     sub.set_ylabel(r'$\sigma^{\rm c}_\theta(N_{\rm mock})/\sigma_\theta$', fontsize=20) 
-    sub.set_ylim(0.9, 5)
+    if method == 'PCA': 
+        sub.set_ylim(0.9, 5)
+    elif method == 'KL': 
+        sub.set_ylim(0.8, 1.2)
     
     str_method = '%s' % method
     if method == 'PCA': str_method += '_ncomp%i' % n_components
@@ -159,7 +163,7 @@ def load_X(obvs='pk', kmax=0.5):
         Cinv    = np.linalg.inv(Cov) 
         nmock, ndata = X.shape
         f_hartlap = float(nmock - ndata - 2)/float(nmock - 1) # hartlap factor
-        Cinv    *= f_hartlap
+        #Cinv    *= f_hartlap
     
         dXdt = [] 
         for par in thetas: 
@@ -280,6 +284,63 @@ def traceCy(method='KL', kmax=0.5):
     return None 
 
 
+def compare_GP_deriv(kmax=0.5): 
+    ''' I suspect the unexpected compression results are caused by the noise in the 
+    derivatives. Perhaps taking derivatives w.r.t. theta using GP will help(?)
+    '''
+    thetas = ['Om', 'Ob2', 'h', 'ns', 's8']
+    theta_steps = [0.02, 0.004, 0.04, 0.04, 0.03]
+    thetas_m    = [0.3075, 0.047, 0.6511, 0.9424, 0.819]
+    thetas_p    = [0.3275, 0.051, 0.6911, 0.9824, 0.849]
+    thetas_fid  = [0.3175, 0.049, 0.6711, 0.9624, 0.834]
+
+    quij = Obvs.quijotePk('fiducial', z=0, rsd=0, flag='reg', silent=False) 
+    k = quij['k']
+    klim = (k < kmax) 
+    p0k1 = quij['p0k'][:10,:]
+    p0k_fid = np.average(p0k1[:,klim], axis=0) 
+
+    m_gps, dPdts = [], [] 
+    for i, theta in enumerate(thetas): 
+        quij = Obvs.quijotePk('%s_m' % theta, z=0, rsd=0, flag='reg', silent=False) 
+        p0k0 = quij['p0k']
+        quij = Obvs.quijotePk('%s_p' % theta, z=0, rsd=0, flag='reg', silent=False) 
+        p0k2 = quij['p0k']
+        
+        kernel = GPy.kern.RBF(input_dim=1, variance=1., lengthscale=1.)
+        X = np.concatenate([
+            np.repeat(thetas_m[i], p0k0.shape[0]), 
+            np.repeat(thetas_fid[i], p0k1.shape[0]), 
+            np.repeat(thetas_p[i], p0k2.shape[0])])
+        Y = np.concatenate([p0k0[:,klim], p0k1[:,klim], p0k2[:,klim]])
+
+        m_gp = GPy.models.GPRegression(np.atleast_2d(X).T, np.atleast_2d(Y), kernel, normalizer=True)
+        #m_gp.optimize_restarts(num_restarts=10)
+        m_gp.optimize()
+        m_gps.append(m_gp)
+
+        dPdts.append((np.average(p0k2[:,klim], axis=0) - np.average(p0k0[:,klim], axis=0))/theta_steps[i]/p0k_fid)
+
+    fig = plt.figure(figsize=(30,5))
+    for i in range(len(thetas)): 
+        sub = fig.add_subplot(1,5,i+1)
+        sub.plot(k[klim], dPdts[i], c='k', label='Numerical Deriv.')
+        
+        X_pred = np.atleast_2d(np.array([thetas_fid[i]]))
+        Y_pred, var_Y_pred = m_gps[i].predict(X_pred)
+        dY_pred, var_dY_pred = m_gps[i].predictive_gradients(X_pred)
+
+        sub.plot(k[klim], (m_gp.normalizer.inverse_mean(dY_pred)).flatten()/Y_pred.flatten(), label='GP Deriv.')
+        sub.set_xlim(5e-3, None) 
+        sub.set_xscale('log') 
+        if i == len(thetas)-1: sub.legend(loc='upper right', handletextpad=0.2, fontsize=15) 
+        if i == 0: sub.set_ylabel(r'$\partial \log P_0/\partial \theta$', fontsize=25) 
+
+    ffig = os.path.join(dir_fig, 'compare_GPderiv.png') 
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
+
+# --- support functions ---
 def dPkdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin', returnks=False, silent=True):
     ''' read d P(k)/d theta  
 
@@ -335,7 +396,10 @@ def _flag_str(flag):
 
 
 if __name__=='__main__': 
+    compare_GP_deriv()
+    #compressedFisher(obvs='pk', method='KL', kmax=0.5)
+    #compressedFisher(obvs='bk', method='KL', kmax=0.5)
     #for ncomp in [20, 40, 60, 70]: 
     #    compressedFisher(obvs='pk', method='PCA', kmax=0.5, n_components=ncomp)
-    for ncomp in [50, 100, 200, 300, 500]: 
-        compressedFisher(obvs='bk', method='PCA', kmax=0.5, n_components=ncomp)
+    #for ncomp in [50, 100, 200, 300, 500]: 
+    #    compressedFisher(obvs='bk', method='PCA', kmax=0.5, n_components=ncomp)
