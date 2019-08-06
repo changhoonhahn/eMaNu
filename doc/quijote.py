@@ -64,7 +64,8 @@ theta_nuis_fids = {'Mmin': 3.2, 'Amp': 1., 'Asn': 1e-6, 'Bsn': 1e-3, 'b2': 1., '
 theta_nuis_lims = {'Mmin': (2.1, 4.3), 'Amp': (0.75, 1.25), 'Asn': (0., 1.), 'Bsn': (0., 1.), 
         'b2': (0.95, 1.05), 'g2': (0.95, 1.05)} 
 
-fscale_pk = 2e5
+#fscale_pk = 2e5
+fscale_pk = 1e6
 
 
 def pkCov(rsd=2, flag='reg', silent=True): 
@@ -170,6 +171,50 @@ def bkCov(rsd=2, flag='reg', silent=True):
         f.create_dataset('k3', data=quij['k3']) 
         f.close()
     return k1, k2, k3, cov, Nmock
+
+
+def p02bkCov(rsd=2, flag='reg', silent=True):
+    ''' calculate the covariance matrix of the P0, P2, B
+    '''
+    assert flag == 'reg', "only n-body should be used for covariance"
+    assert rsd != 'all', "only one RSD direction should be used otherwise modes will be correlated" 
+
+    fcov = os.path.join(dir_bk, 'quijote_p02bCov_full%s%s.hdf5' % (_rsd_str(rsd), _flag_str(flag)))
+    if os.path.isfile(fcov): 
+        if not silent: print('reading ... %s' % os.path.basename(fcov))
+        Fcov = h5py.File(fcov, 'r') # read in fiducial covariance matrix 
+        cov = Fcov['Cov'][...]
+        k = Fcov['k'][...]
+        k1 = Fcov['k1'][...]
+        k2 = Fcov['k2'][...]
+        k3 = Fcov['k3'][...]
+        Nmock = Fcov['Nmock'][...]
+    else:
+        if not silent: print('calculating ... %s' % os.path.basename(fcov))
+        # read in P(k) 
+        quij = Obvs.quijotePk('fiducial', rsd=rsd, flag=flag, silent=silent) 
+        p0ks = quij['p0k'] + quij['p_sn'][:,None] # shotnoise uncorrected P0 
+        p2ks = quij['p2k'] # P2 
+        pks = np.concatenate([p0ks, p2ks], axis=1)  # concatenate P0 and P2
+        k = np.concatenate([quij['k'], quij['k']]) 
+        # read in B(k) 
+        quij = Obvs.quijoteBk('fiducial', rsd=rsd, flag=flag, silent=silent) 
+        k1, k2, k3 = quij['k1'], quij['k2'], quij['k3']
+        bks = quij['b123'] + quij['b_sn']
+        pbks = np.concatenate([fscale_pk * pks, bks], axis=1) 
+        
+        cov = np.cov(pbks.T) # calculate the covariance
+        Nmock = pbks.shape[0]
+
+        f = h5py.File(fcov, 'w') # write to hdf5 file 
+        f.create_dataset('Nmock', data=Nmock)
+        f.create_dataset('Cov', data=cov) 
+        f.create_dataset('k', data=k) 
+        f.create_dataset('k1', data=k1) 
+        f.create_dataset('k2', data=k2) 
+        f.create_dataset('k3', data=k3) 
+        f.close()
+    return [k, k1, k2, k3], cov, Nmock 
 
 # plot covariance matrices 
 def _pkCov(kmax=0.5, rsd=2, flag='reg'): 
@@ -923,7 +968,7 @@ def dlogPBdMnu(rsd='all', flag='reg'):
     return None
 
 # Fisher Matrix
-def FisherMatrix(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None): 
+def FisherMatrix(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None, cross_covariance=True): 
     ''' calculate fisher matrix for parameters ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu'] 
     and specified nuisance parameters
     
@@ -959,6 +1004,19 @@ def FisherMatrix(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None
         i_k, j_k, l_k, _Cfid, nmock = bkCov(rsd=2, flag='reg') # only N-body for covariance
         klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # k limit 
         C_fid = _Cfid[:,klim][klim,:]
+    elif obs == 'p02bk': 
+        ks, _Cfid, nmock = p02bkCov(rsd=2, flag='reg') # only N-body for covariance
+        k, i_k, j_k, l_k = ks 
+        pklim = (k <= kmax) 
+        bklim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # k limit 
+        klim = np.concatenate([pklim, bklim]) 
+        if cross_covariance: 
+            C_fid = _Cfid[:,klim][klim,:]
+        else: 
+            C_fid = np.zeros((np.sum(klim), np.sum(klim)))
+            C_fid[:np.sum(pklim),:np.sum(pklim)] = _Cfid[:len(k),:len(k)][pklim,:][:,pklim]
+            C_fid[np.sum(pklim):,np.sum(pklim):] = _Cfid[len(k):,len(k):][bklim,:][:,bklim] 
+        print(np.linalg.cond(C_fid))
     else: 
         raise NotImplementedError
 
@@ -982,6 +1040,12 @@ def FisherMatrix(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None
             # rsd and flag kwargs are passed to the derivatives
             dobs_dti = dBkdtheta(par, rsd=rsd, flag=flag, dmnu=dmnu)
             dobs_dt.append(dobs_dti[klim])
+        elif obs == 'p02bk': 
+            dp_dti = dP02kdtheta(par, rsd=rsd, flag=flag, dmnu=dmnu)
+            db_dti = dBkdtheta(par, rsd=rsd, flag=flag, dmnu=dmnu)
+            dobs_dti = np.concatenate([fscale_pk*dp_dti[pklim], db_dti[bklim]])
+            dobs_dt.append(dobs_dti)
+            
     Fij = Forecast.Fij(dobs_dt, C_inv) 
     #assert ndata > Fij.shape[0] 
     return Fij 
@@ -3702,6 +3766,23 @@ def zeldovich_ICtest(rsd=0):
     return None
 
 
+def P02B_crosscovariance(): 
+    ''' In Chudaykin & Ivanov (2019), they do not include cross covariance between P and B. 
+    Lets try to quantify the effect of that 
+    '''
+    for kmax in [0.1, 0.2, 0.3, 0.4, 0.5]: 
+        _Fij = FisherMatrix('p02bk', kmax=kmax, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, cross_covariance=True) 
+        Fij = FisherMatrix('p02bk', kmax=kmax, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, cross_covariance=False) 
+
+        _Finv   = np.linalg.inv(_Fij) # invert fisher matrix 
+        Finv    = np.linalg.inv(Fij) # invert fisher matrix 
+        print('--- kmax = %.1f ---' % kmax) 
+        print(np.sqrt(np.diag(_Finv)))
+        print(np.sqrt(np.diag(Finv)))
+        print(np.sqrt(np.diag(Finv))/np.sqrt(np.diag(_Finv))-1.)
+        print(np.average(np.sqrt(np.diag(Finv))/np.sqrt(np.diag(_Finv))-1.))
+    return None 
+
 ############################################################
 # etc 
 ############################################################
@@ -3809,3 +3890,4 @@ if __name__=="__main__":
     #zeldovich_ICtest(rsd='real')
     #zeldovich_ICtest(rsd=1)
     #zeldovich_ICtest(rsd='all')
+    P02B_crosscovariance()
