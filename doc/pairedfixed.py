@@ -332,8 +332,8 @@ def pf_DelB_sigB(rsd=0, kmax=0.5):
 def pf_dlogPdtheta(rsd=0): 
     ''' Comparison of dlogP/dtheta from paired-fixed vs standard N-body
     '''
-    thetas  = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']
-    lbls    = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
+    thetas  = ['Om', 'Ob2', 'h', 'ns', 's8']#, 'Mnu']
+    lbls    = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$']#, r'$M_\nu$']
     ylims0  = [(-10., 0.), (0., 15.), (-3., 0.), (-3.5, -0.5), (-1.6, -0.2)]
     ylims1  = [(-10., 0.), (0., 15.), (-3., 0.), (-3.5, -0.5), (-2.5, 1.5)]
     ylims2  = [(-0.75, 0.75), (-1.5, 1.5), (-0.4, 0.4), (-0.3, 0.3), (-0.3, 0.3)]
@@ -409,8 +409,8 @@ def pf_dlogPdtheta_real():
     ''' Comparison of dlogP/dtheta from paired-fixed vs standard N-body 
     **in real-space**
     '''
-    thetas  = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']
-    lbls    = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
+    thetas  = ['Om', 'Ob2', 'h', 'ns', 's8']#, 'Mnu']
+    lbls    = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$']#, r'$M_\nu$']
     ylims0  = [(-10., 0.), (0., 15.), (-3., 0.), (-3.5, -0.5), (-1.6, -0.2)]
     ylims1  = [(-0.75, 0.75), (-1.5, 1.5), (-0.1, 0.1), (-0.3, 0.3), (-0.3, 0.3)]
     
@@ -441,7 +441,7 @@ def pf_dlogPdtheta_real():
         if i_tt == len(thetas)-1: sub.legend(loc='lower left', handletextpad=0.2, fontsize=15)
 
         sub = plt.subplot(gs1[0,i_tt])
-        sub.plot(k, dpdt_std - dpdt_pfd/sig_dpdt, c='C3', label='$\ell=0$')
+        sub.plot(k, (dpdt_std - dpdt_pfd)/sig_dpdt, c='C3', label='$\ell=0$')
         sub.plot(k, np.zeros(len(k)), c='k', ls='--')
         sub.set_xlim(9e-3, 0.7) 
         sub.set_xscale('log') 
@@ -461,8 +461,8 @@ def pf_dlogPdtheta_real():
 def pf_dlogBdtheta(rsd=0, kmax=0.5): 
     ''' Comparison of dlogB/dtheta from paired-fixed vs standard N-body
     '''
-    thetas  = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']
-    lbls    = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
+    thetas  = ['Om', 'Ob2', 'h', 'ns', 's8']#, 'Mnu']
+    lbls    = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$']#, r'$M_\nu$']
     ylims0  = [(-15., 5.), (-2., 24.), (-4., 0.5), (-5., -0.5), (-6., 0)]
     ylims1  = [(-7., 7.), (-25., 25.), (-4., 4), (-3., 3), (-5., 5.)]
     
@@ -502,7 +502,7 @@ def pf_dlogBdtheta(rsd=0, kmax=0.5):
         sub.set_xlim(0, np.sum(klim)) 
         sub.set_ylim(-0.5, 0.5) 
         if tt != thetas[-1]: sub.set_xticklabels([]) 
-        if i_tt == 2: sub.set_ylabel(r'$\Delta_{(\log B)_{,\theta}}/\sigma_{(\log B)_{,\theta}}$', fontsize=15) 
+        if i_tt == 2: sub.set_ylabel(r'$\Delta_{(\log B)_{,\theta}}/\sigma_{(\log B)_{,\theta}}$', fontsize=25) 
         if i_tt == 4: sub.set_xlabel('triangle configurations', fontsize=25)
         sub.text(0.025, 0.925, lbl, ha='left', va='top', transform=sub.transAxes, fontsize=25)
 
