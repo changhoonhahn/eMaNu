@@ -166,7 +166,7 @@ def pf_Pk_real():
     #    sub0.plot(k, p0ks_std[i], c='k', lw=0.1, alpha=0.2)
     # average P0
     sub0.plot(k, np.average(p0ks_std, axis=0), c='C0', label='%i standard $N$-body' % p0ks_std.shape[0])
-    sub0.scatter(k, np.average(p0ks_pfd, axis=0), color='C1', s=5, label='%i paired-fixed' % p0ks_pfd.shape[0], zorder=10) 
+    sub0.scatter(k, np.average(p0ks_pfd, axis=0), color='C1', s=5, label='%i suppressed variance' % p0ks_pfd.shape[0], zorder=10) 
     sub0.legend(loc='lower left', markerscale=5, handletextpad=0.2, fontsize=20) 
     sub0.set_xlim(9e-3, 0.5) 
     sub0.set_xscale('log') 
@@ -238,12 +238,9 @@ def pf_Bk(rsd=0, kmax=0.5):
         _, _, _, Cov_bk, _ = bkCov(rsd=2, flag='reg', silent=False) 
     sig_bk = np.sqrt(np.diag(Cov_bk))[klim]
 
-    # Pell comparison
-    for i in range(bks_std.shape[0])[::100]:  
-        sub0.plot(range(np.sum(klim)), bks_std[i], c='k', lw=0.1, alpha=0.2)
     # average B0
     sub0.plot(range(np.sum(klim)), np.average(bks_std, axis=0), c='C0', label='%i standard $N$-body' % bks_std.shape[0])
-    sub0.scatter(range(np.sum(klim)),np.average(bks_pfd, axis=0), color='C1', s=5, label='%i paired-fixed' % bks_pfd.shape[0], zorder=10) 
+    sub0.scatter(range(np.sum(klim)),np.average(bks_pfd, axis=0), color='C1', s=5, label='%i suppressed variance' % bks_pfd.shape[0], zorder=10) 
     #sub0.text(0.95, 0.95, r'redshift-space $B_0^{\rm halo}$', ha='right', va='top', transform=sub0.transAxes, fontsize=20)
     sub0.legend(loc='upper right', markerscale=5, handletextpad=0.2, fontsize=20) 
     sub0.set_xlim(0, np.sum(klim))
@@ -253,7 +250,7 @@ def pf_Bk(rsd=0, kmax=0.5):
     else: 
         sub0.set_ylabel('redshift-space halo $B_0(k_1, k_2, k_3)$', fontsize=20)
     sub0.set_yscale('log') 
-    sub0.set_ylim(1e5, 1e10)
+    sub0.set_ylim(1e4, 1e10)
 
     # Delta0/sigma comparison
     thetas = ['fiducial', 'Om_m', 'Om_p', 'Ob2_m', 'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p']
@@ -275,12 +272,15 @@ def pf_Bk(rsd=0, kmax=0.5):
             _plt, = sub1.plot(range(np.sum(klim)), delB0_sig, lw=1, zorder=10)  
         plts.append(_plt) 
     sub1.plot([0, np.sum(klim)], [0, 0], c='k', ls=':', zorder=10) 
-    #sub1.fill_between([0, np.sum(klim)], [-1., -1.], [1., 1.], facecolor='k', linewidth=0, alpha=0.2) 
+    
+    inv_V = 1./np.sqrt(float(bks_pfd.shape[0]))
+    sub1.fill_between([0, np.sum(klim)], [-1.*inv_V, -1.*inv_V], [inv_V, inv_V], facecolor='k', linewidth=0, alpha=0.2, zorder=100) 
+
     sub1.legend(plts, lbls, loc='lower left', ncol=6, handletextpad=0.4, fontsize=12) 
     sub1.set_xlabel('triangle configurations', fontsize=25)
     sub1.set_xlim(0, np.sum(klim))
-    sub1.set_ylabel('$\Delta_{B_0}/\sigma_{B_0}$', fontsize=20) 
-    sub1.set_ylim(-0.4, 0.4) 
+    sub1.set_ylabel('$\Delta_B/\sigma_B$', fontsize=20) 
+    sub1.set_ylim(-0.3, 0.3) 
     ffig = os.path.join(dir_doc, 'pf_Bk%s.png' % (_rsd_str(rsd))) 
     fig.savefig(ffig, bbox_inches='tight') 
     fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') 
@@ -1132,9 +1132,9 @@ def _flag_str(flag):
 
 if __name__=="__main__": 
     #pf_Pk_real()
-    pf_Pk(rsd='all')
-    #pf_Bk(rsd='real', kmax=0.5)
-    #pf_Bk(rsd='all', kmax=0.5)
+    #pf_Pk(rsd='all')
+    pf_Bk(rsd='real', kmax=0.5)
+    pf_Bk(rsd='all', kmax=0.5)
     #pf_DelB_sigB(rsd='all', kmax=0.5)
     #pf_dlogPdtheta(rsd='all')
     #pf_dlogPdtheta_real()
