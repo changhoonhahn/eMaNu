@@ -1,6 +1,6 @@
 \section{HADES and Quijote Simulation Suites} \label{sec:hades} 
 The HADES\footnote{https://franciscovillaescusa.github.io/hades.html} and Quijote 
-suites are sets of, 42000 total, $N$-body simulations run on multiple cosmologies,
+suites are sets of, 43000 total, $N$-body simulations run on multiple cosmologies,
 including those with massive neutrinos ($\smnu > 0$ eV). In this work, 
 we use a subset of the HADES and Quijote simulations. Below, we briefly describe these simulations; 
 a summary of the simulations can be found in Table~\ref{tab:sims}. 
@@ -58,15 +58,17 @@ in the Quijote suite.
 
 The initial conditions for all Quijote simulations were generated at $z=127$ using 
 2LPT for simulations with massless neutrinos and the Zel’dovich approximation for 
-massive neutrinos. Like HADES, the initial conditions of simulations with massive
-neutrinos take their scale-dependent growth factors/rates into account using the
-\cite{zennaro2017a} method. From the initial conditions, all of the simulations 
-follow the gravitational evolution of $512^3$ dark matter particles, and $512^3$ 
-neutrino particles for massive neutrino models, to $z=0$ using {\sc Gadget-III}
-TreePM+SPH code (same as HADES). 
-\ch{Halos are then identified using the same FoF scheme and mass limit as HADES. 
-For the fiducial cosmology, the halo catalogs have ${\sim}156,000$ halos 
-($\bar{n} \sim 1.56 \times 10^{-4}~h^3{\rm Gpc}^{-3}$) with $\bar{n} P_0(k=0.1)\sim 3.23$.}
+massive neutrinos. The suite also includes a set of simulations at the fiducial 
+$\smnu = 0$ eV cosmology with Zel'dovich approximation initial conditions, which 
+we use later in Section~\ref{sec:forecasts}. Like HADES, the initial conditions 
+of simulations with massive neutrinos take their scale-dependent growth factors/rates 
+into account using the \cite{zennaro2017a} method. From the initial conditions, all 
+of the simulations follow the gravitational evolution of $512^3$ dark matter particles, 
+and $512^3$ neutrino particles for massive neutrino models, to $z=0$ using {\sc Gadget-III}
+TreePM+SPH code (same as HADES). Halos are then identified using the same FoF 
+scheme and mass limit as HADES. For the fiducial cosmology, the halo catalogs 
+have ${\sim}156,000$ halos ($\bar{n} \sim 1.56 \times 10^{-4}~h^3{\rm Gpc}^{-3}$) 
+with $\bar{n} P_0(k=0.1)\sim 3.23$.
 % The simulations run at the fiducial cosmology for covariance matrix estimation are standard $N$-body simulations. However, the rest are paired fixed simulations, which greatly reduce cosmic variance without introducing bias for a large set of statistics~\citep{angulo2016,pontzen2016,villaescusa-navarro2018}.  We confirm that the paired fixed simulations do not introduce any bias for the redshift-space halo bispectrum (the observable we consider in this paper). 
 We refer readers to Villaescusa-Navarro et al. (in preparation) for further details 
 on the Quijote simulations.
@@ -94,34 +96,35 @@ on the Quijote simulations.
 \begin{table}
 \caption{Specifications of the HADES and Quijote simulation suites.} 
 \begin{center}
-\begin{tabular}{ccccccccc} \toprule
-    Name  &$\smnu$ & $\Omega_m$ & $\Omega_b$ & $h$ & $n_s$ & $\sigma^m_8$ & $\sigma^c_8$ & realizations \\
+\begin{tabular}{cccccccccc} \toprule
+    Name  &$\smnu$ & $\Omega_m$ & $\Omega_b$ & $h$ & $n_s$ & $\sigma^m_8$ & $\sigma^c_8$ & ICs & realizations \\
       &({\footnotesize eV}) & & & & & ({\footnotesize $10^{10}h^{-1}M_\odot$}) & ({\footnotesize $10^{10}h^{-1}M_\odot$}) & \\[3pt] \hline\hline
     \multicolumn{9}{c}{HADES suite} \\ \hline
-    Fiducial    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.833 & 0.833 & 100 \\ 
-                & 0.06  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.819 & 0.822 & 100 \\ 
-                & 0.10  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.809 & 0.815 & 100 \\ 
-                & 0.15  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.798 & 0.806 & 100 \\ 
-                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.822 & 0.822 & 100 \\ 
-                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.818 & 0.818 & 100 \\ 
-                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.807 & 0.807 & 100 \\ 
-                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.798 & 0.798 & 100 \\[3pt]
+    Fiducial    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.833 & 0.833 & Zel'dovich & 100 \\ 
+                & 0.06  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.819 & 0.822 & Zel'dovich & 100 \\ 
+                & 0.10  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.809 & 0.815 & Zel'dovich & 100 \\ 
+                & 0.15  & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.798 & 0.806 & Zel'dovich & 100 \\ 
+                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.822 & 0.822 & Zel'dovich & 100 \\ 
+                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.818 & 0.818 & Zel'dovich & 100 \\ 
+                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.807 & 0.807 & Zel'dovich & 100 \\ 
+                & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.798 & 0.798 & Zel'dovich & 100 \\[3pt]
     \hline \hline
     \multicolumn{9}{c}{Qujiote suite} \\ \hline
-    Fiducial 	    & 0.0         & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 15,000 \\ 
-    $\smnu^+$       & \underline{0.1}   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $\smnu^{++}$    & \underline{0.2}   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $\smnu^{+++}$   & \underline{0.4}   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $\Omega_m^+$    & 0.0   & \underline{ 0.3275} & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $\Omega_m^-$    & 0.0   & \underline{ 0.3075} & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $\Omega_b^+$    & 0.0   & 0.3175 & \underline{0.051} & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $\Omega_b^-$    & 0.0   & 0.3175 & \underline{0.047} & 0.6711 & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $h^+$           & 0.0   & 0.3175 & 0.049 & \underline{0.6911} & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $h^-$           & 0.0   & 0.3175 & 0.049 & \underline{0.6511} & 0.9624 & 0.834 & 0.834 & 500 \\ 
-    $n_s^+$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9824} & 0.834 & 0.834 & 500 \\ 
-    $n_s^-$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9424} & 0.834 & 0.834 & 500 \\ 
-    $\sigma_8^+$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.849} & \underline{0.849} & 500 \\ 
-    $\sigma_8^-$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.819} & \underline{0.819} & 500 \\[3pt]
+    Fiducial 	    & 0.0         & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 2LPT & 15,000 \\ 
+    Fiducial ZA     & 0.0         & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & Zel'dovich& 500 \\ 
+    $\smnu^+$       & \underline{0.1}   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & Zel'dovich & 500 \\ 
+    $\smnu^{++}$    & \underline{0.2}   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & Zel'dovich & 500 \\ 
+    $\smnu^{+++}$   & \underline{0.4}   & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & Zel'dovich & 500 \\ 
+    $\Omega_m^+$    & 0.0   & \underline{ 0.3275} & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 2LPT & 500 \\ 
+    $\Omega_m^-$    & 0.0   & \underline{ 0.3075} & 0.049 & 0.6711 & 0.9624 & 0.834 & 0.834 & 2LPT & 500 \\ 
+    $\Omega_b^+$    & 0.0   & 0.3175 & \underline{0.051} & 0.6711 & 0.9624 & 0.834 & 0.834 & 2LPT & 500 \\ 
+    $\Omega_b^-$    & 0.0   & 0.3175 & \underline{0.047} & 0.6711 & 0.9624 & 0.834 & 0.834 & 2LPT & 500 \\ 
+    $h^+$           & 0.0   & 0.3175 & 0.049 & \underline{0.6911} & 0.9624 & 0.834 & 0.834 & 2LPT & 500 \\ 
+    $h^-$           & 0.0   & 0.3175 & 0.049 & \underline{0.6511} & 0.9624 & 0.834 & 0.834 & 2LPT & 500 \\ 
+    $n_s^+$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9824} & 0.834 & 0.834 & 2LPT & 500 \\ 
+    $n_s^-$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9424} & 0.834 & 0.834 & 2LPT & 500 \\ 
+    $\sigma_8^+$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.849} & \underline{0.849} & 2LPT & 500 \\ 
+    $\sigma_8^-$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.819} & \underline{0.819} & 2LPT & 500 \\[3pt]
     \hline
 \end{tabular} \label{tab:sims}
 \end{center}
@@ -130,7 +133,7 @@ on the Quijote simulations.
     $\sigma_8 = $ 0.822, 0.818, 0.807, and 0.798 to examine the $\smnu-\sigma_8$ degeneracy. 
     {\bf \em Bottom}: The Quijote suite includes 15,000 $N$-body simulations at the fiducial 
     cosmology to accurately estimate the covariance matrices. It also includes sets of 500 
-    simulations at different cosmologies, where only one parameter is varied from the fiducial 
+    simulations at 13 different cosmologies, where only one parameter is varied from the fiducial 
     value (underlined), to estimate derivatives of observables along the cosmological parameters.
 \end{table}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
