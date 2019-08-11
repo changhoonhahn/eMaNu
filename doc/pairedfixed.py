@@ -280,7 +280,7 @@ def pf_Bk(kmax=0.5):
     return None 
 
 
-def Pk_bias(): 
+def Pk_bias(kmax=0.5): 
     ''' Compare the P_ell bias distributions for the different cosmologies
     '''
     from matplotlib.patches import Rectangle
@@ -309,9 +309,11 @@ def Pk_bias():
         p0k_rsd_pfd = 0.5 * (p0k_rsd_pfd1 + p0k_rsd_pfd2) 
         p2k_rsd_pfd = 0.5 * (p2k_rsd_pfd1 + p2k_rsd_pfd2) 
 
-        bias_p0k_real   = pf_bias(p0k_real_std, p0k_real_pfd)
-        bias_p0k_rsd    = pf_bias(p0k_rsd_std, p0k_rsd_pfd)
-        bias_p2k_rsd    = pf_bias(p2k_rsd_std, p2k_rsd_pfd)
+        if _i == 0: klim = (k_real < kmax) 
+
+        bias_p0k_real   = pf_bias(p0k_real_std, p0k_real_pfd)[klim]
+        bias_p0k_rsd    = pf_bias(p0k_rsd_std, p0k_rsd_pfd)[klim]
+        bias_p2k_rsd    = pf_bias(p2k_rsd_std, p2k_rsd_pfd)[klim]
     
         clr = 'k'
         if _i > 0: clr = 'C%i' % (_i-1) 
@@ -343,13 +345,12 @@ def Pk_bias():
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
 
     fig.subplots_adjust(wspace=0.2) 
-    ffig = os.path.join(dir_doc, 'pf_Pk_bias.png') 
+    ffig = os.path.join(dir_fig, 'pf_Pk_bias.png') 
     fig.savefig(ffig, bbox_inches='tight') 
-    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') 
     return None 
 
 
-def Bk_bias(): 
+def Bk_bias(kmax=0.5): 
     ''' Compare the P_ell bias distributions for the different cosmologies
     '''
     from matplotlib.patches import Rectangle
@@ -363,7 +364,7 @@ def Bk_bias():
     
     for _i, theta in enumerate(thetas): 
         # read in real-space bispectrum (standard)
-        _, _, _, bk_real_std = X_std('bk', theta, rsd='real', silent=False) 
+        i_k, j_k, l_k, bk_real_std = X_std('bk', theta, rsd='real', silent=False) 
         # read in real-space bispectrum (paired-fixed)
         _, _, _, bk_real_pfd1 = X_pfd_1('bk', theta, rsd='real', silent=False) 
         _, _, _, bk_real_pfd2 = X_pfd_2('bk', theta, rsd='real', silent=False) 
@@ -375,8 +376,10 @@ def Bk_bias():
         _, _, _, bk_rsd_pfd2 = X_pfd_2('bk', theta, rsd=0, silent=False) 
         bk_rsd_pfd = 0.5 * (bk_rsd_pfd1 + bk_rsd_pfd2)
 
-        bias_bk_real   = pf_bias(bk_real_std, bk_real_pfd)
-        bias_bk_rsd    = pf_bias(bk_rsd_std, bk_rsd_pfd)
+        if _i == 0: klim = (i_k * kf <= kmax) & (j_k * kf <= kmax) & (l_k * kf <= kmax) 
+
+        bias_bk_real   = pf_bias(bk_real_std, bk_real_pfd)[klim]
+        bias_bk_rsd    = pf_bias(bk_rsd_std, bk_rsd_pfd)[klim]
 
         clr = 'k'
         if _i > 0: clr = 'C%i' % (_i-1) 
@@ -403,9 +406,8 @@ def Bk_bias():
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
 
     fig.subplots_adjust(wspace=0.2) 
-    ffig = os.path.join(dir_doc, 'pf_Bk_bias.png') 
+    ffig = os.path.join(dir_fig, 'pf_Bk_bias.png') 
     fig.savefig(ffig, bbox_inches='tight') 
-    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') 
     return None 
 
 
@@ -653,6 +655,138 @@ def pf_dBdtheta(kmax=0.5):
     fig2.savefig(ffig, bbox_inches='tight') 
     fig2.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') 
     return None
+
+
+def dPdtheta_bias(kmax=0.5): 
+    ''' Compare the d P_ell/d theta bias distributions for the different cosmologies
+    '''
+    from matplotlib.patches import Rectangle
+    fig = plt.figure(figsize=(15,5))
+    sub0 = fig.add_subplot(131) 
+    sub1 = fig.add_subplot(132) 
+    sub2 = fig.add_subplot(133) 
+
+    thetas  = ['Om', 'Ob2', 'h', 'ns', 's8']#, 'Mnu']
+    lbls    = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$']#, r'$M_\nu$']
+    
+    for _i, theta in enumerate(thetas): 
+        # real-space d logP / d theta (standard)
+        k_real, dpdt_real_std = X_std('dpk', theta, rsd='real', silent=False) 
+        # real-space d logP / d theta (paired-fixed)
+        _, dpdt_real_pfd0 = X_pfd_1('dpk', theta, rsd='real', silent=False) 
+        _, dpdt_real_pfd1 = X_pfd_2('dpk', theta, rsd='real', silent=False) 
+        dpdt_real_pfd = 0.5 * (dpdt_real_pfd0 + dpdt_real_pfd1) 
+
+        # redshift-space d logP0 / d theta (standard)
+        k_rsd, dp0dt_rsd_std, dp2dt_rsd_std = X_std('dpk', theta, rsd=0, silent=False) 
+        # redshift-space d logP0 / d theta (paired-fixed)
+        _, dp0dt_rsd_pfd0, dp2dt_rsd_pfd0 = X_pfd_1('dpk', theta, rsd=0, silent=False) 
+        _, dp0dt_rsd_pfd1, dp2dt_rsd_pfd1 = X_pfd_2('dpk', theta, rsd=0, silent=False) 
+        dp0dt_rsd_pfd = 0.5 * (dp0dt_rsd_pfd0 + dp0dt_rsd_pfd1) 
+        dp2dt_rsd_pfd = 0.5 * (dp2dt_rsd_pfd0 + dp2dt_rsd_pfd1) 
+
+        if _i == 0: klim = (k_real < kmax) 
+        
+        bias_dpdt_real = pf_bias(dpdt_real_std, dpdt_real_pfd)[klim]
+        bias_dp0dt_rsd = pf_bias(dp0dt_rsd_std, dp0dt_rsd_pfd)[klim]
+        bias_dp2dt_rsd = pf_bias(dp2dt_rsd_std, dp2dt_rsd_pfd)[klim]
+
+        clr = 'k'
+        if _i > 0: clr = 'C%i' % (_i-1) 
+
+        sub0.hist(bias_dpdt_real, density=True, range=(-5., 5.), bins=30, histtype='step', color=clr)
+        sub1.hist(bias_dp0dt_rsd, density=True, range=(-5., 5.), bins=30, histtype='step', color=clr)
+        sub2.hist(bias_dp2dt_rsd, density=True, range=(-5., 5.), bins=30, histtype='step', color=clr)
+        
+        if _i == 0: handles = []
+        handles.append(Rectangle((0,0), 1, 1, color='none', ec=clr))
+    sub0.set_xlim(-5., 5.) 
+    sub1.set_xlim(-5., 5.) 
+    sub2.set_xlim(-5., 5.) 
+    
+    sub0.set_ylim(0., 0.75) 
+    sub1.set_ylim(0., 0.75) 
+    sub2.set_ylim(0., 0.75) 
+
+    sub0.text(0.95, 0.95, r'real-space ${\rm d} P_0/{\rm d} \theta$', 
+            ha='right', va='top', transform=sub0.transAxes, fontsize=20)
+    sub1.text(0.95, 0.95, r'redshift-space ${\rm d} P_0/{\rm d} \theta$',
+            ha='right', va='top', transform=sub1.transAxes, fontsize=20)
+    sub2.text(0.95, 0.95, r'redshift-space ${\rm d} P_2/{\rm d} \theta$',
+            ha='right', va='top', transform=sub2.transAxes, fontsize=20)
+
+    sub0.legend(handles, lbls, loc='upper left', ncol=1, handletextpad=0.4, fontsize=15)
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.set_xlabel(r'bias ($\beta$)', labelpad=10, fontsize=25) 
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+
+    fig.subplots_adjust(wspace=0.2) 
+    ffig = os.path.join(dir_fig, 'pf_dpdt_bias.png') 
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+
+def dBdtheta_bias(kmax=0.5): 
+    ''' Compare the d B / d theta bias distributions for the different cosmologies
+    '''
+    from matplotlib.patches import Rectangle
+    fig = plt.figure(figsize=(10,5))
+    sub0 = fig.add_subplot(121) 
+    sub1 = fig.add_subplot(122) 
+
+    thetas  = ['Om', 'Ob2', 'h', 'ns', 's8']#, 'Mnu']
+    lbls    = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$']#, r'$M_\nu$']
+    
+    for _i, theta in enumerate(thetas): 
+        # real-space d logB / d theta (standard)
+        i_k, j_k, l_k, dbdt_real_std = X_std('dbk', theta, rsd='real', silent=False) 
+        # real-space d logP / d theta (paired-fixed)
+        _, _, _, dbdt_real_pfd0 = X_pfd_1('dbk', theta, rsd='real', silent=False) 
+        _, _, _, dbdt_real_pfd1 = X_pfd_2('dbk', theta, rsd='real', silent=False) 
+        dbdt_real_pfd = 0.5 * (dbdt_real_pfd0 + dbdt_real_pfd1) 
+
+        # redshift-space d logP0 / d theta (standard)
+        _, _, _, dbdt_rsd_std = X_std('dbk', theta, rsd=0, silent=False) 
+        # redshift-space d logP0 / d theta (paired-fixed)
+        _, _, _, dbdt_rsd_pfd0 = X_pfd_1('dbk', theta, rsd=0, silent=False) 
+        _, _, _, dbdt_rsd_pfd1 = X_pfd_2('dbk', theta, rsd=0, silent=False) 
+        dbdt_rsd_pfd = 0.5 * (dbdt_rsd_pfd0 + dbdt_rsd_pfd1) 
+
+        if _i == 0: klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
+        
+        bias_dbdt_real = pf_bias(dbdt_real_std, dbdt_real_pfd)[klim]
+        bias_dbdt_rsd = pf_bias(dbdt_rsd_std, dbdt_rsd_pfd)[klim]
+
+        clr = 'k'
+        if _i > 0: clr = 'C%i' % (_i-1) 
+
+        sub0.hist(bias_dbdt_real, density=True, range=(-5., 5.), bins=30, histtype='step', color=clr)
+        sub1.hist(bias_dbdt_rsd, density=True, range=(-5., 5.), bins=30, histtype='step', color=clr)
+        
+        if _i == 0: handles = []
+        handles.append(Rectangle((0,0), 1, 1, color='none', ec=clr))
+    sub0.set_xlim(-5., 5.) 
+    sub1.set_xlim(-5., 5.) 
+    
+    sub0.set_ylim(0., 1.5) 
+    sub1.set_ylim(0., 0.65) 
+
+    sub0.text(0.95, 0.95, r'real-space ${\rm d} B_0/{\rm d} \theta$', 
+            ha='right', va='top', transform=sub0.transAxes, fontsize=20)
+    sub1.text(0.95, 0.95, r'redshift-space ${\rm d} B_0/{\rm d} \theta$',
+            ha='right', va='top', transform=sub1.transAxes, fontsize=20)
+
+    sub0.legend(handles, lbls, loc='upper left', ncol=1, handletextpad=0.4, fontsize=15)
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.set_xlabel(r'bias ($\beta$)', labelpad=10, fontsize=25) 
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+
+    fig.subplots_adjust(wspace=0.2) 
+    ffig = os.path.join(dir_fig, 'pf_dbdt_bias.png') 
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
 
 
 def pf_dlogPdtheta(): 
@@ -1634,13 +1768,15 @@ def _flag_str(flag):
 
 
 if __name__=="__main__": 
-    pf_Pk()
+    #pf_Pk()
     #pf_Bk(kmax=0.5)
     #Pk_bias()
     #Bk_bias()
     #pf_dPdtheta()
-    #pf_dBdtheta(kmax=0.5)
-    #pf_dlogPdtheta()
+    pf_dBdtheta(kmax=0.5)
+    #dPdtheta_bias(kmax=0.5)
+    #dBdtheta_bias(kmax=0.5)
+    ##pf_dlogPdtheta()
     #pf_dlogBdtheta(kmax=0.5)
     #pf_P_Fij(rsd='real', kmax=0.5)
     #pf_P_Fij(rsd='all', kmax=0.5)
