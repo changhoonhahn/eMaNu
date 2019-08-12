@@ -99,7 +99,10 @@ def quijote_dPkdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0, N
             else: 
                 _pk = quij['p0k']
                 if theta == 'Mnu' and dmnu == 'fin_2lpt' and not average: 
-                    _pk = quij['p0k'][:500,:]
+                    if rsd == 'all': 
+                        _pk = quij['p0k'][:1500,:]
+                    else: 
+                        _pk = quij['p0k'][:500,:]
         
         if i_tt == 0: dpk = np.zeros(_pk.shape) 
 
@@ -205,7 +208,10 @@ def quijote_dP02kdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0,
             else: 
                 _pk = p02ks 
                 if theta == 'Mnu' and dmnu == 'fin_2lpt' and not average: 
-                    _pk = p02ks[:500,:]
+                    if rsd == 'all': 
+                        _pk = p02ks[:1500,:]
+                    else: 
+                        _pk = p02ks[:500,:]
         
         if i_tt == 0: dpk = np.zeros(_pk.shape) 
 
@@ -379,7 +385,10 @@ def quijote_dBkdtheta(theta, log=False, rsd='all', flag=None, z=0, dmnu='fin', N
             else: 
                 _bk = quij['b123']
                 if theta == 'Mnu' and dmnu == 'fin_2lpt' and not average: 
-                    _bk = quij['b123'][:500,:]
+                    if rsd == 'all': 
+                        _bk = quij['b123'][:1500,:]
+                    else: 
+                        _bk = quij['b123'][:500,:]
         
         if i_tt == 0: dbk = np.zeros(_bk.shape) 
 
