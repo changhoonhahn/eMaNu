@@ -1,29 +1,21 @@
-\section{Results} \label{sec:results} 
-
 \begin{figure}
 \begin{center}
-    \includegraphics[width=0.5\textwidth]{figs/pf_Pk_real.pdf} 
-    \caption{Comparison of the real-space power spectra of standard $N$-body 
-    simulations and suppressed variance simulations. We compare the average 
-    power spectrum monopole and quadrupole, $P_0(k)$ and $P_2(k)$ of 15,000 
-    standard $N$-body simulations to the average $P_0$ and $P_2$ of 500 
-    suppressed variance simulations at the fiducial cosmology (top panel).
+    \includegraphics[width=0.8\textwidth]{figs/pf_Pk.pdf} 
+    \caption{Comparison of the power spectra of standard $N$-body simulations 
+    and paired fixed simulations. We compare the average real-space power spectrum, 
+    redshift-space power spectrum monopole, and quadrupole in the left, center, 
+    and right columns, respectively. We use 15,000 standard $N$-body simulations 
+    to the average $P_0$ and $P_2$ of 500 paired fixed simulations at the 
+    fiducial cosmology (top panel).
     }
 \label{fig:pk_real}
 \end{center}
 \end{figure}
 
-\begin{figure}
-\begin{center}
-    \includegraphics[width=0.5\textwidth]{figs/pf_Pk.pdf} 
-    \caption{}
-\label{fig:pk_rsd}
-\end{center}
-\end{figure}
 
 \begin{figure}
 \begin{center}
-    \includegraphics[width=\textwidth]{figs/pf_Bk_real.pdf} 
+    \includegraphics[width=0.8\textwidth]{figs/pf_Bk_real.pdf} 
     \caption{}
 \label{fig:bk_real}
 \end{center}
@@ -31,8 +23,84 @@
 
 \begin{figure}
 \begin{center}
-    \includegraphics[width=\textwidth]{figs/pf_Bk.pdf} 
+    \includegraphics[width=0.8\textwidth]{figs/pf_Bk_rsd.pdf} 
     \caption{}
-\label{fig:bk_real}
+\label{fig:bk_rsd}
 \end{center}
 \end{figure}
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=\textwidth]{figs/pf_dPdtheta_real.pdf}
+    \caption{}
+\label{fig:dpk_real}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=\textwidth]{figs/pf_dPdtheta_rsd.pdf}
+    \caption{}
+\label{fig:dpk_rsd}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=\textwidth]{figs/pf_dBdtheta_real_kmax0_5.pdf}
+    \caption{}
+\label{fig:dbk_real}
+\end{center}
+\end{figure}
+
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=\textwidth]{figs/pf_dBdtheta_rsd_kmax0_5.pdf}
+    \caption{}
+\label{fig:dbk_rsd}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=0.8\textwidth]{figs/pf_P_Fij_rsd_kmax0_5.pdf} 
+    \caption{}
+\label{fig:pfij_rsd}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=0.8\textwidth]{figs/pf_B_Fij_rsd_kmax0_5.pdf} 
+    \caption{}
+\label{fig:bfij_rsd}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=\textwidth]{figs/pf_P_posterior_rsd_kmax0_5.pdf}
+    \caption{}
+\label{fig:ppost_rsd}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=\textwidth]{figs/pf_B_posterior_rsd_kmax0_5.pdf}
+    \caption{}
+\label{fig:bpost_rsd}
+\end{center}
+\end{figure}
+
+\section{Results} \label{sec:results} 
+\beq
+X_{{\rm pf},i} = \frac{1}{2} \big[ X_{{\rm pf},i}^{(1)} + X_{{\rm pf},i}^{(2)}\big]
+\eeq
+
+bias
+
+\beq
+\beta_X = \frac{\overline{X}_{\rm std} - \overline{X}_{\rm pf}}{\sqrt{\sigma_{\rm std}^2 + \sigma_{\rm pf}^2}}
+\eeq
