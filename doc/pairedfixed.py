@@ -6,6 +6,7 @@ investigate paired-fixed simulations for the bispectrum
 import os 
 import h5py
 import numpy as np 
+import scipy.stats 
 from scipy.stats import skew, skewtest
 from copy import copy as copy
 # --- eMaNu --- 
@@ -99,9 +100,10 @@ def pf_Pk():
     sub2.set_yticklabels([]) 
     
     # --- bias comparison --- 
-    thetas = ['fiducial', 'Om_m', 'Om_p', 'Ob2_m', 'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p']
+    thetas = ['fiducial', 'Om_m', 'Om_p', 'Ob2_m', 'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p', 
+            'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
     lbls = ['fid.', r'$\Omega_m^{-}$', r'$\Omega_m^{+}$', r'$\Omega_b^{-}$', r'$\Omega_b^{+}$', r'$h^{-}$', r'$h^{+}$', 
-            r'$n_s^{-}$', r'$n_s^{+}$', r'$\sigma_8^{-}$', r'$\sigma_8^{+}$']
+            r'$n_s^{-}$', r'$n_s^{+}$', r'$\sigma_8^{-}$', r'$\sigma_8^{+}$', r'$M_\nu^{+}$', r'$M_\nu^{++}$', r'$M_\nu^{+++}$']
     
     for _i, theta in enumerate(thetas): 
         # read in real-space P (standard)
@@ -123,26 +125,31 @@ def pf_Pk():
         bias_p0k_rsd    = pf_bias(p0k_rsd_std, p0k_rsd_pfd)
         bias_p2k_rsd    = pf_bias(p2k_rsd_std, p2k_rsd_pfd)
     
+        lsty = '-' 
         clr = 'k'
-        if _i > 0: clr = 'C%i' % (_i-1) 
+        if (_i > 0) and (_i < 10): 
+            clr = 'C%i' % (_i-1) 
+        elif _i >= 10: 
+            lsty = '-.'
+            clr = 'C%i' % ((_i-1) % 10) 
         # bias real-space P0
-        _plt, = sub3.plot(k_real, bias_p0k_real, c=clr)
+        _plt, = sub3.plot(k_real, bias_p0k_real, c=clr, ls=lsty)
         sub3.plot([9e-3, 0.5], [0.0, 0.0], c='k', ls='--') 
         sub3.set_xlim(9e-3, 0.5) 
         sub3.set_xscale('log') 
-        sub3.set_ylabel(r'bias ($\beta$)', fontsize=25) 
+        sub3.set_ylabel(r'bias $\beta$ ($\sigma$)', fontsize=25) 
         sub3.set_ylim(-4., 4.) 
         if _i == 0: plts = [] 
         plts.append(_plt) 
 
-        sub4.plot(k_rsd, bias_p0k_rsd, c=clr)
+        sub4.plot(k_rsd, bias_p0k_rsd, c=clr, ls=lsty)
         sub4.plot([9e-3, 0.5], [0.0, 0.0], c='k', ls='--') 
         sub4.set_xlim(9e-3, 0.5) 
         sub4.set_xscale('log') 
         sub4.set_ylim(-4., 4.) 
         sub4.set_yticklabels([]) 
 
-        sub5.plot(k_rsd, bias_p2k_rsd, c=clr)
+        sub5.plot(k_rsd, bias_p2k_rsd, c=clr, ls=lsty)
         sub5.plot([9e-3, 0.5], [0.0, 0.0], c='k', ls='--') 
         sub5.set_xlim(9e-3, 0.5) 
         sub5.set_xscale('log') 
@@ -153,14 +160,14 @@ def pf_Pk():
     sub4.fill_between([9e-3, 0.7], [-2, -2], [2, 2], color='k', alpha=0.2, linewidth=0.) 
     sub5.fill_between([9e-3, 0.7], [-2, -2], [2, 2], color='k', alpha=0.2, linewidth=0.) 
 
-    sub3.legend(plts[:4], lbls[:4], 
-            loc='lower left', ncol=6, handletextpad=0.3, columnspacing=0.8, fontsize=15, 
+    sub3.legend(plts[:5], lbls[:5], 
+            loc='lower left', ncol=6, handletextpad=0.3, columnspacing=0.8, fontsize=12, 
             bbox_to_anchor=(0.,-0.05))
-    sub4.legend(plts[4:8], lbls[4:8], 
-            loc='lower left', ncol=6, handletextpad=0.3, columnspacing=0.8, fontsize=15, 
+    sub4.legend(plts[5:10], lbls[5:10], 
+            loc='lower left', ncol=6, handletextpad=0.3, columnspacing=0.8, fontsize=12, 
             bbox_to_anchor=(0.,-0.05))
-    sub5.legend(plts[8:], lbls[8:], 
-            loc='lower left', ncol=6, handletextpad=0.3, columnspacing=0.8, fontsize=15, 
+    sub5.legend(plts[10:], lbls[10:], 
+            loc='lower left', ncol=6, handletextpad=0.3, columnspacing=0.8, fontsize=12, 
             bbox_to_anchor=(0.,-0.05))
 
     fig.subplots_adjust(wspace=0.1) 
@@ -175,12 +182,12 @@ def pf_Bk(kmax=0.5):
     There's also a comparison of the bias.  
     '''
     fig0 = plt.figure(figsize=(17, 9))
-    gs0 = mpl.gridspec.GridSpec(2, 1, figure=fig0, height_ratios=[3,2], hspace=0.1) 
+    gs0 = mpl.gridspec.GridSpec(2, 1, figure=fig0, height_ratios=[1,1], hspace=0.1) 
     sub0 = plt.subplot(gs0[0])
     sub2 = plt.subplot(gs0[1])
 
     fig1 = plt.figure(figsize=(17, 9))
-    gs1 = mpl.gridspec.GridSpec(2, 1, figure=fig1, height_ratios=[3,2], hspace=0.1) 
+    gs1 = mpl.gridspec.GridSpec(2, 1, figure=fig1, height_ratios=[1,1], hspace=0.1) 
     sub1 = plt.subplot(gs1[0]) 
     sub3 = plt.subplot(gs1[1]) 
     
@@ -210,7 +217,7 @@ def pf_Bk(kmax=0.5):
     sub0.set_xticklabels([]) 
     sub0.set_ylabel('$B_0(k_1, k_2, k_3)$', fontsize=25)
     sub0.set_yscale('log') 
-    sub0.set_ylim(1e4, 1e10)
+    sub0.set_ylim(1e5, 1e10)
     # average redshift-space B0
     sub1.plot(range(np.sum(klim)), np.average(bk_rsd_std, axis=0)[klim], c='k', 
             label='%i standard $N$-body' % bk_real_std.shape[0])
@@ -222,12 +229,13 @@ def pf_Bk(kmax=0.5):
     sub1.set_xticklabels([]) 
     sub1.set_ylabel('$B_0(k_1, k_2, k_3)$', fontsize=25)
     sub1.set_yscale('log') 
-    sub1.set_ylim(1e4, 1e10)
+    sub1.set_ylim(1e5, 1e10)
 
     # --- bias comparison
-    thetas = ['fiducial', 'Om_m', 'Om_p', 'Ob2_m', 'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p']
+    thetas = ['fiducial', 'Om_m', 'Om_p', 'Ob2_m', 'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p', 
+            'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
     lbls = ['fid.', r'$\Omega_m^{-}$', r'$\Omega_m^{+}$', r'$\Omega_b^{-}$', r'$\Omega_b^{+}$', r'$h^{-}$', r'$h^{+}$', 
-            r'$n_s^{-}$', r'$n_s^{+}$', r'$\sigma_8^{-}$', r'$\sigma_8^{+}$']
+            r'$n_s^{-}$', r'$n_s^{+}$', r'$\sigma_8^{-}$', r'$\sigma_8^{+}$', r'$M_\nu^{+}$', r'$M_\nu^{++}$', r'$M_\nu^{+++}$']
 
     for _i, theta in enumerate(thetas): 
         # read in real-space bispectrum (standard)
@@ -245,31 +253,37 @@ def pf_Bk(kmax=0.5):
 
         bias_bk_real   = pf_bias(bk_real_std, bk_real_pfd)
         bias_bk_rsd    = pf_bias(bk_rsd_std, bk_rsd_pfd)
-    
+        
+        lsty = '-' 
         clr = 'k'
-        if _i > 0: clr = 'C%i' % (_i-1) 
+        if (_i > 0) and (_i < 10): 
+            clr = 'C%i' % (_i-1) 
+        elif _i >= 10: 
+            lsty = '-.'
+            clr = 'C%i' % ((_i-1) % 10) 
+    
         # bias real-space P0
-        _plt, = sub2.plot(range(np.sum(klim)), bias_bk_real[klim], c=clr, lw=(1.-0.02*float(_i)))
+        _plt, = sub2.plot(range(np.sum(klim)), bias_bk_real[klim], c=clr, ls=lsty, lw=(1.-0.02*float(_i)))
         sub2.plot([0.0, np.sum(klim)], [0.0, 0.0], c='k', ls='--') 
         sub2.set_xlim(0.0, np.sum(klim)) 
-        sub2.set_ylabel(r'bias ($\beta$)', fontsize=25) 
+        sub2.set_ylabel(r'bias $\beta$ ($\sigma$)', fontsize=25) 
         sub2.set_ylim(-4.5, 4.5) 
         if _i == 0: plts = []
         plts.append(_plt) 
         
-        sub3.plot(range(np.sum(klim)), bias_bk_rsd[klim], c=clr, lw=(1.-0.02*float(_i)))
+        sub3.plot(range(np.sum(klim)), bias_bk_rsd[klim], c=clr, ls=lsty, lw=(1.-0.02*float(_i)))
         sub3.plot([0.0, np.sum(klim)], [0.0, 0.0], c='k', ls='--') 
         sub3.set_xlim(0.0, np.sum(klim)) 
-        sub3.set_ylabel(r'bias ($\beta$)', fontsize=25) 
+        sub3.set_ylabel(r'bias $\beta$ ($\sigma$)', fontsize=25) 
         sub3.set_ylim(-4.5, 4.5)  
     
     sub2.fill_between([0.0, np.sum(klim)], [-2, -2], [2, 2], color='k', alpha=0.2, linewidth=0) 
     sub3.fill_between([0.0, np.sum(klim)], [-2, -2], [2, 2], color='k', alpha=0.2, linewidth=0) 
 
-    sub2.legend(plts, lbls, loc='lower left', ncol=12, handletextpad=0.4, fontsize=15, 
-            columnspacing=0.8, bbox_to_anchor=(0.,-0.05))
-    sub3.legend(plts, lbls, loc='lower left', ncol=12, handletextpad=0.4, fontsize=15,
-            columnspacing=0.8, bbox_to_anchor=(0.,-0.05))
+    sub2.legend(plts, lbls, loc='lower left', ncol=15, handletextpad=0.4, fontsize=13, 
+            columnspacing=0.8, bbox_to_anchor=(0.,-0.04))
+    sub3.legend(plts, lbls, loc='lower left', ncol=15, handletextpad=0.4, fontsize=13,
+            columnspacing=0.8, bbox_to_anchor=(0.,-0.04))
 
     ffig = os.path.join(dir_doc, 'pf_Bk.real.png') 
     fig0.savefig(ffig, bbox_inches='tight') 
@@ -283,16 +297,17 @@ def pf_Bk(kmax=0.5):
 def Pk_bias(kmax=0.5): 
     ''' Compare the P_ell bias distributions for the different cosmologies
     '''
-    from matplotlib.patches import Rectangle
     fig = plt.figure(figsize=(15,5))
     sub0 = fig.add_subplot(131) 
     sub1 = fig.add_subplot(132) 
     sub2 = fig.add_subplot(133) 
-
-    thetas = ['fiducial', 'Om_m', 'Om_p', 'Ob2_m', 'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p']
-    lbls = ['fid.', r'$\Omega_m^{-}$', r'$\Omega_m^{+}$', r'$\Omega_b^{-}$', r'$\Omega_b^{+}$', r'$h^{-}$', r'$h^{+}$', 
-            r'$n_s^{-}$', r'$n_s^{+}$', r'$\sigma_8^{-}$', r'$\sigma_8^{+}$']
     
+    thetas = ['fiducial', 'Om_m', 'Om_p', 'Ob2_m', 'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p', 
+            'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
+    lbls = ['fid.', r'$\Omega_m^{-}$', r'$\Omega_m^{+}$', r'$\Omega_b^{-}$', r'$\Omega_b^{+}$', r'$h^{-}$', r'$h^{+}$', 
+            r'$n_s^{-}$', r'$n_s^{+}$', r'$\sigma_8^{-}$', r'$\sigma_8^{+}$', r'$M_\nu^{+}$', r'$M_\nu^{++}$', r'$M_\nu^{+++}$']
+    
+    plts = [] 
     for _i, theta in enumerate(thetas): 
         # read in real-space P (standard)
         k_real, p0k_real_std = X_std('pk', theta, rsd='real', silent=False) 
@@ -315,15 +330,28 @@ def Pk_bias(kmax=0.5):
         bias_p0k_rsd    = pf_bias(p0k_rsd_std, p0k_rsd_pfd)[klim]
         bias_p2k_rsd    = pf_bias(p2k_rsd_std, p2k_rsd_pfd)[klim]
     
+        lsty = '-' 
         clr = 'k'
-        if _i > 0: clr = 'C%i' % (_i-1) 
+        if (_i > 0) and (_i < 10): 
+            clr = 'C%i' % (_i-1) 
+        elif _i >= 10: 
+            lsty = '-.'
+            clr = 'C%i' % ((_i-1) % 10) 
 
-        sub0.hist(bias_p0k_real, density=True, range=(-5., 5.), bins=30, histtype='step', color=clr)
-        sub1.hist(bias_p0k_rsd, density=True, range=(-5., 5.), bins=30, histtype='step', color=clr)
-        sub2.hist(bias_p2k_rsd, density=True, range=(-5., 5.), bins=30, histtype='step', color=clr)
-        
-        if _i == 0: handles = []
-        handles.append(Rectangle((0,0), 1, 1, color='none', ec=clr))
+        h0, b0 = np.histogram(bias_p0k_real, density=True, range=(-5., 5.), bins=30)
+        h1, b1 = np.histogram(bias_p0k_rsd, density=True, range=(-5., 5.), bins=30)
+        h2, b2 = np.histogram(bias_p2k_rsd, density=True, range=(-5., 5.), bins=30)
+
+        _plt, = sub0.plot(b0[1:]+0.001*(_i - 0.5*float(len(thetas))), h0, drawstyle='steps-pre', color=clr, ls=lsty) 
+        sub1.plot(b1[1:]+0.001*(_i - 0.5*float(len(thetas))), h1, drawstyle='steps-pre', color=clr, ls=lsty) 
+        sub2.plot(b2[1:]+0.001*(_i - 0.5*float(len(thetas))), h2, drawstyle='steps-pre', color=clr, ls=lsty) 
+        plts.append(_plt) 
+
+    x = np.linspace(-5., 5., 100)
+    y = scipy.stats.norm.pdf(x, 0., 1.)
+    sub0.plot(x, y, c='k', ls='--') 
+    sub1.plot(x, y, c='k', ls='--') 
+    sub2.plot(x, y, c='k', ls='--') 
     sub0.set_xlim(-5., 5.) 
     sub1.set_xlim(-5., 5.) 
     sub2.set_xlim(-5., 5.) 
@@ -336,12 +364,12 @@ def Pk_bias(kmax=0.5):
     sub1.text(0.95, 0.95, r'redshift-space $P_0$', ha='right', va='top', transform=sub1.transAxes, fontsize=20)
     sub2.text(0.95, 0.95, r'redshift-space $P_2$', ha='right', va='top', transform=sub2.transAxes, fontsize=20)
 
-    sub0.legend(handles[:4], lbls[:4], loc='upper left', ncol=1, handletextpad=0.4, fontsize=15)
-    sub1.legend(handles[4:8], lbls[4:8], loc='upper left', ncol=1, handletextpad=0.4, fontsize=15)
-    sub2.legend(handles[8:], lbls[8:], loc='upper left', ncol=1, handletextpad=0.4, fontsize=15)
+    sub0.legend(plts[:5], lbls[:5], loc='upper left', ncol=1, handletextpad=0.4, fontsize=15)
+    sub1.legend(plts[5:10], lbls[5:10], loc='upper left', ncol=1, handletextpad=0.4, fontsize=15)
+    sub2.legend(plts[10:], lbls[10:], loc='upper left', ncol=1, handletextpad=0.4, fontsize=15)
 
     bkgd = fig.add_subplot(111, frameon=False)
-    bkgd.set_xlabel(r'bias ($\beta$)', labelpad=10, fontsize=25) 
+    bkgd.set_xlabel(r'bias $\beta$ ($\sigma$)', labelpad=10, fontsize=25) 
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
 
     fig.subplots_adjust(wspace=0.2) 
@@ -353,15 +381,16 @@ def Pk_bias(kmax=0.5):
 def Bk_bias(kmax=0.5): 
     ''' Compare the P_ell bias distributions for the different cosmologies
     '''
-    from matplotlib.patches import Rectangle
     fig = plt.figure(figsize=(10,5))
     sub0 = fig.add_subplot(121) 
     sub1 = fig.add_subplot(122) 
-
-    thetas = ['fiducial', 'Om_m', 'Om_p', 'Ob2_m', 'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p']
-    lbls = ['fid.', r'$\Omega_m^{-}$', r'$\Omega_m^{+}$', r'$\Omega_b^{-}$', r'$\Omega_b^{+}$', r'$h^{-}$', r'$h^{+}$', 
-            r'$n_s^{-}$', r'$n_s^{+}$', r'$\sigma_8^{-}$', r'$\sigma_8^{+}$']
     
+    thetas = ['fiducial', 'Om_m', 'Om_p', 'Ob2_m', 'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p', 
+            'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
+    lbls = ['fid.', r'$\Omega_m^{-}$', r'$\Omega_m^{+}$', r'$\Omega_b^{-}$', r'$\Omega_b^{+}$', r'$h^{-}$', r'$h^{+}$', 
+            r'$n_s^{-}$', r'$n_s^{+}$', r'$\sigma_8^{-}$', r'$\sigma_8^{+}$', r'$M_\nu^{+}$', r'$M_\nu^{++}$', r'$M_\nu^{+++}$']
+    
+    plts = [] 
     for _i, theta in enumerate(thetas): 
         # read in real-space bispectrum (standard)
         i_k, j_k, l_k, bk_real_std = X_std('bk', theta, rsd='real', silent=False) 
@@ -381,14 +410,25 @@ def Bk_bias(kmax=0.5):
         bias_bk_real   = pf_bias(bk_real_std, bk_real_pfd)[klim]
         bias_bk_rsd    = pf_bias(bk_rsd_std, bk_rsd_pfd)[klim]
 
+        lsty = '-' 
         clr = 'k'
-        if _i > 0: clr = 'C%i' % (_i-1) 
-
-        sub0.hist(bias_bk_real, density=True, range=(-5., 5.), bins=30, histtype='step', color=clr)
-        sub1.hist(bias_bk_rsd, density=True, range=(-5., 5.), bins=30, histtype='step', color=clr)
+        if (_i > 0) and (_i < 10): 
+            clr = 'C%i' % (_i-1) 
+        elif _i >= 10: 
+            lsty = '-.'
+            clr = 'C%i' % ((_i-1) % 10) 
         
-        if _i == 0: handles = []
-        handles.append(Rectangle((0,0), 1, 1, color='none', ec=clr))
+        h0, b0 = np.histogram(bias_bk_real, density=True, range=(-5., 5.), bins=30)
+        h1, b1 = np.histogram(bias_bk_rsd, density=True, range=(-5., 5.), bins=30)
+
+        _plt, = sub0.plot(b0[1:]+0.001*(_i - 0.5*float(len(thetas))), h0, drawstyle='steps-pre', color=clr, ls=lsty) 
+        sub1.plot(b1[1:]+0.001*(_i - 0.5*float(len(thetas))), h1, drawstyle='steps-pre', color=clr, ls=lsty) 
+        plts.append(_plt) 
+
+    x = np.linspace(-5., 5., 100)
+    y = scipy.stats.norm.pdf(x, 0., 1.)
+    sub0.plot(x, y, c='k', ls='--') 
+    sub1.plot(x, y, c='k', ls='--') 
     sub0.set_xlim(-5., 5.) 
     sub1.set_xlim(-5., 5.) 
     
@@ -398,11 +438,11 @@ def Bk_bias(kmax=0.5):
     sub0.text(0.95, 0.95, r'real-space $B_0$', ha='right', va='top', transform=sub0.transAxes, fontsize=20)
     sub1.text(0.95, 0.95, r'redshift-space $B_0$', ha='right', va='top', transform=sub1.transAxes, fontsize=20)
 
-    sub0.legend(handles[:6], lbls[:6], loc='upper left', ncol=1, handletextpad=0.4, fontsize=15)
-    sub1.legend(handles[6:], lbls[6:], loc='upper left', ncol=1, handletextpad=0.4, fontsize=15)
+    sub0.legend(plts[:7], lbls[:7], loc='upper left', ncol=1, handletextpad=0.4, fontsize=15)
+    sub1.legend(plts[7:], lbls[7:], loc='upper left', ncol=1, handletextpad=0.4, fontsize=15)
 
     bkgd = fig.add_subplot(111, frameon=False)
-    bkgd.set_xlabel(r'bias ($\beta$)', labelpad=10, fontsize=25) 
+    bkgd.set_xlabel(r'bias $\beta$ ($\sigma$)', labelpad=10, fontsize=25) 
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
 
     fig.subplots_adjust(wspace=0.2) 
@@ -414,10 +454,10 @@ def Bk_bias(kmax=0.5):
 def pf_dPdtheta(): 
     ''' Comparison of dP/dtheta from paired-fixed vs standard N-body
     '''
-    thetas  = ['Om', 'Ob2', 'h', 'ns', 's8']#, 'Mnu']
-    lbls    = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$']#, r'$M_\nu$']
-    ylims0  = [(-1e6, 1e3), (1e3, 2e6), (-1e6, -1e1), (-1e6, -1e2), (-1e6, -1e2)]
-    ylims1  = [(-1e6, -1e3), (5e2, 1e6), (-5e5, -5e1), (-5e5, -5e2), (-1e4, 1e5)]
+    thetas  = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']
+    lbls    = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
+    ylims0  = [(-1e6, 1e3), (1e3, 2e6), (-1e6, -1e1), (-1e6, -1e2), (-1e6, -1e2), (1e1, 1e5)]
+    ylims1  = [(-1e6, -1e3), (5e2, 1e6), (-5e5, -5e1), (-5e5, -5e2), (-1e4, 1e5), (1e2, 2e4)]
     
     plt.rc('xtick', labelsize=10)
     plt.rc('ytick', labelsize=10)
@@ -434,17 +474,17 @@ def pf_dPdtheta():
 
     for i_tt, theta, lbl in zip(range(len(thetas)), thetas, lbls): 
         # real-space d logP / d theta (standard)
-        k_real, dpdt_real_std = X_std('dpk', theta, rsd='real', silent=False) 
+        k_real, dpdt_real_std = X_std('dpk', theta, rsd='real', dmnu='fin_2lpt', silent=False) 
         # real-space d logP / d theta (paired-fixed)
-        _, dpdt_real_pfd0 = X_pfd_1('dpk', theta, rsd='real', silent=False) 
-        _, dpdt_real_pfd1 = X_pfd_2('dpk', theta, rsd='real', silent=False) 
+        _, dpdt_real_pfd0 = X_pfd_1('dpk', theta, rsd='real', dmnu='fin_2lpt', silent=False) 
+        _, dpdt_real_pfd1 = X_pfd_2('dpk', theta, rsd='real', dmnu='fin_2lpt', silent=False) 
         dpdt_real_pfd = 0.5 * (dpdt_real_pfd0 + dpdt_real_pfd1) 
 
         # redshift-space d logP0 / d theta (standard)
-        k_rsd, dp0dt_rsd_std, dp2dt_rsd_std = X_std('dpk', theta, rsd=0, silent=False) 
+        k_rsd, dp0dt_rsd_std, dp2dt_rsd_std = X_std('dpk', theta, rsd=0, dmnu='fin_2lpt', silent=False) 
         # redshift-space d logP0 / d theta (paired-fixed)
-        _, dp0dt_rsd_pfd0, dp2dt_rsd_pfd0 = X_pfd_1('dpk', theta, rsd=0, silent=False) 
-        _, dp0dt_rsd_pfd1, dp2dt_rsd_pfd1 = X_pfd_2('dpk', theta, rsd=0, silent=False) 
+        _, dp0dt_rsd_pfd0, dp2dt_rsd_pfd0 = X_pfd_1('dpk', theta, rsd=0, dmnu='fin_2lpt', silent=False) 
+        _, dp0dt_rsd_pfd1, dp2dt_rsd_pfd1 = X_pfd_2('dpk', theta, rsd=0, dmnu='fin_2lpt', silent=False) 
         dp0dt_rsd_pfd = 0.5 * (dp0dt_rsd_pfd0 + dp0dt_rsd_pfd1) 
         dp2dt_rsd_pfd = 0.5 * (dp2dt_rsd_pfd0 + dp2dt_rsd_pfd1) 
         
@@ -522,8 +562,8 @@ def pf_dPdtheta():
         sub4.set_ylim(-4.5, 4.5) 
         sub4.set_yticks([-4., -2., 0., 2., 4.]) 
         if i_tt == 0: 
-            sub3.set_ylabel(r'bias ($\beta$)', fontsize=20) 
-            sub4.set_ylabel(r'bias ($\beta$)', fontsize=20) 
+            sub3.set_ylabel(r'bias $\beta$ ($\sigma$)', fontsize=20) 
+            sub4.set_ylabel(r'bias $\beta$ ($\sigma$)', fontsize=20) 
             sub4.legend([_plt1], ['$\ell = 0$'], loc='lower left', bbox_to_anchor=(0.0, -0.05),
                     handletextpad=0.2, fontsize=15)
         if i_tt == 1: 
@@ -551,26 +591,25 @@ def pf_dPdtheta():
 def pf_dBdtheta(kmax=0.5): 
     ''' Comparison of dB/dtheta from paired-fixed vs standard N-body
     '''
-    thetas  = ['Om', 'Ob2', 'h', 'ns', 's8']#, 'Mnu']
-    lbls    = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$']#, r'$M_\nu$']
-    ylims0  = [(-2e11, -1e5), (1e6, 2e11), (-2e10, -5e5), (-2e10, -5e5), (-1e10, -1e6)]
-    ylims1  = [(-7., 7.), (-25., 25.), (-4., 4), (-3., 3), (-5., 5.)]
+    thetas  = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']
+    lbls    = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
+    ylims0  = [(-2e11, -1e5), (1e6, 2e11), (-2e10, -5e5), (-2e10, -5e5), (-1e10, -1e6), (5e4, 5e9)]
     
-    fig1 = plt.figure(figsize=(24,10))
-    fig2 = plt.figure(figsize=(24,10))
+    fig1 = plt.figure(figsize=(24,12))
+    fig2 = plt.figure(figsize=(24,12))
     for i_tt, theta, lbl in zip(range(len(thetas)), thetas, lbls): 
         # real-space d logB / d theta (standard)
-        i_k, j_k, l_k, dbdt_real_std = X_std('dbk', theta, rsd='real', silent=False) 
+        i_k, j_k, l_k, dbdt_real_std = X_std('dbk', theta, rsd='real', dmnu='fin_2lpt', silent=False) 
         # real-space d logP / d theta (paired-fixed)
-        _, _, _, dbdt_real_pfd0 = X_pfd_1('dbk', theta, rsd='real', silent=False) 
-        _, _, _, dbdt_real_pfd1 = X_pfd_2('dbk', theta, rsd='real', silent=False) 
+        _, _, _, dbdt_real_pfd0 = X_pfd_1('dbk', theta, rsd='real', dmnu='fin_2lpt', silent=False) 
+        _, _, _, dbdt_real_pfd1 = X_pfd_2('dbk', theta, rsd='real', dmnu='fin_2lpt', silent=False) 
         dbdt_real_pfd = 0.5 * (dbdt_real_pfd0 + dbdt_real_pfd1) 
 
         # redshift-space d logP0 / d theta (standard)
-        _, _, _, dbdt_rsd_std = X_std('dbk', theta, rsd=0, silent=False) 
+        _, _, _, dbdt_rsd_std = X_std('dbk', theta, rsd=0, dmnu='fin_2lpt', silent=False) 
         # redshift-space d logP0 / d theta (paired-fixed)
-        _, _, _, dbdt_rsd_pfd0 = X_pfd_1('dbk', theta, rsd=0, silent=False) 
-        _, _, _, dbdt_rsd_pfd1 = X_pfd_2('dbk', theta, rsd=0, silent=False) 
+        _, _, _, dbdt_rsd_pfd0 = X_pfd_1('dbk', theta, rsd=0, dmnu='fin_2lpt', silent=False) 
+        _, _, _, dbdt_rsd_pfd1 = X_pfd_2('dbk', theta, rsd=0, dmnu='fin_2lpt', silent=False) 
         dbdt_rsd_pfd = 0.5 * (dbdt_rsd_pfd0 + dbdt_rsd_pfd1) 
         
         bias_dbdt_real = pf_bias(dbdt_real_std, dbdt_real_pfd)
@@ -604,9 +643,6 @@ def pf_dBdtheta(kmax=0.5):
         else: 
             sub1.set_xlabel('triangle configurations', fontsize=20)
             sub2.set_xlabel('triangle configurations', fontsize=20)
-        if i_tt == 2: 
-            sub1.set_ylabel(r'real-space $~~{\rm d}B/{\rm d} \theta$', fontsize=25) 
-            sub2.set_ylabel(r'redshift-space $~~{\rm d}B_0/{\rm d} \theta$', fontsize=25) 
         if i_tt == 0: 
             sub1.legend(loc='lower right', handletextpad=0.3, ncol=2, fontsize=15, 
                     columnspacing=0.8, bbox_to_anchor=(1., -0.1))
@@ -636,20 +672,29 @@ def pf_dBdtheta(kmax=0.5):
         if theta != thetas[-1]: 
             sub1.set_xticklabels([]) 
             sub2.set_xticklabels([]) 
-        if i_tt == 2: 
-            sub1.set_ylabel(r'bias $(\beta)$', fontsize=25) 
-            sub2.set_ylabel(r'bias $(\beta)$', fontsize=25) 
         if i_tt == 4: 
             sub1.set_xlabel('triangle configurations', fontsize=20)
             sub2.set_xlabel('triangle configurations', fontsize=20)
-        sub1.text(0.98, 0.925, lbl, ha='right', va='top', transform=sub1.transAxes, fontsize=20)
-        sub2.text(0.98, 0.925, lbl, ha='right', va='top', transform=sub2.transAxes, fontsize=20)
+        sub1.text(0.98, 0.95, lbl, ha='right', va='top', transform=sub1.transAxes, fontsize=18)
+        sub2.text(0.98, 0.95, lbl, ha='right', va='top', transform=sub2.transAxes, fontsize=18)
 
+    bkgd = fig1.add_subplot(121, frameon=False)
+    bkgd.set_ylabel(r'real-space $~~{\rm d}B/{\rm d} \theta$', labelpad=15, fontsize=25) 
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    bkgd = fig1.add_subplot(122, frameon=False)
+    bkgd.set_ylabel(r'bias $\beta$ ($\sigma$)', labelpad=5, fontsize=24) 
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
     fig1.subplots_adjust(hspace=0.075, wspace=0.175) 
     ffig = os.path.join(dir_doc, 'pf_dBdtheta.real.kmax%.1f.png' % (kmax))
     fig1.savefig(ffig, bbox_inches='tight') 
     fig1.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') 
 
+    bkgd = fig2.add_subplot(121, frameon=False)
+    bkgd.set_ylabel(r'redshift-space $~~{\rm d}B_0/{\rm d} \theta$', labelpad=15, fontsize=25) 
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    bkgd = fig2.add_subplot(122, frameon=False)
+    bkgd.set_ylabel(r'bias $\beta$ ($\sigma$)', labelpad=5, fontsize=24) 
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
     fig2.subplots_adjust(hspace=0.075, wspace=0.175) 
     ffig = os.path.join(dir_doc, 'pf_dBdtheta.rsd.kmax%.1f.png' % (kmax))
     fig2.savefig(ffig, bbox_inches='tight') 
@@ -666,22 +711,22 @@ def dPdtheta_bias(kmax=0.5):
     sub1 = fig.add_subplot(132) 
     sub2 = fig.add_subplot(133) 
 
-    thetas  = ['Om', 'Ob2', 'h', 'ns', 's8']#, 'Mnu']
-    lbls    = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$']#, r'$M_\nu$']
+    thetas  = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']
+    lbls    = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
     
     for _i, theta in enumerate(thetas): 
         # real-space d logP / d theta (standard)
-        k_real, dpdt_real_std = X_std('dpk', theta, rsd='real', silent=False) 
+        k_real, dpdt_real_std = X_std('dpk', theta, rsd='real', dmnu='fin_2lpt', silent=False) 
         # real-space d logP / d theta (paired-fixed)
-        _, dpdt_real_pfd0 = X_pfd_1('dpk', theta, rsd='real', silent=False) 
-        _, dpdt_real_pfd1 = X_pfd_2('dpk', theta, rsd='real', silent=False) 
+        _, dpdt_real_pfd0 = X_pfd_1('dpk', theta, rsd='real', dmnu='fin_2lpt', silent=False) 
+        _, dpdt_real_pfd1 = X_pfd_2('dpk', theta, rsd='real', dmnu='fin_2lpt', silent=False) 
         dpdt_real_pfd = 0.5 * (dpdt_real_pfd0 + dpdt_real_pfd1) 
 
         # redshift-space d logP0 / d theta (standard)
-        k_rsd, dp0dt_rsd_std, dp2dt_rsd_std = X_std('dpk', theta, rsd=0, silent=False) 
+        k_rsd, dp0dt_rsd_std, dp2dt_rsd_std = X_std('dpk', theta, rsd=0, dmnu='fin_2lpt', silent=False) 
         # redshift-space d logP0 / d theta (paired-fixed)
-        _, dp0dt_rsd_pfd0, dp2dt_rsd_pfd0 = X_pfd_1('dpk', theta, rsd=0, silent=False) 
-        _, dp0dt_rsd_pfd1, dp2dt_rsd_pfd1 = X_pfd_2('dpk', theta, rsd=0, silent=False) 
+        _, dp0dt_rsd_pfd0, dp2dt_rsd_pfd0 = X_pfd_1('dpk', theta, rsd=0, dmnu='fin_2lpt', silent=False) 
+        _, dp0dt_rsd_pfd1, dp2dt_rsd_pfd1 = X_pfd_2('dpk', theta, rsd=0, dmnu='fin_2lpt', silent=False) 
         dp0dt_rsd_pfd = 0.5 * (dp0dt_rsd_pfd0 + dp0dt_rsd_pfd1) 
         dp2dt_rsd_pfd = 0.5 * (dp2dt_rsd_pfd0 + dp2dt_rsd_pfd1) 
 
@@ -694,12 +739,23 @@ def dPdtheta_bias(kmax=0.5):
         clr = 'k'
         if _i > 0: clr = 'C%i' % (_i-1) 
 
-        sub0.hist(bias_dpdt_real, density=True, range=(-5., 5.), bins=30, histtype='step', color=clr)
-        sub1.hist(bias_dp0dt_rsd, density=True, range=(-5., 5.), bins=30, histtype='step', color=clr)
-        sub2.hist(bias_dp2dt_rsd, density=True, range=(-5., 5.), bins=30, histtype='step', color=clr)
-        
+        h0, b0 = np.histogram(bias_dpdt_real, density=True, range=(-5., 5.), bins=30)
+        h1, b1 = np.histogram(bias_dp0dt_rsd, density=True, range=(-5., 5.), bins=30)
+        h2, b2 = np.histogram(bias_dp2dt_rsd, density=True, range=(-5., 5.), bins=30)
+
+        sub0.plot(b0[1:]+0.001*(_i - 0.5*float(len(thetas))), h0, drawstyle='steps-pre', color=clr) 
+        sub1.plot(b1[1:]+0.001*(_i - 0.5*float(len(thetas))), h1, drawstyle='steps-pre', color=clr) 
+        sub2.plot(b2[1:]+0.001*(_i - 0.5*float(len(thetas))), h2, drawstyle='steps-pre', color=clr) 
+
         if _i == 0: handles = []
         handles.append(Rectangle((0,0), 1, 1, color='none', ec=clr))
+    
+    x = np.linspace(-5., 5., 100)
+    y = scipy.stats.norm.pdf(x, 0., 1.)
+    sub0.plot(x, y, c='k', ls='--') 
+    sub1.plot(x, y, c='k', ls='--') 
+    sub2.plot(x, y, c='k', ls='--') 
+
     sub0.set_xlim(-5., 5.) 
     sub1.set_xlim(-5., 5.) 
     sub2.set_xlim(-5., 5.) 
@@ -718,7 +774,7 @@ def dPdtheta_bias(kmax=0.5):
     sub0.legend(handles, lbls, loc='upper left', ncol=1, handletextpad=0.4, fontsize=15)
 
     bkgd = fig.add_subplot(111, frameon=False)
-    bkgd.set_xlabel(r'bias ($\beta$)', labelpad=10, fontsize=25) 
+    bkgd.set_xlabel(r'bias $\beta$ ($\sigma$)', labelpad=10, fontsize=25) 
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
 
     fig.subplots_adjust(wspace=0.2) 
@@ -735,22 +791,22 @@ def dBdtheta_bias(kmax=0.5):
     sub0 = fig.add_subplot(121) 
     sub1 = fig.add_subplot(122) 
 
-    thetas  = ['Om', 'Ob2', 'h', 'ns', 's8']#, 'Mnu']
-    lbls    = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$']#, r'$M_\nu$']
+    thetas  = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']
+    lbls    = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
     
     for _i, theta in enumerate(thetas): 
         # real-space d logB / d theta (standard)
-        i_k, j_k, l_k, dbdt_real_std = X_std('dbk', theta, rsd='real', silent=False) 
+        i_k, j_k, l_k, dbdt_real_std = X_std('dbk', theta, rsd='real', dmnu='fin_2lpt', silent=False) 
         # real-space d logP / d theta (paired-fixed)
-        _, _, _, dbdt_real_pfd0 = X_pfd_1('dbk', theta, rsd='real', silent=False) 
-        _, _, _, dbdt_real_pfd1 = X_pfd_2('dbk', theta, rsd='real', silent=False) 
+        _, _, _, dbdt_real_pfd0 = X_pfd_1('dbk', theta, rsd='real', dmnu='fin_2lpt', silent=False) 
+        _, _, _, dbdt_real_pfd1 = X_pfd_2('dbk', theta, rsd='real', dmnu='fin_2lpt', silent=False) 
         dbdt_real_pfd = 0.5 * (dbdt_real_pfd0 + dbdt_real_pfd1) 
 
         # redshift-space d logP0 / d theta (standard)
-        _, _, _, dbdt_rsd_std = X_std('dbk', theta, rsd=0, silent=False) 
+        _, _, _, dbdt_rsd_std = X_std('dbk', theta, rsd=0, dmnu='fin_2lpt', silent=False) 
         # redshift-space d logP0 / d theta (paired-fixed)
-        _, _, _, dbdt_rsd_pfd0 = X_pfd_1('dbk', theta, rsd=0, silent=False) 
-        _, _, _, dbdt_rsd_pfd1 = X_pfd_2('dbk', theta, rsd=0, silent=False) 
+        _, _, _, dbdt_rsd_pfd0 = X_pfd_1('dbk', theta, rsd=0, dmnu='fin_2lpt', silent=False) 
+        _, _, _, dbdt_rsd_pfd1 = X_pfd_2('dbk', theta, rsd=0, dmnu='fin_2lpt', silent=False) 
         dbdt_rsd_pfd = 0.5 * (dbdt_rsd_pfd0 + dbdt_rsd_pfd1) 
 
         if _i == 0: klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
@@ -761,11 +817,20 @@ def dBdtheta_bias(kmax=0.5):
         clr = 'k'
         if _i > 0: clr = 'C%i' % (_i-1) 
 
-        sub0.hist(bias_dbdt_real, density=True, range=(-5., 5.), bins=30, histtype='step', color=clr)
-        sub1.hist(bias_dbdt_rsd, density=True, range=(-5., 5.), bins=30, histtype='step', color=clr)
-        
+        h0, b0 = np.histogram(bias_dbdt_real, density=True, range=(-5., 5.), bins=30)
+        h1, b1 = np.histogram(bias_dbdt_rsd, density=True, range=(-5., 5.), bins=30)
+
+        sub0.plot(b0[1:]+0.001*(_i - 0.5*float(len(thetas))), h0, drawstyle='steps-pre', color=clr) 
+        sub1.plot(b1[1:]+0.001*(_i - 0.5*float(len(thetas))), h1, drawstyle='steps-pre', color=clr) 
+
         if _i == 0: handles = []
         handles.append(Rectangle((0,0), 1, 1, color='none', ec=clr))
+    
+    x = np.linspace(-5., 5., 100)
+    y = scipy.stats.norm.pdf(x, 0., 1.)
+    sub0.plot(x, y, c='k', ls='--') 
+    sub1.plot(x, y, c='k', ls='--') 
+
     sub0.set_xlim(-5., 5.) 
     sub1.set_xlim(-5., 5.) 
     
@@ -780,12 +845,50 @@ def dBdtheta_bias(kmax=0.5):
     sub0.legend(handles, lbls, loc='upper left', ncol=1, handletextpad=0.4, fontsize=15)
 
     bkgd = fig.add_subplot(111, frameon=False)
-    bkgd.set_xlabel(r'bias ($\beta$)', labelpad=10, fontsize=25) 
+    bkgd.set_xlabel(r'bias $\beta$ ($\sigma$)', labelpad=10, fontsize=25) 
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
 
     fig.subplots_adjust(wspace=0.2) 
     ffig = os.path.join(dir_fig, 'pf_dbdt_bias.png') 
     fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+
+def dBdtheta_chi2(kmax=0.2): 
+    ''' Compare the d B / d theta bias distributions for the different cosmologies
+    '''
+    thetas  = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']
+    lbls    = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
+    
+    for _i, theta in enumerate(thetas): 
+        # real-space d logB / d theta (standard)
+        i_k, j_k, l_k, dbdt_real_std = X_std('dbk', theta, rsd='real', dmnu='fin_2lpt', silent=False) 
+        # real-space d logP / d theta (paired-fixed)
+        _, _, _, dbdt_real_pfd0 = X_pfd_1('dbk', theta, rsd='real', dmnu='fin_2lpt', silent=False) 
+        _, _, _, dbdt_real_pfd1 = X_pfd_2('dbk', theta, rsd='real', dmnu='fin_2lpt', silent=False) 
+        dbdt_real_pfd = 0.5 * (dbdt_real_pfd0 + dbdt_real_pfd1) 
+
+        # redshift-space d logP0 / d theta (standard)
+        _, _, _, dbdt_rsd_std = X_std('dbk', theta, rsd=0, dmnu='fin_2lpt', silent=False) 
+        # redshift-space d logP0 / d theta (paired-fixed)
+        _, _, _, dbdt_rsd_pfd0 = X_pfd_1('dbk', theta, rsd=0, dmnu='fin_2lpt', silent=False) 
+        _, _, _, dbdt_rsd_pfd1 = X_pfd_2('dbk', theta, rsd=0, dmnu='fin_2lpt', silent=False) 
+        dbdt_rsd_pfd = 0.5 * (dbdt_rsd_pfd0 + dbdt_rsd_pfd1) 
+
+        if _i == 0: klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
+
+        del_dbdt_real = np.average(dbdt_real_std, axis=0)[klim] - np.average(dbdt_real_pfd, axis=0)[klim]
+        del_dbdt_rsd = np.average(dbdt_rsd_std, axis=0)[klim] - np.average(dbdt_rsd_pfd, axis=0)[klim]
+
+        cov_real = np.cov(dbdt_real_std[:,klim].T)
+        cov_rsd = np.cov(dbdt_rsd_std[:,klim].T)
+
+        cinv_real = np.linalg.inv(cov_real) 
+        cinv_rsd = np.linalg.inv(cov_rsd) 
+
+        print('--- %s ---' % theta) 
+        print('real-space : %.4f' % np.dot(np.dot(del_dbdt_real, cinv_real), del_dbdt_real.T))
+        print('redshift-space : %.4f' % np.dot(np.dot(del_dbdt_rsd, cinv_rsd), del_dbdt_rsd.T))
     return None 
 
 
@@ -1028,36 +1131,63 @@ def pf_P_Fij(rsd=0, kmax=0.5):
     C_inv = f_hartlap * np.linalg.inv(Cov_pk) # invert the covariance 
     
     thetas      = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']
-    theta_fid   = [0.3175, 0.049, 0.6711, 0.9624, 0.834, 0.0] # fiducial theta 
-    theta_lims  = [(0.28, 0.355), (0.028, 0.07), (0.4922, 0.85), (0.7748, 1.15), (0.808, 0.86), (-0.25, 0.25)]
     lbls        = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
 
     dpdts_std, dpdts_pfd = [], [] 
     for theta in thetas:
-        if rsd != 'real': 
-            dpdt_std = dP02kdtheta(theta, log=False, rsd=rsd, flag='reg', dmnu='fin')
-            dpdt_pfd = dP02kdtheta(theta, log=False, rsd=rsd, flag='ncv', dmnu='fin')
+        if rsd == 'real': 
+            # real-space d logP / d theta (standard)
+            _, dpdt_std = Forecast.quijote_dPkdtheta(theta, rsd='real', flag='reg', dmnu='fin_2lpt') 
+            # real-space d logP / d theta (paired-fixed)
+            _, dpdt_pfd = Forecast.quijote_dPkdtheta(theta, rsd='real', flag='ncv', dmnu='fin_2lpt') 
         else: 
-            dpdt_std = dPkdtheta(theta, log=False, rsd=rsd, flag='reg', dmnu='fin')
-            dpdt_pfd = dPkdtheta(theta, log=False, rsd=rsd, flag='ncv', dmnu='fin')
+            # redshift-space d logP / d theta (standard)
+            _, dpdt_std = Forecast.quijote_dP02kdtheta(theta, rsd=rsd, flag='reg', dmnu='fin_2lpt') 
+            # redshift-space d logP / d theta (paired-fixed)
+            _, dpdt_pfd = Forecast.quijote_dP02kdtheta(theta, rsd=rsd, flag='ncv', dmnu='fin_2lpt') 
         dpdts_std.append(dpdt_std[klim]) 
         dpdts_pfd.append(dpdt_pfd[klim]) 
 
     Fij_std = Forecast.Fij(dpdts_std, C_inv) 
     Fij_pfd = Forecast.Fij(dpdts_pfd, C_inv) 
 
-    fig = plt.figure(figsize=(5,5))
-    sub = fig.add_subplot(111) 
-    cm = sub.pcolormesh(Fij_pfd/Fij_std - 1, vmin=-0.1, vmax=0.1, cmap='RdBu')
-    cbar_ax = fig.add_axes([0.95, 0.15, 0.0125, 0.7])
-    cbar = fig.colorbar(cm, cax=cbar_ax)
+    fig = plt.figure(figsize=(17,5))
+    sub = fig.add_subplot(131) 
+    cm = sub.pcolormesh(Fij_std, cmap='RdBu', 
+            norm=SymLogNorm(linthresh=1e4, vmin=-3e6, vmax=3e6),) 
+    plt.colorbar(cm) 
     sub.set_xticks(np.arange(len(thetas))+0.5)
     sub.set_xticklabels(lbls) 
     sub.set_yticks(np.arange(len(thetas))+0.5)
     sub.set_yticklabels(lbls) 
-    sub.set_title(r'$(F^{\rm PF}_{ij} - F_{ij})/ F_{ij}$', fontsize=20) 
-    ffig = os.path.join(dir_fig, 'pf_P_Fij%s.kmax%.1f.png' % (_rsd_str(rsd), kmax))
+    sub.set_title(r'standard $N$-body $F^{\rm std}_{ij}$', fontsize=20) 
+    
+    sub = fig.add_subplot(132) 
+    cm = sub.pcolormesh(Fij_pfd, cmap='RdBu',
+            norm=SymLogNorm(linthresh=1e4, vmin=-3e6, vmax=3e6),) 
+    plt.colorbar(cm) 
+    sub.set_xticks(np.arange(len(thetas))+0.5)
+    sub.set_xticklabels(lbls) 
+    sub.set_yticks(np.arange(len(thetas))+0.5)
+    sub.set_yticklabels(lbls) 
+    sub.set_title(r'paired-fixed $F^{\rm pf}_{ij}$', fontsize=20) 
+    
+    sub = fig.add_subplot(133) 
+    cm = sub.pcolormesh(Fij_pfd/Fij_std - 1, vmin=-0.1, vmax=0.1, cmap='RdBu')
+    plt.colorbar(cm) 
+    sub.set_xticks(np.arange(len(thetas))+0.5)
+    sub.set_xticklabels(lbls) 
+    sub.set_yticks(np.arange(len(thetas))+0.5)
+    sub.set_yticklabels(lbls) 
+    sub.set_title(r'$(F^{\rm pf}_{ij} - F^{\rm std}_{ij})/ F^{\rm std}_{ij}$', fontsize=20) 
+    
+    fig.subplots_adjust(wspace=0.175) 
+    if rsd == 'real': 
+        ffig = os.path.join(dir_doc, 'pf_P_Fij.real.kmax%.1f.png' % kmax)
+    else: 
+        ffig = os.path.join(dir_doc, 'pf_P_Fij.rsd.kmax%.1f.png' % kmax)
     fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') 
     return None 
 
 
@@ -1078,34 +1208,67 @@ def pf_B_Fij(rsd=0, kmax=0.5):
     f_hartlap = float(nmock - ndata - 2)/float(nmock - 1) 
     C_inv = f_hartlap * np.linalg.inv(Cov_bk) # invert the covariance 
     
-    thetas  = ['Om', 'Ob2', 'h', 'ns', 's8']
-    lbls    = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$']
+    thetas      = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']
+    lbls        = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
     dbdts_std, dbdts_pfd = [], [] 
     for theta in thetas:
-        dbdt_std = dBkdtheta(theta, log=False, rsd=rsd, flag='reg', dmnu='fin')
-        dbdt_pfd = dBkdtheta(theta, log=False, rsd=rsd, flag='ncv', dmnu='fin')
+        if rsd == 'real': 
+            # redshift-space d logP0 / d theta (standard)
+            _, _, _, dbdt_std = Forecast.quijote_dBkdtheta(theta, rsd='real', flag='reg', dmnu='fin_2lpt')
+            # redshift-space d logP0 / d theta (paired-fixed)
+            _, _, _, dbdt_pfd = Forecast.quijote_dBkdtheta(theta, rsd='real', flag='ncv', dmnu='fin_2lpt')
+        else: 
+            # real-space d logB / d theta (standard)
+            _, _, _, dbdt_std = Forecast.quijote_dBkdtheta(theta, rsd=rsd, flag='reg', dmnu='fin_2lpt')
+            # real-space d logP / d theta (paired-fixed)
+            _, _, _, dbdt_pfd = Forecast.quijote_dBkdtheta(theta, rsd=rsd, flag='ncv', dmnu='fin_2lpt')
         dbdts_std.append(dbdt_std[klim]) 
         dbdts_pfd.append(dbdt_pfd[klim]) 
 
     Fij_std = Forecast.Fij(dbdts_std, C_inv) 
     Fij_pfd = Forecast.Fij(dbdts_pfd, C_inv) 
 
-    fig = plt.figure(figsize=(5,5))
-    sub = fig.add_subplot(111) 
-    cm = sub.pcolormesh(Fij_pfd/Fij_std - 1, vmin=-0.1, vmax=0.1, cmap='RdBu')
-    cbar_ax = fig.add_axes([0.95, 0.15, 0.0125, 0.7])
-    cbar = fig.colorbar(cm, cax=cbar_ax)
+    fig = plt.figure(figsize=(17,5))
+    sub = fig.add_subplot(131) 
+    cm = sub.pcolormesh(Fij_std, cmap='RdBu', 
+            norm=SymLogNorm(linthresh=1e4, vmin=-3e6, vmax=3e6),) 
+    plt.colorbar(cm) 
     sub.set_xticks(np.arange(len(thetas))+0.5)
     sub.set_xticklabels(lbls) 
     sub.set_yticks(np.arange(len(thetas))+0.5)
     sub.set_yticklabels(lbls) 
-    sub.set_title(r'$(F^{\rm PF}_{ij} - F_{ij})/ F_{ij}$', fontsize=20) 
-    ffig = os.path.join(dir_fig, 'pf_B_Fij%s.kmax%.1f.png' % (_rsd_str(rsd), kmax))
+    sub.set_title(r'standard $N$-body $F^{\rm std}_{ij}$', fontsize=20) 
+    
+    sub = fig.add_subplot(132) 
+    cm = sub.pcolormesh(Fij_pfd, cmap='RdBu',
+            norm=SymLogNorm(linthresh=1e4, vmin=-3e6, vmax=3e6),) 
+    plt.colorbar(cm) 
+    sub.set_xticks(np.arange(len(thetas))+0.5)
+    sub.set_xticklabels(lbls) 
+    sub.set_yticks(np.arange(len(thetas))+0.5)
+    sub.set_yticklabels(lbls) 
+    sub.set_title(r'paired-fixed $F^{\rm pf}_{ij}$', fontsize=20) 
+    
+    sub = fig.add_subplot(133) 
+    cm = sub.pcolormesh(Fij_pfd/Fij_std - 1, vmin=-0.1, vmax=0.1, cmap='RdBu')
+    plt.colorbar(cm) 
+    sub.set_xticks(np.arange(len(thetas))+0.5)
+    sub.set_xticklabels(lbls) 
+    sub.set_yticks(np.arange(len(thetas))+0.5)
+    sub.set_yticklabels(lbls) 
+    sub.set_title(r'$(F^{\rm pf}_{ij} - F^{\rm std}_{ij})/ F^{\rm std}_{ij}$', fontsize=20) 
+    
+    fig.subplots_adjust(wspace=0.175) 
+    if rsd == 'real': 
+        ffig = os.path.join(dir_doc, 'pf_B_Fij.real.kmax%.1f.png' % kmax)
+    else: 
+        ffig = os.path.join(dir_doc, 'pf_B_Fij.rsd.kmax%.1f.png' % kmax)
     fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') 
     return None 
 
 
-def pf_P_posterior(rsd=0, kmax=0.5): 
+def pf_P_posterior(rsd='all', kmax=0.5): 
     ''' compare the fisher matrix derived from paired-fixed derivatives vs 
     standard n-body derivatives
     '''
@@ -1124,27 +1287,37 @@ def pf_P_posterior(rsd=0, kmax=0.5):
     
     thetas      = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']
     theta_fid   = [0.3175, 0.049, 0.6711, 0.9624, 0.834, 0.0] # fiducial theta 
-    theta_lims  = [(0.28, 0.355), (0.028, 0.07), (0.4922, 0.85), (0.7748, 1.15), (0.808, 0.86), (-0.25, 0.25)]
+    theta_lims  = [(0.29, 0.345), (0.028, 0.07), (0.4922, 0.85), (0.7748, 1.15), (0.808, 0.86), (-0.25, 0.25)]
     lbls        = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
 
     dpdts_std, dpdts_pfd = [], [] 
     for theta in thetas:
-        if rsd != 'real': 
-            dpdt_std = dP02kdtheta(theta, log=False, rsd=rsd, flag='reg', dmnu='fin')
-            dpdt_pfd = dP02kdtheta(theta, log=False, rsd=rsd, flag='ncv', dmnu='fin')
+        if rsd == 'real': 
+            # real-space d logP / d theta (standard)
+            _, dpdt_std = Forecast.quijote_dPkdtheta(theta, rsd='real', flag='reg', dmnu='fin_2lpt') 
+            # real-space d logP / d theta (paired-fixed)
+            _, dpdt_pfd = Forecast.quijote_dPkdtheta(theta, rsd='real', flag='ncv', dmnu='fin_2lpt') 
         else: 
-            dpdt_std = dPkdtheta(theta, log=False, rsd=rsd, flag='reg', dmnu='fin')
-            dpdt_pfd = dPkdtheta(theta, log=False, rsd=rsd, flag='ncv', dmnu='fin')
+            # redshift-space d logP / d theta (standard)
+            _, dpdt_std = Forecast.quijote_dP02kdtheta(theta, rsd=rsd, flag='reg', dmnu='fin_2lpt') 
+            # redshift-space d logP / d theta (paired-fixed)
+            _, dpdt_pfd = Forecast.quijote_dP02kdtheta(theta, rsd=rsd, flag='ncv', dmnu='fin_2lpt') 
         dpdts_std.append(dpdt_std[klim]) 
         dpdts_pfd.append(dpdt_pfd[klim]) 
 
     Fij_std = Forecast.Fij(dpdts_std, C_inv) 
     Fij_pfd = Forecast.Fij(dpdts_pfd, C_inv) 
-    
+
     Finv_std = np.linalg.inv(Fij_std) # invert fisher matrix 
     Finv_pfd = np.linalg.inv(Fij_pfd) # invert fisher matrix 
-    
-    fig = Forecast.plotFisher([Finv_pfd, Finv_std], theta_fid, ranges=theta_lims, colors=['C1', 'C0'], labels=lbls)
+
+    sig_std = np.sqrt(np.diag(Finv_std))
+    sig_pfd = np.sqrt(np.diag(Finv_pfd))
+
+    titles = [r'$\sigma^{\rm pf}_{%s} = %.2f\times \sigma^{\rm std}_{%s}$' % (lbl.replace('$', ''), ratio, lbl.replace('$', ''))
+            for ratio, lbl in zip((sig_pfd / sig_std), lbls)]
+    fig = Forecast.plotFisher([Finv_pfd, Finv_std], theta_fid, ranges=theta_lims, colors=['C1', 'C0'], 
+            labels=lbls, titles=titles, title_kwargs={'fontsize': 20})
 
     bkgd = fig.add_subplot(111, frameon=False)
     bkgd.fill_between([],[],[], color='C0', label=r'standard $N$-body') 
@@ -1153,8 +1326,12 @@ def pf_P_posterior(rsd=0, kmax=0.5):
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
 
     fig.subplots_adjust(wspace=0.05, hspace=0.05) 
-    ffig = os.path.join(dir_fig, 'pf_P_posterior%s.kmax%.1f.png' % (_rsd_str(rsd), kmax))
+    if rsd == 'real': 
+        ffig = os.path.join(dir_doc, 'pf_P_posterior.real.kmax%.1f.png' % kmax)
+    else: 
+        ffig = os.path.join(dir_doc, 'pf_P_posterior.rsd.kmax%.1f.png' % kmax)
     fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') 
     return None 
 
 
@@ -1177,15 +1354,94 @@ def pf_B_posterior(rsd=0, kmax=0.5):
     
     thetas      = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']
     theta_fid   = [0.3175, 0.049, 0.6711, 0.9624, 0.834, 0.0] # fiducial theta 
-    theta_lims  = [(0.3, 0.335), (0.038, 0.06), (0.5922, 0.75), (0.8748, 1.05), (0.808, 0.86), (-0.125, 0.125)]
-
+    theta_lims  = [(0.3, 0.335), (0.04, 0.058), (0.6, 0.74), (0.9, 1.015), (0.808, 0.86), (-0.25, 0.25)]
     lbls        = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
+
     dbdts_std, dbdts_pfd = [], [] 
     for theta in thetas:
-        dbdt_std = dBkdtheta(theta, log=False, rsd=rsd, flag='reg', dmnu='fin')
-        dbdt_pfd = dBkdtheta(theta, log=False, rsd=rsd, flag='ncv', dmnu='fin')
+        if rsd == 'real': 
+            # real-space d logB / d theta (standard)
+            _, _, _, dbdt_std = Forecast.quijote_dBkdtheta(theta, rsd='real', flag='reg', dmnu='fin_2lpt')
+            # real-space d logP / d theta (paired-fixed)
+            _, _, _, dbdt_pfd = Forecast.quijote_dBkdtheta(theta, rsd='real', flag='ncv', dmnu='fin_2lpt')
+        else: 
+            # redshift-space d logP0 / d theta (standard)
+            _, _, _, dbdt_std = Forecast.quijote_dBkdtheta(theta, rsd=rsd, flag='reg', dmnu='fin_2lpt')
+            # redshift-space d logP0 / d theta (paired-fixed)
+            _, _, _, dbdt_pfd = Forecast.quijote_dBkdtheta(theta, rsd=rsd, flag='ncv', dmnu='fin_2lpt')
         dbdts_std.append(dbdt_std[klim]) 
         dbdts_pfd.append(dbdt_pfd[klim]) 
+
+    Fij_std = Forecast.Fij(dbdts_std, C_inv) 
+    Fij_pfd = Forecast.Fij(dbdts_pfd, C_inv) 
+    
+    Finv_std = np.linalg.inv(Fij_std) # invert fisher matrix 
+    Finv_pfd = np.linalg.inv(Fij_pfd) # invert fisher matrix 
+    
+    sig_std = np.sqrt(np.diag(Finv_std))
+    sig_pfd = np.sqrt(np.diag(Finv_pfd))
+    
+    titles = [r'$\sigma^{\rm pf}_{%s} = %.2f\times \sigma^{\rm std}_{%s}$' % (lbl.replace('$', ''), ratio, lbl.replace('$', ''))
+            for ratio, lbl in zip((sig_pfd / sig_std), lbls)]
+    fig = Forecast.plotFisher([Finv_pfd, Finv_std], theta_fid, ranges=theta_lims, colors=['C1', 'C0'], 
+            labels=lbls, titles=titles, title_kwargs={'fontsize': 20})
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.fill_between([],[],[], color='C0', label=r'standard $N$-body') 
+    bkgd.fill_between([],[],[], color='C1', label=r'paired fixed') 
+    bkgd.legend(loc='upper right', bbox_to_anchor=(0.8, 0.8), handletextpad=0.5, fontsize=20)
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+
+    fig.subplots_adjust(wspace=0.05, hspace=0.05) 
+    if rsd == 'real': 
+        ffig = os.path.join(dir_doc, 'pf_B_posterior.real.kmax%.1f.png' % kmax)
+    else: 
+        ffig = os.path.join(dir_doc, 'pf_B_posterior.rsd.kmax%.1f.png' % kmax)
+    fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') 
+    return None 
+
+
+def pf_B_posterior_noh(rsd=0, kmax=0.5): 
+    ''' compare the fisher matrix derived from paired-fixed derivatives vs 
+    standard n-body derivatives
+    '''
+    # read in covariance matrix 
+    if rsd != 'real': 
+        i_k, j_k, l_k, Cov_bk, nmock = bkCov(rsd=0, flag='reg', silent=False) 
+    else: 
+        i_k, j_k, l_k, Cov_bk, nmock = bkCov(rsd='real', flag='reg', silent=False) 
+    klim = ((i_k * kf <= kmax) & (j_k * kf <= kmax) & (l_k * kf <= kmax)) # klim 
+    Cov_bk = Cov_bk[:,klim][klim,:]
+    
+    # get precision matrix 
+    ndata = np.sum(klim) 
+    f_hartlap = float(nmock - ndata - 2)/float(nmock - 1) 
+    C_inv = f_hartlap * np.linalg.inv(Cov_bk) # invert the covariance 
+    
+    thetas      = ['Om', 'Ob2', 'ns', 's8']#, 'Mnu']
+    theta_fid   = [0.3175, 0.049, 0.9624, 0.834]#, 0.0] # fiducial theta 
+    theta_lims  = [(0.3, 0.335), (0.04, 0.058), (0.9, 1.015), (0.808, 0.86)]#, (-0.25, 0.25)]
+    lbls        = [r'$\Omega_m$', r'$\Omega_b$', r'$n_s$', r'$\sigma_8$']#, r'$M_\nu$']
+
+    dbdts_std, dbdts_pfd = [], [] 
+    for theta in thetas:
+        if rsd == 'real': 
+            # real-space d logB / d theta (standard)
+            _, _, _, dbdt_std = X_std('dbk', theta, rsd='real', silent=False) 
+            # real-space d logP / d theta (paired-fixed)
+            _, _, _, dbdt_pfd0 = X_pfd_1('dbk', theta, rsd='real', silent=False) 
+            _, _, _, dbdt_pfd1 = X_pfd_2('dbk', theta, rsd='real', silent=False) 
+            dbdt_pfd = 0.5 * (dbdt_pfd0 + dbdt_pfd1) 
+        else: 
+            # redshift-space d logP0 / d theta (standard)
+            _, _, _, dbdt_std = X_std('dbk', theta, rsd=rsd, silent=False) 
+            # redshift-space d logP0 / d theta (paired-fixed)
+            _, _, _, dbdt_pfd0 = X_pfd_1('dbk', theta, rsd=rsd, silent=False) 
+            _, _, _, dbdt_pfd1 = X_pfd_2('dbk', theta, rsd=rsd, silent=False) 
+            dbdt_pfd = 0.5 * (dbdt_pfd0 + dbdt_pfd1) 
+        dbdts_std.append(np.average(dbdt_std, axis=0)[klim]) 
+        dbdts_pfd.append(np.average(dbdt_pfd, axis=0)[klim]) 
 
     Fij_std = Forecast.Fij(dbdts_std, C_inv) 
     Fij_pfd = Forecast.Fij(dbdts_pfd, C_inv) 
@@ -1202,8 +1458,12 @@ def pf_B_posterior(rsd=0, kmax=0.5):
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
 
     fig.subplots_adjust(wspace=0.05, hspace=0.05) 
-    ffig = os.path.join(dir_fig, 'pf_B_posterior%s.kmax%.1f.png' % (_rsd_str(rsd), kmax))
+    if rsd == 'real': 
+        ffig = os.path.join(dir_fig, 'pf_B_posterior_noh.real.kmax%.1f.png' % kmax)
+    else: 
+        ffig = os.path.join(dir_fig, 'pf_B_posterior_noh.rsd.kmax%.1f.png' % kmax)
     fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') 
     return None 
 
 
@@ -1462,7 +1722,7 @@ def pairedfixed_allthetas():
 ############################################################
 # etc 
 ############################################################
-def X_std(obs, theta, rsd=2, silent=True): 
+def X_std(obs, theta, rsd=2, dmnu='fin', silent=True): 
     ''' read in standard N-body observables 
     '''
     if obs == 'pk': 
@@ -1476,27 +1736,28 @@ def X_std(obs, theta, rsd=2, silent=True):
         return quij['k1'], quij['k2'], quij['k3'], quij['b123']  
     elif obs == 'dlogpk': 
         if rsd != 'real': 
-            k, dpdt_std = Forecast.quijote_dP02kdtheta(theta, log=True, rsd=rsd, flag='reg', dmnu='fin', average=False) 
+            k, dpdt_std = Forecast.quijote_dP02kdtheta(theta, log=True, rsd=rsd, flag='reg', dmnu=dmnu, average=False) 
             return k[:len(k)/2], dpdt_std[:,:len(k)/2], dpdt_std[:,len(k)/2:]
         else: 
-            k, dpdt_std = Forecast.quijote_dPkdtheta(theta, log=True, rsd=rsd, flag='reg', dmnu='fin', average=False) 
+            k, dpdt_std = Forecast.quijote_dPkdtheta(theta, log=True, rsd=rsd, flag='reg', dmnu=dmnu, average=False) 
             return k, dpdt_std
     elif obs == 'dlogbk': 
-        return Forecast.quijote_dBkdtheta(theta, log=True, rsd=rsd, flag='reg', dmnu='fin', average=False)
+        return Forecast.quijote_dBkdtheta(theta, log=True, rsd=rsd, flag='reg', dmnu=dmnu, average=False)
     elif obs == 'dpk': 
         if rsd != 'real': 
-            k, dpdt_std = Forecast.quijote_dP02kdtheta(theta, rsd=rsd, flag='reg', dmnu='fin', average=False) 
+            k, dpdt_std = Forecast.quijote_dP02kdtheta(theta, rsd=rsd, flag='reg', dmnu=dmnu, average=False) 
             return k[:len(k)/2], dpdt_std[:,:len(k)/2], dpdt_std[:,len(k)/2:]
         else: 
-            k, dpdt_std = Forecast.quijote_dPkdtheta(theta, rsd=rsd, flag='reg', dmnu='fin', average=False) 
+            k, dpdt_std = Forecast.quijote_dPkdtheta(theta, rsd=rsd, flag='reg', dmnu=dmnu, average=False) 
             return k, dpdt_std
     elif obs == 'dbk': 
-        return Forecast.quijote_dBkdtheta(theta, rsd=rsd, flag='reg', dmnu='fin', average=False)
+        i_k, j_k, l_k, dbdt = Forecast.quijote_dBkdtheta(theta, rsd=rsd, flag='reg', dmnu=dmnu, average=False)
+        return i_k, j_k, l_k, dbdt
     else: 
         raise ValueError
 
 
-def X_pfd_1(obs, theta, rsd=2, silent=True): 
+def X_pfd_1(obs, theta, rsd=2, dmnu='fin', silent=True): 
     ''' read in observables of the first of the 
     paired-fixed pairs
     '''
@@ -1511,29 +1772,29 @@ def X_pfd_1(obs, theta, rsd=2, silent=True):
         return quij['k1'], quij['k2'], quij['k3'], quij['b123'][::2,:]
     elif obs == 'dlogpk': 
         if rsd != 'real': 
-            k, dpdt_std = Forecast.quijote_dP02kdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu='fin', average=False) 
+            k, dpdt_std = Forecast.quijote_dP02kdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
             return k[:len(k)/2], dpdt_std[::2,:len(k)/2], dpdt_std[::2,len(k)/2:]
         else: 
-            k, dpdt_std = Forecast.quijote_dPkdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu='fin', average=False) 
+            k, dpdt_std = Forecast.quijote_dPkdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
             return k, dpdt_std[::2,:]
     elif obs == 'dlogbk': 
-        i_k, j_k, l_k, dbdt = Forecast.quijote_dBkdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu='fin', average=False)
+        i_k, j_k, l_k, dbdt = Forecast.quijote_dBkdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu=dmnu, average=False)
         return i_k, j_k, l_k, dbdt[::2,:]
     elif obs == 'dpk': 
         if rsd != 'real': 
-            k, dpdt_std = Forecast.quijote_dP02kdtheta(theta, rsd=rsd, flag='ncv', dmnu='fin', average=False) 
+            k, dpdt_std = Forecast.quijote_dP02kdtheta(theta, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
             return k[:len(k)/2], dpdt_std[::2,:len(k)/2], dpdt_std[::2,len(k)/2:]
         else: 
-            k, dpdt_std = Forecast.quijote_dPkdtheta(theta, rsd=rsd, flag='ncv', dmnu='fin', average=False) 
+            k, dpdt_std = Forecast.quijote_dPkdtheta(theta, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
             return k, dpdt_std[::2,:]
     elif obs == 'dbk': 
-        i_k, j_k, l_k, dbdt = Forecast.quijote_dBkdtheta(theta, rsd=rsd, flag='ncv', dmnu='fin', average=False)
+        i_k, j_k, l_k, dbdt = Forecast.quijote_dBkdtheta(theta, rsd=rsd, flag='ncv', dmnu=dmnu, average=False)
         return i_k, j_k, l_k, dbdt[::2,:]
     else: 
         raise ValueError
 
 
-def X_pfd_2(obs, theta, rsd=2, silent=True): 
+def X_pfd_2(obs, theta, rsd=2, dmnu='fin', silent=True): 
     ''' read in observables of the first of the 
     paired-fixed pairs
     '''
@@ -1548,23 +1809,23 @@ def X_pfd_2(obs, theta, rsd=2, silent=True):
         return quij['k1'], quij['k2'], quij['k3'], quij['b123'][1::2,:]
     elif obs == 'dlogpk': 
         if rsd != 'real': 
-            k, dpdt_std = Forecast.quijote_dP02kdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu='fin', average=False) 
+            k, dpdt_std = Forecast.quijote_dP02kdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
             return k[:len(k)/2], dpdt_std[1::2,:len(k)/2], dpdt_std[1::2,len(k)/2:]
         else: 
-            k, dpdt_std = Forecast.quijote_dPkdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu='fin', average=False) 
+            k, dpdt_std = Forecast.quijote_dPkdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
             return k, dpdt_std[1::2,:]
     elif obs == 'dlogbk': 
-        i_k, j_k, l_k, dbdt = Forecast.quijote_dBkdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu='fin', average=False)
+        i_k, j_k, l_k, dbdt = Forecast.quijote_dBkdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu=dmnu, average=False)
         return i_k, j_k, l_k, dbdt[1::2,:]
     elif obs == 'dpk': 
         if rsd != 'real': 
-            k, dpdt_std = Forecast.quijote_dP02kdtheta(theta, rsd=rsd, flag='ncv', dmnu='fin', average=False) 
+            k, dpdt_std = Forecast.quijote_dP02kdtheta(theta, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
             return k[:len(k)/2], dpdt_std[1::2,:len(k)/2], dpdt_std[1::2,len(k)/2:]
         else: 
-            k, dpdt_std = Forecast.quijote_dPkdtheta(theta, rsd=rsd, flag='ncv', dmnu='fin', average=False) 
+            k, dpdt_std = Forecast.quijote_dPkdtheta(theta, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
             return k, dpdt_std[1::2,:]
     elif obs == 'dbk': 
-        i_k, j_k, l_k, dbdt = Forecast.quijote_dBkdtheta(theta, rsd=rsd, flag='ncv', dmnu='fin', average=False)
+        i_k, j_k, l_k, dbdt = Forecast.quijote_dBkdtheta(theta, rsd=rsd, flag='ncv', dmnu=dmnu, average=False)
         return i_k, j_k, l_k, dbdt[1::2,:]
     else: raise ValueError
 
@@ -1584,6 +1845,14 @@ def pf_bias(X_std, X_pfd):
     sig_spf = np.sqrt(sig_std**2/N_std + sig_pfd**2/N_pfd)
     
     return (avgX_std - avgX_pfd) / sig_spf
+
+
+def sigma_ratio(X_std, X_pfd): 
+    ''' calculate sigma_s / sigma_pfd 
+    '''
+    sig_std = np.std(X_std, axis=0) 
+    sig_pfd = np.std(X_pfd, axis=0) 
+    return sig_std / sig_pfd 
 
 
 def pkCov(rsd=2, flag='reg', silent=True): 
@@ -1773,10 +2042,11 @@ if __name__=="__main__":
     #Pk_bias()
     #Bk_bias()
     #pf_dPdtheta()
-    pf_dBdtheta(kmax=0.5)
+    #pf_dBdtheta(kmax=0.5)
     #dPdtheta_bias(kmax=0.5)
     #dBdtheta_bias(kmax=0.5)
-    ##pf_dlogPdtheta()
+    #dBdtheta_chi2(kmax=0.2)
+    #pf_dlogPdtheta()
     #pf_dlogBdtheta(kmax=0.5)
     #pf_P_Fij(rsd='real', kmax=0.5)
     #pf_P_Fij(rsd='all', kmax=0.5)
@@ -1784,5 +2054,7 @@ if __name__=="__main__":
     #pf_B_Fij(rsd='all', kmax=0.5)
     #pf_P_posterior(rsd='real', kmax=0.5)
     #pf_P_posterior(rsd='all', kmax=0.5)
-    #pf_B_posterior(rsd='real', kmax=0.5)
-    #pf_B_posterior(rsd='all', kmax=0.5)
+    pf_B_posterior(rsd='real', kmax=0.5)
+    pf_B_posterior(rsd='all', kmax=0.5)
+    #pf_B_posterior_noh(rsd='real', kmax=0.5)
+    #pf_B_posterior_noh(rsd='all', kmax=0.5)

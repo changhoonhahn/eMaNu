@@ -80,12 +80,6 @@ def quijote_dPkdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0, N
 
     for i_tt, tt, coeff in zip(range(len(tts)), tts, coeffs): 
         quij = Obvs.quijotePk(tt, z=z, flag=flag, rsd=rsd, silent=silent) # read Pk 
-        if i_tt == 0: 
-            if average: 
-                dpk = np.zeros(quij['p0k'].shape[1]) 
-            else: 
-                dpk = np.zeros(quij['p0k'].shape) 
-    
         if Nderiv is not None: 
             if (flag == 'reg') and (tt == 'fiducial'): 
                 if average: 
@@ -104,6 +98,10 @@ def quijote_dPkdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0, N
                 _pk = np.average(quij['p0k'], axis=0)  
             else: 
                 _pk = quij['p0k']
+                if theta == 'Mnu' and dmnu == 'fin_2lpt' and not average: 
+                    _pk = quij['p0k'][:500,:]
+        
+        if i_tt == 0: dpk = np.zeros(_pk.shape) 
 
         if log: _pk = np.log(_pk) # log 
 
@@ -186,11 +184,6 @@ def quijote_dP02kdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0,
 
     for i_tt, tt, coeff in zip(range(len(tts)), tts, coeffs): 
         quij = Obvs.quijotePk(tt, z=z, flag=flag, rsd=rsd, silent=silent) # read Pk 
-        if i_tt == 0: 
-            if average: 
-                dpk = np.zeros(quij['p0k'].shape[1] + quij['p2k'].shape[1]) 
-            else: 
-                dpk = np.zeros((quij['p0k'].shape[0], quij['p0k'].shape[1] + quij['p2k'].shape[1])) 
     
         p02ks = np.concatenate([quij['p0k'], quij['p2k']], axis=1) # [P0, P2] 
         if Nderiv is not None: 
@@ -211,6 +204,10 @@ def quijote_dP02kdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0,
                 _pk = np.average(p02ks, axis=0)  
             else: 
                 _pk = p02ks 
+                if theta == 'Mnu' and dmnu == 'fin_2lpt' and not average: 
+                    _pk = p02ks[:500,:]
+        
+        if i_tt == 0: dpk = np.zeros(_pk.shape) 
 
         if log: _pk = np.log(_pk) # log 
 
@@ -363,12 +360,6 @@ def quijote_dBkdtheta(theta, log=False, rsd='all', flag=None, z=0, dmnu='fin', N
     for i_tt, tt, coeff in zip(range(len(tts)), tts, coeffs): 
         quij = Obvs.quijoteBk(tt, z=z, flag=flag, rsd=rsd, silent=silent)
 
-        if i_tt == 0:
-            if average: 
-                dbk = np.zeros(quij['b123'].shape[1]) 
-            else: 
-                dbk = np.zeros(quij['b123'].shape) 
-
         if Nderiv is not None: 
             if (flag == 'reg') and (tt == 'fiducial'):
                 if average: 
@@ -387,6 +378,10 @@ def quijote_dBkdtheta(theta, log=False, rsd='all', flag=None, z=0, dmnu='fin', N
                 _bk = np.average(quij['b123'], axis=0)  
             else: 
                 _bk = quij['b123']
+                if theta == 'Mnu' and dmnu == 'fin_2lpt' and not average: 
+                    _bk = quij['b123'][:500,:]
+        
+        if i_tt == 0: dbk = np.zeros(_bk.shape) 
 
         if log: _bk = np.log(_bk) 
         dbk += coeff * _bk 
@@ -438,7 +433,7 @@ def plotEllipse(Finv_sub, sub, theta_fid_ij=None, color='C0'):
     return sub
 
 
-def plotFisher(Finvs, theta_fid, colors=None, ranges=None, labels=None): 
+def plotFisher(Finvs, theta_fid, colors=None, ranges=None, titles=None, title_kwargs=None, labels=None): 
     ''' Given a list of inverse Fisher matrices, plot the Fisher contours
     '''
     ntheta = Finvs[0].shape[0] # number of parameters 
@@ -498,6 +493,9 @@ def plotFisher(Finvs, theta_fid, colors=None, ranges=None, labels=None):
                 sub.set_ylim(0., None) 
                 sub.set_yticks([]) 
                 sub.set_yticklabels([]) 
+                if titles is not None: 
+                    sub.set_title(titles[i], **title_kwargs) 
+
     fig.subplots_adjust(wspace=0.05, hspace=0.05) 
     return fig 
 

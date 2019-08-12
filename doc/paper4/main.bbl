@@ -2,6 +2,11 @@
 \providecommand\natexlab[1]{#1}
 \providecommand\JournalTitle[1]{#1}
 
+\bibitem[{Angulo \& Pontzen(2016)}]{angulo2016}
+Angulo, R.~E., \& Pontzen, A. 2016,
+  \href{http://dx.doi.org/10.1093/mnrasl/slw098}{\JournalTitle{Monthly Notices
+  of the Royal Astronomical Society}, 462, L1}
+
 \bibitem[{Brandbyge {et~al.}(2008)Brandbyge, Hannestad, Haugb{\o}lle, \&
   Thomsen}]{brandbyge2008}
 Brandbyge, J., Hannestad, S., Haugb{\o}lle, T., \& Thomsen, B. 2008,
@@ -12,6 +17,11 @@ Brandbyge, J., Hannestad, S., Haugb{\o}lle, T., \& Thomsen, B. 2008,
 Davis, M., Efstathiou, G., Frenk, C.~S., \& White, S. D.~M. 1985,
   \href{http://dx.doi.org/10.1086/163168}{\JournalTitle{The Astrophysical
   Journal}, 292, 371}
+
+\bibitem[{Pontzen {et~al.}(2016)Pontzen, Slosar, Roth, \& Peiris}]{pontzen2016}
+Pontzen, A., Slosar, A., Roth, N., \& Peiris, H.~V. 2016,
+  \href{http://dx.doi.org/10.1103/PhysRevD.93.103519}{\JournalTitle{Physical
+  Review D}, 93, 103519}
 
 \bibitem[{Springel(2005)}]{springel2005}
 Springel, V. 2005,
