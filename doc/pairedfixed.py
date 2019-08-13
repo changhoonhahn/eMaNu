@@ -590,6 +590,11 @@ def pf_dPdtheta():
 
 def pf_dBdtheta(kmax=0.5): 
     ''' Comparison of dB/dtheta from paired-fixed vs standard N-body
+
+    notes
+    -----
+    * the bias distribution of dB/dtheta in real-space is very tight because
+    the derivatives are far noisier than in redshift space
     '''
     thetas  = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']
     lbls    = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
@@ -598,20 +603,20 @@ def pf_dBdtheta(kmax=0.5):
     fig1 = plt.figure(figsize=(24,12))
     fig2 = plt.figure(figsize=(24,12))
     for i_tt, theta, lbl in zip(range(len(thetas)), thetas, lbls): 
-        # real-space d logB / d theta (standard)
+        # real-space d B / d theta (standard)
         i_k, j_k, l_k, dbdt_real_std = X_std('dbk', theta, rsd='real', dmnu='fin_2lpt', silent=False) 
-        # real-space d logP / d theta (paired-fixed)
+        # real-space d B / d theta (paired-fixed)
         _, _, _, dbdt_real_pfd0 = X_pfd_1('dbk', theta, rsd='real', dmnu='fin_2lpt', silent=False) 
         _, _, _, dbdt_real_pfd1 = X_pfd_2('dbk', theta, rsd='real', dmnu='fin_2lpt', silent=False) 
         dbdt_real_pfd = 0.5 * (dbdt_real_pfd0 + dbdt_real_pfd1) 
 
-        # redshift-space d logP0 / d theta (standard)
+        # redshift-space d B / d theta (standard)
         _, _, _, dbdt_rsd_std = X_std('dbk', theta, rsd=0, dmnu='fin_2lpt', silent=False) 
-        # redshift-space d logP0 / d theta (paired-fixed)
+        # redshift-space d B / d theta (paired-fixed)
         _, _, _, dbdt_rsd_pfd0 = X_pfd_1('dbk', theta, rsd=0, dmnu='fin_2lpt', silent=False) 
         _, _, _, dbdt_rsd_pfd1 = X_pfd_2('dbk', theta, rsd=0, dmnu='fin_2lpt', silent=False) 
         dbdt_rsd_pfd = 0.5 * (dbdt_rsd_pfd0 + dbdt_rsd_pfd1) 
-        
+
         bias_dbdt_real = pf_bias(dbdt_real_std, dbdt_real_pfd)
         bias_dbdt_rsd = pf_bias(dbdt_rsd_std, dbdt_rsd_pfd)
 
@@ -1136,18 +1141,10 @@ def pf_P_Fij(rsd=0, kmax=0.5):
     dpdts_std, dpdts_pfd = [], [] 
     for theta in thetas:
         if rsd == 'real': 
-            # real-space d logP / d theta (standard)
-            #_, dpdt_std = Forecast.quijote_dPkdtheta(theta, rsd='real', flag='reg', dmnu='fin_2lpt') 
-            # real-space d logP / d theta (paired-fixed)
-            #_, dpdt_pfd = Forecast.quijote_dPkdtheta(theta, rsd='real', flag='ncv', dmnu='fin_2lpt') 
             _, dpdt_std = X_std('dpk', theta, rsd=rsd, dmnu='fin_2lpt', silent=False) 
             _, dpdt_pfd0 = X_pfd_1('dpk', theta, rsd=rsd, dmnu='fin_2lpt', silent=False) 
             _, dpdt_pfd1 = X_pfd_2('dpk', theta, rsd=rsd, dmnu='fin_2lpt', silent=False) 
         else: 
-            # redshift-space d logP / d theta (standard)
-            #_, dpdt_std = Forecast.quijote_dP02kdtheta(theta, rsd=rsd, flag='reg', dmnu='fin_2lpt') 
-            # redshift-space d logP / d theta (paired-fixed)
-            #_, dpdt_pfd = Forecast.quijote_dP02kdtheta(theta, rsd=rsd, flag='ncv', dmnu='fin_2lpt') 
             _, dp0dt_std, dp2dt_std = X_std('dpk', theta, rsd=rsd, dmnu='fin_2lpt', silent=False) 
             dpdt_std = np.concatenate([dp0dt_std, dp2dt_std], axis=1) 
             _, dp0dt_pfd0, dp2dt_pfd0 = X_pfd_1('dpk', theta, rsd=rsd, dmnu='fin_2lpt', silent=False) 
@@ -1224,19 +1221,6 @@ def pf_B_Fij(rsd=0, kmax=0.5):
     lbls        = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
     dbdts_std, dbdts_pfd = [], [] 
     for theta in thetas:
-        #if rsd == 'real': 
-        #    # redshift-space d logP0 / d theta (standard)
-        #    _, _, _, dbdt_std = Forecast.quijote_dBkdtheta(theta, rsd='real', flag='reg', dmnu='fin_2lpt')
-        #    # redshift-space d logP0 / d theta (paired-fixed)
-        #    _, _, _, dbdt_pfd = Forecast.quijote_dBkdtheta(theta, rsd='real', flag='ncv', dmnu='fin_2lpt')
-        #else: 
-        #    # real-space d logB / d theta (standard)
-        #    _, _, _, dbdt_std = Forecast.quijote_dBkdtheta(theta, rsd=rsd, flag='reg', dmnu='fin_2lpt')
-        #    # real-space d logP / d theta (paired-fixed)
-        #    _, _, _, dbdt_pfd = Forecast.quijote_dBkdtheta(theta, rsd=rsd, flag='ncv', dmnu='fin_2lpt')
-        #dbdts_std.append(dbdt_std[klim]) 
-        #dbdts_pfd.append(dbdt_pfd[klim]) 
-
         # d logP / d theta (standard)
         _, _, _, dbdt_std = X_std('dbk', theta, rsd=rsd, dmnu='fin_2lpt', silent=False) 
         # d logP / d theta (paired-fixed)
@@ -1314,18 +1298,10 @@ def pf_P_posterior(rsd='all', kmax=0.5):
     dpdts_std, dpdts_pfd = [], [] 
     for theta in thetas:
         if rsd == 'real': 
-            # real-space d logP / d theta (standard)
-            #_, dpdt_std = Forecast.quijote_dPkdtheta(theta, rsd='real', flag='reg', dmnu='fin_2lpt') 
-            # real-space d logP / d theta (paired-fixed)
-            #_, dpdt_pfd = Forecast.quijote_dPkdtheta(theta, rsd='real', flag='ncv', dmnu='fin_2lpt') 
             _, dpdt_std = X_std('dpk', theta, rsd=rsd, dmnu='fin_2lpt', silent=False) 
             _, dpdt_pfd0 = X_pfd_1('dpk', theta, rsd=rsd, dmnu='fin_2lpt', silent=False) 
             _, dpdt_pfd1 = X_pfd_2('dpk', theta, rsd=rsd, dmnu='fin_2lpt', silent=False) 
         else: 
-            # redshift-space d logP / d theta (standard)
-            #_, dpdt_std = Forecast.quijote_dP02kdtheta(theta, rsd=rsd, flag='reg', dmnu='fin_2lpt') 
-            # redshift-space d logP / d theta (paired-fixed)
-            #_, dpdt_pfd = Forecast.quijote_dP02kdtheta(theta, rsd=rsd, flag='ncv', dmnu='fin_2lpt') 
             _, dp0dt_std, dp2dt_std = X_std('dpk', theta, rsd=rsd, dmnu='fin_2lpt', silent=False) 
             dpdt_std = np.concatenate([dp0dt_std, dp2dt_std], axis=1) 
             _, dp0dt_pfd0, dp2dt_pfd0 = X_pfd_1('dpk', theta, rsd=rsd, dmnu='fin_2lpt', silent=False) 
@@ -1398,19 +1374,6 @@ def pf_B_posterior(rsd=0, kmax=0.5):
 
     dbdts_std, dbdts_pfd = [], [] 
     for theta in thetas:
-        #if rsd == 'real': 
-        #    # real-space d logB / d theta (standard)
-        #    _, _, _, dbdt_std = Forecast.quijote_dBkdtheta(theta, rsd='real', flag='reg', dmnu='fin_2lpt')
-        #    # real-space d logP / d theta (paired-fixed)
-        #    _, _, _, dbdt_pfd = Forecast.quijote_dBkdtheta(theta, rsd='real', flag='ncv', dmnu='fin_2lpt')
-        #else: 
-        #    # redshift-space d logP0 / d theta (standard)
-        #    _, _, _, dbdt_std = Forecast.quijote_dBkdtheta(theta, rsd=rsd, flag='reg', dmnu='fin_2lpt')
-        #    # redshift-space d logP0 / d theta (paired-fixed)
-        #    _, _, _, dbdt_pfd = Forecast.quijote_dBkdtheta(theta, rsd=rsd, flag='ncv', dmnu='fin_2lpt')
-        #dbdts_std.append(dbdt_std[klim]) 
-        #dbdts_pfd.append(dbdt_pfd[klim]) 
-
         # d logP / d theta (standard)
         _, _, _, dbdt_std = X_std('dbk', theta, rsd=rsd, dmnu='fin_2lpt', silent=False) 
         # d logP / d theta (paired-fixed)
@@ -1484,18 +1447,10 @@ def pf_P_sigma_convergence(rsd='all', kmax=0.5):
     dpdts_std, dpdts_pfd = [], [] 
     for theta in thetas:
         if rsd == 'real': 
-            # real-space d logP / d theta (standard)
-            #_, dpdt_std = Forecast.quijote_dPkdtheta(theta, rsd='real', flag='reg', dmnu='fin_2lpt') 
-            # real-space d logP / d theta (paired-fixed)
-            #_, dpdt_pfd = Forecast.quijote_dPkdtheta(theta, rsd='real', flag='ncv', dmnu='fin_2lpt') 
             _, dpdt_std = X_std('dpk', theta, rsd=rsd, dmnu='fin_2lpt', silent=False) 
             _, dpdt_pfd0 = X_pfd_1('dpk', theta, rsd=rsd, dmnu='fin_2lpt', silent=False) 
             _, dpdt_pfd1 = X_pfd_2('dpk', theta, rsd=rsd, dmnu='fin_2lpt', silent=False) 
         else: 
-            # redshift-space d logP / d theta (standard)
-            #_, dpdt_std = Forecast.quijote_dP02kdtheta(theta, rsd=rsd, flag='reg', dmnu='fin_2lpt') 
-            # redshift-space d logP / d theta (paired-fixed)
-            #_, dpdt_pfd = Forecast.quijote_dP02kdtheta(theta, rsd=rsd, flag='ncv', dmnu='fin_2lpt') 
             _, dp0dt_std, dp2dt_std = X_std('dpk', theta, rsd=rsd, dmnu='fin_2lpt', silent=False) 
             dpdt_std = np.concatenate([dp0dt_std, dp2dt_std], axis=1) 
             _, dp0dt_pfd0, dp2dt_pfd0 = X_pfd_1('dpk', theta, rsd=rsd, dmnu='fin_2lpt', silent=False) 
@@ -1581,19 +1536,6 @@ def pf_B_sigma_convergence(rsd='all', kmax=0.5):
 
     dbdts_std, dbdts_pfd = [], [] 
     for theta in thetas:
-        #if rsd == 'real': 
-        #    # real-space d logB / d theta (standard)
-        #    _, _, _, dbdt_std = Forecast.quijote_dBkdtheta(theta, rsd='real', flag='reg', dmnu='fin_2lpt')
-        #    # real-space d logP / d theta (paired-fixed)
-        #    _, _, _, dbdt_pfd = Forecast.quijote_dBkdtheta(theta, rsd='real', flag='ncv', dmnu='fin_2lpt')
-        #else: 
-        #    # redshift-space d logP0 / d theta (standard)
-        #    _, _, _, dbdt_std = Forecast.quijote_dBkdtheta(theta, rsd=rsd, flag='reg', dmnu='fin_2lpt')
-        #    # redshift-space d logP0 / d theta (paired-fixed)
-        #    _, _, _, dbdt_pfd = Forecast.quijote_dBkdtheta(theta, rsd=rsd, flag='ncv', dmnu='fin_2lpt')
-        #dbdts_std.append(dbdt_std[klim]) 
-        #dbdts_pfd.append(dbdt_pfd[klim]) 
-
         # d logP / d theta (standard)
         _, _, _, dbdt_std = X_std('dbk', theta, rsd=rsd, dmnu='fin_2lpt', silent=False) 
         # d logP / d theta (paired-fixed)
@@ -1632,18 +1574,20 @@ def pf_B_sigma_convergence(rsd='all', kmax=0.5):
     sig_std = np.array(sig_std)#/sig_std[-1]
     sig_pfd = np.array(sig_pfd)#/sig_pfd[-1]
     
-    fig = plt.figure(figsize=(6,6))
-    sub = fig.add_subplot(111)
-    i = 5
-    _plt0, = sub.plot(Nstds, sig_std[:,i], c='C0', ls='-', label=lbls[i]) 
-    _plt1, = sub.plot(Nstds, sig_pfd[:,i], c='C0', ls='-.') 
+    fig = plt.figure(figsize=(24,4))
+    for i in range(len(thetas)): 
+        sub = fig.add_subplot(1,len(thetas),i+1)
+        _plt0, = sub.plot(Nstds, sig_std[:,i], c='C0', ls='-', label=lbls[i]) 
+        _plt1, = sub.plot(Nstds, sig_pfd[:,i], c='C0', ls='-.') 
+        sub.set_xlabel(r'$N_{\rm deriv}$', fontsize=25) 
+        sub.set_xlim(Nstds[0], Nstd) 
+        if i == 0: 
+            sub.set_ylabel(r'$\sigma_\theta(N_{\rm deriv})$', fontsize=25) 
+        sub.text(0.95, 0.95, lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=25)
+
     leg1 = sub.legend([_plt0, _plt1], ['standard', 'paired-fixed'], fontsize=20, loc='upper left') 
-    #sub.legend(loc='lower right', fontsize=15) 
     plt.gca().add_artist(leg1)
     
-    sub.set_xlabel(r'$N_{\rm deriv}$', fontsize=25) 
-    sub.set_xlim(Nstds[0], Nstd) 
-    sub.set_ylabel(r'$\sigma_{M_\nu}(N_{\rm deriv})$ eV', fontsize=25) 
     #sub.set_ylim(0.5, 1.1) 
     if rsd == 'real': 
         ffig = os.path.join(dir_fig, 'pf_B_sigma_convergence.real.kmax%.1f.png' % kmax)
@@ -1729,27 +1673,36 @@ def X_std(obs, theta, rsd=2, dmnu='fin', silent=True):
             return quij['k'], quij['p0k'], quij['p2k']
         else: # real-space
             return quij['k'], quij['p0k']
+
     elif obs == 'bk': 
         quij = Obvs.quijoteBk(theta, rsd=rsd, flag='reg', silent=silent) 
         return quij['k1'], quij['k2'], quij['k3'], quij['b123']  
+
     elif obs == 'dlogpk': 
         if rsd != 'real': 
-            k, dpdt_std = Forecast.quijote_dP02kdtheta(theta, log=True, rsd=rsd, flag='reg', dmnu=dmnu, average=False) 
+            k, dpdt_std = Forecast._PF_quijote_dP02kdtheta(theta, log=True, rsd=rsd, flag='reg', dmnu=dmnu, average=False) 
             return k[:len(k)/2], dpdt_std[:,:len(k)/2], dpdt_std[:,len(k)/2:]
         else: 
-            k, dpdt_std = Forecast.quijote_dPkdtheta(theta, log=True, rsd=rsd, flag='reg', dmnu=dmnu, average=False) 
+            k, dpdt_std = Forecast._PF_quijote_dPkdtheta(theta, log=True, rsd=rsd, flag='reg', dmnu=dmnu, average=False) 
             return k, dpdt_std
+
     elif obs == 'dlogbk': 
-        return Forecast.quijote_dBkdtheta(theta, log=True, rsd=rsd, flag='reg', dmnu=dmnu, average=False)
+        return Forecast._PF_quijote_dBkdtheta(theta, log=True, rsd=rsd, flag='reg', dmnu=dmnu, average=False)
+
     elif obs == 'dpk': 
         if rsd != 'real': 
-            k, dpdt_std = Forecast.quijote_dP02kdtheta(theta, rsd=rsd, flag='reg', dmnu=dmnu, average=False) 
+            k, dpdt_std = Forecast._PF_quijote_dP02kdtheta(theta, rsd=rsd, flag='reg', dmnu=dmnu, average=False) 
             return k[:len(k)/2], dpdt_std[:,:len(k)/2], dpdt_std[:,len(k)/2:]
         else: 
-            k, dpdt_std = Forecast.quijote_dPkdtheta(theta, rsd=rsd, flag='reg', dmnu=dmnu, average=False) 
+            k, dpdt_std = Forecast._PF_quijote_dPkdtheta(theta, rsd=rsd, flag='reg', dmnu=dmnu, average=False) 
             return k, dpdt_std
+
     elif obs == 'dbk': 
-        i_k, j_k, l_k, dbdt = Forecast.quijote_dBkdtheta(theta, rsd=rsd, flag='reg', dmnu=dmnu, average=False)
+        i_k, j_k, l_k, dbdt = Forecast._PF_quijote_dBkdtheta(theta, rsd=rsd, flag='reg', dmnu=dmnu, average=False)
+        return i_k, j_k, l_k, dbdt
+    
+    elif obs == 'dbk_sn': 
+        i_k, j_k, l_k, dbdt = Forecast._PF_quijote_dBkdtheta(theta, rsd=rsd, flag='reg', dmnu=dmnu, corr_sn=False, average=False)
         return i_k, j_k, l_k, dbdt
     else: 
         raise ValueError
@@ -1765,29 +1718,39 @@ def X_pfd_1(obs, theta, rsd=2, dmnu='fin', silent=True):
             return quij['k'], quij['p0k'][::2,:], quij['p2k'][::2,:]
         else: # real-space
             return quij['k'], quij['p0k'][::2,:]
+
     elif obs == 'bk': 
         quij = Obvs.quijoteBk(theta, rsd=rsd, flag='ncv', silent=silent) 
         return quij['k1'], quij['k2'], quij['k3'], quij['b123'][::2,:]
+
     elif obs == 'dlogpk': 
         if rsd != 'real': 
-            k, dpdt_std = Forecast.quijote_dP02kdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
+            k, dpdt_std = Forecast._PF_quijote_dP02kdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
             return k[:len(k)/2], dpdt_std[::2,:len(k)/2], dpdt_std[::2,len(k)/2:]
         else: 
-            k, dpdt_std = Forecast.quijote_dPkdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
+            k, dpdt_std = Forecast._PF_quijote_dPkdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
             return k, dpdt_std[::2,:]
+
     elif obs == 'dlogbk': 
-        i_k, j_k, l_k, dbdt = Forecast.quijote_dBkdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu=dmnu, average=False)
+        i_k, j_k, l_k, dbdt = Forecast._PF_quijote_dBkdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu=dmnu, average=False)
         return i_k, j_k, l_k, dbdt[::2,:]
+
     elif obs == 'dpk': 
         if rsd != 'real': 
-            k, dpdt_std = Forecast.quijote_dP02kdtheta(theta, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
+            k, dpdt_std = Forecast._PF_quijote_dP02kdtheta(theta, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
             return k[:len(k)/2], dpdt_std[::2,:len(k)/2], dpdt_std[::2,len(k)/2:]
         else: 
-            k, dpdt_std = Forecast.quijote_dPkdtheta(theta, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
+            k, dpdt_std = Forecast._PF_quijote_dPkdtheta(theta, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
             return k, dpdt_std[::2,:]
+
     elif obs == 'dbk': 
-        i_k, j_k, l_k, dbdt = Forecast.quijote_dBkdtheta(theta, rsd=rsd, flag='ncv', dmnu=dmnu, average=False)
+        i_k, j_k, l_k, dbdt = Forecast._PF_quijote_dBkdtheta(theta, rsd=rsd, flag='ncv', dmnu=dmnu, average=False)
         return i_k, j_k, l_k, dbdt[::2,:]
+
+    elif obs == 'dbk_sn': 
+        i_k, j_k, l_k, dbdt = Forecast._PF_quijote_dBkdtheta(theta, rsd=rsd, flag='ncv', dmnu=dmnu, corr_sn=False, average=False)
+        return i_k, j_k, l_k, dbdt[::2,:]
+
     else: 
         raise ValueError
 
@@ -1802,29 +1765,39 @@ def X_pfd_2(obs, theta, rsd=2, dmnu='fin', silent=True):
             return quij['k'], quij['p0k'][1::2,:], quij['p2k'][1::2,:]
         else: # real-space
             return quij['k'], quij['p0k'][1::2,:]
+
     elif obs == 'bk': 
         quij = Obvs.quijoteBk(theta, rsd=rsd, flag='ncv', silent=silent) 
         return quij['k1'], quij['k2'], quij['k3'], quij['b123'][1::2,:]
+
     elif obs == 'dlogpk': 
         if rsd != 'real': 
-            k, dpdt_std = Forecast.quijote_dP02kdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
+            k, dpdt_std = Forecast._PF_quijote_dP02kdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
             return k[:len(k)/2], dpdt_std[1::2,:len(k)/2], dpdt_std[1::2,len(k)/2:]
         else: 
-            k, dpdt_std = Forecast.quijote_dPkdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
+            k, dpdt_std = Forecast._PF_quijote_dPkdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
             return k, dpdt_std[1::2,:]
+
     elif obs == 'dlogbk': 
-        i_k, j_k, l_k, dbdt = Forecast.quijote_dBkdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu=dmnu, average=False)
+        i_k, j_k, l_k, dbdt = Forecast._PF_quijote_dBkdtheta(theta, log=True, rsd=rsd, flag='ncv', dmnu=dmnu, average=False)
         return i_k, j_k, l_k, dbdt[1::2,:]
+
     elif obs == 'dpk': 
         if rsd != 'real': 
-            k, dpdt_std = Forecast.quijote_dP02kdtheta(theta, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
+            k, dpdt_std = Forecast._PF_quijote_dP02kdtheta(theta, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
             return k[:len(k)/2], dpdt_std[1::2,:len(k)/2], dpdt_std[1::2,len(k)/2:]
         else: 
-            k, dpdt_std = Forecast.quijote_dPkdtheta(theta, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
+            k, dpdt_std = Forecast._PF_quijote_dPkdtheta(theta, rsd=rsd, flag='ncv', dmnu=dmnu, average=False) 
             return k, dpdt_std[1::2,:]
+
     elif obs == 'dbk': 
-        i_k, j_k, l_k, dbdt = Forecast.quijote_dBkdtheta(theta, rsd=rsd, flag='ncv', dmnu=dmnu, average=False)
+        i_k, j_k, l_k, dbdt = Forecast._PF_quijote_dBkdtheta(theta, rsd=rsd, flag='ncv', dmnu=dmnu, average=False)
         return i_k, j_k, l_k, dbdt[1::2,:]
+
+    elif obs == 'dbk_sn': 
+        i_k, j_k, l_k, dbdt = Forecast._PF_quijote_dBkdtheta(theta, rsd=rsd, flag='ncv', dmnu=dmnu, corr_sn=False, average=False)
+        return i_k, j_k, l_k, dbdt[1::2,:]
+
     else: raise ValueError
 
 
@@ -2040,7 +2013,7 @@ if __name__=="__main__":
     #Pk_bias()
     #Bk_bias()
     #pf_dPdtheta()
-    #pf_dBdtheta(kmax=0.5)
+    pf_dBdtheta(kmax=0.5)
     #dPdtheta_bias(kmax=0.5)
     #dBdtheta_bias(kmax=0.5)
     #dBdtheta_chi2(kmax=0.2)
@@ -2063,6 +2036,5 @@ if __name__=="__main__":
     #pf_P_sigma_convergence(rsd='real', kmax=0.5)
     #pf_P_sigma_convergence(rsd='all', kmax=0.5)
     
-    pf_B_sigma_convergence(rsd='real', kmax=0.5)
-    pf_B_sigma_convergence(rsd='all', kmax=0.5)
-
+    #pf_B_sigma_convergence(rsd='real', kmax=0.5)
+    #pf_B_sigma_convergence(rsd='all', kmax=0.5)
