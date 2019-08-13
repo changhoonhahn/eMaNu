@@ -1,3 +1,38 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% simulation table
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{table}
+\caption{
+The \quij suite includes 15,000 standard $N$-body simulations at the fiducial cosmology to 
+accurately estimate the covariance matrices. It also includes sets of 500 simulations at 13 
+different cosmologies, where only one parameter is varied from the fiducial value (underlined), 
+to estimate derivatives of observables along the cosmological parameters. At every cosmology,
+the \quij suite also includes 250 pairs of paired-fixed simulations.  
+} 
+\begin{center}
+\begin{tabular}{cccccccccc} \toprule
+Name  &$\smnu$ & $\Omega_m$ & $\Omega_b$ & $h$ & $n_s$ & $\sigma_8$ & ICs & standard & paired-fixed \\
+& & & & & & & & realizations & pairs \\[3pt] \hline\hline
+Fiducial 	& 0.0         & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 2LPT & 15,000 & 250\\ 
+Fiducial ZA     & 0.0         & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & Zel'dovich& 500 & 250\\ 
+$\smnu^+$       & \underline{0.1} eV & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & Zel'dovich & 500 & 250\\ 
+$\smnu^{++}$    & \underline{0.2} eV & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & Zel'dovich & 500 & 250\\ 
+$\smnu^{+++}$   & \underline{0.4} eV & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & Zel'dovich & 500 & 250\\ 
+$\Omega_m^+$    & 0.0   & \underline{ 0.3275} & 0.049 & 0.6711 & 0.9624 & 0.834 & 2LPT & 500 & 250\\ 
+$\Omega_m^-$    & 0.0   & \underline{ 0.3075} & 0.049 & 0.6711 & 0.9624 & 0.834 & 2LPT & 500 & 250\\ 
+$\Omega_b^+$    & 0.0   & 0.3175 & \underline{0.051} & 0.6711 & 0.9624 & 0.834 & 2LPT & 500 & 250\\ 
+$\Omega_b^-$    & 0.0   & 0.3175 & \underline{0.047} & 0.6711 & 0.9624 & 0.834 & 2LPT & 500 & 250\\ 
+$h^+$           & 0.0   & 0.3175 & 0.049 & \underline{0.6911} & 0.9624 & 0.834 & 2LPT & 500 & 250\\ 
+$h^-$           & 0.0   & 0.3175 & 0.049 & \underline{0.6511} & 0.9624 & 0.834 & 2LPT & 500 & 250\\ 
+$n_s^+$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9824} & 0.834 & 2LPT & 500 & 250\\ 
+$n_s^-$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9424} & 0.834 & 2LPT & 500 & 250\\ 
+$\sigma_8^+$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.849} & 2LPT & 500 & 250\\ 
+$\sigma_8^-$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.819} & 2LPT & 500 & 250\\[3pt]
+\hline
+\end{tabular} \label{tab:sims}
+\end{center}
+\end{table}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % brief summary of the Quijote suite. 
 \section{The Quijote Simulation Suite} \label{sec:sims}
 We use a subset of simulations from the \quij suite, a set of 43,000 $N$-body 
