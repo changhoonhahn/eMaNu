@@ -2,11 +2,19 @@
 \begin{center}
     \includegraphics[width=0.8\textwidth]{figs/pf_Pk.pdf} 
     \caption{Comparison of the power spectra of standard $N$-body simulations 
-    and paired fixed simulations. We compare the average real-space power spectrum, 
+    and paired-fixed simulations. We compare the real-space power spectrum, 
     redshift-space power spectrum monopole, and quadrupole in the left, center, 
-    and right columns, respectively. We use 15,000 standard $N$-body simulations 
-    to the average $P_0$ and $P_2$ of 500 paired fixed simulations at the 
-    fiducial cosmology (top panel).
+    and right columns, respectively. In the top panels, we compare the average 
+    power spectra of the standard simulations (black line) to the paired-fixed
+    simulations (orange scatter) at the fiducial cosmology. In the bottom panels, 
+    we compare the bias, $\beta$ of the paired-fixed simulations for the power 
+    spectra for all 14 cosmologies (Table~\ref{tab:sims}). We mark bias within 
+    $\pm2\sigma$ within the shaded region. At the fiducial 
+    cosmology we use 15,000 standard $N$-body and $250$ pairs of paired-fixed 
+    simulations. For the other cosmologies, we use 500 standard $N$-body and $250$ pairs 
+    of paired-fixed simulations. Consistent with previous results, {\em we find no
+    significant bias in the real and redshift-space power spectra of paired-fixed
+    simulations.}
     }
 \label{fig:pk_real}
 \end{center}
@@ -16,7 +24,18 @@
 \begin{figure}
 \begin{center}
     \includegraphics[width=0.8\textwidth]{figs/pf_Bk_real.pdf} 
-    \caption{}
+    \caption{Comparison of the real-space bispectrum of standard $N$-body simulations 
+    and paired-fixed simulations. In the top panel, we compare the average 
+    bispectrum of the standard simulations (black line) to the paired-fixed
+    simulations (orange scatter) at the fiducial cosmology. We include all 
+    1898 triangles out to $k_{\rm max} = 0.5$. In the bottom panels, we 
+    compare the bias, $\beta$ of the paired-fixed simulations for the bispectrum 
+    for all 14 cosmologies, as a function of triangle configuration (left) 
+    and their distribution (right). The $\beta$ distributions are in good 
+    agreement with a Gaussian distribution, $\mathcal{N}(0,1)$ (blackdashed). 
+    {\em Hence, we find no significant bias in the real-space bispectrum of 
+    paired-fixed simulations.}
+}
 \label{fig:bk_real}
 \end{center}
 \end{figure}
@@ -24,7 +43,13 @@
 \begin{figure}
 \begin{center}
     \includegraphics[width=0.8\textwidth]{figs/pf_Bk_rsd.pdf} 
-    \caption{}
+    \caption{Same as Figure~\ref{fig:bk_real} but for the redshift-space bispectrum.
+    The $\beta$ distributions of the different cosmologies are mostly in good 
+    agreement with $\mathcal{N}(0,1)$ (lower right panel). A few cosmologies, 
+    $h^+$, $M_\nu^{+++}$, have noticable discrepancies; however, these 
+    discrepancies are within $1\sigma$. {\em Hence, we also find no significant 
+    bias in the redshift-space bispectrum of paired-fixed simulations.}
+    }
 \label{fig:bk_rsd}
 \end{center}
 \end{figure}
@@ -32,7 +57,16 @@
 \begin{figure}
 \begin{center}
     \includegraphics[width=\textwidth]{figs/pf_dPdtheta_real.pdf}
-    \caption{}
+    \caption{Comparison of the real-space power spectrum derivatives with respect
+    to $\Om$, $\Ob$, $h$, $n_s$, $\sigma_8$, and $M_\nu$ derived from standard 
+    $N$-body simulations versus paired-fixed simulations. In the top panels, we 
+    compare the derivatives from the standard simulations (black) to the paired-fixed
+    simulations (orange). In the bottom panels, we compare the bias, $\beta$ of 
+    each power spectrum derivative. The derivatives with respect 
+    to $\Om$ and $\sig$ have noticably non-zero biases; however these deviations are
+    within $1\sigma$. Therefore, {\em we find no significant bias in the real-space 
+    power spectrum derivatives calculated from paired-fixed simulations.}
+}
 \label{fig:dpk_real}
 \end{center}
 \end{figure}
@@ -40,7 +74,16 @@
 \begin{figure}
 \begin{center}
     \includegraphics[width=\textwidth]{figs/pf_dPdtheta_rsd.pdf}
-    \caption{}
+    \caption{Same as Figure~\ref{fig:dpk_real} but for the derivatives of the power
+    spectrum monopole (top panels) and quadrupole (center panels) with respect
+    to $\Om$, $\Ob$, $h$, $n_s$, $\sigma_8$, and $M_\nu$. The bottom panel reveals
+    significantly larger biases for ${\rm d} P_0/{\rm d}\theta$ and ${\rm d} P_2/{\rm d}\theta$
+    than the real-space ${\rm d} P/{\rm d}\theta$, especially for $h$, $\sig$ and $M_\nu$. 
+    In fact, the bias for both ${\rm d} P_0/{\rm d}h$ and ${\rm d} P_2/{\rm d}h$ exceed 
+    $2\sigma$ in the range $k > 0.04~\mpc$. \ch{some nuanced discussion about how this still
+    is not a cause for concern because this is the bias for a 500 Gpc volume so it's well 
+    within the tolerance.} 
+}
 \label{fig:dpk_rsd}
 \end{center}
 \end{figure}
@@ -48,7 +91,14 @@
 \begin{figure}
 \begin{center}
     \includegraphics[width=\textwidth]{figs/pf_dBdtheta_real_kmax0_5.pdf}
-    \caption{}
+    \caption{Comparison of the real-space bispectrum derivatives with respect
+    to $\Om$, $\Ob$, $h$, $n_s$, $\sigma_8$, and $M_\nu$ derived from standard 
+    $N$-body simulations versus paired-fixed simulations. In the left panels, we 
+    compare the derivatives from the standard simulations (black) to the paired-fixed
+    simulations (orange). In the right panels, we compare the bias, $\beta$ of
+    the derivatives for each parameter. {\em We find no significant bias in the
+    real-space bispectrum derivatives calculated from paired-fixed simulations.}
+}
 \label{fig:dbk_real}
 \end{center}
 \end{figure}
@@ -57,31 +107,23 @@
 \begin{figure}
 \begin{center}
     \includegraphics[width=\textwidth]{figs/pf_dBdtheta_rsd_kmax0_5.pdf}
-    \caption{}
+    \caption{Same as Figure~\ref{fig:dbk_real} but for the derivatives of the
+    redshift-space bispectrum monopole with respect to the cosmological parameters. 
+    Similar to the power spectrum derivatives, we find significantly larger biases
+    for redshift-space derivatives than in real-space. The bias for 
+    ${\rm d} B_0/{\rm d}h$ exceeds $2\sigma$ for triangle configurations with 
+    $0.1 \lesssim k_1, k_2, k_3 \lesssim 0.3~\mpc$. \ch{again some nuanced 
+    discussion about how this still is not a cause for concern because this is 
+    the bias for a 500 Gpc volume so it's well within the tolerance.} 
+    }
 \label{fig:dbk_rsd}
 \end{center}
 \end{figure}
 
 \begin{figure}
 \begin{center}
-    \includegraphics[width=0.8\textwidth]{figs/pf_P_Fij_rsd_kmax0_5.pdf} 
-    \caption{}
-\label{fig:pfij_rsd}
-\end{center}
-\end{figure}
-
-\begin{figure}
-\begin{center}
-    \includegraphics[width=0.8\textwidth]{figs/pf_B_Fij_rsd_kmax0_5.pdf} 
-    \caption{}
-\label{fig:bfij_rsd}
-\end{center}
-\end{figure}
-
-\begin{figure}
-\begin{center}
     \includegraphics[width=\textwidth]{figs/pf_P_posterior_rsd_kmax0_5.pdf}
-    \caption{}
+    \caption{\ch{to be updated}}
 \label{fig:ppost_rsd}
 \end{center}
 \end{figure}
@@ -89,7 +131,7 @@
 \begin{figure}
 \begin{center}
     \includegraphics[width=\textwidth]{figs/pf_B_posterior_rsd_kmax0_5.pdf}
-    \caption{}
+    \caption{\ch{to be updated}}
 \label{fig:bpost_rsd}
 \end{center}
 \end{figure}
@@ -99,8 +141,8 @@
 X_{{\rm pf},i} = \frac{1}{2} \big[ X_{{\rm pf},i}^{(1)} + X_{{\rm pf},i}^{(2)}\big]
 \eeq
 
-bias
-
+The main metric we use to compare some observable $X$ of standard $N$-body simulations 
+to the paired-fixed simulations is bias, which we estimate as follows: 
 \beq
 \beta_X = \frac{\overline{X}_{\rm std} - \overline{X}_{\rm pf}}{\sqrt{\sigma_{\rm std}^2 + \sigma_{\rm pf}^2}}
 \eeq
