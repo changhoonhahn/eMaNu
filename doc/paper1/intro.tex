@@ -82,42 +82,35 @@ and in redshift-space~\citep{marulli2011, castorina2015, upadhye2016}. Most rece
 using a suite of more than 1000 simulations, \cite{villaescusa-navarro2018} 
 examined the impact of $\smnu$ on the redshift-space matter and halo power 
 spectrum to find that the imprint of $\smnu$ and $\sig$ on the power spectrum are 
-degenerate and differ by $< 1\%$. The strong $\smnu$ -- $\sig$ degeneracy
+degenerate and differ by $< 1\%$ (see also Figure~\ref{fig:plk}). The strong $\smnu$ -- $\sig$ degeneracy
 poses a serious limitation of constraining $\smnu$ with the power spectrum. 
 However, information in the nonlinear regime cascade from the power spectrum 
-to higher-order statistics--- \emph{e.g.} the bispectrum. In fact, the 
+to higher-order statistics --- \emph{e.g.} the bispectrum. In fact, the 
 bispectrum has a comparable signal-to-noise ratio to the power spectrum
 on nonlinear scales~\citep{sefusatti2005, chan2017}. Furthermore, although $\smnu$ 
 is not included in their analyses, \cite{sefusatti2006} and \cite{yankelevich2019} 
 have shown that including the bispectrum significantly improves constraints on 
 cosmological parameters. %\cite{ruggeri2018} presented the first measurement of the bispectrum for $N$-body simulations with massive neutrinos. 
-\ch{
 Including $\smnu$, \cite{chudaykin2019} find that the bispectrum significantly 
-improves constraints for $\smnu$. Limitations in their analytic modeling, 
-covariances, and treatment of theoretical errors, however, prevent them 
-from accurately quantifying the information content on nonlinear 
-scales (Section~\ref{sec:forecasts}). No work to date has quantified the total 
-information content and constraining power of the full bispectrum down to
-nonlinear scales --- especially for $\smnu$. 
-}
+improves constraints for $\smnu$. Their forecasts, however, do not include the 
+constraining power on nonlinear scales (Section~\ref{sec:forecasts}). 
+%Limitations in their analytic modeling, covariances, and treatment of theoretical errors, however, prevent them from accurately quantifying the information content on nonlinear 
+No work to date has quantified the total information content and constraining 
+power of the full bispectrum down to nonlinear scales --- especially for $\smnu$. 
 
 In this work, we examine the effect of massive neutrinos on the redshift-space 
-halo bispectrum using more than 42,000 $N$-body simulations with massive neutrinos. 
+halo bispectrum using ${\sim}23,000$ $N$-body simulations with different neutrino masses. 
 We first demonstrate that the bispectrum helps break the $\smnu$--$\sig$ degeneracy 
 found in the power spectrum. Then we present the full information content of the 
 bispectrum for all triangle configurations down to $k_{\rm max} = 0.5~\mpc$ using 
 a Fisher forecast where we estimate the covariance matrix and derivatives with 
 the large set of simulations from the Quijote suite (Villaescusa-Navarro et al. in preparation). 
 This paper is the first of a series of papers that aim to demonstrate the potential 
-of galaxy bispectrum analyses in constraining $\smnu$.
-\ch{
-In particular, with this series, we aim to establish the potential for constraining
-cosmological parameters (especially $\smnu$) with galaxy bispectrum analyses that 
-extend to nonlinear scales using simulation based emulation models for upcoming 
-galaxy surveys.
-}
-In the subsequent paper, 
-we will include HOD parameters in our forecasts to quantify the full information 
+of galaxy bispectrum analyses in constraining $\smnu$. In particular, with this 
+series, we aim to establish the potential for constraining cosmological parameters 
+(especially $\smnu$) with galaxy bispectrum analyses that extend to nonlinear scales 
+using simulation based emulation models for upcoming galaxy surveys. In the subsequent 
+paper, we will include HOD parameters in our forecasts to quantify the full information 
 content of the galaxy bispectrum. In the series, we will also present methods to 
 tackle challenges that come with analyzing the full galaxy bispectrum, such as data 
 compression for reducing the dimensionality of the bispectrum. 
@@ -125,8 +118,8 @@ compression for reducing the dimensionality of the bispectrum.
 In Section~\ref{sec:hades}, we describe the two $N$-body simulation suites, HADES and Quijote, 
 and the halo catalogs constructed from them. We then describe in Section~\ref{sec:bk}, 
 how we measure the bispectrum of these simulations. 
-We then use the redshift-space halo bispectra to demonstrate the distinct imprint of 
-$\smnu$ on the bispectrum, which allows the bispectrum to break the degeneracy between 
+Afterwards, we use the redshift-space halo bispectra to demonstrate the distinct imprint of 
+$\smnu$ on the bispectrum, which allows it to break the degeneracy between 
 $\smnu$ and $\sig$, in Section~\ref{sec:mnusig}. Finally, in Section~\ref{sec:forecasts} 
 we present the full information content of the halo bispectrum with a Fisher forecast 
 of cosmological parameters and demonstrate how the bispectrum significantly improves 

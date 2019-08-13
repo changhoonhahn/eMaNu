@@ -62,7 +62,7 @@ we estimate $\partial B_0/\partial \theta$ using a centered difference approxima
 and, thus, cannot estimate the derivative with the same method. If we use the 
 forward difference approximation, 
 \beq 
-\frac{\partial \overline{B}_0}{\partial \smnu} \approx \frac{\overline{B}_0(\smnu^{\rm fid}+\delta \smnu) - \overline{B}_0(\smnu^{\rm fid})}{\delta \smnu}, 
+\frac{\partial \overline{B}_0}{\partial \smnu} \approx \frac{\overline{B}_0(\theta_{\rm fid}^{\rm ZA}+\delta \smnu) - \overline{B}_0(\smnu^{\rm fid})}{\delta \smnu}, 
 \eeq
 the error goes as $\mathcal{O}(\delta \smnu)$. Instead, we use a finite difference
 approximation with the Quijote simulations at $\smnu^{+}$, $\smnu^{++}$, $\smnu^{+++}$, 
@@ -71,34 +71,28 @@ and the fiducial cosmology, a $\mathcal{O}(\delta \smnu^2)$ order approximation
 simulations at $\smnu^{+}$, $\smnu^{++}$, and the fiducial cosmology. We examine
 the stability of $\partial \log B_0/\partial M_\nu$ (right) and 
 $\partial \log P_\ell/\partial M_\nu$ (left) by comparing the derivatives computing
-using simulations at \{fiducial, $\smnu^{+}$, $\smnu^{++}$, $\smnu^{+++}$\} (blue), 
-\{fiducial, $\smnu^{+}$, $\smnu^{++}$\} (orange), and \{fiducial, $\smnu^{+}$\} 
-(green) in Figure~\ref{fig:dPBdmnu}. The three $\partial \log B/\partial \smnu$
+using simulations at \{$\theta_{\rm fid}^{\rm ZA}$, $\smnu^{+}$, $\smnu^{++}$, $\smnu^{+++}$\} (blue), 
+\{$\theta_{\rm fid}^{\rm ZA}$, $\smnu^{+}$, $\smnu^{++}$\} (orange), and \{$\theta_{\rm fid}^{\rm ZA}$, $\smnu^{+}$\} 
+(green) in Figure~\ref{fig:dPBdmnu}. The three $\partial \log B_0/\partial \smnu$
 approximations differ from one another by $\sim10\%$ with Eq.~\ref{eq:dbkdmnu} 
-producing the largest estimate for both $P_0$ and $B_0$. If we use the
-\{fiducial, $\smnu^{+}$, $\smnu^{++}$\} derivative and \{fiducial, $\smnu^{+}$\} derivative 
+producing the largest estimate for both $P_\ell$ and $B_0$. If we use the
+\{$\theta_{\rm fid}^{\rm ZA}$, $\smnu^{+}$, $\smnu^{++}$\} derivative and 
+\{$\theta_{\rm fid}^{\rm ZA}$, $\smnu^{+}$\} derivative 
 instead of Eq.~\ref{eq:dbkdmnu} for our Fisher forecasts, the marginalized constraint on
-$\smnu$ for $k_{\rm max} = 0.5~\mpc$ increases to $0.199$ and $0.309$ eV for $P_\ell$ 
-and $0.0416$ and $0.0657$ eV for $B_0$. Compared to our $\sigma_{\smnu} = 0.0342$ eV 
-$B_0$ forecast, these correspond to a $\sim20$ and $90\%$ relative increase. 
-While the derivative estimated from \{fiducial, $\smnu^{+}$\} significantly impact 
-the forecasts, we emphasize that this is a $\mathcal{O}(\delta \smnu)$ approximation, 
+$\smnu$ for $k_{\rm max} = 0.5~\mpc$ increases to 0.390 and 0.682 eV for $P_\ell$ 
+and 0.0754 and 0.1354 eV for $B_0$. Compared to our $\sigma_{\smnu} = 0.0572$ eV 
+$B_0$ forecast, these correspond to a $\sim30$ and $130\%$ relative increase. 
+While the derivative estimated from \{$\theta_{\rm fid}^{\rm ZA}$, $\smnu^{+}$\} significantly 
+impact the forecasts, we emphasize that this is a $\mathcal{O}(\delta \smnu)$ approximation, 
 unlike the other $\mathcal{O}(\delta \smnu^2)$ approximations. In fact, the 
-\{fiducial, $\smnu^{+}$\} derivatives are better $\mathcal{O}(\delta \smnu^2)$ estimates
-for $\partial P_\ell/\partial \smnu$ and $\partial B_0/\partial \smnu$ at 0.05 eV. When we 
-compare the derivative of the linear theory power spectrum, $P^{(\rm LT)}$, we find 
-that $\partial P^{(\rm LT)}/\partial \smnu$ at 0.0 is larger than at 0.05 eV. Hence, 
-the differences between the \{fiducial, $\smnu^{+}$\} derivatives and the other 
-derivatives are not solely due to numerical stability. Moreover, because the 
+\{$\theta_{\rm fid}^{\rm ZA}$, $\smnu^{+}$\} derivatives are better $\mathcal{O}(\delta \smnu^2)$ 
+estimates for $\partial P_\ell/\partial \smnu$ and $\partial B_0/\partial \smnu$ at 0.05 eV. 
+When we compare the derivative of the linear theory power spectrum, $P^{(\rm LT)}$, 
+we find that $\partial P^{(\rm LT)}/\partial \smnu$ at 0.0 is larger than at 0.05 eV. 
+Hence, the differences between the \{$\theta_{\rm fid}^{\rm ZA}$, $\smnu^{+}$\} derivatives 
+and the other derivatives are not solely due to numerical stability. Moreover, because the 
 discrepancies in the derivative propogate similarly to both $P_\ell$ and $B_0$ forecasts, 
 the relative improvement of $B_0$ over $P_\ell$ remains roughly the same.
-\ch{
-    We also note that the Quijote simulations with $\smnu > 0$ eV are generated 
-    from Zel'dovich approximated initial conditions, while the $\smnu = 0$ eV 
-    simulations are generated from 2LPT initial conditions. The difference in 
-    initial conditions has a $< 5\%$ impact on the redshift-space $B_0$ and would
-    have an even smaller impact on the derivatives.  
-}
 Hence, we conclude that the derivatives with respect to $\smnu$ are sufficiently 
 stable and robust for our Fisher forecasts.
 
@@ -154,13 +148,13 @@ stable and robust for our Fisher forecasts.
     \includegraphics[width=\textwidth]{figs/quijote_dPBdMnu_dmnu_reg.pdf} 
     \caption{Comparison of $\partial \log B_0(k_1, k_2, k_3)/\partial M_\nu$ (right) 
     and $\partial \log P_\ell(k)/\partial M_\nu$ (left), computed using Quijote simulations 
-    at \{fiducial, $\smnu^{+}$, $\smnu^{++}$, $\smnu^{+++}$\} (blue), 
-    \{fiducial, $\smnu^{+}$, $\smnu^{++}$\} (orange), and \{fiducial, $\smnu^{+}$\} 
+    at \{$\theta_{\rm fid}^{\rm ZA}$, $\smnu^{+}$, $\smnu^{++}$, $\smnu^{+++}$\} (blue), 
+    \{$\theta_{\rm fid}^{\rm ZA}$, $\smnu^{+}$, $\smnu^{++}$\} (orange), and \{$\theta_{\rm fid}^{\rm ZA}$, $\smnu^{+}$\} 
     (green). The derivative approximations differ from one another by $\sim10\%$ with 
     Eq.~\ref{eq:dbkdmnu} producing the largest estimate for both $P_\ell$ and $B_0$.
-    Using the \{fiducial, $\smnu^{+}$, $\smnu^{++}$\} derivatives instead of the 
+    Using the \{$\theta_{\rm fid}^{\rm ZA}$, $\smnu^{+}$, $\smnu^{++}$\} derivatives instead of the 
     Eq.~\ref{eq:dbkdmnu} derivatives, increases the marginalized constraint on $\smnu$ 
-    by $\sim 20\%$. However, the differences in the derivatives propogate similarly to 
+    by $\sim 30\%$. However, the differences in the derivatives propogate similarly to 
     the $P_\ell$ and $B_0$ forecasts so the relative improvement of $B_0$ over $P_\ell$
     remains the same. Hence, we conclude that {\em the derivatives with respect to $\smnu$ 
     are sufficiently stable and robust for our Fisher forecasts}.
