@@ -1,2 +1,74 @@
-\section{Simulations} \label{sec:sims} 
-Very brief description of the simulations. Just highlight the numbers
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% simulation table
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{table}
+\caption{
+The \quij suite includes 15,000 standard $N$-body simulations at the fiducial cosmology to 
+accurately estimate the covariance matrices. It also includes sets of 500 simulations at 13 
+other cosmologies, where only one parameter is varied from the fiducial value (underlined), 
+to estimate derivatives of observables along the cosmological parameters.
+} 
+\begin{center}
+\begin{tabular}{cccccccccc} \toprule
+Name  &$\smnu$ & $\Omega_m$ & $\Omega_b$ & $h$ & $n_s$ & $\sigma_8$ & ICs & realizations \\[3pt] \hline\hline
+Fiducial 	& 0.0         & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 2LPT & 15,000 \\ 
+Fiducial ZA     & 0.0         & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & Zel'dovich& 500 \\ 
+$\smnu^+$       & \underline{0.1} eV & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & Zel'dovich & 500 \\ 
+$\smnu^{++}$    & \underline{0.2} eV & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & Zel'dovich & 500 \\ 
+$\smnu^{+++}$   & \underline{0.4} eV & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & Zel'dovich & 500 \\ 
+$\Omega_m^+$    & 0.0   & \underline{ 0.3275} & 0.049 & 0.6711 & 0.9624 & 0.834 & 2LPT & 500 \\ 
+$\Omega_m^-$    & 0.0   & \underline{ 0.3075} & 0.049 & 0.6711 & 0.9624 & 0.834 & 2LPT & 500 \\ 
+$\Omega_b^+$    & 0.0   & 0.3175 & \underline{0.051} & 0.6711 & 0.9624 & 0.834 & 2LPT & 500 \\ 
+$\Omega_b^-$    & 0.0   & 0.3175 & \underline{0.047} & 0.6711 & 0.9624 & 0.834 & 2LPT & 500 \\ 
+$h^+$           & 0.0   & 0.3175 & 0.049 & \underline{0.6911} & 0.9624 & 0.834 & 2LPT & 500 \\ 
+$h^-$           & 0.0   & 0.3175 & 0.049 & \underline{0.6511} & 0.9624 & 0.834 & 2LPT & 500 \\ 
+$n_s^+$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9824} & 0.834 & 2LPT & 500 \\ 
+$n_s^-$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9424} & 0.834 & 2LPT & 500 \\ 
+$\sigma_8^+$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.849} & 2LPT & 500 \\ 
+$\sigma_8^-$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.819} & 2LPT & 500 \\[3pt]
+\hline
+\end{tabular} \label{tab:sims}
+\end{center}
+\end{table}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% brief summary of the Quijote suite. 
+\section{The Quijote Simulation Suite} \label{sec:sims}
+We use a subset of simulations from the \quij suite, a set of 43,000 $N$-body 
+simulations that spans over 7000 cosmological models and contains, at a single 
+redshift, over 8.5 trillion particles (Villaescusa-Navarro et al. in prep.). 
+The \quij suite was designed to quantify the information content of cosmological 
+observables and also to train machine learning algorithms. Hence, the suite 
+includes enough realizations to accurately estimate the covariance matrices 
+of high-dimensional observables such as the bispectrum as well as the derivatives 
+of these observables with respect to cosmological parameters. For the derivatives, 
+the suite includes sets of simulations run at different cosmologies where only 
+one parameter is varied from the fiducial cosmology:
+$\Om{=}0.3175$, $\Ob{=}0.049$, $h{=}0.6711$, $n_s{=}0.9624$, $\sig{=}0.834$, 
+and $\smnu{=}0.0$ eV. Along $\Om$, $\Ob$, $h$, $n_s$, and $\sig$, the fiducial 
+cosmology is adjusted by either a small step above or below the fiducial value:
+$\{\Om^{+}, \Om^{-}, \Ob^{+}, \Ob^{-}, h^+, h^-, n_s^{+}, n_s^{-}, \sig^{+}, \sig^-\}$ . 
+Along $\smnu$, because $\smnu \ge 0.0$ eV and the derivative of certain observable 
+with respect to $\smnu$ is noisy, \quij includes sets of simulations for 
+$\{\smnu^{+}, \smnu^{++}, \smnu^{+++} \} = \{0.1, 0.2, 0.4\}$ eV. See 
+Table~\ref{tab:sims} for a summary of the \quij simulations used in this work. 
+
+The initial conditions for all the simulations were generated at $z=127$ using 
+second-order perturbation theory for simulations with massless neutrinos 
+($\smnu = 0.0$ eV) and the Zel’dovich approximation for massive neutrinos 
+($\smnu > 0.0$ eV). The initial conditions with massive neutrinos take 
+their scale-dependent growth factors/rates into account using the 
+\cite{zennaro2017a} method, while for the massless neutrino case we use 
+the traditional scale-independent rescaling. From the initial conditions, 
+the simulations follow the gravitational evolution of $512^3$ dark matter
+particles, and $512^3$ neutrino particles for massive neutrino models, to 
+$z=0$ using {\sc Gadget-III} TreePM+SPH code~\citep{springel2005}. Simulations 
+with massive neutrinos are run using the ``particle method'', where neutrinos 
+are described as a collisionless and pressureless fluid and therefore modeled 
+as particles, same as CDM~\citep{brandbyge2008,viel2010}. Halos are identified 
+using the Friends-of-Friends algorithm~\citep[FoF;][]{davis1985} with linking
+length $b=0.2$ on the CDM + baryon distribution. We limit the halo catalogs to 
+halos with masses above $M_{\rm lim} = 3.2\times 10^{13} h^{-1}M_\odot$.
+For the fiducial cosmology, the halo catalogs have ${\sim}156,000$ halos 
+($\bar{n} \sim 1.56 \times 10^{-4}~h^3{\rm Gpc}^{-3}$) with $\bar{n} P_0(k=0.1)\sim 3.23$. 
+We refer readers to Villaescusa-Navarro et al. (in preparation) and 
+Hahn et al. (2019) for further details on the \quij simulations.
