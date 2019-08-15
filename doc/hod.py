@@ -62,7 +62,7 @@ def HOD_fid():
     sub.plot(10**logMbin, Ngal_Mh(z07_21_5, logMbin), ls='--', label='$M_r < -21.5$')
     sub.plot(10**logMbin, Ngal_Mh(z07_22_0, logMbin), ls='--', label='$M_r < -22.$')
     sub.plot(10**logMbin, Ngal_Mh(hod_fid, logMbin), c='k', label='fiducial')
-    sub.plot([10**Mh_min, 10**Mh_min], [1e-3, 1e3], c='k', ls=':', lw=0.5)
+    sub.plot([10**Mh_min, 10**Mh_min], [1e-3, 1e3], c='k', ls=':', lw=1)
     sub.text(4*10**12, 52, 
             r'$M_{\rm lim} = %.2f \times 10^{13} M_\odot$' % (10**Mh_min/1e13), 
             ha='left', va='bottom', fontsize=15)
@@ -759,5 +759,3 @@ if __name__=='__main__':
     #_plot_wp_model_pm_fiducial()
     #_plot_dPdHOD_fiducials()
     #_plot_dBdHOD_fiducials()
-
-    #hod_fit(Mr=-21.5)
