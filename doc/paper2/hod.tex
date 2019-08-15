@@ -3,10 +3,13 @@
     \includegraphics[width=0.45\textwidth]{figs/hod_fid.pdf} 
     \caption{
         The halo occupation our fiducial halo occupation (black) parameterized with 
-        the standard \cite{zheng2007} HOD model. The halo mass limit of the \quij 
+        the standard \cite{zheng2007} HOD model. For the parameter values we modify
+        the best-fit HOD parameters of the SDSS $M_r < -21.5$ or $< -22.$ sample
+        best-fit parameters from \cite{zheng2007}. The halo mass limit of the \quij 
         simulations,  $M_{\rm lim} = 3.2\times 10^{13} h^{-1}M_\odot$ (black dashed), 
-        prevent us from adopting the best-fit HOD parameters of the SDSS $M_r < -21.5$ 
-        (blue dashed) or $< -22.$ sample (orange dashed).
+        prevent us from directly adopting the best-fit HOD parameters from \cite{zheng2007}. 
+        We include the halo occupation of the \cite{zheng2007} best-fits of the 
+        $M_r < -21.5$ (blue dashed) or $< -22.$ sample (orange dashed) for reference.
     }\label{fig:hod}
 \end{center}
 \end{figure}
@@ -62,24 +65,24 @@ halo while position and velocity of the satellite galaxies are sampled from a
 The halo occupation in the \cite{zheng2007} model depends soley on $M_h$. 
 Simulations, however, find evidence that secondary halo properties such as
 concentration or formation history correlate with spatial distribution of
-halos --- a phenomenon referred to as ``halo assembly bias''~\citep{sheth2004, gao2005, harker2006, wechsler2006}. 
+halos --- a phenomenon referred to as ``halo assembly bias''~\citep{sheth2004, gao2005, harker2006, wechsler2006}.
 A model that only depends on $M_h$, does not account for this halo assembly 
 bias and may not sufficient describe the connection between galaxies and 
 halos. Moreover, if unaccounted for in the HOD model and not marginalized 
 over, halo assembly bias may impact the cosmological parameter constraints. 
-\cite{zentner2016} and \cite{vakili2019} examined evidence for assembly bias 
-in the observed clustering measurements of the Sloan Digital Sky Survey (SDSS) DR 7
-main galaxy sample. \todo{short description of the paper and how they compare 
+\cite{zentner2016} and \cite{vakili2019} recently examined evidence for 
+assembly bias in the observed clustering measurements of the Sloan Digital 
+Sky Survey (SDSS) DR 7 main galaxy sample. \todo{short description of the papers and how they compare 
 with a model with assembly bias}. 
 However, they find little evidence for assembly bias in the galaxy clustering
 of the SDSS $M_r < -21.5$  and $-21$ samples. Therefore, in this work we use 
 the standard \cite{zheng2007} HOD model and assume it is sufficient for modeling 
 the galaxy--halo connection. 
 
-\bitem
-\item description of the halo mass constraints we're dealing with and how this prevents 
-    us from directly using best-fit HOD parameters from the literature. In fact, due
-    to this constraint we modify the HOD parameters.
-\item plots showing how our HOD choice compares to HODs of the SDSS samples. Some handwavy
-    arguments about how it shouldn't matter too much. 
-\eitem
+For the fiducial values of our HOD parameters we use  
+\todo{description of the halo mass constraints we're dealing with and how 
+this prevents us from directly using best-fit HOD parameters from the 
+literature. In fact, due to this constraint we modify the HOD parameters.}
+In Figure~\ref{fig:hod} we plot the halo occupation of our fiducial 
+HOD parameters. 
+\todo{Some handwavy arguments about how it shouldn't matter too much. } 
