@@ -43,14 +43,15 @@ dir_doc = os.path.join(UT.doc_dir(), 'paper3', 'figs') # figures for paper
 dir_fig = os.path.join(UT.fig_dir(), 'compress')  # figure directory
 kf = 2.*np.pi/1000. # fundmaentla mode
 
-thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']
-theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
-theta_fid = [0.3175, 0.049, 0.6711, 0.9624, 0.834, 0.] # fiducial theta 
+thetas = ['Om', 'Ob2', 'h', 'ns', 's8']#, 'Mnu']
+theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$']#, r'$M_\nu$']
+theta_fid = [0.3175, 0.049, 0.6711, 0.9624, 0.834]#, 0.] # fiducial theta 
 
 
 def compressedFisher(obvs='pk', method='KL', kmax=0.5, n_components=20):
     ''' Comparison of the Fisher forecast of compressed P0 versus full P0 
     '''
+    # read in data, covariance matrix, inverse covariance matrix, and derivatives of observable X. 
     X, Cov, Cinv, dXdt = load_X(obvs=obvs, kmax=kmax)
     if method == 'PCA': print('%i-dimensional data being PCA compressed to %i-dimensions' % (X.shape[1], n_components))
     # "true" Fisher 
@@ -63,7 +64,9 @@ def compressedFisher(obvs='pk', method='KL', kmax=0.5, n_components=20):
     # now lets calculate the Fisher matrices for compressions derived
     # from different number of simulations 
     Finvs = []
-    Nmocks = [15000, 12000, 10000, 5000, 3000, 1000]
+    if obvs == 'pk': Nmocks = [15000, 10000, 5000, 1000, 500, 100]
+    elif obvs == 'bk': Nmocks = [15000, 10000, 5000, 1000]
+
     for Nmock in Nmocks: 
         # fit the compressor
         if method == 'KL':
@@ -76,6 +79,7 @@ def compressedFisher(obvs='pk', method='KL', kmax=0.5, n_components=20):
         # transform X and dXdt 
         cX      = cmpsr.transform(X[:Nmock])
         dcXdt   = cmpsr.transform(dXdt)
+
         # get covariance and precision matrices for compressed data 
         cCov    = np.cov(cX.T) 
         cCinv   = np.linalg.inv(cCov) 
@@ -91,7 +95,7 @@ def compressedFisher(obvs='pk', method='KL', kmax=0.5, n_components=20):
                 (Nmock, ', '.join(['%s: %.2e' % (tt, sii) for tt, sii in zip(thetas, np.sqrt(np.diag(cFinv)))])))
         Finvs.append(cFinv) 
 
-    theta_lims = [(0.25, 0.385), (0.02, 0.08), (0.3, 1.1), (0.6, 1.3), (0.77, 0.9), (-0.4, 0.4)]
+    theta_lims = [(0.25, 0.385), (0.02, 0.08), (0.3, 1.1), (0.6, 1.3), (0.77, 0.9)]#, (-0.4, 0.4)]
 
     # marginalized constraints
     onesigma_true = np.sqrt(np.diag(Finv_true)) # the "true" marginalized constraints
@@ -106,7 +110,7 @@ def compressedFisher(obvs='pk', method='KL', kmax=0.5, n_components=20):
         sub.plot(Nmocks, onesigma[:,i]/onesigma_true[i], label=theta_lbls[i]) 
     sub.legend(loc='upper right', ncol=2, handletextpad=0.2, fontsize=15)
     sub.set_xlabel(r'$N_{\rm mock}$', fontsize=20) 
-    sub.set_xlim(1000, 15000) 
+    sub.set_xlim(np.min(Nmocks), 10000) 
     sub.plot(sub.get_xlim(), [1., 1.], c='k', ls='--') 
     sub.set_ylabel(r'$\sigma^{\rm c}_\theta(N_{\rm mock})/\sigma_\theta$', fontsize=20) 
     if method == 'PCA': 
@@ -132,56 +136,60 @@ def load_X(obvs='pk', kmax=0.5):
     case are ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']. This is an attempt to make everything
     more modular and agnostic to the observables
     
-    parameters
-    ----------
-    obvs : str
-        (default: 'pk') string specifying the cosmological observable
-    kmax : float
-        (default: 0.5) specify the kmax value.  
+    :param obvs:
+        string specifying the cosmological observable. (default: 'pk') 
 
-    returns
-    -------
-    X : array
+    :param kmax:
+        kmax value specifying the k range. (default: 0.5)  
+
+    :return X:
         (Nsim x Ndata) array of the data vectors of the simulation
-    Cov : array
-        (Ndata x Ndata) array of the covariance matrix
-    Cinv : array
-        (Ndata x Ndata) array of the inverse covariance matrix 
+
+    :return Cov:
+        (Ndata x Ndata) covariance matrix
+
+    :return Cinv:
+        (Ndata x Ndata) inverse covariance matrix 
         **hartlap factor is included here**
-    dXdt : 
-        arrays of the derivatives of X w.r.t. the thetas. 
+
+    :return dXdt: 
+        derivatives of X w.r.t. the thetas. 
     '''
     if obvs == 'pk': 
         # read in Quijote P0
         quij    = Obvs.quijotePk('fiducial', rsd=0, flag='reg') 
         klim    = (quij['k'] <= kmax) # k limit 
         X       = quij['p0k'][:,klim] + quij['p_sn'][:,None] # shotnoise uncorrected P(k)
+
         # calculate covariance
         Cov     = np.cov(X.T) 
         if np.linalg.cond(Cov) >= 1e16: print('Covariance matrix is ill-conditioned') 
+
         # calculate inverse covariance
         Cinv    = np.linalg.inv(Cov) 
         nmock, ndata = X.shape
         f_hartlap = float(nmock - ndata - 2)/float(nmock - 1) # hartlap factor
-        #Cinv    *= f_hartlap
+        Cinv    *= f_hartlap
     
         dXdt = [] 
         for par in thetas: 
             dXdt_i = dPkdtheta(par, rsd='all', flag='reg', dmnu='fin')
             dXdt.append(dXdt_i[klim])
         dXdt = np.array(dXdt) 
+
     elif obvs == 'bk': 
         # read in Quijote B 
         quij    = Obvs.quijoteBk('fiducial', rsd=0, flag='reg') 
+
         # k limit 
-        i_k     = quij['k1'] 
-        j_k     = quij['k2'] 
-        l_k     = quij['k3']
+        i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
         klim    = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # k limit
         X       = quij['b123'][:,klim] + quij['b_sn'][:,klim]
+
         # calculate covariance
         Cov     = np.cov(X.T) 
         if np.linalg.cond(Cov) >= 1e16: print('Covariance matrix is ill-conditioned') 
+
         # calculate inverse covariance
         Cinv    = np.linalg.inv(Cov) 
         nmock, ndata = X.shape 
@@ -396,8 +404,8 @@ def _flag_str(flag):
 
 
 if __name__=='__main__': 
-    compare_GP_deriv()
-    #compressedFisher(obvs='pk', method='KL', kmax=0.5)
+    #compare_GP_deriv()
+    compressedFisher(obvs='pk', method='KL', kmax=0.5)
     #compressedFisher(obvs='bk', method='KL', kmax=0.5)
     #for ncomp in [20, 40, 60, 70]: 
     #    compressedFisher(obvs='pk', method='PCA', kmax=0.5, n_components=ncomp)

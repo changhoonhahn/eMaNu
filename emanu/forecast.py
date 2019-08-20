@@ -675,7 +675,7 @@ def plotEllipse(Finv_sub, sub, theta_fid_ij=None, color='C0'):
     return sub
 
 
-def plotFisher(Finvs, theta_fid, colors=None, ranges=None, titles=None, title_kwargs=None, labels=None): 
+def plotFisher(Finvs, theta_fid, colors=None, linestyles=None, ranges=None, titles=None, title_kwargs=None, labels=None): 
     ''' Given a list of inverse Fisher matrices, plot the Fisher contours
     '''
     ntheta = Finvs[0].shape[0] # number of parameters 

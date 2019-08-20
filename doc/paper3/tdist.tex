@@ -1,0 +1,67 @@
+\section{Fisher Matrix for Modified $t$-distribution Likelihood} \label{sec:tdist}
+The standard approach for Fisher matrix forecasts and parameter inference in LSS 
+assumes that the $p$-dimensional likelihood is a Gaussian and uses the \cite{hartlap2007} 
+factor, 
+\beq
+f_{\rm Hartlap} = \frac{N-p-2}{N-1}
+\eeq
+to account for the bias in the inverse covariance matrix estimated from $N$ mocks.
+In addition to breaking down on large scales where Central Limit Theorem no longer 
+holds~\citep{hahn2019}, this assumption also breaks down when the covariance matrix 
+is estimated from a finite number of mocks~\citep{sellentin2016}. In fact, 
+\cite{sellentin2016} show that the likelihood is a modified $t$-distribution: 
+\beq \label{eq:tdist_like}
+p(y|\mu(\theta),\Psi,N) = |\Psi|^{-1/2} c_p \left(1+\frac{(y-\mu(\theta))^T\Psi^{-1}(y-\mu(\theta))}{1-N}\right)^{-N/2}.
+\eeq
+\beq
+c_p = \frac{\Gamma(\frac{N}{2})}{[\pi(N-1)]^{p/2}\Gamma(\frac{N-p}{2})}
+\eeq
+where $\Gamma$ is the Gamma function, $\mu$ is our model, and $\Psi$ is the covariance 
+matrix. Adopting the wrong sampling distribution will yield incorrect posterior distributions, 
+with biased parameter estimates and incorrect errors even when the bias of the inverse
+covariance matrix is accounted for~\citep{sellentin2016}. We therefore, derive the Fisher
+matrix for the modified $t$-distribution likelihood following the calculations from 
+\cite{lange1989}. 
+
+For simplicity, let $\ell(\theta)$ be the log-likelihood, $z = \Psi^{-1/2} (y - \mu)$, and 
+\beq
+g(s, v) = c_p \left(1+\frac{s}{v}\right)^{-N/2}
+\eeq
+so that Eq.~\ref{eq:tdist_like} can be written as $p(y|\mu(\theta),\Psi,N) = |\Psi|^{-1/2} g(||z||^2, 1-N)$.
+Then the derivative of the log-likelihood is  
+\beq
+\frac{\partial \ell}{\partial \theta_i} = \left(\frac{1}{g}\frac{\partial g}{\partial s}\right) \left(-2 \frac{\partial \mu}{\partial \theta_i}^T \Psi^{-1}(y-\mu)\right) 
+\eeq
+Using this derivative we can write the Fisher matrix as  
+\begin{align}
+F_{ij} &= \bigg<\frac{\partial \ell}{\partial \theta_i} \frac{\partial \ell}{\partial \theta_j}\bigg> \\ 
+&= 4\bigg< \left(\frac{1}{g}\frac{\partial g}{\partial s}\right)^2
+\left(z^T\Psi^{-1/2}\frac{\partial \mu}{\partial \theta_i} \frac{\partial \mu^T}{\partial \theta_j}\Psi^{-1/2} z \right)\bigg> 
+\end{align}
+Using Lemma 1 from \cite{lange1989}, we can express this as 
+\begin{align} \label{eq:app1}
+&= 4\bigg< \left(\frac{1}{g}\frac{\partial g}{\partial s}\right)^2
+||z||^2 \left(\frac{z^T}{||z||}\Psi^{-1/2}\frac{\partial \mu}{\partial \theta_i} \frac{\partial \mu^T}{\partial \theta_j}\Psi^{-1/2}\frac{z}{||z||} \right)\bigg> \\
+&= 4\bigg<||z||^2 \left(\frac{1}{g}\frac{\partial g}{\partial s}\right)^2 \bigg>
+\frac{1}{p} {\rm Tr}\left(\Psi^{-1/2}\frac{\partial \mu}{\partial \theta_i} \frac{\partial \mu^T}{\partial \theta_j}\Psi^{-1/2}\right) \\
+&= 4\bigg<||z||^2 \left(\frac{1}{g}\frac{\partial g}{\partial s}\right)^2 \bigg> \frac{1}{p}\frac{\partial \mu^T}{\partial \theta_i}\Psi^{-1}\frac{\partial \mu}{\partial \theta_j}
+\end{align}
+Since, 
+\beq
+\left(\frac{1}{g}\frac{\partial g}{\partial s}\right) = -\frac{N}{2} \left(\frac{1}{N-1}\right) \left(1+\frac{s}{N-1}\right)^{-1} 
+\eeq
+we can expand, 
+\begin{align}
+\bigg<||z||^2 \left(\frac{1}{g}\frac{\partial g}{\partial s}\right)^2 \bigg> &= \bigg<||z||^2 \frac{N^2}{4} \left(\frac{1}{N-1}\right)^2 \left(1+\frac{s}{N-1}\right)^{-2} \bigg> \\
+&= \frac{N^2}{4(N-1)}\bigg<\frac{||z||^2}{N-1} \left(1+\frac{||z||^2}{N-1}\right)^{-2} \bigg>\\
+&= \frac{N^2}{4(N-1)}\frac{p (N-1)}{(N+p+1)(N+p-1)}\\
+&= \frac{N^2 p}{4(N+p+1)(N+p-1)}.
+\end{align}
+Plugging the expression back into Eq.~\ref{eq:app1}, 
+\beg
+F_{ij} &= 4\frac{N^2 p}{4(N+p+1)(N+p-1)} \frac{1}{p}\frac{\partial \mu^T}{\partial \theta_i}\Psi^{-1}\frac{\partial \mu}{\partial \theta_j} \\
+&=\frac{N^2}{(N+p+1)(N+p-1)}\frac{\partial \mu^T}{\partial \theta_i}\Psi^{-1}\frac{\partial \mu}{\partial \theta_j}
+\eeq
+
+%Hartlap et al. (2007) argue that this debiased inverse covariance matrix will remove all biases from parameter inference. However, the situation is more complex. In a Bayesian analysis one would not necessarily define an estimator θˆ, but if one does, the bias is bθ = ⟨θˆ ⟩ − θ , where the angular brackets now denote the average over the likelihood of the parameters. Adopting the wrong sampling distribution will yield incorrect posterior distributions, with biased parameter estimates (should they be made) and incorrect errors, even if the inverse covariance matrix itself has been debiased.
+
