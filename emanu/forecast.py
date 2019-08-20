@@ -398,7 +398,7 @@ def quijote_dBkdtheta(theta, log=False, rsd='all', flag=None, z=0, dmnu='fin', N
     return quij['k1'], quij['k2'], quij['k3'], dbk / h + c_dbk 
 
 
-def _PF_quijote_dPkdtheta(theta, log=False, rsd='all', flag='reg', z=0, dmnu='fin', average=True, silent=True):
+def _PF_quijote_dPkdtheta(theta, log=False, rsd='all', flag='reg', z=0, dmnu='fin', dh='pm', average=True, silent=True):
     ''' calculate d P0(k)/d theta using the paired and fixed quijote simulations
     run on perturbed theta 
 
@@ -438,6 +438,15 @@ def _PF_quijote_dPkdtheta(theta, log=False, rsd='all', flag='reg', z=0, dmnu='fi
             tts = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
             coeffs = [-21., 32., -12., 1.] # finite difference coefficient
             h = 1.2
+    elif theta == 'h': 
+        if not silent: print("--- calculating dB/d%s ---" % theta) 
+        if dh == 'pm':  # standard derivative using h+ and h- 
+            tts = [theta+'_m', theta+'_p'] 
+            h = quijote_thetas[theta][1] - quijote_thetas[theta][0]
+        elif dh == 'm_only': 
+            tts = [theta+'_m', 'fiducial'] 
+            h = 0.6711 - quijote_thetas[theta][0]
+        coeffs = [-1., 1.]
     else: 
         if not silent: print("--- calculating dP/d%s ---" % theta) 
         tts = [theta+'_m', theta+'_p'] 
@@ -453,6 +462,11 @@ def _PF_quijote_dPkdtheta(theta, log=False, rsd='all', flag='reg', z=0, dmnu='fi
                 _pk = _pk[:1500,:]
             else: 
                 _pk = _pk[:500,:]
+        elif theta == 'h' and dh == 'm_only': 
+            if rsd == 'all': 
+                _pk = _pk[:1500,:]
+            else: 
+                _pk = _pk[:500,:]
         
         if average: _pk = np.average(quij['p0k'], axis=0)  
         
@@ -464,7 +478,7 @@ def _PF_quijote_dPkdtheta(theta, log=False, rsd='all', flag='reg', z=0, dmnu='fi
     return quij['k'], dpk / h
 
 
-def _PF_quijote_dP02kdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin', z=0, average=True, silent=True):
+def _PF_quijote_dP02kdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin', dh='pm', z=0, average=True, silent=True):
     ''' calculate the derivative d [P0(k), P2(k)] /d theta using the paired and fixed quijote simulations
     run on perturbed theta 
 
@@ -506,6 +520,15 @@ def _PF_quijote_dP02kdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin',
             tts = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
             coeffs = [-21., 32., -12., 1.] # finite difference coefficient
             h = 1.2
+    elif theta == 'h': 
+        if not silent: print("--- calculating dB/d%s ---" % theta) 
+        if dh == 'pm':  # standard derivative using h+ and h- 
+            tts = [theta+'_m', theta+'_p'] 
+            h = quijote_thetas[theta][1] - quijote_thetas[theta][0]
+        elif dh == 'm_only': 
+            tts = [theta+'_m', 'fiducial'] 
+            h = 0.6711 - quijote_thetas[theta][0]
+        coeffs = [-1., 1.]
     else: 
         if not silent: print("--- calculating dP/d%s ---" % theta) 
         tts = [theta+'_m', theta+'_p'] 
@@ -522,6 +545,11 @@ def _PF_quijote_dP02kdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin',
                 _pk = _pk[:1500,:]
             else: 
                 _pk = _pk[:500,:]
+        elif theta == 'h' and dh == 'm_only': 
+            if rsd == 'all': 
+                _pk = _pk[:1500,:]
+            else: 
+                _pk = _pk[:500,:]
 
         if average: _pk = np.average(_pk, axis=0)  
         if log: _pk = np.log(_pk) # log 
@@ -532,7 +560,7 @@ def _PF_quijote_dP02kdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin',
     return np.concatenate([quij['k'], quij['k']]) , dpk / h
 
 
-def _PF_quijote_dBkdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin', z=0, average=True, corr_sn=True, silent=True):
+def _PF_quijote_dBkdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin', dh='pm', z=0, average=True, corr_sn=True, silent=True):
     ''' d B(k)/d theta calculations for the paired-fixed investigation. Lots of bells and whistles 
     that I want separate from the main analysis. 
 
@@ -602,6 +630,15 @@ def _PF_quijote_dBkdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin', z
             h = 6. 
         else: 
             raise NotImplementedError
+    elif theta == 'h': 
+        if not silent: print("--- calculating dB/d%s ---" % theta) 
+        if dh == 'pm':  # standard derivative using h+ and h- 
+            tts = [theta+'_m', theta+'_p'] 
+            h = quijote_thetas[theta][1] - quijote_thetas[theta][0]
+        elif dh == 'm_only': 
+            tts = [theta+'_m', 'fiducial'] 
+            h = 0.6711 - quijote_thetas[theta][0]
+        coeffs = [-1., 1.]
     else: 
         if not silent: print("--- calculating dB/d%s ---" % theta) 
         tts = [theta+'_m', theta+'_p'] 
@@ -616,6 +653,11 @@ def _PF_quijote_dBkdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin', z
         if not corr_sn: _bk += b_sn  # uncorrect for shot-noise 
 
         if theta == 'Mnu' and dmnu == 'fin_2lpt': # fiducial is 2LPT and has different number of sims 
+            if rsd == 'all': 
+                _bk = _bk[:1500,:]
+            else: 
+                _bk = _bk[:500,:]
+        elif theta == 'h' and dh == 'm_only': 
             if rsd == 'all': 
                 _bk = _bk[:1500,:]
             else: 
