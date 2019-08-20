@@ -446,6 +446,9 @@ def _PF_quijote_dPkdtheta(theta, log=False, rsd='all', flag='reg', z=0, dmnu='fi
         elif dh == 'm_only': 
             tts = [theta+'_m', 'fiducial'] 
             h = 0.6711 - quijote_thetas[theta][0]
+        elif dh == 'p_only': 
+            tts = ['fiducial', theta+'_p'] 
+            h = quijote_thetas[theta][1] - 0.6711
         coeffs = [-1., 1.]
     else: 
         if not silent: print("--- calculating dP/d%s ---" % theta) 
@@ -462,7 +465,7 @@ def _PF_quijote_dPkdtheta(theta, log=False, rsd='all', flag='reg', z=0, dmnu='fi
                 _pk = _pk[:1500,:]
             else: 
                 _pk = _pk[:500,:]
-        elif theta == 'h' and dh == 'm_only': 
+        elif theta == 'h' and dh in ['m_only', 'p_only']: 
             if rsd == 'all': 
                 _pk = _pk[:1500,:]
             else: 
@@ -528,6 +531,9 @@ def _PF_quijote_dP02kdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin',
         elif dh == 'm_only': 
             tts = [theta+'_m', 'fiducial'] 
             h = 0.6711 - quijote_thetas[theta][0]
+        elif dh == 'p_only': 
+            tts = ['fiducial', theta+'_p'] 
+            h = quijote_thetas[theta][1] - 0.6711
         coeffs = [-1., 1.]
     else: 
         if not silent: print("--- calculating dP/d%s ---" % theta) 
@@ -545,7 +551,7 @@ def _PF_quijote_dP02kdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin',
                 _pk = _pk[:1500,:]
             else: 
                 _pk = _pk[:500,:]
-        elif theta == 'h' and dh == 'm_only': 
+        elif theta == 'h' and dh in ['m_only', 'p_only']:
             if rsd == 'all': 
                 _pk = _pk[:1500,:]
             else: 
@@ -638,6 +644,9 @@ def _PF_quijote_dBkdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin', d
         elif dh == 'm_only': 
             tts = [theta+'_m', 'fiducial'] 
             h = 0.6711 - quijote_thetas[theta][0]
+        elif dh == 'p_only': 
+            tts = ['fiducial', theta+'_p'] 
+            h = quijote_thetas[theta][1] - 0.6711
         coeffs = [-1., 1.]
     else: 
         if not silent: print("--- calculating dB/d%s ---" % theta) 
@@ -657,7 +666,7 @@ def _PF_quijote_dBkdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin', d
                 _bk = _bk[:1500,:]
             else: 
                 _bk = _bk[:500,:]
-        elif theta == 'h' and dh == 'm_only': 
+        elif theta == 'h' and dh in ['m_only', 'p_only']: 
             if rsd == 'all': 
                 _bk = _bk[:1500,:]
             else: 
