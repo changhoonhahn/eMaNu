@@ -38,6 +38,7 @@ def quijoteP_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     if rsd not in [0, 1, 2, 'real']: raise ValueError 
     if subdir == 'fiducial' and flag == 'reg': nmocks = 15000
     elif subdir == 'fiducial' and flag == 'ncv': nmocks = 500
+    elif subdir == 'fiducial_za': nmocks=500
     else: nmocks = 500 
 
     fpks = [] 
@@ -148,7 +149,7 @@ def quijoteB_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     if rsd not in [0, 1, 2, 'real']: raise ValueError 
     if subdir == 'fiducial' and flag == 'reg': nmocks = 15000
     elif subdir == 'fiducial' and flag == 'ncv': nmocks = 500
-    elif subdir == 'fiducial_za': nmocks=82
+    elif subdir == 'fiducial_za': nmocks=500
     else: nmocks = 500 
 
     fbks = [] 
@@ -239,4 +240,7 @@ if __name__=="__main__":
             quijoteB_hdf5(sub, rsd=rsd, flag='reg')
     '''
     for rsd in [0, 1, 2, 'real']: 
-        quijoteB_hdf5('fiducial_za', rsd=rsd, flag='reg')
+        #quijoteP_hdf5('fiducial_za', rsd=rsd, flag='reg')
+        #quijoteB_hdf5('fiducial_za', rsd=rsd, flag='reg')
+        quijoteP_hdf5('fiducial_za', rsd=rsd, flag='ncv')
+        quijoteB_hdf5('fiducial_za', rsd=rsd, flag='ncv')
