@@ -137,12 +137,27 @@
 \end{figure}
 
 \section{Results} \label{sec:results} 
-\beq
-X_{{\rm pf},i} = \frac{1}{2} \big[ X_{{\rm pf},i}^{(1)} + X_{{\rm pf},i}^{(2)}\big]
-\eeq
+We're interesting in determining whether paired-fixed simulations can be used, instead of
+standard $N$-body simulations, to reduce the statistical uncertainty from cosmic variance 
+in applications where we want to accurately estimates of the mean of observables, such as
+in emulator-based approach. More specifically, we examine whether using paired-fixed 
+simulations introduce bias for the full real and redshift-space bispectrum with the 
+unprecedented statistical precision from over $22,000$ \quij simulatons. Furthermore,
+we exmaine whether such biases can propagate to constraints on inferred cosmological 
+parameters. We also we reexamine whether paired-fixed simulations introduce bias for
+the power spectrum. 
 
-The main metric we use to compare some observable $X$ of standard $N$-body simulations 
-to the paired-fixed simulations is bias, which we estimate as follows: 
+We quantify the bias of paired-fixed simulations for some observable $X$ as
 \beq
 \beta_X = \frac{\overline{X}_{\rm std} - \overline{X}_{\rm pf}}{\sqrt{\sigma_{\rm std}^2 + \sigma_{\rm pf}^2}}
 \eeq
+where the mean observable of the standard $N$-body and paired-fixed 
+simulations: $\overline{X}_{\rm std} = \frac{1}{N}\sum\limits_{i=1}^{N} X_{{\rm std}, i}$ 
+and $\overline{X}_{\rm pf} = \frac{1}{N}\sum\limits_{i=1}^{N} X_{{\rm pf.}, i}$. 
+$X_{{\rm pf},i}$ is the mean observable of a pair of paired-fixed simulations: 
+\beq
+X_{{\rm pf},i} = \frac{1}{2} \big[ X_{{\rm pf},i}^{(1)} + X_{{\rm pf},i}^{(2)}\big].
+\eeq
+
+
+
