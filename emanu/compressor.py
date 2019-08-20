@@ -59,7 +59,7 @@ class Compressor(object):
             cY = np.dot(self.cM, Y.T).T 
         return cY           
 
-    def _KL_fit(self, X, dxdt):
+    def _KL_fit(self, X, dxdt, hartlap=True):
         ''' fit KL/MOPED compression matrix. For our purposes of Gaussian 
         likelihood, this is the same as score compression 
     
@@ -95,8 +95,9 @@ class Compressor(object):
 
         ndata       = X.shape[1]
         nmock       = X.shape[0]
-        f_hartlap   = float(nmock - ndata - 2)/float(nmock - 1) 
-        iCx         *= f_hartlap
+        if hartlap: 
+            f_hartlap   = float(nmock - ndata - 2)/float(nmock - 1) 
+            iCx         *= f_hartlap
         
         B = np.zeros((ntheta, X.shape[1]))  
         for itheta in range(ntheta): 
