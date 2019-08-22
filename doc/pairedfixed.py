@@ -177,45 +177,25 @@ def pf_Pk():
     fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') 
     return None 
 
+
 def _pf_Pk_onlyh(): 
     ''' Comparison between the standard N-body P_ell to the paired-fixed P_ell for 
     only h- h+ and fiducial . 
     '''
-    fig = plt.figure(figsize=(16, 3))
-    gs = mpl.gridspec.GridSpec(1, 3, figure=fig, hspace=0.05) 
-    sub3 = plt.subplot(gs[0])
-    sub4 = plt.subplot(gs[1]) 
-    sub5 = plt.subplot(gs[2]) 
+    fig = plt.figure(figsize=(16, 10))
 
     # --- bias comparison --- 
     thetas = ['fiducial', 'h_m', 'h_p']
     lbls = ['fid.', r'$h^{-}$', r'$h^{+}$']
-    
-    for _i, theta in enumerate(thetas): 
-        # read in real-space P (standard)
-        k_real, p0k_real_std = X_std('pk', theta, rsd='real', silent=False) 
-        # read in real-space P (paired-fixed)
-        _, p0k_real_pfd1 = X_pfd_1('pk', theta, rsd='real', silent=False) 
-        _, p0k_real_pfd2 = X_pfd_2('pk', theta, rsd='real', silent=False) 
-        p0k_real_pfd = 0.5 * (p0k_real_pfd1 + p0k_real_pfd2) 
-        
-        bias_p0k_real   = pf_bias(p0k_real_std, p0k_real_pfd)
-        
-        clr = 'k'
-        if (_i > 0) and (_i < 11): 
-            clr = 'C%i' % (_i-1) 
 
-        # bias real-space P0
-        _plt, = sub3.plot(k_real, bias_p0k_real, c=clr)
-        sub3.plot([9e-3, 0.5], [0.0, 0.0], c='k', ls='--') 
-        sub3.set_xlim(9e-3, 0.5) 
-        sub3.set_xscale('log') 
-        sub3.set_ylabel(r'bias $\beta$ ($\sigma$)', fontsize=25) 
-        sub3.set_ylim(-4., 4.) 
-        if _i == 0: plts = [] 
-        plts.append(_plt) 
-        
-        for rsd, lsty in zip(['avg_all', 0, 1, 2], ['-', '--', '-.', ':']): 
+    rsd_lbls = ['all RSD dir.', 'RSD dir. 0', 'RSD dir. 1', 'RSD dir. 2']
+    
+    #for i_rsd, rsd in enumerate(['all', 0, 1, 2]): 
+    for i_rsd, rsd in enumerate(['avg_all', 0, 1, 2]): 
+        for _i, theta in enumerate(thetas): 
+            sub0 = fig.add_subplot(4,2,2*i_rsd+1)
+            sub1 = fig.add_subplot(4,2,2*i_rsd+2)
+
             # read in power spectrum (standard)
             k_rsd, p0k_rsd_std, p2k_rsd_std = X_std('pk', theta, rsd=rsd, silent=False) 
             # read in power spectrum (pairedfixed)
@@ -224,40 +204,39 @@ def _pf_Pk_onlyh():
             p0k_rsd_pfd = 0.5 * (p0k_rsd_pfd1 + p0k_rsd_pfd2) 
             p2k_rsd_pfd = 0.5 * (p2k_rsd_pfd1 + p2k_rsd_pfd2) 
 
+            print('%i standard sims' % p0k_rsd_std.shape[0])
+            print('%i paired-fixed sims' % p0k_rsd_pfd.shape[0])
             bias_p0k_rsd    = pf_bias(p0k_rsd_std, p0k_rsd_pfd)
             bias_p2k_rsd    = pf_bias(p2k_rsd_std, p2k_rsd_pfd)
+
+            clr = 'k'
+            if _i > 0: clr = 'C%i' % (_i-1)
         
-            sub4.plot(k_rsd, bias_p0k_rsd, c=clr, ls=lsty)
-            sub5.plot(k_rsd, bias_p2k_rsd, c=clr, ls=lsty)
+            sub0.plot(k_rsd, bias_p0k_rsd, c=clr)
+            sub1.plot(k_rsd, bias_p2k_rsd, c=clr, label=lbls[_i])
 
-        sub4.plot([9e-3, 0.5], [0.0, 0.0], c='k', ls='--') 
-        sub4.set_xlim(9e-3, 0.5) 
-        sub4.set_xscale('log') 
-        sub4.set_ylim(-4., 4.) 
-        sub4.set_yticklabels([]) 
+            sub0.plot([9e-3, 0.5], [0.0, 0.0], c='k', ls='--') 
+            sub0.set_xlim(9e-3, 0.5) 
+            sub0.set_xscale('log') 
+            sub0.set_ylim(-4., 4.) 
+            if i_rsd < 3: sub0.set_xticklabels([])
 
-        sub5.plot([9e-3, 0.5], [0.0, 0.0], c='k', ls='--') 
-        sub5.set_xlim(9e-3, 0.5) 
-        sub5.set_xscale('log') 
-        sub5.set_ylim(-4., 4.) 
-        sub5.set_yticklabels([]) 
+            sub1.plot([9e-3, 0.5], [0.0, 0.0], c='k', ls='--') 
+            sub1.set_xlim(9e-3, 0.5) 
+            sub1.set_xscale('log') 
+            sub1.set_ylim(-4., 4.) 
+            sub1.set_yticklabels([]) 
+            if i_rsd < 3: sub1.set_xticklabels([])
 
-    sub3.fill_between([9e-3, 0.7], [-2, -2], [2, 2], color='k', alpha=0.2, linewidth=0.) 
-    sub4.fill_between([9e-3, 0.7], [-2, -2], [2, 2], color='k', alpha=0.2, linewidth=0.) 
-    sub5.fill_between([9e-3, 0.7], [-2, -2], [2, 2], color='k', alpha=0.2, linewidth=0.) 
-
-    sub3.legend(plts[:5], lbls[:5], 
-            loc='lower left', ncol=6, handletextpad=0.3, columnspacing=0.8, fontsize=13, 
-            bbox_to_anchor=(0.,-0.04))
-    sub4.legend(plts[5:10], lbls[5:10], 
-            loc='lower left', ncol=6, handletextpad=0.3, columnspacing=0.8, fontsize=13, 
-            bbox_to_anchor=(0.,-0.04))
-    sub5.legend(plts[10:], lbls[10:], 
-            loc='lower left', ncol=6, handletextpad=0.3, columnspacing=0.8, fontsize=13, 
+            sub0.fill_between([9e-3, 0.7], [-2, -2], [2, 2], color='k', alpha=0.2, linewidth=0.) 
+            sub1.fill_between([9e-3, 0.7], [-2, -2], [2, 2], color='k', alpha=0.2, linewidth=0.) 
+        sub0.text(0.025, 0.95, rsd_lbls[i_rsd], ha='left', va='top', transform=sub0.transAxes, fontsize=20)
+    sub1.legend(loc='lower left', ncol=6, handletextpad=0.3, columnspacing=0.8, fontsize=13, 
             bbox_to_anchor=(0.,-0.04))
 
     fig.subplots_adjust(wspace=0.05) 
     ffig = os.path.join(dir_fig, 'pf_Pk_onlyh.png') 
+    fig.subplots_adjust(hspace=0.1) 
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
@@ -1958,7 +1937,7 @@ def X_std(obs, theta, rsd=2, dmnu='fin', dh='pm', silent=True):
     ''' read in standard N-body observables 
     '''
     ks, obs = _Xobs(obs, theta, rsd=rsd, flag='reg', dmnu=dmnu, dh=dh, silent=silent)
-    return ks + obs 
+    return tuple(ks + obs) 
 
 
 def X_pfd_1(obs, theta, rsd=2, dmnu='fin', dh='pm', silent=True): 
@@ -2028,13 +2007,14 @@ def _Xobs(obs, theta, rsd=2, flag='reg', dmnu='fin', dh='pm', silent=True):
                     dmnu=dmnu, dh=dh, average=False, silent=silent) 
             _, dpdt_std2 = Forecast._PF_quijote_dP02kdtheta(theta, rsd=2, flag=flag, 
                     dmnu=dmnu, dh=dh, average=False, silent=silent) 
-            _ks = [k] 
-            _obs = [1./3. * (dpdt_std0 + dpdt_std1 + dpdt_std2)] 
+            dpdt_std = 1./3. * (dpdt_std0 + dpdt_std1 + dpdt_std2)
+            _ks = [k[:len(k)/2]]
+            _obs = [dpdt_std[:,:len(k)/2], dpdt_std[:,len(k)/2:]] 
         else:                
             k, dpdt_std = Forecast._PF_quijote_dP02kdtheta(theta, rsd=rsd, flag=flag, 
                         dmnu=dmnu, dh=dh, average=False, silent=silent) 
-            _ks = [k]
-            _obs = [dpdt_std]
+            _ks = [k[:len(k)/2]]
+            _obs = [dpdt_std[:,:len(k)/2], dpdt_std[:,len(k)/2:]] 
 
     elif obs == 'dbk': 
         if rsd == 'avg_all': 
@@ -2275,12 +2255,7 @@ def _flag_str(flag):
 
 if __name__=="__main__": 
     #pf_Pk()
-    ### keep looking into this ###
-    ### keep looking into this ###
-    ### keep looking into this ###
-    ### keep looking into this ###
-    ### keep looking into this ###
-    _pf_Pk_onlyh()
+    #_pf_Pk_onlyh()
     #pf_Bk(kmax=0.5)
     #pf_dPdtheta(dmnu='fin', dh='pm')
     #pf_dPdtheta(dmnu='fin', dh='m_only')
@@ -2296,6 +2271,8 @@ if __name__=="__main__":
     #    pf_P_Fij(rsd=rsd, kmax=0.5, dmnu='fin', dh='pm')
     #    pf_B_Fij(rsd=rsd, kmax=0.5, dmnu='fin', dh='pm')
     #    pf_P_posterior(rsd=rsd, kmax=0.5, dmnu='fin', dh='pm', silent=False)
+    #    pf_P_posterior(rsd=rsd, kmax=0.5, dmnu='fin', dh='m_only', silent=False)
+    #    pf_P_posterior(rsd=rsd, kmax=0.5, dmnu='fin', dh='p_only', silent=False)
     #    pf_B_posterior(rsd=rsd, kmax=0.5, dmnu='fin', dh='pm', silent=False)
     #
     #    pf_P_posterior_wo_h(rsd=rsd, kmax=0.5)

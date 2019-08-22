@@ -22,7 +22,9 @@ main.pdf: *.tex vc.tex
 
 
 email_uros.pdf: *.tex
-	${LATEX} email_uros 
+	${LATEX} emails/email_uros 
+	${LATEX} emails/email_uros 
+	mv email_uros* emails/
 
 clean:
 	${RM} $(foreach suff, ${TMP_SUFFS}, main.${suff})
