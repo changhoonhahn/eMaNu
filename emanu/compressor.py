@@ -59,46 +59,40 @@ class Compressor(object):
             cY = np.dot(self.cM, Y.T).T 
         return cY           
 
-    def _KL_fit(self, X, dxdt, hartlap=True):
+    def _KL_fit(self, X, dxdt):
         ''' fit KL/MOPED compression matrix. For our purposes of Gaussian 
-        likelihood, this is the same as score compression 
+        likelihood, this is the same as score compression. 
     
-        Parameters 
-        ----------
-        X : array 
+        :param X:
             (N, Ndim) numpy array of data vector. These will be used to 
             calculate the covariance and precision matricies 
-        dxdt : array 
+
+        :param dxdt:
             (Ntheta x Ndim) numpy array of the derivative w.r.t. theta
             d<x>/dtheta. 
-        
-        Returns
-        -------
-        cX : array 
+
+        :return cX:
             (N x Ntheta) numpy array of compressed data vector
-        dcXdt : array
+
+        :return dcXdt:
             (Ntheta x Ntheta) numpy array of the compressed derivative 
 
         References
         ----------
         * Tegmark et al. (1997) 
         * Heavens et al. (2000) 
+        * Sellentin et al. (2016) 
         * Gualdi et al. (2018) 
         * Alsing et al. (2019) 
         '''
         assert X.shape[1] == dxdt.shape[1]
+
         ntheta = dxdt.shape[0] # number of parameters 
 
         Cx = np.cov(X.T) 
         if np.linalg.cond(Cx) >= 1e16: print('Covariance matrix is ill-conditioned') 
         iCx = np.linalg.inv(Cx) 
 
-        ndata       = X.shape[1]
-        nmock       = X.shape[0]
-        if hartlap: 
-            f_hartlap   = float(nmock - ndata - 2)/float(nmock - 1) 
-            iCx         *= f_hartlap
-        
         B = np.zeros((ntheta, X.shape[1]))  
         for itheta in range(ntheta): 
             dxdt_i = dxdt[itheta]
