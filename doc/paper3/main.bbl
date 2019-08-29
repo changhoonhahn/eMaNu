@@ -2,4 +2,25 @@
 \providecommand\natexlab[1]{#1}
 \providecommand\JournalTitle[1]{#1}
 
+\bibitem[{Hahn {et~al.}(2019)Hahn, Beutler, Sinha, Berlind, Ho, \&
+  Hogg}]{hahn2019}
+Hahn, C., Beutler, F., Sinha, M., {et~al.} 2019,
+  \href{http://dx.doi.org/10.1093/mnras/stz558}{\JournalTitle{Monthly Notices
+  of the Royal Astronomical Society}, 485, 2956}
+
+\bibitem[{Hartlap {et~al.}(2007)Hartlap, Simon, \& Schneider}]{hartlap2007}
+Hartlap, J., Simon, P., \& Schneider, P. 2007,
+  \href{http://dx.doi.org/10.1051/0004-6361:20066170}{\JournalTitle{Astronomy
+  and Astrophysics}, 464, 399}
+
+\bibitem[{Lange {et~al.}(1989)Lange, Little, \& Taylor}]{lange1989}
+Lange, K.~L., Little, R. J.~A., \& Taylor, J. M.~G. 1989,
+  \href{http://dx.doi.org/10.2307/2290063}{\JournalTitle{Journal of the
+  American Statistical Association}, 84, 881}
+
+\bibitem[{Sellentin \& Heavens(2016)}]{sellentin2016}
+Sellentin, E., \& Heavens, A.~F. 2016,
+  \href{http://dx.doi.org/10.1093/mnrasl/slv190}{\JournalTitle{Monthly Notices
+  of the Royal Astronomical Society}, 456, L132}
+
 \end{thebibliography}

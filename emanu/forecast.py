@@ -707,7 +707,7 @@ def Fij(dmudts, Cinv):
     return Fij 
     
 
-def plotEllipse(Finv_sub, sub, theta_fid_ij=None, color='C0'): 
+def plotEllipse(Finv_sub, sub, theta_fid_ij=None, color='C0', sigmas=[1, 2], alphas=[1., 0.7]): 
     ''' Given the inverse fisher sub-matrix, calculate ellipse parameters and
     add to subplot 
     '''
@@ -716,17 +716,21 @@ def plotEllipse(Finv_sub, sub, theta_fid_ij=None, color='C0'):
     a = np.sqrt(0.5*(Finv_sub[0,0] + Finv_sub[1,1]) + np.sqrt(0.25*(Finv_sub[0,0]-Finv_sub[1,1])**2 + Finv_sub[0,1]**2))
     b = np.sqrt(0.5*(Finv_sub[0,0] + Finv_sub[1,1]) - np.sqrt(0.25*(Finv_sub[0,0]-Finv_sub[1,1])**2 + Finv_sub[0,1]**2))
     theta = 0.5 * np.arctan2(2.0 * Finv_sub[0,1], (Finv_sub[0,0] - Finv_sub[1,1]))
-    for ii, alpha in enumerate([2.48, 1.52]):
+    
+    _alphas = [1.52, 2.48, 3.44]  
+
+    for ii, i_alpha in enumerate(sigmas):
+        alpha = _alphas[i_alpha-1]
         e = Ellipse(xy=(theta_fid_i, theta_fid_j), 
                 width=alpha * a, height=alpha * b, angle=theta * 360./(2.*np.pi))
         sub.add_artist(e)
-        if ii == 0: e.set_alpha(0.7)
-        if ii == 1: e.set_alpha(1.0)
+        e.set_alpha(alphas[ii])
         e.set_facecolor(color) 
     return sub
 
 
-def plotFisher(Finvs, theta_fid, colors=None, linestyles=None, ranges=None, titles=None, title_kwargs=None, labels=None): 
+def plotFisher(Finvs, theta_fid, colors=None, linestyles=None, ranges=None, titles=None, title_kwargs=None, labels=None, 
+        sigmas=[1, 2], alphas=[1., 0.7]): 
     ''' Given a list of inverse Fisher matrices, plot the Fisher contours
     '''
     ntheta = Finvs[0].shape[0] # number of parameters 
@@ -751,7 +755,8 @@ def plotFisher(Finvs, theta_fid, colors=None, linestyles=None, ranges=None, titl
                 theta_fid_i, theta_fid_j = theta_fid[i], theta_fid[j] # fiducial parameter 
                 for _i, _Finv in enumerate(Finvs):
                     Finv_sub = np.array([[_Finv[i,i], _Finv[i,j]], [_Finv[j,i], _Finv[j,j]]]) # sub inverse fisher matrix 
-                    plotEllipse(Finv_sub, sub, theta_fid_ij=[theta_fid_i, theta_fid_j], color=colors[_i])
+                    plotEllipse(Finv_sub, sub, theta_fid_ij=[theta_fid_i, theta_fid_j], color=colors[_i], 
+                            sigmas=sigmas, alphas=alphas)
             
                 if ranges is not None: 
                     sub.set_xlim(ranges[i])

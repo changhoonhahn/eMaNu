@@ -48,14 +48,18 @@ theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$']#, r
 theta_fid = [0.3175, 0.049, 0.6711, 0.9624, 0.834]#, 0.] # fiducial theta 
 
 
-def compressedFisher(obvs='pk', method='KL', kmax=0.5, n_components=20):
+def compressedFisher_1sigma(obvs='pk', method='KL', kmax=0.5, n_components=20):
     ''' Comparison of the Fisher forecast of compressed P0 versus full P0 
     '''
     # read in data, covariance matrix, inverse covariance matrix, and derivatives of observable X. 
     X, Cov, Cinv, dXdt = load_X(obvs=obvs, kmax=kmax)
-    if method == 'PCA': print('%i-dimensional data being PCA compressed to %i-dimensions' % (X.shape[1], n_components))
+    if method == 'KL':  print('%i-dimensional data being KL compressed to %i-dimensions' % (X.shape[1], len(dXdt)))
+    elif method == 'PCA': print('%i-dimensional data being PCA compressed to %i-dimensions' % (X.shape[1], n_components))
     # "true" Fisher 
     Fij_true = Forecast.Fij(dXdt, Cinv) 
+    # apply t-distribution correction factor since the likelihood is not exactly a Gaussian
+    n_data = X.shape[1] 
+    Fij_true *= F_tdist(n_data, X.shape[0])
     # invert "true" Fisher 
     Finv_true = np.linalg.inv(Fij_true) 
     print('FULL; 1-sigmas %s' % 
@@ -64,8 +68,12 @@ def compressedFisher(obvs='pk', method='KL', kmax=0.5, n_components=20):
     # now lets calculate the Fisher matrices for compressions derived
     # from different number of simulations 
     Finvs = []
-    if obvs == 'pk': Nmocks = [15000, 10000, 5000, 1000, 500, 100]
-    elif obvs == 'bk': Nmocks = [15000, 10000, 5000, 1000]
+    if obvs == 'pk': 
+        Nmocks = [15000, 10000, 5000, 4000, 2000, 1000, 500]
+    elif obvs == 'bk': 
+        Nmocks = [15000, 10000, 5000, 4000, 3000, 2000, 1000]
+    Nmocks = np.array(Nmocks)[np.array(Nmocks) > 2*n_data] 
+    clrs = ['C%i' % i for i in range(len(Nmocks))[::-1]] + ['k']
 
     for Nmock in Nmocks: 
         # fit the compressor
@@ -75,7 +83,7 @@ def compressedFisher(obvs='pk', method='KL', kmax=0.5, n_components=20):
         elif method == 'PCA': # PCA compression
             cmpsr = Comp.Compressor(method='PCA')      
             cmpsr.fit(X[:Nmock], n_components=n_components, whiten=False)   
-        
+        #print('condition # of covariance = %.2e' % np.linalg.cond(np.cov(X[:Nmock].T)))
         # transform X and dXdt 
         cX      = cmpsr.transform(X[:Nmock])
         dcXdt   = cmpsr.transform(dXdt)
@@ -83,12 +91,11 @@ def compressedFisher(obvs='pk', method='KL', kmax=0.5, n_components=20):
         # get covariance and precision matrices for compressed data 
         cCov    = np.cov(cX.T) 
         cCinv   = np.linalg.inv(cCov) 
-        _nmock, _ndata = cX.shape
-        f_hartlap   = float(_nmock - _ndata - 2)/float(_nmock - 1) 
-        cCinv       *= f_hartlap
         
         # get compressed Fisher 
         cFij    = Forecast.Fij(dcXdt, cCinv) # fisher 
+        # correct cFij for the t-distribution 
+        cFij    *= F_tdist(n_data, Nmock)
         cFinv   = np.linalg.inv(cFij) # invert fisher matrix 
 
         print('Nmock=%i; 1-sigmas %s' % 
@@ -107,26 +114,102 @@ def compressedFisher(obvs='pk', method='KL', kmax=0.5, n_components=20):
     fig = plt.figure(figsize=(6,6))
     sub = fig.add_subplot(111) 
     for i in range(len(thetas)): 
-        sub.plot(Nmocks, onesigma[:,i]/onesigma_true[i], label=theta_lbls[i]) 
-    sub.legend(loc='upper right', ncol=2, handletextpad=0.2, fontsize=15)
+        sub.plot(Nmocks, onesigma[:,i]/onesigma_true[i], label=theta_lbls[i], c='C%i' % i) 
+    sub.legend(loc='upper right', handletextpad=0.25, fontsize=20)
     sub.set_xlabel(r'$N_{\rm mock}$', fontsize=20) 
-    sub.set_xlim(np.min(Nmocks), 10000) 
+    sub.set_xlim(500, 15000) 
     sub.plot(sub.get_xlim(), [1., 1.], c='k', ls='--') 
-    sub.set_ylabel(r'$\sigma^{\rm c}_\theta(N_{\rm mock})/\sigma_\theta$', fontsize=20) 
+    sub.set_ylabel(r'$\sigma^{\rm c}_\theta(N_{\rm mock})/\sigma^{\rm ``true"}_\theta$', fontsize=20) 
     if method == 'PCA': 
         sub.set_ylim(0.9, 5)
     elif method == 'KL': 
-        sub.set_ylim(0.8, 1.2)
+        sub.set_ylim(0.95, 1.15)
+        sub.set_yticks([0.95, 1., 1.05, 1.1, 1.15]) 
     
     str_method = '%s' % method
     if method == 'PCA': str_method += '_ncomp%i' % n_components
 
-    ffig = os.path.join(dir_fig, '%s.compress.%s.1sigma.png' % (obvs, str_method))
+    ffig = os.path.join(dir_fig, '%s.compress.%s.kmax%.1f.1sigma.png' % (obvs, str_method, kmax))
     fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+
+def compressedFisher_contour(obvs='pk', method='KL', kmax=0.5, n_components=20):
+    ''' Comparison of the Fisher forecast of compressed P0 versus full P0 
+    '''
+    # read in data, covariance matrix, inverse covariance matrix, and derivatives of observable X. 
+    X, Cov, Cinv, dXdt = load_X(obvs=obvs, kmax=kmax)
+    if method == 'KL':  print('%i-dimensional data being KL compressed to %i-dimensions' % (X.shape[1], len(dXdt)))
+    elif method == 'PCA': print('%i-dimensional data being PCA compressed to %i-dimensions' % (X.shape[1], n_components))
+    # "true" Fisher 
+    Fij_true = Forecast.Fij(dXdt, Cinv) 
+    # apply t-distribution correction factor since the likelihood is not exactly a Gaussian
+    n_data = X.shape[1] 
+    Fij_true *= F_tdist(n_data, X.shape[0])
+    # invert "true" Fisher 
+    Finv_true = np.linalg.inv(Fij_true) 
+    print('FULL; 1-sigmas %s' % 
+            (', '.join(['%s: %.2e' % (tt, sii) for tt, sii in zip(thetas, np.sqrt(np.diag(Finv_true)))])))
+    
+    # now lets calculate the Fisher matrices for compressions derived
+    # from different number of simulations 
+    Finvs = []
+    if obvs == 'pk': 
+        Nmocks = [10000, 5000, 2000, 500]
+    elif obvs == 'bk': 
+        Nmocks = [10000, 5000, 2500, 1000]
+    Nmocks = np.array(Nmocks)[np.array(Nmocks) > 2*n_data] 
+    clrs = ['C%i' % i for i in range(len(Nmocks))[::-1]] + ['k']
+
+    for Nmock in Nmocks: 
+        # fit the compressor
+        if method == 'KL':
+            cmpsr = Comp.Compressor(method='KL')   # KL compression 
+            cmpsr.fit(X[:Nmock], dXdt) # fit compression matrix
+        elif method == 'PCA': # PCA compression
+            cmpsr = Comp.Compressor(method='PCA')      
+            cmpsr.fit(X[:Nmock], n_components=n_components, whiten=False)   
+        #print('condition # of covariance = %.2e' % np.linalg.cond(np.cov(X[:Nmock].T)))
+        # transform X and dXdt 
+        cX      = cmpsr.transform(X[:Nmock])
+        dcXdt   = cmpsr.transform(dXdt)
+
+        # get covariance and precision matrices for compressed data 
+        cCov    = np.cov(cX.T) 
+        cCinv   = np.linalg.inv(cCov) 
+        
+        # get compressed Fisher 
+        cFij    = Forecast.Fij(dcXdt, cCinv) # fisher 
+        # correct cFij for the t-distribution 
+        cFij    *= F_tdist(n_data, Nmock)
+        cFinv   = np.linalg.inv(cFij) # invert fisher matrix 
+
+        print('Nmock=%i; 1-sigmas %s' % 
+                (Nmock, ', '.join(['%s: %.2e' % (tt, sii) for tt, sii in zip(thetas, np.sqrt(np.diag(cFinv)))])))
+        Finvs.append(cFinv) 
+
+    theta_lims = [(0.25, 0.385), (0.02, 0.08), (0.3, 1.1), (0.6, 1.3), (0.77, 0.9)]#, (-0.4, 0.4)]
 
     fig = Forecast.plotFisher(Finvs[::-1]+[Finv_true], theta_fid, ranges=theta_lims, labels=theta_lbls, 
-            colors=['C5', 'C4', 'C3', 'C2', 'C1', 'C0', 'k']) 
-    ffig = os.path.join(dir_fig, '%s.compress.%s.contours.png' % (obvs, str_method)) 
+            colors=clrs, sigmas=[2], alphas=[0.75]) 
+    
+    # legend 
+    bkgd = fig.add_subplot(111, frameon=False)
+    for clr, Nmock in zip(clrs, Nmocks[::-1]): 
+        bkgd.fill_between([],[],[], color=clr, label=r'%i mocks' % Nmock) 
+    bkgd.legend(loc='upper right', bbox_to_anchor=(0.95, 0.925), fontsize=25)
+    if obvs == 'bk': 
+        bkgd.text(0.95, 0.95, r'$B_0(k_1, k_2, k_3)$; $k_{\rm max} = %.1f$' % kmax, ha='right', va='top', 
+                transform=bkgd.transAxes, fontsize=25)
+    elif obvs == 'pk': 
+        bkgd.text(0.95, 0.95, r'$P_\ell(k)$; $k_{\rm max} = %.1f$' % kmax, ha='right', va='top', 
+                transform=bkgd.transAxes, fontsize=25)
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    
+    str_method = '%s' % method
+    if method == 'PCA': str_method += '_ncomp%i' % n_components
+
+    ffig = os.path.join(dir_fig, '%s.compress.%s.kmax%.1f.contours.png' % (obvs, str_method, kmax)) 
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
@@ -167,10 +250,7 @@ def load_X(obvs='pk', kmax=0.5):
 
         # calculate inverse covariance
         Cinv    = np.linalg.inv(Cov) 
-        nmock, ndata = X.shape
-        f_hartlap = float(nmock - ndata - 2)/float(nmock - 1) # hartlap factor
-        Cinv    *= f_hartlap
-    
+
         dXdt = [] 
         for par in thetas: 
             dXdt_i = dPkdtheta(par, rsd='all', flag='reg', dmnu='fin')
@@ -192,9 +272,6 @@ def load_X(obvs='pk', kmax=0.5):
 
         # calculate inverse covariance
         Cinv    = np.linalg.inv(Cov) 
-        nmock, ndata = X.shape 
-        f_hartlap = float(nmock - ndata - 2)/float(nmock - 1) 
-        Cinv    *= f_hartlap
     
         # derivative of B w.r.t theta
         dXdt = [] 
@@ -288,6 +365,47 @@ def traceCy(method='KL', kmax=0.5):
     sub.set_ylabel(r'Tr($C_Y^{-1}$)/Tr($\hat{C}_Y^{-1})$', fontsize=20) 
     sub.set_ylim(0.5, 1.3) 
     ffig = os.path.join(dir_fig, 'traceCy.%s.png' % method) 
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+
+def F_tdist(p, N): 
+    ''' correction factor for the Fisher information matrix derived from a
+    modified t-distribution likelihood
+    '''
+    return float(N**2)/float((N + p + 1) * (N + p - 1))
+
+
+def F_hartlap(p, N): 
+    ''' Hartlap correction factor for the fact that the mean precision matrix
+    estimated with N mocks is biased
+    '''
+    return  float(N - p - 2)/float(N - 1) 
+
+
+def tdist_factor(obvs='pk', kmax=0.5): 
+    ''' compare the t-distribution factor 
+    '''
+    # read in data, covariance matrix, inverse covariance matrix, and derivatives of observable X. 
+    X, Cov, Cinv, dXdt = load_X(obvs=obvs, kmax=kmax)
+    print('%i dimensional likelihood' % X.shape[1])
+
+    f_hartlap = lambda nmock: float(nmock - X.shape[1] - 2)/float(nmock - 1) 
+    f_tdist = lambda nmock: float(nmock**2)/float((nmock + X.shape[1] + 1) * (nmock + X.shape[1] - 1))
+
+    nmocks = np.arange(150)*100
+    
+    fig = plt.figure(figsize=(6,6)) 
+    sub = fig.add_subplot(111)
+    sub.plot(nmocks, [f_hartlap(_nmock) for _nmock in nmocks], label='Hartlap')
+    sub.plot(nmocks, [f_tdist(_nmock) for _nmock in nmocks], label='$t$-dist.')
+    sub.plot(nmocks, np.ones(len(nmocks)), c='k', ls=':') 
+    sub.legend(loc='lower right', fontsize=15)
+    sub.set_xlabel(r'$N_{\rm mocks}$', fontsize=20)
+    sub.set_xlim(100, 15000) 
+    sub.set_ylabel(r'Corr. factor', fontsize=20) 
+    sub.set_ylim(0.1, 1.1) 
+    ffig = os.path.join(dir_fig, 'tdist_factor.%s.kmax%.1f.png' % (obvs, kmax))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
@@ -404,10 +522,11 @@ def _flag_str(flag):
 
 
 if __name__=='__main__': 
-    #compare_GP_deriv()
-    compressedFisher(obvs='pk', method='KL', kmax=0.5)
-    #compressedFisher(obvs='bk', method='KL', kmax=0.5)
+    #compressedFisher_1sigma(obvs='pk', method='KL', kmax=0.3)
+    #compressedFisher_1sigma(obvs='bk', method='KL', kmax=0.3)
+    #compressedFisher_contour(obvs='pk', method='KL', kmax=0.3)
+    compressedFisher_contour(obvs='bk', method='KL', kmax=0.3)
     #for ncomp in [20, 40, 60, 70]: 
     #    compressedFisher(obvs='pk', method='PCA', kmax=0.5, n_components=ncomp)
-    #for ncomp in [50, 100, 200, 300, 500]: 
-    #    compressedFisher(obvs='bk', method='PCA', kmax=0.5, n_components=ncomp)
+    for ncomp in [50, 100, 200, 300, 500]: 
+        compressedFisher_contour(obvs='bk', method='PCA', kmax=0.3, n_components=ncomp)
