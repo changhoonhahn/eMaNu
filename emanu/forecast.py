@@ -742,6 +742,9 @@ def plotFisher(Finvs, theta_fid, colors=None, linestyles=None, ranges=None, titl
 
     if ranges is not None: assert ntheta == len(ranges) 
     if labels is not None: assert ntheta == len(labels) 
+
+    if title_kwargs is None: 
+        title_kwargs = {} 
     
     # calculate the marginalized constraints 
     onesigmas = [np.sqrt(np.diag(_Finv)) for _Finv in Finvs]
