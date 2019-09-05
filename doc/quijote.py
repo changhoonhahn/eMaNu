@@ -266,15 +266,12 @@ def _bkCov(kmax=0.5, rsd=2, flag='reg'):
     i_k, j_k, l_k, C_bk, _ = bkCov(rsd=rsd, flag=flag) 
     bklim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # k limit
     C_bk = C_bk[bklim,:][:,bklim]
-    
-    # correlation matrix 
-    Ccorr_bk = C_bk / np.sqrt(np.diag(C_bk)) / np.sqrt(np.diag(C_bk)).T
-    print(Ccorr_bk.shape)
-    print(Ccorr_bk[:10,:10])
-
-    #ijl = UT.ijl_order(i_k[bklim], j_k[bklim], l_k[bklim], typ='GM') # order of triangles 
-    #C_bk = C_bk[ijl,:][:,ijl]
+    print(C_bk[:5,:5])
     print('covariance matrix condition number = %.5e' % np.linalg.cond(C_bk)) 
+
+    # correlation matrix 
+    Ccorr_bk = ((C_bk / np.sqrt(np.diag(C_bk))).T / np.sqrt(np.diag(C_bk))).T
+    print(Ccorr_bk[:5,:5])
 
     # plot the covariance matrix 
     fig = plt.figure(figsize=(20,8))
@@ -285,14 +282,13 @@ def _bkCov(kmax=0.5, rsd=2, flag='reg'):
             fontsize=25, labelpad=10, rotation=90)
 
     sub = fig.add_subplot(122)
-    cm = sub.pcolormesh(Ccorr_bk, vmin=-1, vmax=1.) 
+    cm = sub.pcolormesh(Ccorr_bk, vmin=-0.025, vmax=1.) 
     cbar = fig.colorbar(cm, ax=sub) 
-    cbar.set_label(r'$\widehat{B}_0(k_1, k_2, k_3)$ covariance matrix, ${\bf C}_{B}$', 
-            fontsize=25, labelpad=10, rotation=90)
+    cbar.set_label(r'$\widehat{B}_0(k_1, k_2, k_3)$ correlation matrix', fontsize=25, labelpad=10, rotation=90)
     ffig = os.path.join(dir_doc, 
             'quijote_bkCov_kmax%s%s%s.png' % (str(kmax).replace('.', ''), _rsd_str(rsd), _flag_str(flag)))
-    #fig.savefig(ffig, bbox_inches='tight') 
-    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
+    fig.savefig(ffig, bbox_inches='tight') 
+    #fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
     return None 
 
 
