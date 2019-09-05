@@ -1035,6 +1035,7 @@ def FisherMatrix(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None
         print('Cpk', C_fid[:4,:4]) 
         print('Cpb', C_fid[:4,np.sum(pklim):np.sum(pklim)+4]) 
         print('Cbk', C_fid[np.sum(pklim):np.sum(pklim)+4,np.sum(pklim):np.sum(pklim)+4]) 
+        print(np.linalg.cond(C_fid))
     else: 
         raise NotImplementedError
 
@@ -3924,4 +3925,4 @@ if __name__=="__main__":
     #zeldovich_ICtest(rsd='real')
     #zeldovich_ICtest(rsd=1)
     #zeldovich_ICtest(rsd='all')
-    P02B_crosscovariance()
+    P02B_crosscovariance(kmax=0.1)
