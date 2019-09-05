@@ -28,7 +28,7 @@ from \cite{lange1989} and refer readers to it for details.
 
 For simplicity, let $\ell(\theta)$ be the log-likelihood, $z = \estC^{-1/2} (y - \mu)$, and 
 \beq
-g(s) = c_p \left(1+\frac{s}{1-N}\right)^{-N/2}
+g(s) = c_p \left(1+\frac{s}{N-1}\right)^{-N/2}
 \eeq
 so that Eq.~\ref{eq:tdist_like} can be written as $p(y \given \mu(\theta),\estC,N) = |\estC|^{-1/2} g(||z||^2)$.
 Then the derivative of the log-likelihood is  

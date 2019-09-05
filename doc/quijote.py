@@ -261,21 +261,31 @@ def _p02kCov(kmax=0.5, rsd=2, flag='reg'):
 
 
 def _bkCov(kmax=0.5, rsd=2, flag='reg'): 
-    ''' plot the covariance matrix of the quijote fiducial 
-    bispectrum. 
+    ''' plot the covariance and correlation matrices of the quijote fiducial bispectrum. 
     '''
     i_k, j_k, l_k, C_bk, _ = bkCov(rsd=rsd, flag=flag) 
     bklim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # k limit
     C_bk = C_bk[bklim,:][:,bklim]
+    
+    # correlation matrix 
+    Ccorr_bk = C_bk / np.sqrt(np.diag(C_bk)) / np.sqrt(np.diag(C_bk)).T
+    print(Ccorr_bk.shape)
+    print(Ccorr_bk[:10,:10])
 
     #ijl = UT.ijl_order(i_k[bklim], j_k[bklim], l_k[bklim], typ='GM') # order of triangles 
     #C_bk = C_bk[ijl,:][:,ijl]
     print('covariance matrix condition number = %.5e' % np.linalg.cond(C_bk)) 
 
     # plot the covariance matrix 
-    fig = plt.figure(figsize=(10,8))
-    sub = fig.add_subplot(111)
+    fig = plt.figure(figsize=(20,8))
+    sub = fig.add_subplot(121)
     cm = sub.pcolormesh(C_bk, norm=LogNorm(vmin=1e11, vmax=1e18))
+    cbar = fig.colorbar(cm, ax=sub) 
+    cbar.set_label(r'$\widehat{B}_0(k_1, k_2, k_3)$ covariance matrix, ${\bf C}_{B}$', 
+            fontsize=25, labelpad=10, rotation=90)
+
+    sub = fig.add_subplot(122)
+    cm = sub.pcolormesh(Ccorr_bk, vmin=-1, vmax=1.) 
     cbar = fig.colorbar(cm, ax=sub) 
     cbar.set_label(r'$\widehat{B}_0(k_1, k_2, k_3)$ covariance matrix, ${\bf C}_{B}$', 
             fontsize=25, labelpad=10, rotation=90)
@@ -3801,6 +3811,7 @@ def _flag_str(flag):
 
 if __name__=="__main__": 
     # covariance matrices
+    _bkCov(kmax=0.5, rsd=2, flag='reg') # condition number 1.73518+08
     '''
         for rsd in [0, 1, 2]: pkCov(rsd=rsd, flag='reg', silent=False) 
         for rsd in [0, 1, 2]: p02kCov(rsd=rsd, flag='reg', silent=False) 
@@ -3890,4 +3901,4 @@ if __name__=="__main__":
     #zeldovich_ICtest(rsd='real')
     #zeldovich_ICtest(rsd=1)
     #zeldovich_ICtest(rsd='all')
-    P02B_crosscovariance()
+    #P02B_crosscovariance()
