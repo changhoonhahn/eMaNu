@@ -727,9 +727,8 @@ def dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin'):
 
     i_k, j_k, l_k, _ = dpdt = dBkdtheta('Om', log=log, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True)
     klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # get k limit
-    ijl = UT.ijl_order(i_k[klim], j_k[klim], l_k[klim], typ='GM') # order of triangles 
-    print i_k[:10], j_k[:10], l_k[:10]
-    print i_k[ijl][:10], j_k[ijl][:10], l_k[ijl][:10]
+    #ijl = UT.ijl_order(i_k[klim], j_k[klim], l_k[klim], typ='GM') # order of triangles 
+    #print i_k[:10], j_k[:10], l_k[:10]
 
     fig = plt.figure(figsize=(15,15))
     for i_tt, tt, lbl in zip(range(len(_thetas)), _thetas, _theta_lbls): 
@@ -737,6 +736,8 @@ def dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin'):
         dpdt = dBkdtheta(tt, log=log, rsd=rsd, flag=flag, dmnu=dmnu)
         plt_bk, = sub.plot(range(np.sum(klim)), dpdt[klim])
         #plt_bk, = sub.plot(range(np.sum(klim)), dpdt[klim][ijl])
+        if tt == 'Mnu': 
+            print(dpdt[klim])
         
         sub.set_xlim(0, np.sum(klim)) 
         if not log: sub.set_yscale('log') 
@@ -893,6 +894,69 @@ def dlogBdMnu_IC(kmax=0.5):
     sub.set_xlabel('triangle configuration', fontsize=25) 
     sub.set_ylabel(r'${\rm d}\log B/{\rm d} M_\nu$', labelpad=10, fontsize=25) 
     ffig = os.path.join(dir_fig, 'quijote_dlogBdMnu.kmax%s.IC.png' % (str(kmax))) 
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
+
+
+def undertand_dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin'):
+    ''' Compare the derivatives of the bispectrum w.r.t. all the parameters
+    
+    :param rsd: (default: 'all') 
+        rsd kwarg that specifies rsd set up for B(k). 
+        If rsd == 'all', include 3 RSD directions. 
+        If rsd in [0,1,2] include one of the directions
+
+    :param flag: (default: 'reg')  
+        kwarg specifying the flag for B(k). 
+        If `flag is None`, include paired-fixed and regular N-body simulation. 
+        If `flag == 'ncv'` only include paired-fixed. 
+        If `flag == 'reg'` only include regular N-body
+
+    :param dmnu: 
+        derivative finite differences setup
+    '''
+    _thetas = copy(thetas)
+    _theta_lbls = copy(theta_lbls) 
+
+    i_k, j_k, l_k, _ = dpdt = dBkdtheta('Om', log=log, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True)
+    klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # get k limit
+    #ijl = UT.ijl_order(i_k[klim], j_k[klim], l_k[klim], typ='GM') # order of triangles 
+    #print i_k[:10], j_k[:10], l_k[:10]
+
+    fig = plt.figure(figsize=(15,5))
+    sub = fig.add_subplot(111)
+    dpdt = dBkdtheta('Mnu', log=log, rsd=rsd, flag=flag, dmnu=dmnu)
+    plt_bk, = sub.plot(range(np.sum(klim)), dpdt[klim], c='k', lw=1)
+
+    equ = ((i_k[klim] == j_k[klim]) & (l_k[klim] == i_k[klim]))
+    sub.scatter(np.arange(np.sum(klim))[equ], dpdt[klim][equ], marker='^', 
+            facecolors='none', edgecolors='C0', zorder=10, label='equilateral ($k_1 = k_2 = k_3$)') 
+    
+    fld = (i_k[klim] == j_k[klim] + l_k[klim]) 
+    sub.scatter(np.arange(np.sum(klim))[fld], dpdt[klim][fld], marker='*', 
+            facecolors='none', edgecolors='C1', zorder=10, label='folded ($k_1 = k_2 + k_3$)') 
+
+    #squ = ((1.8/i_k[klim] <= 1./j_k[klim]) & (1.8/i_k[klim] <= 1./l_k[klim]))
+    squ = ((j_k[klim]/i_k[klim] > 0.8) & (l_k[klim]/i_k[klim] < 0.33) & ~fld) 
+    sub.scatter(np.arange(np.sum(klim))[squ], dpdt[klim][squ], marker='X', 
+            facecolors='none', edgecolors='C2', zorder=10, label='squeezed ($k_1, k_2 \gg k_3$)') 
+
+    sub.set_xlim(0, np.sum(klim)) 
+    if not log: sub.set_yscale('log') 
+    sub.set_ylim(-1.5, 1.) 
+    sub.legend(loc='lower left', fontsize=15) 
+    #if i_tt == 0: sub.legend([plt_bk], [r'$B_{\rm h}$'], loc='upper left', fontsize=15)
+    #if tt != _thetas[-1]: sub.set_xticklabels([]) 
+    #sub.text(0.975, 0.925, lbl, ha='right', va='top', transform=sub.transAxes, fontsize=25)
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.set_xlabel('triangle configurations', fontsize=25) 
+    if not log: bkgd.set_ylabel(r'$|{\rm d}B/{\rm d} \theta|$', labelpad=10, fontsize=25) 
+    else: bkgd.set_ylabel(r'${\rm d}\log B/{\rm d} \theta$', labelpad=10, fontsize=25) 
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+
+    fig.subplots_adjust(hspace=0.075) 
+    ffig = os.path.join(dir_fig, 'quijote_d%sBdMnu%s%s.%s.png' % (['', 'log'][log], _rsd_str(rsd), _flag_str(flag), dmnu))
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
@@ -3852,6 +3916,7 @@ if __name__=="__main__":
         _pkbkCov(kmax=0.5)      # condition number 1.74845e+08
     '''
     # deriatives 
+    undertand_dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin')
     '''
         for flag in ['reg']: P_theta(rsd=0, flag=flag)
         for flag in ['reg']: P02_theta(rsd=0, flag=flag)
@@ -3925,4 +3990,4 @@ if __name__=="__main__":
     #zeldovich_ICtest(rsd='real')
     #zeldovich_ICtest(rsd=1)
     #zeldovich_ICtest(rsd='all')
-    P02B_crosscovariance(kmax=0.1)
+    #P02B_crosscovariance(kmax=0.1)
