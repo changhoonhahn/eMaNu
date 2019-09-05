@@ -974,7 +974,7 @@ def dlogPBdMnu(rsd='all', flag='reg'):
     return None
 
 # Fisher Matrix
-def FisherMatrix(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None, cross_covariance=True): 
+def FisherMatrix(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None, cross_covariance=True, Cgauss=False): 
     ''' calculate fisher matrix for parameters ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu'] 
     and specified nuisance parameters
     
@@ -1016,13 +1016,25 @@ def FisherMatrix(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None
         pklim = (k <= kmax) 
         bklim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # k limit 
         klim = np.concatenate([pklim, bklim]) 
-        if cross_covariance: 
-            C_fid = _Cfid[:,klim][klim,:]
-        else: 
+
+        if not cross_covariance and not Cgauss: 
+            print('neglect cross covariance between P and B') 
             C_fid = np.zeros((np.sum(klim), np.sum(klim)))
             C_fid[:np.sum(pklim),:np.sum(pklim)] = _Cfid[:len(k),:len(k)][pklim,:][:,pklim]
             C_fid[np.sum(pklim):,np.sum(pklim):] = _Cfid[len(k):,len(k):][bklim,:][:,bklim] 
-        print(np.linalg.cond(C_fid))
+        elif not cross_covariance and Cgauss:
+            print('neglect cross covariance between P and B and use the Gaussian covariance for B') 
+            _, _, _, C_gauss = Cov_gauss(Mnu=0.0, validate=False)
+
+            C_fid = np.zeros((np.sum(klim), np.sum(klim)))
+            C_fid[:np.sum(pklim),:np.sum(pklim)] = np.identity(np.sum(pklim)) * np.diag(_Cfid[:len(k),:len(k)])[pklim]
+            C_fid[np.sum(pklim):,np.sum(pklim):] = C_gauss[bklim,:][:,bklim]
+        else: 
+            print('fiducial covariance') 
+            C_fid = _Cfid[:,klim][klim,:]
+        print('Cpk', C_fid[:4,:4]) 
+        print('Cpb', C_fid[:4,np.sum(pklim):np.sum(pklim)+4]) 
+        print('Cbk', C_fid[np.sum(pklim):np.sum(pklim)+4,np.sum(pklim):np.sum(pklim)+4]) 
     else: 
         raise NotImplementedError
 
@@ -3772,21 +3784,37 @@ def zeldovich_ICtest(rsd=0):
     return None
 
 
-def P02B_crosscovariance(): 
+def P02B_crosscovariance(kmax=0.2): 
     ''' In Chudaykin & Ivanov (2019), they do not include cross covariance between P and B. 
     Lets try to quantify the effect of that 
     '''
-    for kmax in [0.1, 0.2, 0.3, 0.4, 0.5]: 
-        _Fij = FisherMatrix('p02bk', kmax=kmax, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, cross_covariance=True) 
-        Fij = FisherMatrix('p02bk', kmax=kmax, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, cross_covariance=False) 
+    _Fij = FisherMatrix('p02bk', kmax=kmax, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, 
+            cross_covariance=True, Cgauss=False) 
+    Fij0 = FisherMatrix('p02bk', kmax=kmax, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, 
+            cross_covariance=False, Cgauss=False) 
+    Fij1 = FisherMatrix('p02bk', kmax=kmax, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, 
+            cross_covariance=False, Cgauss=True) 
 
-        _Finv   = np.linalg.inv(_Fij) # invert fisher matrix 
-        Finv    = np.linalg.inv(Fij) # invert fisher matrix 
-        print('--- kmax = %.1f ---' % kmax) 
-        print(np.sqrt(np.diag(_Finv)))
-        print(np.sqrt(np.diag(Finv)))
-        print(np.sqrt(np.diag(Finv))/np.sqrt(np.diag(_Finv))-1.)
-        print(np.average(np.sqrt(np.diag(Finv))/np.sqrt(np.diag(_Finv))-1.))
+    _Finv   = np.linalg.inv(_Fij)
+    Finv0   = np.linalg.inv(Fij0)
+    Finv1   = np.linalg.inv(Fij1) 
+    print('--- kmax = %.1f ---' % kmax) 
+    print('fiducial') 
+    print(_Fij)
+    print(1./np.sqrt(np.diag(_Fij)))
+    print(np.sqrt(np.diag(_Finv)))
+    print('no cross cov')
+    print(Fij0)
+    print(1./np.sqrt(np.diag(Fij0)))
+    print(np.sqrt(np.diag(Finv0)))
+    print('no cross cov; C gauss')
+    print(Fij1)
+    print(1./np.sqrt(np.diag(Fij1)))
+    print(np.sqrt(np.diag(Finv1)))
+    #print(np.sqrt(np.diag(Finv0))/np.sqrt(np.diag(_Finv))-1.)
+    #print(np.sqrt(np.diag(Finv1))/np.sqrt(np.diag(_Finv))-1.)
+    #print(np.average(np.sqrt(np.diag(Finv0))/np.sqrt(np.diag(_Finv))-1.))
+    #print(np.average(np.sqrt(np.diag(Finv1))/np.sqrt(np.diag(_Finv))-1.))
     return None 
 
 ############################################################
@@ -3807,7 +3835,6 @@ def _flag_str(flag):
 
 if __name__=="__main__": 
     # covariance matrices
-    _bkCov(kmax=0.5, rsd=2, flag='reg') # condition number 1.73518+08
     '''
         for rsd in [0, 1, 2]: pkCov(rsd=rsd, flag='reg', silent=False) 
         for rsd in [0, 1, 2]: p02kCov(rsd=rsd, flag='reg', silent=False) 
@@ -3897,4 +3924,4 @@ if __name__=="__main__":
     #zeldovich_ICtest(rsd='real')
     #zeldovich_ICtest(rsd=1)
     #zeldovich_ICtest(rsd='all')
-    #P02B_crosscovariance()
+    P02B_crosscovariance()
