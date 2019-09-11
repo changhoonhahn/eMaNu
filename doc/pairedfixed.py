@@ -1537,6 +1537,77 @@ def pf_B_posterior(rsd=0, dmnu='fin', dh='pm', kmax=0.5, silent=False):
     return None 
 
 
+def _pf_B_posterior_Oms8h(rsd=0, dmnu='fin', dh='pm', kmax=0.5, silent=False): 
+    ''' compare the fisher matrix derived from paired-fixed derivatives vs 
+    standard n-body derivatives for three parameters Om, s8, and h 
+    '''
+    # read in covariance matrix 
+    if rsd != 'real': 
+        i_k, j_k, l_k, Cov_bk, nmock = bkCov(rsd=0, flag='reg', silent=False) 
+    else: 
+        i_k, j_k, l_k, Cov_bk, nmock = bkCov(rsd='real', flag='reg', silent=False) 
+    klim = ((i_k * kf <= kmax) & (j_k * kf <= kmax) & (l_k * kf <= kmax)) # klim 
+    Cov_bk = Cov_bk[:,klim][klim,:]
+    
+    # get precision matrix 
+    ndata = np.sum(klim) 
+    f_hartlap = float(nmock - ndata - 2)/float(nmock - 1) 
+    C_inv = f_hartlap * np.linalg.inv(Cov_bk) # invert the covariance 
+    
+    thetas      = ['Om', 'h', 's8']
+    theta_fid   = [0.3175, 0.6711, 0.834] # fiducial theta 
+    theta_lims  = [(0.3, 0.335), (0.6, 0.74), (0.808, 0.86)]
+    lbls        = [r'$\Omega_m$', r'$h$', r'$\sigma_8$']
+
+    dbdts_std, dbdts_pfd = [], [] 
+    for theta in thetas:
+        # d logP / d theta (standard)
+        _, _, _, dbdt_std = X_std('dbk', theta, rsd=rsd, dmnu=dmnu, dh=dh, silent=silent) 
+        # d logP / d theta (paired-fixed)
+        _, _, _, dbdt_pfd0 = X_pfd_1('dbk', theta, rsd=rsd, dmnu=dmnu, dh=dh, silent=silent) 
+        _, _, _, dbdt_pfd1 = X_pfd_2('dbk', theta, rsd=rsd, dmnu=dmnu, dh=dh, silent=silent) 
+        dbdt_pfd = 0.5 * (dbdt_pfd0 + dbdt_pfd1) 
+
+        dbdts_std.append(np.average(dbdt_std, axis=0)[klim]) 
+        dbdts_pfd.append(np.average(dbdt_pfd, axis=0)[klim]) 
+        
+        N_std = dbdt_std.shape[0]
+        N_pfd = dbdt_pfd.shape[0]
+
+    Fij_std = Forecast.Fij(dbdts_std, C_inv) 
+    Fij_pfd = Forecast.Fij(dbdts_pfd, C_inv) 
+    
+    Finv_std = np.linalg.inv(Fij_std) # invert fisher matrix 
+    Finv_pfd = np.linalg.inv(Fij_pfd) # invert fisher matrix 
+    
+    sig_std = np.sqrt(np.diag(Finv_std))
+    sig_pfd = np.sqrt(np.diag(Finv_pfd))
+    
+    titles = [r'$\sigma^{\rm pf}_{%s} = %.2f\times \sigma^{\rm std}_{%s}$' % (lbl.replace('$', ''), ratio, lbl.replace('$', ''))
+            for ratio, lbl in zip((sig_pfd / sig_std), lbls)]
+    fig = Forecast.plotFisher([Finv_pfd, Finv_std], theta_fid, ranges=theta_lims, colors=['C1', 'C0'], 
+            labels=lbls, titles=titles, title_kwargs={'fontsize': 20})
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    if rsd == 'real': 
+        bkgd.text(0.67, 0.8, 'real-space $B(k_1, k_2, k_3)$', ha='center', va='bottom', transform=bkgd.transAxes, fontsize=25)
+    else: 
+        bkgd.text(0.7, 0.95, 'redshift-space $B_0(k_1, k_2, k_3)$', ha='center', va='bottom', transform=bkgd.transAxes, fontsize=25)
+    bkgd.fill_between([],[],[], color='C0', label=r'%i standard $N$-body' % N_std) 
+    bkgd.fill_between([],[],[], color='C1', label=r'%i paired-fixed pairs' % N_pfd) 
+    bkgd.legend(loc='upper right', bbox_to_anchor=(0.925, 0.95), handletextpad=0.5, fontsize=20)
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+
+    fig.subplots_adjust(wspace=0.05, hspace=0.05) 
+    if rsd == 'real': 
+        ffig = os.path.join(dir_doc, 'pf_B_posterior_Oms8h.real.kmax%.1f.dmnu_%s.dh_%s.png' % (kmax, dmnu, dh))
+    else: 
+        ffig = os.path.join(dir_doc, 'pf_B_posterior_Oms8h%s.kmax%.1f.dmnu_%s.dh_%s.png' % (_rsd_str(rsd), kmax, dmnu, dh))
+    fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') 
+    return None 
+
+
 def pf_P_posterior_wo_h(rsd='all', kmax=0.5): 
     ''' compare the fisher forecast derived from paired-fixed derivatives vs 
     standard n-body derivatives without h. Including h seems to introduce 
@@ -2267,6 +2338,7 @@ if __name__=="__main__":
     #dBdtheta_bias(kmax=0.5)
     #dBdtheta_chi2(kmax=0.2)
 
+    _pf_B_posterior_Oms8h(rsd='all', dmnu='fin', dh='pm', kmax=0.5, silent=False)
     #for rsd in ['all']: #['real', 'all']: 
     #    pf_P_Fij(rsd=rsd, kmax=0.5, dmnu='fin', dh='pm')
     #    pf_B_Fij(rsd=rsd, kmax=0.5, dmnu='fin', dh='pm')
