@@ -635,27 +635,42 @@ def F_hartlap(p, N):
     return  float(N - p - 2)/float(N - 1) 
 
 
-def tdist_factor(obvs='pk', kmax=0.5): 
+def tdist_factor(kmax=0.5): 
     ''' compare the t-distribution factor 
     '''
-    # read in data, covariance matrix, inverse covariance matrix, and derivatives of observable X. 
-    X, Cov, Cinv, dXdt = load_X(obvs=obvs, kmax=kmax)
-    print('%i dimensional likelihood' % X.shape[1])
-
-    nmocks = np.arange(150)*100
+    nmocks = np.arange(1,150)*100
     
-    fig = plt.figure(figsize=(6,6)) 
-    sub = fig.add_subplot(111)
-    sub.plot(nmocks, [F_hartlap(X.shape[1], _nmock) for _nmock in nmocks], label='Hartlap')
-    sub.plot(nmocks, [F_tdist(X.shape[1], _nmock) for _nmock in nmocks], label='$t$-dist.')
-    sub.plot(nmocks, np.ones(len(nmocks)), c='k', ls=':') 
-    sub.legend(loc='lower right', fontsize=15)
-    sub.set_xlabel(r'$N_{\rm mocks}$', fontsize=20)
-    sub.set_xlim(100, 15000) 
-    sub.set_ylabel(r'Corr. factor', fontsize=20) 
-    sub.set_ylim(0.1, 1.1) 
-    ffig = os.path.join(dir_fig, 'tdist_factor.%s.kmax%.1f.png' % (obvs, kmax))
+    fig = plt.figure(figsize=(8,4)) 
+    for i, obvs in enumerate(['pk', 'bk']): 
+        # read in data, covariance matrix, inverse covariance matrix, and derivatives of observable X. 
+        X, Cov, Cinv, dXdt = load_X(obvs=obvs, kmax=kmax)
+        print('%i dimensional likelihood' % X.shape[1])
+
+        sub = fig.add_subplot(1,2,i+1)
+        f_tdist = np.array([F_tdist(X.shape[1], _nmock) for _nmock in nmocks]) 
+        f_hartl = np.array([F_hartlap(X.shape[1], _nmock) for _nmock in nmocks]) 
+        sub.plot(nmocks, f_tdist/f_hartl) 
+        sub.plot(nmocks, np.ones(len(nmocks)), c='k', ls=':') 
+        sub.legend(loc='lower right', fontsize=15)
+        sub.set_xlim(X.shape[1], 15000) 
+        sub.set_ylim(0.975, 1.025) 
+        if i == 0: 
+            sub.text(0.95, 0.95, r'$P_\ell(k_{\rm max} = %.1f)$' % kmax,
+                    ha='right', va='top', transform=sub.transAxes, fontsize=20)
+        else:
+            sub.text(0.95, 0.95, r'$B_0(k_{\rm max} = %.1f)$' % kmax,
+                    ha='right', va='top', transform=sub.transAxes, fontsize=20)
+            sub.set_yticklabels([]) 
+        sub.text(0.95, 0.05, r'$p=%i$' % X.shape[1],
+                ha='right', va='bottom', transform=sub.transAxes, fontsize=20)
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.set_ylabel(r'$F_{i,j}^{t-{\rm dist}}/F_{i,j}^{\rm pseudo}$', labelpad=10, fontsize=20) 
+    bkgd.set_xlabel(r'$N_{\rm mocks}$', fontsize=20)
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    fig.subplots_adjust(wspace=0.1) 
+    ffig = os.path.join(dir_doc, 'tdist_factor.kmax%.1f.png' % (kmax))
     fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
     return None 
 
 
@@ -788,5 +803,4 @@ if __name__=='__main__':
     #    compressedFisher(obvs='pk', method='PCA', kmax=0.5, n_components=ncomp)
     #for ncomp in [50, 100, 200, 300, 500]: 
     #    compressedFisher_contour(obvs='bk', method='PCA', kmax=0.3, n_components=ncomp)
-    tdist_factor(obvs='pk', kmax=0.5)
-    tdist_factor(obvs='bk', kmax=0.5)
+    tdist_factor(kmax=0.5)
