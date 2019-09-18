@@ -920,8 +920,6 @@ def undertand_dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin'):
 
     i_k, j_k, l_k, _ = dpdt = dBkdtheta('Om', log=log, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True)
     klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # get k limit
-    #ijl = UT.ijl_order(i_k[klim], j_k[klim], l_k[klim], typ='GM') # order of triangles 
-    #print i_k[:10], j_k[:10], l_k[:10]
 
     fig = plt.figure(figsize=(15,5))
     sub = fig.add_subplot(111)
@@ -936,7 +934,6 @@ def undertand_dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin'):
     sub.scatter(np.arange(np.sum(klim))[fld], dpdt[klim][fld], marker='*', 
             facecolors='none', edgecolors='C1', zorder=10, label='folded ($k_1 = k_2 + k_3$)') 
 
-    #squ = ((1.8/i_k[klim] <= 1./j_k[klim]) & (1.8/i_k[klim] <= 1./l_k[klim]))
     squ = ((j_k[klim]/i_k[klim] > 0.8) & (l_k[klim]/i_k[klim] < 0.33) & ~fld) 
     sub.scatter(np.arange(np.sum(klim))[squ], dpdt[klim][squ], marker='X', 
             facecolors='none', edgecolors='C2', zorder=10, label='squeezed ($k_1, k_2 \gg k_3$)') 
@@ -945,9 +942,6 @@ def undertand_dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin'):
     if not log: sub.set_yscale('log') 
     sub.set_ylim(-1.5, 1.) 
     sub.legend(loc='lower left', fontsize=15) 
-    #if i_tt == 0: sub.legend([plt_bk], [r'$B_{\rm h}$'], loc='upper left', fontsize=15)
-    #if tt != _thetas[-1]: sub.set_xticklabels([]) 
-    #sub.text(0.975, 0.925, lbl, ha='right', va='top', transform=sub.transAxes, fontsize=25)
 
     bkgd = fig.add_subplot(111, frameon=False)
     bkgd.set_xlabel('triangle configurations', fontsize=25) 
@@ -957,6 +951,39 @@ def undertand_dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin'):
 
     fig.subplots_adjust(hspace=0.075) 
     ffig = os.path.join(dir_fig, 'quijote_d%sBdMnu%s%s.%s.png' % (['', 'log'][log], _rsd_str(rsd), _flag_str(flag), dmnu))
+    fig.savefig(ffig, bbox_inches='tight') 
+    
+    # set of triangles with fixed k1 (this is to compare the different derivatives) 
+    k1 = 51 
+    one_k1set =  klim & (i_k == k1)
+    equ = ((i_k[one_k1set] == j_k[one_k1set]) & (l_k[one_k1set] == i_k[one_k1set]))
+    fld = (i_k[one_k1set] == j_k[one_k1set] + l_k[one_k1set]) 
+    squ = ((j_k[one_k1set]/i_k[one_k1set] > 0.8) & (l_k[one_k1set]/i_k[one_k1set] < 0.33) & ~fld) 
+
+    fig = plt.figure(figsize=(15,10))
+    
+    for i, theta, lbl in zip(range(5), _thetas[:-1], _theta_lbls[:-1]): 
+        sub = fig.add_subplot(2,3,i+1)
+        dpdt = dBkdtheta('Mnu', log=log, rsd=rsd, flag=flag, dmnu=dmnu)
+        sub.plot(range(np.sum(one_k1set)), dpdt[one_k1set]/np.median(dpdt[one_k1set]), 
+                c='k', lw=1, label=_theta_lbls[-1])
+        sub.scatter(np.arange(np.sum(one_k1set))[equ], dpdt[one_k1set][equ]/np.median(dpdt[one_k1set]), marker='^', 
+                facecolors='none', edgecolors='C0', zorder=10)#, label='equilateral ($k_1 = k_2 = k_3$)') 
+        sub.scatter(np.arange(np.sum(one_k1set))[fld], dpdt[one_k1set][fld]/np.median(dpdt[one_k1set]), marker='*', 
+                facecolors='none', edgecolors='C1', zorder=10)#, label='folded ($k_1 = k_2 + k_3$)') 
+        sub.scatter(np.arange(np.sum(one_k1set))[squ], dpdt[one_k1set][squ]/np.median(dpdt[one_k1set]), marker='X', 
+                facecolors='none', edgecolors='C2', zorder=10)#, label='squeezed ($k_1, k_2 \gg k_3$)') 
+
+        dpdt = dBkdtheta(theta, log=log, rsd=rsd, flag=flag, dmnu=dmnu)
+        sub.plot(range(np.sum(one_k1set)), dpdt[one_k1set]/np.median(dpdt[one_k1set]), lw=1, label=lbl)
+
+        sub.legend(loc='upper left', fontsize=15) 
+        sub.set_xlim(0, np.sum(one_k1set)) 
+        if not log: sub.set_yscale('log') 
+        sub.set_ylim(0.25, 2.) 
+    fig.subplots_adjust(hspace=0.075) 
+    ffig = os.path.join(dir_fig, 
+            'quijote_d%sBdMnu%s%s.%s.ik_%i.png' % (['', 'log'][log], _rsd_str(rsd), _flag_str(flag), dmnu, k1))
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
