@@ -978,6 +978,9 @@ def understand_dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin'):
     
     fld = (k1_tri[:,0] == k1_tri[:,1] + k1_tri[:,2]) 
     squ = ((k1_tri[:,1].astype(float)/k1_tri[:,0].astype(float) > 0.8) & (k1_tri[:,2].astype(float)/k1_tri[:,0].astype(float) < 0.33) & ~fld) 
+    theta12 = np.arccos((k1_tri[:,2]**2 - k1_tri[:,1]**2 - k1_tri[:,0]**2)/(-2.*k1_tri[:,1] * k1_tri[:,0])) / np.pi * 180.
+    print(theta12) 
+    lowtheta12 = theta12 < 30.
 
     _theta_lims = [(-12., 5.), (0., 15.), (-4., -0.5), (-4., -1), (-6., -1), (-1.5, 1.)]
     fig = plt.figure(figsize=(10,10))
@@ -992,6 +995,8 @@ def understand_dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin'):
             sub.plot([_i, _i], [-100, 100.], c='k', lw=0.5, ls='--') 
         for _i in np.arange(k1_tri.shape[0])[squ]: 
             sub.plot([_i, _i], [-100, 100.], c='C3', lw=0.1, ls='--') 
+        for _i in np.arange(k1_tri.shape[0])[lowtheta12]: 
+            sub.plot([_i, _i], [-100, 100.], c='C4', lw=0.1, ls='--') 
 
         #sub.legend(loc='upper left', fontsize=15) 
         sub.text(0.975, 0.95, lbl, ha='right', va='top', transform=sub.transAxes, fontsize=25)
@@ -3990,8 +3995,6 @@ if __name__=="__main__":
         _pkbkCov(kmax=0.5)      # condition number 1.74845e+08
     '''
     # deriatives 
-    understand_dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin')
-    dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin')
     '''
         for flag in ['reg']: P_theta(rsd=0, flag=flag)
         for flag in ['reg']: P02_theta(rsd=0, flag=flag)
@@ -4008,6 +4011,7 @@ if __name__=="__main__":
         _dBdthetas_ncv(kmax=0.5, log=True, rsd=True, dmnu='fin')
     ''' 
     # fisher forecasts with different nuisance parameters 
+    forecast('pk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=[], planck=True)
     '''
         forecast('pk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'])
         forecast('pk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn'])
