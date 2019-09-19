@@ -723,12 +723,18 @@ def dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin'):
     '''
     _thetas = copy(thetas)
     _theta_lbls = copy(theta_lbls) 
-    _theta_lims = [(-15., 5.), (-2., 24.), (-4., 0.5), (-5., -0.5), (-6., 0), (-1.5, 2.)]
+    _theta_lims = [(-15., 5.), (-2., 24.), (-4., 0.5), (-5., -0.5), (-6., 0), (-1.5, 1.5)]
 
     i_k, j_k, l_k, _ = dpdt = dBkdtheta('Om', log=log, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True)
     klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # get k limit
     #ijl = UT.ijl_order(i_k[klim], j_k[klim], l_k[klim], typ='GM') # order of triangles 
     #print i_k[:10], j_k[:10], l_k[:10]
+    fix_k1 = (i_k == 72) 
+    i0_fix_k1 = np.arange(len(i_k))[klim & fix_k1][0]
+    i1_fix_k1 = np.arange(len(i_k))[klim & fix_k1][-1]
+    fix_k1k2 = (i_k == 72) & (j_k == 69) 
+    i0_fix_k1k2 = np.arange(len(i_k))[klim & fix_k1k2][0]
+    i1_fix_k1k2 = np.arange(len(i_k))[klim & fix_k1k2][-1]
 
     fig = plt.figure(figsize=(15,15))
     for i_tt, tt, lbl in zip(range(len(_thetas)), _thetas, _theta_lbls): 
@@ -738,6 +744,10 @@ def dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin'):
         #plt_bk, = sub.plot(range(np.sum(klim)), dpdt[klim][ijl])
         if tt == 'Mnu': 
             print(dpdt[klim])
+        sub.fill_between([i0_fix_k1, i1_fix_k1], [_theta_lims[i_tt][0], _theta_lims[i_tt][0]], 
+                [_theta_lims[i_tt][1], _theta_lims[i_tt][1]], color='k', alpha=0.1, linewidth=0) 
+        sub.fill_between([i0_fix_k1k2, i1_fix_k1k2], [_theta_lims[i_tt][0], _theta_lims[i_tt][0]], 
+                [_theta_lims[i_tt][1], _theta_lims[i_tt][1]], color='k', alpha=0.1, linewidth=0) 
         
         sub.set_xlim(0, np.sum(klim)) 
         if not log: sub.set_yscale('log') 
@@ -898,7 +908,7 @@ def dlogBdMnu_IC(kmax=0.5):
     return None
 
 
-def undertand_dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin'):
+def understand_dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin'):
     ''' Compare the derivatives of the bispectrum w.r.t. all the parameters
     
     :param rsd: (default: 'all') 
@@ -920,7 +930,8 @@ def undertand_dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin'):
 
     i_k, j_k, l_k, _ = dpdt = dBkdtheta('Om', log=log, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True)
     klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # get k limit
-
+    
+    # B with marked triangle shapes 
     fig = plt.figure(figsize=(15,5))
     sub = fig.add_subplot(111)
     dpdt = dBkdtheta('Mnu', log=log, rsd=rsd, flag=flag, dmnu=dmnu)
@@ -954,36 +965,72 @@ def undertand_dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin'):
     fig.savefig(ffig, bbox_inches='tight') 
     
     # set of triangles with fixed k1 (this is to compare the different derivatives) 
-    k1 = 51 
-    one_k1set =  klim & (i_k == k1)
-    equ = ((i_k[one_k1set] == j_k[one_k1set]) & (l_k[one_k1set] == i_k[one_k1set]))
-    fld = (i_k[one_k1set] == j_k[one_k1set] + l_k[one_k1set]) 
-    squ = ((j_k[one_k1set]/i_k[one_k1set] > 0.8) & (l_k[one_k1set]/i_k[one_k1set] < 0.33) & ~fld) 
-
-    fig = plt.figure(figsize=(15,10))
+    k1, k2 = 72, 69 
+    k1_tri = [] 
+    for j in range(1, k1+1): 
+        for l in range(max(k1-j, 1), j+1): 
+            inset = (i_k == k1) & (j_k == j) & (l_k == l) 
+            if np.sum(inset) > 0.: 
+                k1_tri.append(np.array([k1, j, l, np.arange(len(i_k))[inset][0]]))
+            else: 
+                k1_tri.append(np.array([k1, j, l, -999]))
+    k1_tri = np.array(k1_tri) 
     
-    for i, theta, lbl in zip(range(5), _thetas[:-1], _theta_lbls[:-1]): 
-        sub = fig.add_subplot(2,3,i+1)
-        dpdt = dBkdtheta('Mnu', log=log, rsd=rsd, flag=flag, dmnu=dmnu)
-        sub.plot(range(np.sum(one_k1set)), dpdt[one_k1set]/np.median(dpdt[one_k1set]), 
-                c='k', lw=1, label=_theta_lbls[-1])
-        sub.scatter(np.arange(np.sum(one_k1set))[equ], dpdt[one_k1set][equ]/np.median(dpdt[one_k1set]), marker='^', 
-                facecolors='none', edgecolors='C0', zorder=10)#, label='equilateral ($k_1 = k_2 = k_3$)') 
-        sub.scatter(np.arange(np.sum(one_k1set))[fld], dpdt[one_k1set][fld]/np.median(dpdt[one_k1set]), marker='*', 
-                facecolors='none', edgecolors='C1', zorder=10)#, label='folded ($k_1 = k_2 + k_3$)') 
-        sub.scatter(np.arange(np.sum(one_k1set))[squ], dpdt[one_k1set][squ]/np.median(dpdt[one_k1set]), marker='X', 
-                facecolors='none', edgecolors='C2', zorder=10)#, label='squeezed ($k_1, k_2 \gg k_3$)') 
+    fld = (k1_tri[:,0] == k1_tri[:,1] + k1_tri[:,2]) 
+    squ = ((k1_tri[:,1].astype(float)/k1_tri[:,0].astype(float) > 0.8) & (k1_tri[:,2].astype(float)/k1_tri[:,0].astype(float) < 0.33) & ~fld) 
 
+    _theta_lims = [(-12., 5.), (0., 15.), (-4., -0.5), (-4., -1), (-6., -1), (-1.5, 1.)]
+    fig = plt.figure(figsize=(10,10))
+    for i, theta, lbl, lim in zip(range(6), _thetas, _theta_lbls, _theta_lims): 
+        sub = fig.add_subplot(6,1,i+1)
         dpdt = dBkdtheta(theta, log=log, rsd=rsd, flag=flag, dmnu=dmnu)
-        sub.plot(range(np.sum(one_k1set)), dpdt[one_k1set]/np.median(dpdt[one_k1set]), lw=1, label=lbl)
+        dpdt_tris = np.repeat(-999., k1_tri.shape[0])
+        dpdt_tris[k1_tri[:,3] != -999] = dpdt[i_k == k1]
+        sub.scatter(range(k1_tri.shape[0]), dpdt_tris, c='C0', s=5, label=lbl)
+        sub.plot(np.arange(k1_tri.shape[0])[k1_tri[:,3] != -999], dpdt_tris[k1_tri[:,3] != -999], lw=0.5, c='C0')
+        for _i in np.arange(k1_tri.shape[0])[fld]: 
+            sub.plot([_i, _i], [-100, 100.], c='k', lw=0.5, ls='--') 
+        for _i in np.arange(k1_tri.shape[0])[squ]: 
+            sub.plot([_i, _i], [-100, 100.], c='C3', lw=0.1, ls='--') 
 
-        sub.legend(loc='upper left', fontsize=15) 
-        sub.set_xlim(0, np.sum(one_k1set)) 
-        if not log: sub.set_yscale('log') 
-        sub.set_ylim(0.25, 2.) 
+        #sub.legend(loc='upper left', fontsize=15) 
+        sub.text(0.975, 0.95, lbl, ha='right', va='top', transform=sub.transAxes, fontsize=25)
+        sub.set_xlim(0, k1_tri.shape[0]) 
+        sub.set_ylim(lim)
+        if i != 5: sub.set_xticklabels([]) 
+
     fig.subplots_adjust(hspace=0.075) 
     ffig = os.path.join(dir_fig, 
-            'quijote_d%sBdMnu%s%s.%s.ik_%i.png' % (['', 'log'][log], _rsd_str(rsd), _flag_str(flag), dmnu, k1))
+            'quijote_d%sBdMnu%s%s.%s.alltri.ik_%i.png' % (['', 'log'][log], _rsd_str(rsd), _flag_str(flag), dmnu, k1))
+    fig.savefig(ffig, bbox_inches='tight') 
+    
+    k1_tri = [] 
+    for l in range(max(k1-k2, 1), k2+1): 
+        inset = (i_k == k1) & (j_k == k2) & (l_k == l) 
+        if np.sum(inset) > 0.: 
+            k1_tri.append(np.array([k1, k2, l, np.arange(len(i_k))[inset][0]]))
+        else: 
+            k1_tri.append(np.array([k1, k2, l, -999]))
+    k1_tri = np.array(k1_tri) 
+
+    fig = plt.figure(figsize=(10,6))
+    for i, theta, lbl, lim in zip(range(6), _thetas, _theta_lbls, _theta_lims): 
+        sub = fig.add_subplot(2,3,i+1)
+
+        dpdt = dBkdtheta(theta, log=log, rsd=rsd, flag=flag, dmnu=dmnu)
+        dpdt_tris = np.repeat(-999., k1_tri.shape[0])
+        dpdt_tris[k1_tri[:,3] != -999] = dpdt[(i_k == k1) & (j_k == k2)]
+        sub.scatter(range(k1_tri.shape[0]), dpdt_tris, c='C0', s=5, label=lbl)
+        sub.plot(np.arange(k1_tri.shape[0])[k1_tri[:,3] != -999], dpdt_tris[k1_tri[:,3] != -999], lw=0.5, c='C0')
+
+        #sub.legend(loc='upper left', fontsize=15) 
+        sub.text(0.975, 0.95, lbl, ha='right', va='top', transform=sub.transAxes, fontsize=25)
+        sub.set_xlim(0, k1_tri.shape[0]) 
+        sub.set_ylim(lim) 
+
+    fig.subplots_adjust(hspace=0.075) 
+    ffig = os.path.join(dir_fig, 
+            'quijote_d%sBdMnu%s%s.%s.alltri.ik_%i.jk_%i.png' % (['', 'log'][log], _rsd_str(rsd), _flag_str(flag), dmnu, k1, k2))
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
@@ -3943,7 +3990,8 @@ if __name__=="__main__":
         _pkbkCov(kmax=0.5)      # condition number 1.74845e+08
     '''
     # deriatives 
-    undertand_dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin')
+    understand_dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin')
+    dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin')
     '''
         for flag in ['reg']: P_theta(rsd=0, flag=flag)
         for flag in ['reg']: P02_theta(rsd=0, flag=flag)
