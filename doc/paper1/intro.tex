@@ -47,18 +47,18 @@ degeneracy between $\smnu$ and $\tau$~\citep{allison2015, liu2016, archidiacono2
 
 The $\tau-\smnu$ degeneracy will continue to be a major bottleneck 
 for $\smnu$ constraints from CMB data. The best constraints on $\tau$ 
-currently come from {\em Planck} --- $\tau = 0.054\pm0.007$. However, upcoming 
-ground-based CMB experiments ({\em e.g.} CMB-S4) will not observe scales 
-larger than $\ell < 30$, and therefore will not directly constrain 
-$\tau$~\citep{abazajian2016}.
+currently come from {\em Planck} --- $\tau = 0.054\pm0.007$. However, most
+upcoming ground-based CMB experiments ({\em e.g.} CMB-S4) will not observe 
+scales larger than $\ell < 30$, and therefore will not directly constrain 
+$\tau$~\citep{abazajian2016}. 
 \edt{
-    Add statement about CLASS? 
+Only the upcoming CLASS experiment aims to improve $\tau$ constraints~\citep{watts2018}.
 }
 Meanwhile, proposed future space-based 
 experiments such as LiteBIRD\footnote{http://litebird.jp/eng/} and 
-LiteCOrE\footnote{http://www.core-mission.org/}, which have the potential 
-to precisely measure $\tau$, have yet to be confirmed. CMB data, however, 
-is not the only way to improve $\smnu$ constraints. The imprint of 
+LiteCOrE\footnote{http://www.core-mission.org/}, which have the greatest 
+potential to precisely measure $\tau$, have yet to be confirmed. CMB data, 
+however, is not the only way to improve $\smnu$ constraints. The imprint of 
 neutrinos on 3D clustering of galaxies can be measured to constrain 
 $\smnu$ and with the sheer cosmic volumes mapped, upcoming surveys such 
 as DESI\footnote{https://www.desi.lbl.gov/}, PFS\footnote{https://pfs.ipmu.jp/}, 
@@ -95,34 +95,38 @@ on nonlinear scales~\citep{sefusatti2005, chan2017}. Furthermore, although $\smn
 is not included in their analyses, \cite{sefusatti2006} and \cite{yankelevich2019} 
 have shown that including the bispectrum significantly improves constraints on 
 cosmological parameters. %\cite{ruggeri2018} presented the first measurement of the bispectrum for $N$-body simulations with massive neutrinos. 
-\edt{mention \cite{coulton2019}?}
 Including $\smnu$, \cite{chudaykin2019} find that the bispectrum significantly 
 improves constraints for $\smnu$. Their forecasts, however, do not include the 
 constraining power on nonlinear scales (Section~\ref{sec:forecasts}). 
 %Limitations in their analytic modeling, covariances, and treatment of theoretical errors, however, prevent them from accurately quantifying the information content on nonlinear 
 No work to date has quantified the total information content and constraining 
-power of the full bispectrum down to nonlinear scales --- especially for $\smnu$. 
+power of the full redshift-space bispectrum down to nonlinear scales --- especially for $\smnu$. 
 
 In this work, we examine the effect of massive neutrinos on the redshift-space 
 halo bispectrum using ${\sim}23,000$ $N$-body simulations with different neutrino masses. 
 We first demonstrate that the bispectrum helps break the $\smnu$--$\sig$ degeneracy 
 found in the power spectrum. Then we present the full information content of the 
 bispectrum for all triangle configurations down to $k_{\rm max} = 0.5~\mpc$ using 
-a Fisher forecast where we estimate the covariance matrix and derivatives with 
+Fisher forecasts where we estimate the covariance matrix and derivatives with 
 the large set of simulations from the Quijote suite~\citep{villaescusa-navarro2019}. 
+\edt{
+We then explore forecasts with different sets of nuissance and bias parameters 
+as well as with and without priors from Planck and discuss some caveats of our 
+results.
+}
 This paper is the first of a series of papers that aim to demonstrate the potential 
 of galaxy bispectrum analyses in constraining $\smnu$. In particular, with this 
 series, we aim to establish the potential for constraining cosmological parameters 
 (especially $\smnu$) with galaxy bispectrum analyses that extend to nonlinear scales 
 using simulation based emulation models for upcoming galaxy surveys. 
 \edt{
-    In this paper, we focus on the halo bispectrum and consider some simple galaxy 
-    bias models. Cosmological parameter constraints, however, are derived from the 
-    distribution of galaxies. Thus, in the subsequent paper, we will include a more 
-    realistic bias model  in our forecasts, one that describes the distribution of 
-    central and satellite galaxies in halos,
+In this paper, we focus on the halo bispectrum and consider some simple bias models. 
+Parameter constraints, however, are derived from the galaxy distribution. In the
+subsequent paper, we will include a more realistic galaxy bias model that 
+describes the distribution of central and satellite galaxies in halos in our
+forecasts to quantify the full information content of the {\em galaxy} bispectrum. 
 }
-to quantify the full information content of the galaxy bispectrum. In the series, we 
+In the series, we 
 will also present methods to tackle challenges that come with analyzing the full galaxy 
 bispectrum, such as data compression for reducing the dimensionality of the bispectrum. 
 
