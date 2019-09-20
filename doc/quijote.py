@@ -1944,7 +1944,7 @@ def forecastP02B_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False
             sub.plot(kmaxs[cond_pk], sig_pk_planck[:,i][cond_pk], c='C0', ls='--', lw=1) 
             _plt, =sub.plot(kmaxs[cond_bk], sig_bk_planck[:,i][cond_bk], c='C1', ls='--', lw=1) 
             if theta == 'Mnu': 
-                sub.legend([_plt], ['w/ Planck'], loc='lower left', handletextpad=0.2, fontsize=15) 
+                sub.legend([_plt], ['w/ Planck priors'], loc='lower left', handletextpad=0.25, fontsize=18) 
         if LT: 
             if theta == 'Mnu': 
                 sub.plot(kmaxs, sig_pm[:,i], c='k', ls='--', label=r"$P^{\rm lin.}_{m}$") 
@@ -4011,8 +4011,6 @@ if __name__=="__main__":
         _dBdthetas_ncv(kmax=0.5, log=True, rsd=True, dmnu='fin')
     ''' 
     # fisher forecasts with different nuisance parameters 
-    forecast('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'], planck=True)
-    forecast('bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'], planck=True)
     '''
         forecast('pk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'])
         forecast('pk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn'])
@@ -4036,6 +4034,7 @@ if __name__=="__main__":
         p02bForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'], dmnu='fin')
     '''
     # fisher forecasts as a function of kmax with different nuisance parameters 
+    forecastP02B_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'], planck=True)
     '''
         Fii_kmax(rsd='all', flag='reg', dmnu='fin')
         forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'])
