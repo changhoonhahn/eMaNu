@@ -398,7 +398,7 @@ def quijote_dBkdtheta(theta, log=False, rsd='all', flag=None, z=0, dmnu='fin', N
     return quij['k1'], quij['k2'], quij['k3'], dbk / h + c_dbk 
 
 
-def _PF_quijote_dPkdtheta(theta, log=False, rsd='all', flag='reg', z=0, dmnu='fin', average=True, silent=True):
+def _PF_quijote_dPkdtheta(theta, log=False, rsd='all', flag='reg', z=0, dmnu='fin', dh='pm', average=True, silent=True):
     ''' calculate d P0(k)/d theta using the paired and fixed quijote simulations
     run on perturbed theta 
 
@@ -438,6 +438,18 @@ def _PF_quijote_dPkdtheta(theta, log=False, rsd='all', flag='reg', z=0, dmnu='fi
             tts = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
             coeffs = [-21., 32., -12., 1.] # finite difference coefficient
             h = 1.2
+    elif theta == 'h': 
+        if not silent: print("--- calculating dB/d%s ---" % theta) 
+        if dh == 'pm':  # standard derivative using h+ and h- 
+            tts = [theta+'_m', theta+'_p'] 
+            h = quijote_thetas[theta][1] - quijote_thetas[theta][0]
+        elif dh == 'm_only': 
+            tts = [theta+'_m', 'fiducial'] 
+            h = 0.6711 - quijote_thetas[theta][0]
+        elif dh == 'p_only': 
+            tts = ['fiducial', theta+'_p'] 
+            h = quijote_thetas[theta][1] - 0.6711
+        coeffs = [-1., 1.]
     else: 
         if not silent: print("--- calculating dP/d%s ---" % theta) 
         tts = [theta+'_m', theta+'_p'] 
@@ -453,6 +465,11 @@ def _PF_quijote_dPkdtheta(theta, log=False, rsd='all', flag='reg', z=0, dmnu='fi
                 _pk = _pk[:1500,:]
             else: 
                 _pk = _pk[:500,:]
+        elif theta == 'h' and dh in ['m_only', 'p_only']: 
+            if rsd == 'all': 
+                _pk = _pk[:1500,:]
+            else: 
+                _pk = _pk[:500,:]
         
         if average: _pk = np.average(quij['p0k'], axis=0)  
         
@@ -464,7 +481,7 @@ def _PF_quijote_dPkdtheta(theta, log=False, rsd='all', flag='reg', z=0, dmnu='fi
     return quij['k'], dpk / h
 
 
-def _PF_quijote_dP02kdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin', z=0, average=True, silent=True):
+def _PF_quijote_dP02kdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin', dh='pm', z=0, average=True, silent=True):
     ''' calculate the derivative d [P0(k), P2(k)] /d theta using the paired and fixed quijote simulations
     run on perturbed theta 
 
@@ -506,6 +523,18 @@ def _PF_quijote_dP02kdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin',
             tts = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
             coeffs = [-21., 32., -12., 1.] # finite difference coefficient
             h = 1.2
+    elif theta == 'h': 
+        if not silent: print("--- calculating dB/d%s ---" % theta) 
+        if dh == 'pm':  # standard derivative using h+ and h- 
+            tts = [theta+'_m', theta+'_p'] 
+            h = quijote_thetas[theta][1] - quijote_thetas[theta][0]
+        elif dh == 'm_only': 
+            tts = [theta+'_m', 'fiducial'] 
+            h = 0.6711 - quijote_thetas[theta][0]
+        elif dh == 'p_only': 
+            tts = ['fiducial', theta+'_p'] 
+            h = quijote_thetas[theta][1] - 0.6711
+        coeffs = [-1., 1.]
     else: 
         if not silent: print("--- calculating dP/d%s ---" % theta) 
         tts = [theta+'_m', theta+'_p'] 
@@ -522,6 +551,11 @@ def _PF_quijote_dP02kdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin',
                 _pk = _pk[:1500,:]
             else: 
                 _pk = _pk[:500,:]
+        elif theta == 'h' and dh in ['m_only', 'p_only']:
+            if rsd == 'all': 
+                _pk = _pk[:1500,:]
+            else: 
+                _pk = _pk[:500,:]
 
         if average: _pk = np.average(_pk, axis=0)  
         if log: _pk = np.log(_pk) # log 
@@ -532,7 +566,7 @@ def _PF_quijote_dP02kdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin',
     return np.concatenate([quij['k'], quij['k']]) , dpk / h
 
 
-def _PF_quijote_dBkdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin', z=0, average=True, corr_sn=True, silent=True):
+def _PF_quijote_dBkdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin', dh='pm', z=0, average=True, corr_sn=True, silent=True):
     ''' d B(k)/d theta calculations for the paired-fixed investigation. Lots of bells and whistles 
     that I want separate from the main analysis. 
 
@@ -602,6 +636,18 @@ def _PF_quijote_dBkdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin', z
             h = 6. 
         else: 
             raise NotImplementedError
+    elif theta == 'h': 
+        if not silent: print("--- calculating dB/d%s ---" % theta) 
+        if dh == 'pm':  # standard derivative using h+ and h- 
+            tts = [theta+'_m', theta+'_p'] 
+            h = quijote_thetas[theta][1] - quijote_thetas[theta][0]
+        elif dh == 'm_only': 
+            tts = [theta+'_m', 'fiducial'] 
+            h = 0.6711 - quijote_thetas[theta][0]
+        elif dh == 'p_only': 
+            tts = ['fiducial', theta+'_p'] 
+            h = quijote_thetas[theta][1] - 0.6711
+        coeffs = [-1., 1.]
     else: 
         if not silent: print("--- calculating dB/d%s ---" % theta) 
         tts = [theta+'_m', theta+'_p'] 
@@ -616,6 +662,11 @@ def _PF_quijote_dBkdtheta(theta, log=False, rsd='all', flag='reg', dmnu='fin', z
         if not corr_sn: _bk += b_sn  # uncorrect for shot-noise 
 
         if theta == 'Mnu' and dmnu == 'fin_2lpt': # fiducial is 2LPT and has different number of sims 
+            if rsd == 'all': 
+                _bk = _bk[:1500,:]
+            else: 
+                _bk = _bk[:500,:]
+        elif theta == 'h' and dh in ['m_only', 'p_only']: 
             if rsd == 'all': 
                 _bk = _bk[:1500,:]
             else: 
@@ -656,7 +707,7 @@ def Fij(dmudts, Cinv):
     return Fij 
     
 
-def plotEllipse(Finv_sub, sub, theta_fid_ij=None, color='C0'): 
+def plotEllipse(Finv_sub, sub, theta_fid_ij=None, color='C0', sigmas=[1, 2], alphas=[1., 0.7]): 
     ''' Given the inverse fisher sub-matrix, calculate ellipse parameters and
     add to subplot 
     '''
@@ -665,17 +716,21 @@ def plotEllipse(Finv_sub, sub, theta_fid_ij=None, color='C0'):
     a = np.sqrt(0.5*(Finv_sub[0,0] + Finv_sub[1,1]) + np.sqrt(0.25*(Finv_sub[0,0]-Finv_sub[1,1])**2 + Finv_sub[0,1]**2))
     b = np.sqrt(0.5*(Finv_sub[0,0] + Finv_sub[1,1]) - np.sqrt(0.25*(Finv_sub[0,0]-Finv_sub[1,1])**2 + Finv_sub[0,1]**2))
     theta = 0.5 * np.arctan2(2.0 * Finv_sub[0,1], (Finv_sub[0,0] - Finv_sub[1,1]))
-    for ii, alpha in enumerate([2.48, 1.52]):
+    
+    _alphas = [1.52, 2.48, 3.44]  
+
+    for ii, i_alpha in enumerate(sigmas):
+        alpha = _alphas[i_alpha-1]
         e = Ellipse(xy=(theta_fid_i, theta_fid_j), 
                 width=alpha * a, height=alpha * b, angle=theta * 360./(2.*np.pi))
         sub.add_artist(e)
-        if ii == 0: e.set_alpha(0.7)
-        if ii == 1: e.set_alpha(1.0)
+        e.set_alpha(alphas[ii])
         e.set_facecolor(color) 
     return sub
 
 
-def plotFisher(Finvs, theta_fid, colors=None, ranges=None, titles=None, title_kwargs=None, labels=None): 
+def plotFisher(Finvs, theta_fid, colors=None, linestyles=None, ranges=None, titles=None, title_kwargs=None, labels=None, 
+        sigmas=[1, 2], alphas=[1., 0.7]): 
     ''' Given a list of inverse Fisher matrices, plot the Fisher contours
     '''
     ntheta = Finvs[0].shape[0] # number of parameters 
@@ -687,6 +742,9 @@ def plotFisher(Finvs, theta_fid, colors=None, ranges=None, titles=None, title_kw
 
     if ranges is not None: assert ntheta == len(ranges) 
     if labels is not None: assert ntheta == len(labels) 
+
+    if title_kwargs is None: 
+        title_kwargs = {} 
     
     # calculate the marginalized constraints 
     onesigmas = [np.sqrt(np.diag(_Finv)) for _Finv in Finvs]
@@ -700,7 +758,8 @@ def plotFisher(Finvs, theta_fid, colors=None, ranges=None, titles=None, title_kw
                 theta_fid_i, theta_fid_j = theta_fid[i], theta_fid[j] # fiducial parameter 
                 for _i, _Finv in enumerate(Finvs):
                     Finv_sub = np.array([[_Finv[i,i], _Finv[i,j]], [_Finv[j,i], _Finv[j,j]]]) # sub inverse fisher matrix 
-                    plotEllipse(Finv_sub, sub, theta_fid_ij=[theta_fid_i, theta_fid_j], color=colors[_i])
+                    plotEllipse(Finv_sub, sub, theta_fid_ij=[theta_fid_i, theta_fid_j], color=colors[_i], 
+                            sigmas=sigmas, alphas=alphas)
             
                 if ranges is not None: 
                     sub.set_xlim(ranges[i])
@@ -727,7 +786,10 @@ def plotFisher(Finvs, theta_fid, colors=None, ranges=None, titles=None, title_kw
                 else: 
                     x = np.linspace(ranges[i][0], ranges[i][1], 100) 
                 for _i, onesigma in enumerate(onesigmas): 
-                    sub.plot(x, _gaussian(x, theta_fid[i], onesigma[i]), c=colors[_i])
+                    if linestyles is None: 
+                        sub.plot(x, _gaussian(x, theta_fid[i], onesigma[i]), c=colors[_i])
+                    else: 
+                        sub.plot(x, _gaussian(x, theta_fid[i], onesigma[i]), c=colors[_i], ls=linestyles[_i])
 
                 if ranges is not None: sub.set_xlim(ranges[i])
                 if j != ntheta-1: 

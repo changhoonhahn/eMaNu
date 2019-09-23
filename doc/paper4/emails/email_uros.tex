@@ -1,0 +1,230 @@
+\documentclass[12pt, letterpaper, preprint]{aastex62}
+%\usepackage[breaklinks,colorlinks, urlcolor=blue,citecolor=blue,linkcolor=blue]{hyperref}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{natbib}
+\usepackage{ctable}
+\usepackage{bm}
+\usepackage[normalem]{ulem} % Added by MS for \sout -> not required for final version
+\usepackage{xspace}
+
+% typesetting shih
+\linespread{1.08} % close to 10/13 spacing
+\setlength{\parindent}{1.08\baselineskip} % Bringhurst
+\setlength{\parskip}{0ex}
+\let\oldbibliography\thebibliography % killin' me.
+\renewcommand{\thebibliography}[1]{%
+  \oldbibliography{#1}%
+  \setlength{\itemsep}{0pt}%
+  \setlength{\parsep}{0pt}%
+  \setlength{\parskip}{0pt}%
+  \setlength{\bibsep}{0ex}
+  \raggedright
+}
+\setlength{\footnotesep}{0ex} % seriously?
+
+% citation alias
+
+% math shih
+\newcommand{\setof}[1]{\left\{{#1}\right\}}
+\newcommand{\given}{\,|\,}
+\newcommand{\pseudo}{{\mathrm{pseudo}}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Nd}{{100}\xspace}
+
+\newcommand{\Om}{\Omega_{\rm m}} 
+\newcommand{\Ob}{\Omega_{\rm b}} 
+\newcommand{\OL}{\Omega_\Lambda}
+\newcommand{\smnu}{\sum m_\nu} 
+\newcommand{\sig}{\sigma_8} 
+\newcommand{\hmpc}{\,h/\mathrm{Mpc}}
+\newcommand{\lss}{{\small{LSS}}\xspace}
+\newcommand{\mpc}{h/{\rm Mpc}}
+\newcommand{\quij}{{\sc Quijote}~}
+
+\newcommand{\specialcell}[2][c]{%
+  begin{tabular}[#1]{@{}c@{}}#2\end{tabular}}
+% text shih
+\newcommand{\foreign}[1]{\textsl{#1}}
+\newcommand{\etal}{\foreign{et~al.}}
+\newcommand{\opcit}{\foreign{Op.~cit.}}
+\newcommand{\documentname}{\textsl{Article}}
+\newcommand{\equationname}{equation}
+\newcommand{\bitem}{\begin{itemize}}
+\newcommand{\eitem}{\end{itemize}}
+\newcommand{\beq}{\begin{equation}}
+\newcommand{\eeq}{\end{equation}}
+
+\begin{document}\sloppy\sloppypar\frenchspacing 
+We're using Paco's \quij suite (Table~\ref{tab:sims}) to determine
+whether using paired-fixed simulations instead of standard $N$-body 
+simulations can bias clustering analyses with the redshift-space
+power spectrum and bispectrum. More specifically, the context we have
+in mind is: would an emulator constructed using paired-fixed sims
+bias parameter constraints. For some observable, $X$, we quantify the 
+bias as
+\beq
+\beta_X = \frac{\overline{X}_{\rm std} - \overline{X}_{\rm pf}}{\sqrt{\sigma_{\rm std}^2 + \sigma_{\rm pf}^2}}
+\eeq
+where $\overline{X}_{\rm std} = \frac{1}{N_{\rm std}}\sum\limits_{i=1}^{N_{\rm std}} X_{{\rm std}, i}$ 
+and $\overline{X}_{\rm pf} = \frac{1}{N_{\rm pf}}\sum\limits_{i=1}^{N_{\rm pf}} X_{{\rm pf}, i}$. 
+$X_{{\rm pf},i}$ is the mean observable for a pair of paired-fixed simulations: 
+$X_{{\rm pf},i} = \frac{1}{2} \big[ X_{{\rm pf},i}^{(1)} + X_{{\rm pf},i}^{(2)}\big]$.
+For the fiducial cosmology we use $N_{\rm std} = 15000$ standard sims and 
+$N_{\rm pf} = 250$ pairs of paired fixed sims. For the other cosmologies, 
+we use $N_{\rm std} = 500$ and $N_{\rm pf} = 250$ pairs but for observables
+in redshift-space, we average the observables for redshift-space distortions
+imposed along the three axes. 
+
+We first look at the amplitudes of the power spectrum and bispectrum in 
+Figures~\ref{fig:pk} and~\ref{fig:bk_rsd}. Among the 14 different 
+cosmologies we have in \quij, we find significant bias for $P_2$ at
+the $h^+$ cosmology. We find similar discrepancies for the bispectrum  
+at the $h^+$ and $M_\nu^{+++}$ cosmologies, but nothing statistically 
+significant. Next we look at the derivatives of the power 
+spectrum and bispectrum with respect to $\Om$, $\Ob$, $h$, $n_s$, $\sig$, 
+and $\smnu$ in Figures~\ref{fig:dpk_rsd} and~\ref{fig:dbk_rsd}. Here we 
+find more significant biases, especially for the derivatives with respect 
+to $h$ and $\sig$. Lastly in Figures~\ref{fig:ppost_rsd} and~\ref{fig:ppost_rsd}, 
+we examine how the discrepancies in the derivatives propagate to parameter
+constraints estimated using Fisher. We find $>10\%$ discrepancies in the 
+marginalized parameter constraints. 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% simulation table
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{table}
+    \caption{
+    The \quij suite includes 15,000 standard $N$-body simulations at the fiducial cosmology to 
+    accurately estimate the covariance matrices. It also includes sets of 500 simulations at 13 
+    different cosmologies, where only one parameter is varied from the fiducial value (underlined), 
+    to estimate derivatives of observables along the cosmological parameters. At every cosmology,
+    the \quij suite also includes 250 pairs of paired-fixed simulations.  
+    } 
+    \begin{center}
+    \begin{tabular}{cccccccccc} \toprule
+    Name  &$\smnu$ & $\Omega_m$ & $\Omega_b$ & $h$ & $n_s$ & $\sigma_8$ & ICs & standard & paired-fixed \\
+    & & & & & & & & realizations & pairs \\[3pt] \hline\hline
+    Fiducial 	& 0.0         & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 2LPT & 15,000 & 250\\ 
+    Fiducial ZA     & 0.0         & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & Zel'dovich& 500 & 250\\ 
+    $\smnu^+$       & \underline{0.1} eV & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & Zel'dovich & 500 & 250\\ 
+    $\smnu^{++}$    & \underline{0.2} eV & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & Zel'dovich & 500 & 250\\ 
+    $\smnu^{+++}$   & \underline{0.4} eV & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & Zel'dovich & 500 & 250\\ 
+    $\Omega_m^+$    & 0.0   & \underline{ 0.3275} & 0.049 & 0.6711 & 0.9624 & 0.834 & 2LPT & 500 & 250\\ 
+    $\Omega_m^-$    & 0.0   & \underline{ 0.3075} & 0.049 & 0.6711 & 0.9624 & 0.834 & 2LPT & 500 & 250\\ 
+    $\Omega_b^+$    & 0.0   & 0.3175 & \underline{0.051} & 0.6711 & 0.9624 & 0.834 & 2LPT & 500 & 250\\ 
+    $\Omega_b^-$    & 0.0   & 0.3175 & \underline{0.047} & 0.6711 & 0.9624 & 0.834 & 2LPT & 500 & 250\\ 
+    $h^+$           & 0.0   & 0.3175 & 0.049 & \underline{0.6911} & 0.9624 & 0.834 & 2LPT & 500 & 250\\ 
+    $h^-$           & 0.0   & 0.3175 & 0.049 & \underline{0.6511} & 0.9624 & 0.834 & 2LPT & 500 & 250\\ 
+    $n_s^+$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9824} & 0.834 & 2LPT & 500 & 250\\ 
+    $n_s^-$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9424} & 0.834 & 2LPT & 500 & 250\\ 
+    $\sigma_8^+$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.849} & 2LPT & 500 & 250\\ 
+    $\sigma_8^-$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.819} & 2LPT & 500 & 250\\[3pt]
+    \hline
+    \end{tabular} \label{tab:sims}
+    \end{center}
+\end{table}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=0.8\textwidth]{figs/pf_Pk.pdf} 
+    \caption{Comparison of the power spectra of standard $N$-body and paired-fixed
+    simulations. We compare the real-space power spectrum, redshift-space power 
+    spectrum monopole, and quadrupole in the left, center, and right columns, 
+    respectively. In the top panels, we compare the average power spectra of t
+    he standard (black line) to the paired-fixed simulations (orange scatter) 
+    at the fiducial cosmology. In the bottom panels, we compare the bias, $\beta$ 
+    in the power spectrum of the paired-fixed simulations for all 14 cosmologies 
+    (Table~\ref{tab:sims}). We mark bias within $\pm2\sigma$ within the shaded 
+    region. At the fiducial cosmology we use 15,000 standard $N$-body and $250$ 
+    pairs of paired-fixed simulations. For the other cosmologies, we use 500 
+    standard $N$-body and $250$ pairs of paired-fixed simulations; for the 
+    redshift-space $P_\ell$, we average the $P_\ell$s for redshift-space distortions
+    imposed along the three axes for each realization. We find differences between
+    $P_2$ of  standard and paired fixed simulations for the $h^+$ cosmology but
+    find no significant bias in other cosmologies.  
+    }
+\label{fig:pk}
+\end{center}
+\end{figure}
+
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=0.8\textwidth]{figs/pf_Bk_rsd.pdf} 
+    \caption{Comparison of the redshift-space bispectrum of standard $N$-body 
+    and paired-fixed simulations. In the top panel, we compare the average 
+    bispectrum of the standard (black line) to the paired-fixed simulations 
+    (orange scatter) at the fiducial cosmology. We include all 1898 triangles 
+    out to $k_{\rm max} = 0.5$. In the bottom panels, we compare the bias, 
+    $\beta$, in the bispectrum of the paired-fixed simulations for all 14 
+    cosmologies, as a function of triangle configuration (left) and their 
+    distribution (right). The $\beta$ distributions of the different cosmologies 
+    are mostly in good agreement with $\mathcal{N}(0,1)$ (lower right panel). 
+    A few cosmologies, $h^+$, $M_\nu^{+++}$, have noticable discrepancies; however, 
+    these discrepancies are within $1\sigma$. {\em Hence, we also find no significant 
+    bias in the redshift-space bispectrum of paired-fixed simulations.}
+    }
+\label{fig:bk_rsd}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=\textwidth]{figs/pf_dPdtheta_rsd_dmn_fin_dh_pm.pdf} 
+    \caption{Comparison of the redshift-space power spectrum monopole (top panels) 
+    and quadrupole (center panels) derivatives with respect to $\Om$, $\Ob$, $h$, 
+    $n_s$, $\sigma_8$, and $M_\nu$ derived from standard $N$-body versus 
+    paired-fixed simulations. In the top panels, we compare the derivatives from 
+    the standard simulations (black) to the paired-fixed simulations (orange). 
+    In the bottom panels, we compare the bias, $\beta$ of ${\rm d} P_\ell/{\rm d}\theta$.
+    We find significant biases for the derivatives with respect to $h$ and $\sig$. 
+    For ${\rm d} P_\ell/{\rm d}h$, we find that bias exceeds $2\sigma$.} 
+\label{fig:dpk_rsd}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=\textwidth]{figs/pf_dBdtheta_rsd_kmax0_5_dmnu_fin_dh_pm.pdf} 
+    \caption{Comparison of the redshift-space bispectrum derivatives with respect
+    to $\Om$, $\Ob$, $h$, $n_s$, $\sigma_8$, and $M_\nu$ derived from standard 
+    $N$-body simulations versus paired-fixed simulations. In the left panels, we 
+    compare the derivatives from the standard simulations (black) to the paired-fixed
+    simulations (orange). In the right panels, we compare the bias, $\beta$ of
+    the derivatives for each parameter. We find significant bias for ${\rm d} B_0/{\rm d}h$
+    and ${\rm d} B_0/{\rm d}\sig$. For ${\rm d} B_0/{\rm d}h$, the bias exceeds 
+    $2\sigma$ for triangle configurations with $0.1 \lesssim k_1, k_2, k_3 \lesssim 0.3~\mpc$.}
+\label{fig:dbk_rsd}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=\textwidth]{figs/pf_P_posterior_rsd_kmax0_5_dmnu_fin_dh_pm.pdf}
+    \caption{$P_\ell$ Fisher forecast parameter constraints derived from standard $N-body$ 
+    (blue) versus paired-fixed simulations (orange). We find $\ge 20\%$ discrepancies in the
+    marginalized parameter constraints for $h$ and $n_s$ from using paired-fixed simulations.
+    These discrepancies are significantly larger than $\sim 5-10\%$ level precision expected 
+    from Fisher forecasts. 
+    }
+\label{fig:ppost_rsd}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=\textwidth]{figs/pf_B_posterior_rsd_kmax0_5_dmnu_fin_dh_pm.pdf} 
+    \caption{Bispectrum Fisher forecast parameter constraints derived from standard $N-body$ 
+    (blue) versus paired-fixed simulations (orange). We find $> 10\%$ discrepancies in the
+    marginalized parameter constraints for $n_s$ from using paired-fixed simulations.
+    This is larger than $\sim 5-10\%$ level precision expected from Fisher forecasts. 
+    } 
+\label{fig:bpost_rsd}
+\end{center}
+\end{figure}
+
+\end{document}

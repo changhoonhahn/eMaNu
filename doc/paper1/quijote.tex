@@ -1,8 +1,8 @@
 \begin{figure}
 \begin{center}
-    \includegraphics[width=0.6\textwidth]{figs/quijote_bkCov_kmax05.png} 
-    \caption{Covariance matrix of the redshift-space halo bispectrum estimated 
-    using $N_{\rm cov} = 15,000$ realizations of the Qujiote simulation suite at 
+    \includegraphics[width=\textwidth]{figs/quijote_bkCov_kmax05.png} 
+    \caption{Covariance and correlation matrices of the redshift-space halo bispectrum 
+    estimated using $N_{\rm cov} = 15,000$ realizations of the Qujiote simulation suite at 
     the fiducial cosmology: $\Om{=}0.3175$, $\Ob{=}0.049$, $h{=}0.6711$, $n_s{=}0.9624$, $\sig{=}0.834$, 
     and $\smnu{=}0.0$ eV. We include all possible triangle configurations with 
     $k_1, k_2, k_3 \leq k_{\rm max} = 0.5~h/{\rm Mpc}$ and order the configurations 
@@ -23,11 +23,16 @@
     (top to bottom panels). We estimate the derivatives at the fiducial parameters 
     using $N_{\rm deriv} = 1,500$ $N$-body realizations from the Quijote suite. 
     The configurations above are ordered in the same way as Figures~\ref{fig:bk_amp} 
-    and~\ref{fig:dbk_amp} (Appendix~\ref{sec:bk_details}). By using $N$-body 
-    simulations for the derivatives, we rely on fewer assumptions and approximations
-    than analytic methods (\emph{i.e.} perturbation theory). \emph{Furthermore, with 
-    their accuracy on small scales, these derivatives enable us to quantify, for the 
-    first time, the information content of the bispectrum in the nonlinear regime.}
+    and~\ref{fig:dbk_amp} (Appendix~\ref{sec:bk_details}). 
+    \edt{
+        The shaded region marks configurations with $k_1 = 72k_f$; the darker shaded 
+        region marks configurations with $k_1 = 72 k_f$ and $k_2 = 69 k_f$. 
+    }
+    By using $N$-body simulations for the derivatives, we rely on fewer assumptions 
+    and approximations than analytic methods (\emph{i.e.} perturbation theory). 
+    \emph{Furthermore, with their accuracy on small scales, these derivatives enable 
+    us to quantify, for the first time, the information content of the bispectrum in 
+    the nonlinear regime.}
     }
 \label{fig:bk_deriv}
 \end{center}
@@ -48,8 +53,8 @@ First, the Quijote suite includes $N_{\rm cov} = 15,000$ $N$-body realizations r
 fiducial cosmology: $\smnu{=}0.0$eV, $\Om{=}0.3175, \Ob{=}0.049, 
 n_s{=}0.9624, h{=}0.6711$, and $\sig{=}0.834$ (see Table~\ref{tab:sims}). 
 This allows us to robustly estimate the $1898\times1898$ covariance matrix 
-of the {\em full} bispectrum, $\bfi{C}$ (Figure~\ref{fig:bk_cov}). Second, the Quijote 
-suite includes $500$ $N$-body realizations evaluated at $13$ different 
+$\bfi{C}$ of the {\em full} bispectrum (Figure~\ref{fig:bk_cov}). Second, the 
+Quijote suite includes $500$ $N$-body realizations evaluated at $13$ different 
 cosmologies, each a small step away from the fiducial cosmology parameter 
 values along one parameter (Section~\ref{sec:hades} and~Table~\ref{tab:sims}). 
 We apply redshift-space distortions along 3 different directions for 
@@ -125,8 +130,9 @@ assumptions and approximations. In fact, these $N$-body simulation estimated
 derivatives are key in enabling us to quantify, for the first time, the total information 
 content of the redshift-space bispectrum in the non-linear regime. We present the 
 bispectrum derivatives for all triangle configurations in Figure~\ref{fig:bk_deriv} and  
-discuss subtleties of the bispectrum derivatives and tests of convergence and stability 
+discuss subtleties of the derivatives and tests of convergence and stability 
 in Appendix~\ref{sec:numerical}. 
+
 
 We present the constraints on $\smnu$ and other cosmological parameters 
 $\{\Om, \Ob, h, n_s, \sig\}$ derived from the redshift-space halo bispectrum 
@@ -149,6 +155,11 @@ $\partial B_0/\partial M_{\rm min}$, we estimate numerically using
 $B_0$ evaluated at $M^{+}_{\rm min}{=}3.3\times10^{13}h^{-1}M_\odot$ 
 and $M^{-}_{\rm min}{=}3.1\times10^{13}h^{-1}M_\odot$ with all other parameters 
 set to the fiducial value. 
+\edt{
+    In the power spectrum constraints that we include for comparison, we also 
+    include $b'$ and $M_{\rm min}$, where $b'$ in this case is 
+    a scaling factor on the power spectrum amplitude. 
+} 
 
 {\em The bispectrum substantially improves constraints on all parameters 
 over the power spectrum.} For $k_{\rm max} = 0.5~h/{\rm Mpc}$, the 
@@ -158,9 +169,16 @@ the power spectrum. {\em For $\smnu$, the bispectrum improves the constraint
 from $\sigma_{\smnu}{=}~0.2968$ to 0.0572 eV --- over a factor of 5 improvement 
 over the power spectrum}. This $\sigma_{\smnu}{=}~0.0572$~eV constraint is from 
 the {\em bispectrum alone} and only for a $1h^{-1}{\rm Gpc}$ box. For a larger 
-volume, $V$, $\sigma_\theta$ scales as $\propto1/\sqrt{V}$. We list the precise
-marginalized Fisher parameter constraints of both cosmological and nuisance 
-parameters for $P_\ell$ and $B_0$ in Table~\ref{tab:forecast}. 
+volume, $V$, $\sigma_\theta$ scales roughly as $\propto1/\sqrt{V}$. 
+\edt{
+    The $\bar{n}$ of our halo catalogs ($\sim 1.56 \times 10^{-4}~h^3{\rm Mpc}^{-3}$) 
+    is also significantly lower than, for instance, $\bar{n}$ of the SDSS-III BOSS 
+    LOWZ + CMASS sample~\citep[$\sim 3 \times 10^{-4}~h^3{\rm Mpc}^{-3}$;][]{alam2015}. 
+    A higher number density reduces the shot noise term and thus would
+    further improve the constraining power of the bispectrum (see Eq.~\ref{eq:bk_sn}). 
+} 
+We list the precise marginalized Fisher parameter constraints of both cosmological 
+and nuisance parameters for $P_\ell$ and $B_0$ in Table~\ref{tab:forecast}. 
 
 Even below $k_{\rm max} < 0.5~h/{\rm Mpc}$, the bispectrum significantly 
 improves cosmological parameter constraints. We compare $\sigma_\theta$ 
@@ -190,19 +208,20 @@ and $\smnu$ respectively.
     and $\sig$ as well as nuisance parameters $b'$ and $M_{\rm min}$.} 
 \begin{center} 
     \begin{tabular}{cccccccccc} \toprule
-         & $k_{\rm max}$ & $\smnu$ & $\Omega_m$ & $\Omega_b$ & $h$ & $n_s$ & $\sig$ & $b'$ & $M_{\rm min}$ \\
-         & ({\footnotesize $h/{\rm Mpc}$}) &({\footnotesize eV}) & & & & & & & ({\footnotesize $10^{13} h^{-1}M_\odot$}) \\[3pt] \hline\hline
+        & $k_{\rm max}$ & $\smnu$ & $\Omega_m$ & $\Omega_b$ & $h$ & $n_s$ & $\sig$ & $b'$ & $M_{\rm min}$ \\
+        & ({\footnotesize $h/{\rm Mpc}$}) &({\footnotesize eV}) & & & & & & & ({\footnotesize $10^{13} h^{-1}M_\odot$}) \\[3pt] \hline\hline
 
-            &     & 0.0 & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 1. & 3.2  \\ 
-$P_{\ell=0,2}$  & 0.2 & $\pm0.711$ & $\pm0.037$ & $\pm0.015$ & $\pm0.179$ & $\pm0.213$ & $\pm0.085$ & $\pm0.223$ & $\pm1.827$\\
-            & 0.3 & $\pm0.509$ & $\pm0.029$ & $\pm0.013$ & $\pm0.151$ & $\pm0.167$ & $\pm0.047$ & $\pm0.117$ & $\pm0.725$\\
-            & 0.4 & $\pm0.383$ & $\pm0.026$ & $\pm0.012$ & $\pm0.137$ & $\pm0.152$ & $\pm0.039$ & $\pm0.102$ & $\pm0.470$\\
-            & 0.5 & $\pm{\bf 0.297}$ & $\pm0.023$ & $\pm0.012$ & $\pm0.123$ & $\pm0.130$ & $\pm0.037$ & $\pm0.096$ & $\pm0.376$\\\hline
-%    {\footnotesize with Planck priors} & 0.5 &$\pm0.080$& $\pm0.013$ & $\pm0.0012$ & $\pm0.0086$ & $\pm0.0048$ & $\pm0.019$ & $\pm0.067$ & $\pm0.362$\\\hline
+        &     & 0.0 & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 1. & 3.2  \\ 
+        $P_{\ell=0,2}$  & 0.2 & $\pm0.711$ & $\pm0.037$ & $\pm0.015$ & $\pm0.179$ & $\pm0.213$ & $\pm0.085$ & $\pm0.223$ & $\pm1.827$\\
+        & 0.3 & $\pm0.509$ & $\pm0.029$ & $\pm0.013$ & $\pm0.151$ & $\pm0.167$ & $\pm0.047$ & $\pm0.117$ & $\pm0.725$\\
+        & 0.4 & $\pm0.383$ & $\pm0.026$ & $\pm0.012$ & $\pm0.137$ & $\pm0.152$ & $\pm0.039$ & $\pm0.102$ & $\pm0.470$\\
+        & 0.5 & $\pm{\bf 0.297}$ & $\pm0.023$ & $\pm0.012$ & $\pm0.123$ & $\pm0.130$ & $\pm0.037$ & $\pm0.096$ & $\pm0.376$\\
+    {\footnotesize +Planck priors} & 0.5 &$\pm0.077$& $\pm0.012$ & $\pm0.0012$ & $\pm0.0084$ & $\pm0.0044$ & $\pm0.017$ & $\pm0.033$ & $\pm0.212$\\\hline
     $B_0$  & 0.2 & $\pm0.256$ & $\pm0.029$ & $\pm0.014$ & $\pm0.142$ & $\pm0.138$ & $\pm0.049$ & $\pm0.264$ & $\pm1.299$\\
             & 0.3 & $\pm0.130$ & $\pm0.021$ & $\pm0.008$ & $\pm0.077$ & $\pm0.074$ & $\pm0.023$ & $\pm0.143$ & $\pm0.654$\\
             & 0.4 & $\pm0.078$ & $\pm0.015$ & $\pm0.006$ & $\pm0.052$ & $\pm0.047$ & $\pm0.016$ & $\pm0.088$ & $\pm0.367$\\
-            & 0.5 & $\pm{\bf 0.057}$ & $\pm0.012$ & $\pm0.004$ & $\pm0.040$ & $\pm0.036$ & $\pm0.014$ & $\pm0.070$ & $\pm0.268$\\[3pt]
+            & 0.5 & $\pm{\bf 0.057}$ & $\pm0.012$ & $\pm0.004$ & $\pm0.040$ & $\pm0.036$ & $\pm0.014$ & $\pm0.070$ & $\pm0.268$\\
+{\footnotesize +Planck priors} & 0.5 &$\pm0.043$& $\pm0.009$ & $\pm0.0008$ & $\pm0.0064$ & $\pm0.0043$ & $\pm0.010$ & $\pm0.068$ & $\pm0.253$\\[3pt]
 
 %B sigmas 0.0086, 0.0008, 0.0060, 0.0043, 0.0085, 0.0297, 0.0679, 0.2549
     \hline
@@ -252,8 +271,29 @@ degeneracies. The parameter degeneracies in the $P_\ell$ forecasts of Figure~\re
 are consistent with similarities in the shape and scale dependence of 
 $P_\ell$ derivatives $\partial P_0/\partial \theta$ and $\partial P_2/\partial \theta$. 
 On the other hand, the $B_0$ derivatives with respect to the parameters 
-have significant different scale and triangle shape dependencies, as seen 
-in Figure~\ref{fig:bk_deriv}.
+have significant different scale and triangle shape dependencies (Figure~\ref{fig:bk_deriv}).
+
+\edt{
+    In Figure~\ref{fig:bk_deriv}, we mark the triangles with $k_1 = 72 k_f$ in the 
+    shaded region and triangles with $k_1 = 72 k_f$ and $k_2 = 69 k_f$ in the darker 
+    shaded region. In the shaded region, $k_2$ increases for triangles to the right 
+    while $k_3$ and $\theta_{12}$, the angle between $k_1$ and $k_2$, increase for 
+    the triangles to the right in the darker shaded region. $\partial \log B_0/\partial \smnu$
+    has little scale dependence for triangles with small $\theta_{12}$ 
+    ($k_1, k_2 \gg k_3$; folded or squeezed traingles). This is in contrast to the 
+    $\Om$, $\Ob$, $h$, and $n_s$ derivatives, which have significant scale dependence 
+    at $k < 0.2~\mpc$. For a given $k_1$ and $k_2$, $\partial \log B_0/\partial \smnu$
+    decreases as $\theta_{12}$ increases. The $\Om$, $h$, and $n_s$ derivatives have 
+    the opposite $\theta_{12}$ dependence. $\partial \log B_0/\partial \sig$
+    decreases as $\theta_{12}$ increases and also has little scale dependence for 
+    folded or squeezed triangles. However, the $\theta_{12}$ dependence of 
+    $\partial \log B_0/\partial \sig$, is scale independent unlike $\partial \log B_0/\partial \smnu$,
+    which has little $\theta_{12}$ dependence on large scales and stronger $\theta_{12}$ 
+    dependence on small scales. The detailed differences in the shape dependence of 
+    $\partial \log B_0/\partial \smnu$, $\partial \log B_0/\partial \sig$, other the 
+    other derivatives, highlighted in the shaded regions, ultimately allow $B_0$ 
+    to break parameter degeneracies. 
+}
 
 By exploiting the massive number of $N$-body simulations of the Quijote 
 suite, we present for the first time the total information content of the 
@@ -262,8 +302,8 @@ of the bispectrum has previously been examined using perturbation
 theory. Previous works, for instance, measure the signal-to-noise ratio (SNR) 
 of the bispectrum derived from covariance matrices estimated using perturbation 
 theory~\citep{sefusatti2005, sefusatti2006, chan2017}. More recently, \cite{chan2017},
-used covariance matrices that include non-Gaussian contributions calibrated with 
-$N$-body simulations to find that the cumulative SNR of the halo bispectrum is 
+used covariance matrices from %that include non-Gaussian contributions calibrated with 
+$\sim 4700$ $N$-body simulations to find that the cumulative SNR of the halo bispectrum is 
 $\sim 30\%$ of the SNR of the halo power spectrum at $k_{\rm max} \sim 0.1~\mpc$ 
 and increases to $\sim 40\%$ at $k_{\rm max}\sim 0.35~\mpc$. While these simple 
 SNR measurements cannot be easily compared to Fisher analysis~\citep{repp2015, blot2016}, 
@@ -278,7 +318,7 @@ $k_{\rm max}\sim 0.1~\mpc$. At $k_{\rm max} = 0.75~\mpc$, the largest $k$ we
 measure the $B_0$, the SNR of $B_0$ is $\sim75\%$ of the SNR of $P_0$.
 
 Beyond these signal-to-noise calculations, a number of previous works 
-have quantified the information content of the bispectrum~\citep{scoccimarro2004, sefusatti2006, sefusatti2007, song2015, tellarini2016, yamauchi2017a, karagiannis2018, yankelevich2019, chudaykin2019}. 
+have quantified the information content of the bispectrum~\citep{scoccimarro2004, sefusatti2006, sefusatti2007, song2015, tellarini2016, yamauchi2017a, karagiannis2018, yankelevich2019, chudaykin2019, coulton2019}. 
 While most of these works fix most cosmological parameters and focus soley 
 on forecasting constraints of primordial non-Gaussianity and bias parameters, 
 \cite{sefusatti2006}, \cite{yankelevich2019}, and \cite{chudaykin2019} provide 
@@ -357,9 +397,14 @@ the constraining power on nonlinear scales. Also different from our analysis,
 approach, which derives more accurate parameter constraints than our Fisher
 approach. They, however, neglect non-Gaussian contributions to both the 
 $P_\ell$ and $B_0$ covariance matrices and do not include the covariance 
-between $P_\ell$ and $B_0$ for their joint constraints. We find that 
-neglecting the covariance between $P_\ell$ and $B_0$ overestimates constraints 
-by ${\sim}20\%$ for $k_{\rm max} = 0.2~\mpc$. Nonetheless, \cite{chudaykin2019} 
+between $P_\ell$ and $B_0$ for their joint constraints. 
+\edt{
+    While their theoretical error covariance, which couples different $k$-modes, 
+    may partly take this into account, 
+}
+we find that neglecting the covariance between $P_\ell$ and $B_0$ overestimates 
+constraints, tighter by ${\sim}20\%$ for $k_{\rm max} = 0.2~\mpc$. 
+Nonetheless, \cite{chudaykin2019} 
 and our results both find significant improves in cosmological parameter 
 constraints from including $B_0$. In fact, taking the theoretical errors 
 into account, the improvements from $B_0$ they find are loosely consistent 
@@ -464,14 +509,16 @@ we marginalize over $\mmin$, this may not fully account for the extra
 information from $\bar{n}$ and nonlinear bias leaking into the derivatives. 
 To test this, we include extra nuisance parameters, $\{A_{\rm SN}$, 
 $B_{\rm SN}$, $b_2$, $\gamma_2\}$, and examine their impact on our forecasts. 
-$A_{\rm SN}$ and $B_{\rm SN}$ are multiplicative factors of the first and
-second terms of Eq.~\ref{eq:bk_sn}, which we include to account for any 
-$\bar{n}$ dependence that may be introduced from the shotnoise correction 
-(Eq.~\ref{eq:bk_sn}). $b_2$ and $\gamma_2$ are the quadratic bias and nonlocal bias 
-parameters~\citep{chan2012, sheth2013} to account for information from 
-nonlinear bias. Marginalizing over $b'$, $\mmin$, $A_{\rm SN}$, $B_{\rm SN}$, 
-$b_2$ and $\gamma_2$, we obtain the following constraints for $B_0$ 
-with $k_{\rm max} = 0.5~\mpc$:
+\edt{ 
+    $A_{\rm SN}$ and $B_{\rm SN}$ account for any $\bar{n}$ dependence that may 
+    be introduced from the shot noise correction. They are multiplicative factors 
+    of the first and second terms of Eq.~\ref{eq:bk_sn}. 
+}
+$b_2$ and $\gamma_2$ 
+are the quadratic bias and nonlocal bias parameters~\citep{chan2012, sheth2013}
+to account for information from nonlinear bias. Marginalizing over $\{b'$, 
+$\mmin$, $A_{\rm SN}$, $B_{\rm SN}$, $b_2$, $\gamma_2\}$, we obtain the 
+following constraints for $B_0$ with $k_{\rm max} = 0.5~\mpc$:
 $\sigma_{\Om} = 0.0129$, $\sigma_{\Ob} = 0.0044$, $\sigma_h=0.0404$, 
 $\sigma_{n_s}=0.0456$, $\sigma_{\sig}=0.0228$, and $\sigma_{\smnu}=0.0575$. 
 While constraints on $n_s$ and $\sig$ are broadened from our fiducial 
@@ -497,15 +544,24 @@ that describe the distribution of central and satellite galaxies in
 halos~\citep[\emph{e.g.}][]{zheng2005,leauthaud2012,tinker2013,zentner2016,vakili2019}. 
 We, therefore, refrain from a more exhaustive investigation of the impact of 
 halo bias on our results and focus quantifying the constraining power of 
-the galaxy bispectrum in the next paper of this series. 
+the galaxy bispectrum in the next paper of this series: Hahn et al. (in preparation). 
 
 Marginalizing over galaxy bias parameters, will likely reduce the constraining 
-power at high $k$. \cite{hand2017}, for instance, with their 13 parameter 
-model only find a 15-30\% improvement in $f\sig$ when they extend their power 
-spectrum multipole analysis from $0.2~\mpc$ to $0.4~\mpc$. However, jointly 
-analyzing power spectrum and bispectrum will help break parameter degeneracies 
-and improve constraints on cosmological parameters~\citep{sefusatti2006, yankelevich2019, chudaykin2019}.
-We again emphasize that the constraints we present is for a $1h^{-1}{\rm Gpc}$ box, 
-a substantially smaller volume than upcoming surveys. Thus, even if the constraining 
+power at high $k$. 
+\edt{
+    Improvements that come from extending to smaller scales will also be diminished 
+    by the extra parameters needed to accurately model those scales. \cite{hand2017}, 
+    for instance, using a 13 parameter model only find a 15-30\% improvement in 
+    $f\sig$ when they extend their power spectrum multipole analysis from 
+    $0.2~\mpc$ to $0.4~\mpc$. Although we focus on parameter constraints from 
+    the bispectrum alone in this work, jointly analyzing the power spectrum and 
+    bispectrum will improve matters in this regard. A combined analysis will help 
+    constrain bias parameters, further break parameter degeneracies, 
+    and improve constraints on cosmological parameters~\citep{sefusatti2006, yankelevich2019, chudaykin2019, coulton2019}.
+    Furthermore, we emphasize that the constraints we present is for a $1h^{-1}{\rm Gpc}$ 
+    box and $\bar{n} \sim 1.56 \times 10^{-4}~h^3{\rm Mpc}^{-3}$, a substantially 
+    smaller volume and lower number density than upcoming surveys. 
+}
+Thus, even if the constraining 
 power at high $k$ is reduced, our forecasts suggest that the bispectrum offers 
 significant improvements over the power spectrum, especially for constraining $\smnu$. 

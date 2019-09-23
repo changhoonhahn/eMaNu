@@ -6,28 +6,26 @@
 The \quij suite includes 15,000 standard $N$-body simulations at the fiducial cosmology to 
 accurately estimate the covariance matrices. It also includes sets of 500 simulations at 13 
 different cosmologies, where only one parameter is varied from the fiducial value (underlined), 
-to estimate derivatives of observables along the cosmological parameters. At every cosmology,
-the \quij suite also includes 250 pairs of paired-fixed simulations.  
+to estimate derivatives of observables along the cosmological parameters.
 } 
 \begin{center}
-\begin{tabular}{cccccccccc} \toprule
-Name  &$\smnu$ & $\Omega_m$ & $\Omega_b$ & $h$ & $n_s$ & $\sigma_8$ & ICs & standard & paired-fixed \\
-& & & & & & & & realizations & pairs \\[3pt] \hline\hline
-Fiducial 	& 0.0         & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 2LPT & 15,000 & 250\\ 
-Fiducial ZA     & 0.0         & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & Zel'dovich& 500 & 250\\ 
-$\smnu^+$       & \underline{0.1} eV & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & Zel'dovich & 500 & 250\\ 
-$\smnu^{++}$    & \underline{0.2} eV & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & Zel'dovich & 500 & 250\\ 
-$\smnu^{+++}$   & \underline{0.4} eV & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & Zel'dovich & 500 & 250\\ 
-$\Omega_m^+$    & 0.0   & \underline{ 0.3275} & 0.049 & 0.6711 & 0.9624 & 0.834 & 2LPT & 500 & 250\\ 
-$\Omega_m^-$    & 0.0   & \underline{ 0.3075} & 0.049 & 0.6711 & 0.9624 & 0.834 & 2LPT & 500 & 250\\ 
-$\Omega_b^+$    & 0.0   & 0.3175 & \underline{0.051} & 0.6711 & 0.9624 & 0.834 & 2LPT & 500 & 250\\ 
-$\Omega_b^-$    & 0.0   & 0.3175 & \underline{0.047} & 0.6711 & 0.9624 & 0.834 & 2LPT & 500 & 250\\ 
-$h^+$           & 0.0   & 0.3175 & 0.049 & \underline{0.6911} & 0.9624 & 0.834 & 2LPT & 500 & 250\\ 
-$h^-$           & 0.0   & 0.3175 & 0.049 & \underline{0.6511} & 0.9624 & 0.834 & 2LPT & 500 & 250\\ 
-$n_s^+$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9824} & 0.834 & 2LPT & 500 & 250\\ 
-$n_s^-$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9424} & 0.834 & 2LPT & 500 & 250\\ 
-$\sigma_8^+$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.849} & 2LPT & 500 & 250\\ 
-$\sigma_8^-$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.819} & 2LPT & 500 & 250\\[3pt]
+\begin{tabular}{ccccccccc} \toprule
+Name  &$\smnu$ & $\Omega_m$ & $\Omega_b$ & $h$ & $n_s$ & $\sigma_8$ & ICs & realizations \\[3pt] \hline\hline
+Fiducial 	& 0.0         & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & 2LPT & 15,000 \\ 
+Fiducial ZA     & 0.0         & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & Zel'dovich& 500 \\ 
+$\smnu^+$       & \underline{0.1} eV & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & Zel'dovich & 500 \\ 
+$\smnu^{++}$    & \underline{0.2} eV & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & Zel'dovich & 500 \\ 
+$\smnu^{+++}$   & \underline{0.4} eV & 0.3175 & 0.049 & 0.6711 & 0.9624 & 0.834 & Zel'dovich & 500 \\ 
+$\Omega_m^+$    & 0.0   & \underline{ 0.3275} & 0.049 & 0.6711 & 0.9624 & 0.834 & 2LPT & 500 \\ 
+$\Omega_m^-$    & 0.0   & \underline{ 0.3075} & 0.049 & 0.6711 & 0.9624 & 0.834 & 2LPT & 500 \\ 
+$\Omega_b^+$    & 0.0   & 0.3175 & \underline{0.051} & 0.6711 & 0.9624 & 0.834 & 2LPT & 500 \\ 
+$\Omega_b^-$    & 0.0   & 0.3175 & \underline{0.047} & 0.6711 & 0.9624 & 0.834 & 2LPT & 500 \\ 
+$h^+$           & 0.0   & 0.3175 & 0.049 & \underline{0.6911} & 0.9624 & 0.834 & 2LPT & 500 \\ 
+$h^-$           & 0.0   & 0.3175 & 0.049 & \underline{0.6511} & 0.9624 & 0.834 & 2LPT & 500 \\ 
+$n_s^+$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9824} & 0.834 & 2LPT & 500 \\ 
+$n_s^-$         & 0.0   & 0.3175 & 0.049 & 0.6711 & \underline{0.9424} & 0.834 & 2LPT & 500 \\ 
+$\sigma_8^+$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.849} & 2LPT & 500 \\ 
+$\sigma_8^-$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.819} & 2LPT & 500 \\[3pt]
 \hline
 \end{tabular} \label{tab:sims}
 \end{center}
@@ -61,17 +59,10 @@ second-order perturbation theory for simulations with massless neutrinos
 ($\smnu > 0.0$ eV). The initial conditions with massive neutrinos take 
 their scale-dependent growth factors/rates into account using the 
 \cite{zennaro2017a} method, while for the massless neutrino case we use 
-the traditional scale-independent rescaling. For a standard $N$-body simulation, 
-the amplitude $A$ and phase $\theta$ of a Fourier mode $\delta(\bfi{k}) = A e^{i\theta}$ 
-are drawn from a Rayleigh distribution and uniform distribution between 
-0 and $\pi$, respectively (see Section~\ref{sec:intro}). For a pair of 
-paired-fixed simulations, their amplitudes are fixed to the square root 
-of the variance of the Rayleigh distribution and phases of the pair 
-differ by $\pi$. 
-
-From the initial conditions, the simulations follow the gravitational evolution 
-of $512^3$ dark matter particles, and $512^3$ neutrino particles for massive 
-neutrino models, to $z=0$ using {\sc Gadget-III} TreePM+SPH code~\citep{springel2005}. 
+the traditional scale-independent rescaling. From the initial conditions, 
+the simulations follow the gravitational evolution of $512^3$ dark matter 
+particles, and $512^3$ neutrino particles for massive neutrino models, 
+to $z=0$ using {\sc Gadget-III} TreePM+SPH code~\citep{springel2005}. 
 Simulations with massive neutrinos are run using the ``particle method'', 
 where neutrinos are described as a collisionless and pressureless fluid 
 and therefore modeled as particles, same as CDM~\citep{brandbyge2008,viel2010}.

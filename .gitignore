@@ -17,6 +17,7 @@ __pycache__
 *.key
 *.DS_Store
 *DS_Store
+.DS_store
 
 build
 dist

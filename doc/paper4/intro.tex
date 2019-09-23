@@ -1,8 +1,36 @@
 \section{Introduction} \label{sec:intro} 
 
-\cite{pontzen2016}
-\cite{angulo2016}
-\cite{villaescusa-navarro2018a}
+Current LSS analyses rely on analytic models (i.e. perturbation theory) to calculate 
+the likelihood combined with a Bayesian parameter inference framework to derive 
+posterior probability distrubtions of cosmological parameters. While much progress 
+has been made to extend perturbation theory to smaller more nonlinear scales, 
+perturbation theory eventually breaks down. This is a shame because there's significant 
+constraining power on small scales. 
+
+N-body simulations don't have the same issues on small scales. There's been a lot of 
+progress in making fast simulations (e.g. fastpm, etc). In principle, we can exploit
+the constraining power on small scales, beyond perturbation theory limits, by calculating 
+the likelihood directly using simulations. However, even with their progress, simulations 
+are expensive and in standard MCMC analyses require evaluating the likelihood $>100,000$ 
+times. This makes a naive simulation based approach currently intractable. 
+
+Emulation based approaches have been put forth to address this issue. These approaches 
+exploit the accuracy of simulations on small scales while reducing the compute time 
+necessary. In this approach an emulator is built using simulations evaluated at a set 
+of parameters spanning the parameter space to be explored. Most recent works have 
+utilized space-filling sampling methods such as latin hypercubes (citecite) and build
+their emulators using Gaussian Processes (cite) or chaotic polynomial (cite). Yet even 
+with such approaches the number of simulations is pretty large. Give numbers from Aemulus. 
+    
+One reason why we still need a lot of sims even for emulators is sample variance. Sample
+variance is the statistical fluctations in our observables that come from using a finite 
+size simulation. It directly contributes to the theoretical uncertainty of the emulator. 
+Hence multiple realizations are necessary to beat down sample variance and get a less 
+noisy estimate on the mean observable. 
+
+Recently, \cite{pontzen2016} and \cite{angulo2016} proposed a method to suppress sample
+variance using \emph{paired fixed simulations}. define in some concise way paired, fixed, 
+and paired-fixed sims (see below). 
 
 \beq
 \delta(\bfi{x}) = \frac{\rho(\bfi{x}) - \bar{\rho}}{\bar{\rho}}
@@ -36,3 +64,11 @@ A = \sqrt{\frac{V~P(k)}{(2\pi)^3}},
 such that the power spectrum is the same. 
 
 Paired fixed is when you do both. 
+
+
+\cite{villaescusa-navarro2018a} and \cite{chuang2019} recently examined whether paired fixed simulations
+introduce any bias for a variety of observables. list observables. In this work, we focus on whether paired-fixed 
+simulations introduce any bias for the full real-space and redshift-space bispectrum using over $23000$ $N$-body
+simulations of the \quij simulation suite. Furthermore, we examine whether these biases can propagate to parameter 
+inference.  
+

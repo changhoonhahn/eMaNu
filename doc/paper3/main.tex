@@ -44,6 +44,7 @@
 \newcommand{\parti}[1]{\frac{\partial #1}{\partial \theta_i}}
 \newcommand{\partj}[1]{\frac{\partial #1}{\partial \theta_j}}
 \newcommand{\mpc}{h/{\rm Mpc}}
+\newcommand{\estC}{\widehat{\bfi{C}}}
 \newcommand{\quij}{{\sc Quijote}~}
 
 \newcommand{\specialcell}[2][c]{%
@@ -58,6 +59,7 @@
 \newcommand{\eitem}{\end{itemize}}
 \newcommand{\beq}{\begin{equation}}
 \newcommand{\eeq}{\end{equation}}
+\mathchardef\mhyphen="2D
 
 %% collaborating
 \definecolor{orange}{rgb}{1,0.5,0}
@@ -65,7 +67,7 @@
 
 \begin{document}\sloppy\sloppypar\frenchspacing 
 
-\title{Suppressing Cosmic Variance in the Bispectrum using Paired-Fixed Simulations} 
+\title{Constraining $\smnu$ with the Bispectrum III: Compressing the Bispectrum} 
 \date{\texttt{DRAFT~---~\githash~---~\gitdate~---~NOT READY FOR DISTRIBUTION}}
 
 \newcounter{affilcounter}
@@ -91,6 +93,9 @@ cosmology:
 % --- quijote ---
 \input{sims.tex}
 
+% --- tdist Fisher -- 
+\input{tdist.tex} 
+
 % --- results ---
 \input{results.tex}
 
@@ -99,16 +104,12 @@ cosmology:
 
 \section*{Acknowledgements}
 It's a pleasure to thank 
-    Arka Banerjee,
-    Chia-Hsun Chuang, 
-    Joseph DeRose, 
-    Thomas McClintock, 
-    Jeremy L. Tinker 
     ...
 for valuable discussions and comments. 
 
-\appendix
+%\appendix
 
 \bibliographystyle{yahapj}
-\bibliography{pairfix} 
+
+\bibliography{compress} 
 \end{document}

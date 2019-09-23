@@ -21,9 +21,9 @@ of $\smnu = $ 0.06, 0.10, and 0.15 eV. These simulations are run using the
 and pressureless fluid and therefore modeled as particles, same as 
 CDM~\citep{brandbyge2008,viel2010}. HADES also includes simulations with massless 
 neutrino and different values of $\sigma_8$ to examine the $\smnu-\sigma_8$ 
-degeneracy. The $\sigma_8$ values were chosen to match either $\sigma_8^m$ or 
-$\sigma_8^{c}$ --- $\sigma_8$ computed with respect to total matter 
-(CDM + baryons + $\nu$) or CDM + baryons --- of the massive neutrino simulations: 
+degeneracy. The $\sigma_8$ values in these simulations were chosen to match {\em either} 
+$\sigma_8^m$ or $\sigma_8^{c}$ ($\sigma_8$ computed with respect to total matter, 
+CDM + baryons + $\nu$, or CDM + baryons) of the massive neutrino simulations: 
 $\sigma_8 = 0.822, 0.818, 0.807$, and $0.798$. Each model has $100$ independent 
 realizations and we focus on the snapshots saved at $z = 0$. Halos closely 
 trace the CDM+baryon field rather than the total matter field and neutrinos 
@@ -68,23 +68,33 @@ of the simulations follow the gravitational evolution of $512^3$ dark matter par
 and $512^3$ neutrino particles for massive neutrino models, to $z=0$ using {\sc Gadget-III}
 TreePM+SPH code (same as HADES). Halos are then identified using the same FoF 
 scheme and mass limit as HADES. For the fiducial cosmology, the halo catalogs 
-have ${\sim}156,000$ halos ($\bar{n} \sim 1.56 \times 10^{-4}~h^3{\rm Gpc}^{-3}$) 
+have ${\sim}156,000$ halos ($\bar{n} \sim 1.56 \times 10^{-4}~h^3{\rm Mpc}^{-3}$) 
 with $\bar{n} P_0(k=0.1)\sim 3.23$.
 % The simulations run at the fiducial cosmology for covariance matrix estimation are standard $N$-body simulations. However, the rest are paired fixed simulations, which greatly reduce cosmic variance without introducing bias for a large set of statistics~\citep{angulo2016,pontzen2016,villaescusa-navarro2018}.  We confirm that the paired fixed simulations do not introduce any bias for the redshift-space halo bispectrum (the observable we consider in this paper). 
-We refer readers to Villaescusa-Navarro et al. (in preparation) for further details 
-on the Quijote simulations.
+We refer readers to~\cite{villaescusa-navarro2019} for further details on the Quijote simulations.
 
 \begin{figure}
 \begin{center}
 \includegraphics[width=0.9\textwidth]{figs/haloPlk_rsd_ratio.pdf}
     \caption{Impact of $\smnu$ and $\sig$ on the redshift-space halo power 
     spectrum monopole, $P_0$, and quadrupole, $P_2$, of the HADES simulation 
-    suite. The $P_\ell$ measurements at each cosmology is
-    averaged over 100 $N$-body realizations. $\smnu$ and $\sig$ produce 
-    almost identical effects on halo clustering on small scales 
-    ($k > 0.1\hmpc$). This degeneracy can be partially broken through 
-    the quadrupole; however, {\em $\smnu$ and $\sig$ produce almost 
-    the same effect on two-point clustering --- within a few percent}.
+    suite,   
+    \edt{
+        which includes simulations with $\smnu = 0.0$, 0.06, 0.10, 
+        and 0.15 eV (orange, green, and red) as well as massless neutrino 
+        simulations with $\sig = 0.822$, 0.818, 0.807, and 0.798 
+        (black solid, dashed, dot-dashed, and dotted). $P_\ell$ at 
+        each of these cosmology is averaged over 100 $N$-body realizations. 
+        While neutrinos suppress small-scale matter power spectrum,  
+        the halo $P_\ell$ increases with higher $\smnu$ because cosmologies 
+        with higher $\smnu$ have lower $\sig$, which translates into larger 
+        halo bias for a fixed halo mass limit. 
+    }
+    $\smnu$ and $\sig$ produce almost identical effects on halo clustering 
+    on small scales ($k > 0.1\hmpc$). This degeneracy can be partially 
+    broken through the quadrupole; however, {\em $\smnu$ and $\sig$ 
+    produce almost the same effect on two-point clustering --- within a 
+    few percent}.
     }
 \label{fig:plk}
 \end{center}

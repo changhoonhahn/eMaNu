@@ -20,11 +20,5 @@ main.pdf: *.tex vc.tex
 	( grep Rerun main.log && ${LATEX} main ) || echo "Done."
 	( grep Rerun main.log && ${LATEX} main ) || echo "Done."
 
-
-email_uros.pdf: *.tex
-	${LATEX} emails/email_uros 
-	${LATEX} emails/email_uros 
-	mv email_uros* emails/
-
 clean:
 	${RM} $(foreach suff, ${TMP_SUFFS}, main.${suff})

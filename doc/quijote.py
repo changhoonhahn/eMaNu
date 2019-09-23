@@ -261,28 +261,34 @@ def _p02kCov(kmax=0.5, rsd=2, flag='reg'):
 
 
 def _bkCov(kmax=0.5, rsd=2, flag='reg'): 
-    ''' plot the covariance matrix of the quijote fiducial 
-    bispectrum. 
+    ''' plot the covariance and correlation matrices of the quijote fiducial bispectrum. 
     '''
     i_k, j_k, l_k, C_bk, _ = bkCov(rsd=rsd, flag=flag) 
     bklim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # k limit
     C_bk = C_bk[bklim,:][:,bklim]
-
-    #ijl = UT.ijl_order(i_k[bklim], j_k[bklim], l_k[bklim], typ='GM') # order of triangles 
-    #C_bk = C_bk[ijl,:][:,ijl]
+    print(C_bk[:5,:5])
     print('covariance matrix condition number = %.5e' % np.linalg.cond(C_bk)) 
 
+    # correlation matrix 
+    Ccorr_bk = ((C_bk / np.sqrt(np.diag(C_bk))).T / np.sqrt(np.diag(C_bk))).T
+    print(Ccorr_bk[:5,:5])
+
     # plot the covariance matrix 
-    fig = plt.figure(figsize=(10,8))
-    sub = fig.add_subplot(111)
+    fig = plt.figure(figsize=(20,8))
+    sub = fig.add_subplot(121)
     cm = sub.pcolormesh(C_bk, norm=LogNorm(vmin=1e11, vmax=1e18))
     cbar = fig.colorbar(cm, ax=sub) 
     cbar.set_label(r'$\widehat{B}_0(k_1, k_2, k_3)$ covariance matrix, ${\bf C}_{B}$', 
             fontsize=25, labelpad=10, rotation=90)
+
+    sub = fig.add_subplot(122)
+    cm = sub.pcolormesh(Ccorr_bk, vmin=-0.025, vmax=1.) 
+    cbar = fig.colorbar(cm, ax=sub) 
+    cbar.set_label(r'$\widehat{B}_0(k_1, k_2, k_3)$ correlation matrix', fontsize=25, labelpad=10, rotation=90)
     ffig = os.path.join(dir_doc, 
             'quijote_bkCov_kmax%s%s%s.png' % (str(kmax).replace('.', ''), _rsd_str(rsd), _flag_str(flag)))
-    #fig.savefig(ffig, bbox_inches='tight') 
-    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
+    fig.savefig(ffig, bbox_inches='tight') 
+    #fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
     return None 
 
 
@@ -717,13 +723,18 @@ def dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin'):
     '''
     _thetas = copy(thetas)
     _theta_lbls = copy(theta_lbls) 
-    _theta_lims = [(-15., 5.), (-2., 24.), (-4., 0.5), (-5., -0.5), (-6., 0), (-1.5, 2.)]
+    _theta_lims = [(-15., 5.), (-2., 24.), (-4., 0.5), (-5., -0.5), (-6., 0), (-1.5, 1.5)]
 
     i_k, j_k, l_k, _ = dpdt = dBkdtheta('Om', log=log, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True)
     klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # get k limit
-    ijl = UT.ijl_order(i_k[klim], j_k[klim], l_k[klim], typ='GM') # order of triangles 
-    print i_k[:10], j_k[:10], l_k[:10]
-    print i_k[ijl][:10], j_k[ijl][:10], l_k[ijl][:10]
+    #ijl = UT.ijl_order(i_k[klim], j_k[klim], l_k[klim], typ='GM') # order of triangles 
+    #print i_k[:10], j_k[:10], l_k[:10]
+    fix_k1 = (i_k == 72) 
+    i0_fix_k1 = np.arange(len(i_k))[klim & fix_k1][0]
+    i1_fix_k1 = np.arange(len(i_k))[klim & fix_k1][-1]
+    fix_k1k2 = (i_k == 72) & (j_k == 69) 
+    i0_fix_k1k2 = np.arange(len(i_k))[klim & fix_k1k2][0]
+    i1_fix_k1k2 = np.arange(len(i_k))[klim & fix_k1k2][-1]
 
     fig = plt.figure(figsize=(15,15))
     for i_tt, tt, lbl in zip(range(len(_thetas)), _thetas, _theta_lbls): 
@@ -731,6 +742,12 @@ def dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin'):
         dpdt = dBkdtheta(tt, log=log, rsd=rsd, flag=flag, dmnu=dmnu)
         plt_bk, = sub.plot(range(np.sum(klim)), dpdt[klim])
         #plt_bk, = sub.plot(range(np.sum(klim)), dpdt[klim][ijl])
+        if tt == 'Mnu': 
+            print(dpdt[klim])
+        sub.fill_between([i0_fix_k1, i1_fix_k1], [_theta_lims[i_tt][0], _theta_lims[i_tt][0]], 
+                [_theta_lims[i_tt][1], _theta_lims[i_tt][1]], color='k', alpha=0.1, linewidth=0) 
+        sub.fill_between([i0_fix_k1k2, i1_fix_k1k2], [_theta_lims[i_tt][0], _theta_lims[i_tt][0]], 
+                [_theta_lims[i_tt][1], _theta_lims[i_tt][1]], color='k', alpha=0.1, linewidth=0) 
         
         sub.set_xlim(0, np.sum(klim)) 
         if not log: sub.set_yscale('log') 
@@ -891,6 +908,138 @@ def dlogBdMnu_IC(kmax=0.5):
     return None
 
 
+def understand_dBdthetas(kmax=0.5, log=True, rsd='all', flag='reg', dmnu='fin'):
+    ''' Compare the derivatives of the bispectrum w.r.t. all the parameters
+    
+    :param rsd: (default: 'all') 
+        rsd kwarg that specifies rsd set up for B(k). 
+        If rsd == 'all', include 3 RSD directions. 
+        If rsd in [0,1,2] include one of the directions
+
+    :param flag: (default: 'reg')  
+        kwarg specifying the flag for B(k). 
+        If `flag is None`, include paired-fixed and regular N-body simulation. 
+        If `flag == 'ncv'` only include paired-fixed. 
+        If `flag == 'reg'` only include regular N-body
+
+    :param dmnu: 
+        derivative finite differences setup
+    '''
+    _thetas = copy(thetas)
+    _theta_lbls = copy(theta_lbls) 
+
+    i_k, j_k, l_k, _ = dpdt = dBkdtheta('Om', log=log, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True)
+    klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # get k limit
+    
+    # B with marked triangle shapes 
+    fig = plt.figure(figsize=(15,5))
+    sub = fig.add_subplot(111)
+    dpdt = dBkdtheta('Mnu', log=log, rsd=rsd, flag=flag, dmnu=dmnu)
+    plt_bk, = sub.plot(range(np.sum(klim)), dpdt[klim], c='k', lw=1)
+
+    equ = ((i_k[klim] == j_k[klim]) & (l_k[klim] == i_k[klim]))
+    sub.scatter(np.arange(np.sum(klim))[equ], dpdt[klim][equ], marker='^', 
+            facecolors='none', edgecolors='C0', zorder=10, label='equilateral ($k_1 = k_2 = k_3$)') 
+    
+    fld = (i_k[klim] == j_k[klim] + l_k[klim]) 
+    sub.scatter(np.arange(np.sum(klim))[fld], dpdt[klim][fld], marker='*', 
+            facecolors='none', edgecolors='C1', zorder=10, label='folded ($k_1 = k_2 + k_3$)') 
+
+    squ = ((j_k[klim]/i_k[klim] > 0.8) & (l_k[klim]/i_k[klim] < 0.33) & ~fld) 
+    sub.scatter(np.arange(np.sum(klim))[squ], dpdt[klim][squ], marker='X', 
+            facecolors='none', edgecolors='C2', zorder=10, label='squeezed ($k_1, k_2 \gg k_3$)') 
+
+    sub.set_xlim(0, np.sum(klim)) 
+    if not log: sub.set_yscale('log') 
+    sub.set_ylim(-1.5, 1.) 
+    sub.legend(loc='lower left', fontsize=15) 
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.set_xlabel('triangle configurations', fontsize=25) 
+    if not log: bkgd.set_ylabel(r'$|{\rm d}B/{\rm d} \theta|$', labelpad=10, fontsize=25) 
+    else: bkgd.set_ylabel(r'${\rm d}\log B/{\rm d} \theta$', labelpad=10, fontsize=25) 
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+
+    fig.subplots_adjust(hspace=0.075) 
+    ffig = os.path.join(dir_fig, 'quijote_d%sBdMnu%s%s.%s.png' % (['', 'log'][log], _rsd_str(rsd), _flag_str(flag), dmnu))
+    fig.savefig(ffig, bbox_inches='tight') 
+    
+    # set of triangles with fixed k1 (this is to compare the different derivatives) 
+    k1, k2 = 72, 69 
+    k1_tri = [] 
+    for j in range(1, k1+1): 
+        for l in range(max(k1-j, 1), j+1): 
+            inset = (i_k == k1) & (j_k == j) & (l_k == l) 
+            if np.sum(inset) > 0.: 
+                k1_tri.append(np.array([k1, j, l, np.arange(len(i_k))[inset][0]]))
+            else: 
+                k1_tri.append(np.array([k1, j, l, -999]))
+    k1_tri = np.array(k1_tri) 
+    
+    fld = (k1_tri[:,0] == k1_tri[:,1] + k1_tri[:,2]) 
+    squ = ((k1_tri[:,1].astype(float)/k1_tri[:,0].astype(float) > 0.8) & (k1_tri[:,2].astype(float)/k1_tri[:,0].astype(float) < 0.33) & ~fld) 
+    theta12 = np.arccos((k1_tri[:,2]**2 - k1_tri[:,1]**2 - k1_tri[:,0]**2)/(-2.*k1_tri[:,1] * k1_tri[:,0])) / np.pi * 180.
+    print(theta12) 
+    lowtheta12 = theta12 < 30.
+
+    _theta_lims = [(-12., 5.), (0., 15.), (-4., -0.5), (-4., -1), (-6., -1), (-1.5, 1.)]
+    fig = plt.figure(figsize=(10,10))
+    for i, theta, lbl, lim in zip(range(6), _thetas, _theta_lbls, _theta_lims): 
+        sub = fig.add_subplot(6,1,i+1)
+        dpdt = dBkdtheta(theta, log=log, rsd=rsd, flag=flag, dmnu=dmnu)
+        dpdt_tris = np.repeat(-999., k1_tri.shape[0])
+        dpdt_tris[k1_tri[:,3] != -999] = dpdt[i_k == k1]
+        sub.scatter(range(k1_tri.shape[0]), dpdt_tris, c='C0', s=5, label=lbl)
+        sub.plot(np.arange(k1_tri.shape[0])[k1_tri[:,3] != -999], dpdt_tris[k1_tri[:,3] != -999], lw=0.5, c='C0')
+        for _i in np.arange(k1_tri.shape[0])[fld]: 
+            sub.plot([_i, _i], [-100, 100.], c='k', lw=0.5, ls='--') 
+        for _i in np.arange(k1_tri.shape[0])[squ]: 
+            sub.plot([_i, _i], [-100, 100.], c='C3', lw=0.1, ls='--') 
+        for _i in np.arange(k1_tri.shape[0])[lowtheta12]: 
+            sub.plot([_i, _i], [-100, 100.], c='C4', lw=0.1, ls='--') 
+
+        #sub.legend(loc='upper left', fontsize=15) 
+        sub.text(0.975, 0.95, lbl, ha='right', va='top', transform=sub.transAxes, fontsize=25)
+        sub.set_xlim(0, k1_tri.shape[0]) 
+        sub.set_ylim(lim)
+        if i != 5: sub.set_xticklabels([]) 
+
+    fig.subplots_adjust(hspace=0.075) 
+    ffig = os.path.join(dir_fig, 
+            'quijote_d%sBdMnu%s%s.%s.alltri.ik_%i.png' % (['', 'log'][log], _rsd_str(rsd), _flag_str(flag), dmnu, k1))
+    fig.savefig(ffig, bbox_inches='tight') 
+    
+    k1_tri = [] 
+    for l in range(max(k1-k2, 1), k2+1): 
+        inset = (i_k == k1) & (j_k == k2) & (l_k == l) 
+        if np.sum(inset) > 0.: 
+            k1_tri.append(np.array([k1, k2, l, np.arange(len(i_k))[inset][0]]))
+        else: 
+            k1_tri.append(np.array([k1, k2, l, -999]))
+    k1_tri = np.array(k1_tri) 
+
+    fig = plt.figure(figsize=(10,6))
+    for i, theta, lbl, lim in zip(range(6), _thetas, _theta_lbls, _theta_lims): 
+        sub = fig.add_subplot(2,3,i+1)
+
+        dpdt = dBkdtheta(theta, log=log, rsd=rsd, flag=flag, dmnu=dmnu)
+        dpdt_tris = np.repeat(-999., k1_tri.shape[0])
+        dpdt_tris[k1_tri[:,3] != -999] = dpdt[(i_k == k1) & (j_k == k2)]
+        sub.scatter(range(k1_tri.shape[0]), dpdt_tris, c='C0', s=5, label=lbl)
+        sub.plot(np.arange(k1_tri.shape[0])[k1_tri[:,3] != -999], dpdt_tris[k1_tri[:,3] != -999], lw=0.5, c='C0')
+
+        #sub.legend(loc='upper left', fontsize=15) 
+        sub.text(0.975, 0.95, lbl, ha='right', va='top', transform=sub.transAxes, fontsize=25)
+        sub.set_xlim(0, k1_tri.shape[0]) 
+        sub.set_ylim(lim) 
+
+    fig.subplots_adjust(hspace=0.075) 
+    ffig = os.path.join(dir_fig, 
+            'quijote_d%sBdMnu%s%s.%s.alltri.ik_%i.jk_%i.png' % (['', 'log'][log], _rsd_str(rsd), _flag_str(flag), dmnu, k1, k2))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
+
+
 def dlogPBdMnu(rsd='all', flag='reg'):
     ''' Compare the dlogP/dMnu and dlogB/dMnu for different numerical derivative step size 
 
@@ -968,7 +1117,7 @@ def dlogPBdMnu(rsd='all', flag='reg'):
     return None
 
 # Fisher Matrix
-def FisherMatrix(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None, cross_covariance=True): 
+def FisherMatrix(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None, cross_covariance=True, Cgauss=False): 
     ''' calculate fisher matrix for parameters ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu'] 
     and specified nuisance parameters
     
@@ -1010,12 +1159,25 @@ def FisherMatrix(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None
         pklim = (k <= kmax) 
         bklim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # k limit 
         klim = np.concatenate([pklim, bklim]) 
-        if cross_covariance: 
-            C_fid = _Cfid[:,klim][klim,:]
-        else: 
+
+        if not cross_covariance and not Cgauss: 
+            print('neglect cross covariance between P and B') 
             C_fid = np.zeros((np.sum(klim), np.sum(klim)))
             C_fid[:np.sum(pklim),:np.sum(pklim)] = _Cfid[:len(k),:len(k)][pklim,:][:,pklim]
             C_fid[np.sum(pklim):,np.sum(pklim):] = _Cfid[len(k):,len(k):][bklim,:][:,bklim] 
+        elif not cross_covariance and Cgauss:
+            print('neglect cross covariance between P and B and use the Gaussian covariance for B') 
+            _, _, _, C_gauss = Cov_gauss(Mnu=0.0, validate=False)
+
+            C_fid = np.zeros((np.sum(klim), np.sum(klim)))
+            C_fid[:np.sum(pklim),:np.sum(pklim)] = np.identity(np.sum(pklim)) * np.diag(_Cfid[:len(k),:len(k)])[pklim]
+            C_fid[np.sum(pklim):,np.sum(pklim):] = C_gauss[bklim,:][:,bklim]
+        else: 
+            print('fiducial covariance') 
+            C_fid = _Cfid[:,klim][klim,:]
+        print('Cpk', C_fid[:4,:4]) 
+        print('Cpb', C_fid[:4,np.sum(pklim):np.sum(pklim)+4]) 
+        print('Cbk', C_fid[np.sum(pklim):np.sum(pklim)+4,np.sum(pklim):np.sum(pklim)+4]) 
         print(np.linalg.cond(C_fid))
     else: 
         raise NotImplementedError
@@ -1782,7 +1944,7 @@ def forecastP02B_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False
             sub.plot(kmaxs[cond_pk], sig_pk_planck[:,i][cond_pk], c='C0', ls='--', lw=1) 
             _plt, =sub.plot(kmaxs[cond_bk], sig_bk_planck[:,i][cond_bk], c='C1', ls='--', lw=1) 
             if theta == 'Mnu': 
-                sub.legend([_plt], ['w/ Planck'], loc='lower left', handletextpad=0.2, fontsize=15) 
+                sub.legend([_plt], ['w/ Planck priors'], loc='lower left', handletextpad=0.25, fontsize=18) 
         if LT: 
             if theta == 'Mnu': 
                 sub.plot(kmaxs, sig_pm[:,i], c='k', ls='--', label=r"$P^{\rm lin.}_{m}$") 
@@ -3766,21 +3928,37 @@ def zeldovich_ICtest(rsd=0):
     return None
 
 
-def P02B_crosscovariance(): 
+def P02B_crosscovariance(kmax=0.2): 
     ''' In Chudaykin & Ivanov (2019), they do not include cross covariance between P and B. 
     Lets try to quantify the effect of that 
     '''
-    for kmax in [0.1, 0.2, 0.3, 0.4, 0.5]: 
-        _Fij = FisherMatrix('p02bk', kmax=kmax, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, cross_covariance=True) 
-        Fij = FisherMatrix('p02bk', kmax=kmax, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, cross_covariance=False) 
+    _Fij = FisherMatrix('p02bk', kmax=kmax, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, 
+            cross_covariance=True, Cgauss=False) 
+    Fij0 = FisherMatrix('p02bk', kmax=kmax, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, 
+            cross_covariance=False, Cgauss=False) 
+    Fij1 = FisherMatrix('p02bk', kmax=kmax, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, 
+            cross_covariance=False, Cgauss=True) 
 
-        _Finv   = np.linalg.inv(_Fij) # invert fisher matrix 
-        Finv    = np.linalg.inv(Fij) # invert fisher matrix 
-        print('--- kmax = %.1f ---' % kmax) 
-        print(np.sqrt(np.diag(_Finv)))
-        print(np.sqrt(np.diag(Finv)))
-        print(np.sqrt(np.diag(Finv))/np.sqrt(np.diag(_Finv))-1.)
-        print(np.average(np.sqrt(np.diag(Finv))/np.sqrt(np.diag(_Finv))-1.))
+    _Finv   = np.linalg.inv(_Fij)
+    Finv0   = np.linalg.inv(Fij0)
+    Finv1   = np.linalg.inv(Fij1) 
+    print('--- kmax = %.1f ---' % kmax) 
+    print('fiducial') 
+    print(_Fij)
+    print(1./np.sqrt(np.diag(_Fij)))
+    print(np.sqrt(np.diag(_Finv)))
+    print('no cross cov')
+    print(Fij0)
+    print(1./np.sqrt(np.diag(Fij0)))
+    print(np.sqrt(np.diag(Finv0)))
+    print('no cross cov; C gauss')
+    print(Fij1)
+    print(1./np.sqrt(np.diag(Fij1)))
+    print(np.sqrt(np.diag(Finv1)))
+    #print(np.sqrt(np.diag(Finv0))/np.sqrt(np.diag(_Finv))-1.)
+    #print(np.sqrt(np.diag(Finv1))/np.sqrt(np.diag(_Finv))-1.)
+    #print(np.average(np.sqrt(np.diag(Finv0))/np.sqrt(np.diag(_Finv))-1.))
+    #print(np.average(np.sqrt(np.diag(Finv1))/np.sqrt(np.diag(_Finv))-1.))
     return None 
 
 ############################################################
@@ -3856,6 +4034,7 @@ if __name__=="__main__":
         p02bForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'], dmnu='fin')
     '''
     # fisher forecasts as a function of kmax with different nuisance parameters 
+    forecastP02B_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'], planck=True)
     '''
         Fii_kmax(rsd='all', flag='reg', dmnu='fin')
         forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'])
@@ -3890,4 +4069,4 @@ if __name__=="__main__":
     #zeldovich_ICtest(rsd='real')
     #zeldovich_ICtest(rsd=1)
     #zeldovich_ICtest(rsd='all')
-    P02B_crosscovariance()
+    #P02B_crosscovariance(kmax=0.1)
