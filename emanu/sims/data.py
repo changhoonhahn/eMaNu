@@ -39,20 +39,21 @@ def X_fid(nreal, nzbin, obvs='plk', Nsample=100, poles=[0], mneut=0.0, Nmesh=360
         return obv_data['k'][klim], np.array(X) 
 
 
-def hqHalos(folder, snapnum, Ob=0.049, ns=0.9624, s8=None, silent=True): 
+def hqHalos(halo_folder, snap_folder, snapnum, Ob=0.049, ns=0.9624, s8=None, silent=True): 
     ''' read in halo catalog given the folder and snapshot # and store it as
     a nbodykit HaloCatalog object. The HaloCatalog object is convenient for 
     populating with galaxies and etc. Designed for the HADES and Quijote sim
     suites (hence the HQ). 
 
-    parameters
-    ----------
-    folder : string
-        directory that contains the snapshot. e.g. in my local directory it'd be 
+    :param halo_folder:
+        directory that contains the halo catalogs e.g. in my local directory it'd be 
         something like:
         /Users/ChangHoon/data/emanu/halos/hades/0.0eV/1
 
-    snapnum : int 
+    :param snap_folder: 
+        direcotry that contains the snapshot. 
+
+    :param snapnum: 
         redshift snapshot number 
 
         snapnum = 0 --> z=3
@@ -60,9 +61,12 @@ def hqHalos(folder, snapnum, Ob=0.049, ns=0.9624, s8=None, silent=True):
         snapnum = 2 --> z=1
         snapnum = 3 --> z=0.5
         snapnum = 4 --> z=0
+
+    :return cat: 
+        nbodykit.lab.HaloCatalog with HADES/Quijote simulations 
     '''
     # read in Gadget header (~65.1 microsec) 
-    header = RS.read_gadget_header(os.path.join(folder, 'snapdir_%s' % str(snapnum).zfill(3), 'snap_%s' % str(snapnum).zfill(3)))
+    header = RS.read_gadget_header(os.path.join(snap_folder, 'snapdir_%s' % str(snapnum).zfill(3), 'snap_%s' % str(snapnum).zfill(3)))
     Om  = header['Omega_m']
     Ol  = header['Omega_l']
     z   = header['z']
@@ -79,7 +83,7 @@ def hqHalos(folder, snapnum, Ob=0.049, ns=0.9624, s8=None, silent=True):
         cosmo = cosmo.match(sigma8=s8)
 
     # read FOF catalog (~90.6 ms) 
-    Fof = readfof.FoF_catalog(folder, snapnum, long_ids=False, swap=False, SFR=False)
+    Fof = readfof.FoF_catalog(halo_folder, snapnum, long_ids=False, swap=False, SFR=False)
     group_data = {}  
     group_data['Length']    = Fof.GroupLen
     group_data['Position']  = Fof.GroupPos/1e3
