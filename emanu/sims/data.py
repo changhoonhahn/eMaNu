@@ -86,7 +86,7 @@ def hqHalos(halo_folder, snap_folder, snapnum, Ob=0.049, ns=0.9624, s8=None, sil
         cosmo = cosmo.match(sigma8=s8)
 
     # read FOF catalog (~90.6 ms) 
-    Fof = readfof.FoF_catalog(halo_folder, snapnum, long_ids=False, swap=False, SFR=False)
+    Fof = readfof.FoF_catalog(halo_folder, snapnum, read_ids=False, long_ids=False, swap=False, SFR=False)
     group_data = {}  
     group_data['Length']    = Fof.GroupLen
     group_data['Position']  = Fof.GroupPos/1e3
