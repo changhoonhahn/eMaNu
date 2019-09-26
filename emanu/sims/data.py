@@ -65,6 +65,9 @@ def hqHalos(halo_folder, snap_folder, snapnum, Ob=0.049, ns=0.9624, s8=None, sil
     :return cat: 
         nbodykit.lab.HaloCatalog with HADES/Quijote simulations 
     '''
+    print('halo_folder = %s' % halo_folder) 
+    print('snap_folder = %s' % snap_folder) 
+    print('snapnum = %i' % snapnum) 
     # read in Gadget header (~65.1 microsec) 
     header = RS.read_gadget_header(os.path.join(snap_folder, 'snapdir_%s' % str(snapnum).zfill(3), 'snap_%s' % str(snapnum).zfill(3)))
     Om  = header['Omega_m']
