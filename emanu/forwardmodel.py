@@ -64,6 +64,9 @@ def hodGalaxies(halos, p_hod, seed=None):
 
     # populate using HOD
     hod = halos.populate(Zheng07Model, seed=seed, **p_hod) 
+    
+    # recalculate RSD velocity offset using stored rsd_factor attr from emanu.sims.data.hqHalos
+    hod['VelocityOffset'] = hod['Velocity'] * hod.attrs['rsd_factor'] 
     return hod 
 
 
