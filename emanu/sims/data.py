@@ -67,8 +67,6 @@ def hqHalos(halo_folder, snap_folder, snapnum, Ob=0.049, ns=0.9624, s8=None, sil
         nbodykit.lab.HaloCatalog with HADES/Quijote simulations 
     '''
     # read in Gadget header (~65.1 microsec) 
-    #header = RS.read_gadget_header(os.path.join(snap_folder, 'snapdir_%s' % str(snapnum).zfill(3), 
-    #    'snap_%s' % str(snapnum).zfill(3)))
     header = RG.header(os.path.join(snap_folder, 'snapdir_%s' % str(snapnum).zfill(3), 
         'snap_%s' % str(snapnum).zfill(3)))
     Om  = header.omega_m
@@ -77,21 +75,8 @@ def hqHalos(halo_folder, snap_folder, snapnum, Ob=0.049, ns=0.9624, s8=None, sil
     h   = header.hubble 
     Hz  = header.Hubble #100.0 * np.sqrt(Om * (1.0 + z)**3 + Ol) # km/s/(Mpc/h)
 
-    rhocrit = 2.77536627e2 #h**2 M_sun/Mpc**3
-    
-    Odm = header.nall[1] * header.massarr[1] * 1e10 / (header.boxsize**3 * rhocrit)
-    print('Omega_dm = %f' % Odm) 
-    print('_Omega_dm = %f' % (Om - Ob)) 
-    if header.nall[2] > 0 and header.massarr[2] > 0:
-        Onu = header.nall[2] * header.massarr[2] * 1e10 / (header.boxsize**3 * rhocrit)
-        mnu = Onu * header.hubble**2 * 94.1745 # Mnu > 0 
-        cosmo = NBlab.cosmology.Planck15.clone(Omega_cdm=Om-Ob, Omega_b=Ob, h=h, n_s=ns, m_ncdm=mnu)
-    else: 
-        mnu = 0. # Mnu = 0 
-        cosmo = NBlab.cosmology.Planck15.clone(Omega_cdm=Om-Ob, Omega_b=Ob, h=h, n_s=ns)
-
-    if s8 is not None: 
-        cosmo = cosmo.match(sigma8=s8)
+    # this is a discrepant cosmology. it is not used for anything. but it's included for nbodykit 
+    cosmo = NBlab.cosmology.Planck15.clone() 
 
     # read FOF catalog (~90.6 ms) 
     Fof = readfof.FoF_catalog(halo_folder, snapnum, read_IDs=False, long_ids=False, swap=False, SFR=False)
@@ -106,6 +91,9 @@ def hqHalos(halo_folder, snap_folder, snapnum, Ob=0.049, ns=0.9624, s8=None, sil
     # save to ArryCatalog for consistency
     cat = NBlab.ArrayCatalog(group_data, BoxSize=np.array([1000., 1000., 1000.])) 
     cat = NBlab.HaloCatalog(cat, cosmo=cosmo, redshift=z, mdef='vir') 
+    cat.attrs['h'] = h 
+    cat.attrs['Hz'] = Hz 
+    cat.attrs['rsd_factor'] = rsd_factor 
     return cat
 
 

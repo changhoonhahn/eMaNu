@@ -4,9 +4,9 @@ library is designed to read Gadget format I, format II and hdf5 files.
 This file was taken from https://github.com/franciscovillaescusa/Pylians/blob/master/library/readgadget.py
 
 '''
-import numpy as np
-import readsnap
 import sys,os,h5py
+import numpy as np
+from . import readsnap
 
 # find snapshot name and format
 def fname_format(snapshot):
@@ -19,7 +19,8 @@ def fname_format(snapshot):
         filename, fformat = snapshot+'.hdf5', 'hdf5'
     elif os.path.exists(snapshot+'.0.hdf5'):
         filename, fformat = snapshot+'.0.hdf5', 'hdf5'
-    else:  raise Exception('File not found!')
+    else:  
+        raise Exception('File (%s) not found!' % snapshot)
     return filename,fformat
 
 
