@@ -242,8 +242,24 @@ def quijoteP_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
         either regular Nbody runs or fixed-paired (reg vs ncv). If None it reads 
         in all the files in the directory 
     '''
+    subdir_dict = {
+            'alpha_m': 'fiducial_alpha=0.9',
+            'alpha_p': 'fiducial_alpha=1.3',
+            'logM0_m': 'fiducial_logM0=13.8',
+            'logM0_p': 'fiducial_logM0=14.2',
+            'logM1_m': 'fiducial_logM1=13.8',
+            'logM1_p': 'fiducial_logM1=14.2',
+            'logMmin_m': 'fiducial_logMmin=13.60',
+            'logMmin_p': 'fiducial_logMmin=13.70',
+            'sigma_logM_m': 'fiducial_sigma_logM=0.18',
+            'sigma_logM_p': 'fiducial_sigma_logM=0.22'}
+    if subdir in subdir_dict.keys(): 
+        _subdir = subdir_dict[subdir]
+    else: 
+        _subdir = subdir
+    
     # directory where the quijote bispectrum are at 
-    if machine in ['mbp', 'cori']: dir_quij = os.path.join(UT.dat_dir(), 'powerspectrum', 'quijote_hod', subdir) 
+    if machine in ['mbp', 'cori']: dir_quij = os.path.join(UT.dat_dir(), 'powerspectrum', 'quijote_hod', _subdir) 
     else: raise NotImplementedError 
     
     if rsd not in [0, 1, 2, 'real']: raise ValueError 
@@ -255,17 +271,19 @@ def quijoteP_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     # compile files 
     fpks = [] 
     if flag == 'reg': # regular Nbody 
-        if rsd == 'real': 
-            fpks.append('%i/Pk_z=0.txt' % i) 
-        else: 
-            fpks.append('%i/Pk_RS%i_z=0.txt' % (i, rsd))
+        for i in range(nmocks): 
+            if rsd == 'real': 
+                fpks.append('%i/Pk_z=0.txt' % i) 
+            else: 
+                fpks.append('%i/Pk_RS%i_z=0.txt' % (i, rsd))
     elif flag == 'ncv': # paired-fixed
-        if rsd == 'real': 
-            fpks.append('NCV_0_%i/Pk_z=0.txt' % i) 
-            fpks.append('NCV_1_%i/Pk_z=0.txt' % i) 
-        else: 
-            fpks.append('NCV_0_%i/Pk_RS%i_z=0.txt' % (i, rsd))
-            fpks.append('NCV_1_%i/Pk_RS%i_z=0.txt' % (i, rsd))
+        for i in range(nmocks): 
+            if rsd == 'real': 
+                fpks.append('NCV_0_%i/Pk_z=0.txt' % i) 
+                fpks.append('NCV_1_%i/Pk_z=0.txt' % i) 
+            else: 
+                fpks.append('NCV_0_%i/Pk_RS%i_z=0.txt' % (i, rsd))
+                fpks.append('NCV_1_%i/Pk_RS%i_z=0.txt' % (i, rsd))
 
     npk = len(fpks) 
     print('%i bispectrum files in /%s' % (npk, subdir))  
@@ -313,22 +331,6 @@ def quijoteP_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
             psn[i] = 1./nbar
             p0k[i,:] = _p0k - 1./nbar 
 
-    subdir_dict = {
-            'fiducial_alpha=0.9':           'alpha_m', 
-            'fiducial_alpha=1.3':           'alpha_p', 
-            'fiducial_logM0=13.8':          'logM0_m',
-            'fiducial_logM0=14.2':          'logM0_p', 
-            'fiducial_logM1=13.8':          'logM1_m', 
-            'fiducial_logM1=14.2':          'logM1_p', 
-            'fiducial_logMmin=13.60':       'logMmin_m', 
-            'fiducial_logMmin=13.70':       'logMmin_p', 
-            'fiducial_sigma_logM=0.18':     'sigma_logM_m',
-            'fiducial_sigma_logM=0.22':     'sigma_logM_p'
-            }
-
-    if subdir in subdir_dict.keys():
-        subdir = subdir_dict[subdir]
-
     # save to hdf5 file 
     quij_dir = os.path.join(UT.dat_dir(), 'powerspectrum', 'quijote_hod', 'z0') 
     if rsd != 'real':  # reshift space 
@@ -343,7 +345,7 @@ def quijoteP_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
         f.create_dataset('p4k', data=p4k) 
     f.create_dataset('p_sn', data=psn) 
     f.create_dataset('Ngalaxies', data=Nhalos) 
-    f.create_dataset('files', data=fpks) 
+    #f.create_dataset('files', data=fpks) 
     f.close()
     return None 
 
@@ -470,7 +472,10 @@ if __name__=="__main__":
         quijoteP_hdf5('fiducial_za', rsd=rsd, flag='ncv')
         quijoteB_hdf5('fiducial_za', rsd=rsd, flag='ncv')
     '''
-    thetas_hod = thetas + ['alpha_m', 'alpha_p', 'logM0_m', 'logM0_p', 'logM1_m', 'logM1_p', 'logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p']
+    thetas_hod = ['Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'Om_m', 'Om_p', 'Ob2_m', 'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p', 
+            'alpha_m', 'alpha_p', 'logM0_m', 'logM0_p', 'logM1_m', 'logM1_p', 'logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'fiducial']
+    thetas_hod = ['logM0_p', 'logM1_m', 'logM1_p', 'logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'fiducial']
     for sub in thetas_hod: 
         for rsd in [0, 1, 2, 'real']: 
-            quijoteP_hod_hdf5(sub, rsd=rsd, flag='reg')
+            #quijoteP_hod_hdf5(sub, rsd=rsd, flag='reg')
+            quijoteP_hod_hdf5(sub, rsd=rsd, flag='ncv')
