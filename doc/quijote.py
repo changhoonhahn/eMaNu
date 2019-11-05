@@ -3977,6 +3977,79 @@ def _flag_str(flag):
     return ['.%s' % flag, ''][flag is None]
 
 
+def proposal_Forecast():
+    ''' fisher forecast for quijote P0+P2 and B where theta_nuis are added as free parameters. 
+    '''
+    theta_nuis = ['Amp', 'Mmin']
+    
+    # fisher matrix (Fij)
+    pkFij   = FisherMatrix('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=theta_nuis)  
+    _bkFij  = FisherMatrix('bk', kmax=0.2, rsd='all', flag='reg', dmnu='fin', theta_nuis=theta_nuis)  
+    bkFij   = FisherMatrix('bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=theta_nuis)  
+
+    pkFinv  = np.linalg.inv(pkFij) 
+    _bkFinv = np.linalg.inv(_bkFij) 
+    bkFinv  = np.linalg.inv(bkFij) 
+
+    _thetas = copy(thetas) + theta_nuis 
+    _theta_lbls = copy(theta_lbls) + [theta_nuis_lbls[tt] for tt in theta_nuis]
+    _theta_fid = theta_fid.copy() # fiducial thetas
+
+    fig = plt.figure(figsize=(10, 4))
+    sub = fig.add_subplot(121) 
+    i = thetas.index('h')
+    j = thetas.index('Om')
+    theta_fid_i, theta_fid_j = _theta_fid[_thetas[i]], _theta_fid[_thetas[j]] # fiducial parameter 
+                
+    Finv_sub = np.array([[_bkFinv[i,i], _bkFinv[i,j]], [_bkFinv[j,i], _bkFinv[j,j]]]) # sub inverse fisher matrix
+    Forecast.plotEllipse(Finv_sub, sub, theta_fid_ij=[theta_fid_i, theta_fid_j], color='k', alphas=[0.2, 0.2])
+    Forecast.plotEllipse(Finv_sub, sub, theta_fid_ij=[theta_fid_i, theta_fid_j], color='None', 
+            edgecolor='k', linewidth=0.1, linestyle='--')
+    
+    Finv_sub = np.array([[bkFinv[i,i], bkFinv[i,j]], [bkFinv[j,i], bkFinv[j,j]]]) # sub inverse fisher matrix
+    Forecast.plotEllipse(Finv_sub, sub, theta_fid_ij=[theta_fid_i, theta_fid_j], color='C1')
+    Forecast.plotEllipse(Finv_sub, sub, theta_fid_ij=[theta_fid_i, theta_fid_j], color='None', 
+            edgecolor='k', linewidth=0.1)
+    sub.set_xlim(0.4522, 0.89) 
+    sub.set_ylim(0.27, 0.365)
+    sub.set_ylabel('$\Omega_m$', fontsize=28) 
+    #sub.get_yaxis().set_label_coords(-0.35,0.5)
+    sub.set_xlabel('$h$', labelpad=10, fontsize=30) 
+    
+    sub = fig.add_subplot(122) 
+    i = thetas.index('Mnu')
+    j = thetas.index('s8')
+    theta_fid_i, theta_fid_j = _theta_fid[_thetas[i]], _theta_fid[_thetas[j]] # fiducial parameter 
+    
+    Finv_sub = np.array([[pkFinv[i,i], pkFinv[i,j]], [pkFinv[j,i], pkFinv[j,j]]]) # sub inverse fisher matrix 
+    Forecast.plotEllipse(Finv_sub, sub, theta_fid_ij=[theta_fid_i, theta_fid_j], color='C0')
+    Forecast.plotEllipse(Finv_sub, sub, theta_fid_ij=[theta_fid_i, theta_fid_j], color='None', 
+            edgecolor='k', linewidth=0.1)
+    Finv_sub = np.array([[bkFinv[i,i], bkFinv[i,j]], [bkFinv[j,i], bkFinv[j,j]]]) # sub inverse fisher matrix 
+    Forecast.plotEllipse(Finv_sub, sub, theta_fid_ij=[theta_fid_i, theta_fid_j], color='C1')
+    Forecast.plotEllipse(Finv_sub, sub, theta_fid_ij=[theta_fid_i, theta_fid_j], color='None', 
+            edgecolor='k', linewidth=0.1)
+    sub.set_xlim(-0.4, 0.4)
+    sub.set_ylim(0.778, 0.89)
+    sub.set_ylabel('$\sigma_8$', fontsize=28) 
+    #sub.get_yaxis().set_label_coords(-0.35,0.5)
+    sub.set_xlabel(r'$M_\nu$', labelpad=10, fontsize=30) 
+    
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.fill_between([],[],[], linewidth=0, alpha=1.0, color='C0', label=r'$P_\ell(k_{\rm max}{=}0.5)$') 
+    bkgd.fill_between([],[],[], linewidth=0, alpha=0.5, color='k', label=r'$B(k_{\rm max}{=}0.2)$') 
+    bkgd.fill_between([],[],[], linewidth=0, alpha=1.0, color='C1', label=r'$B(k_{\rm max}{=}0.5)$') 
+    bkgd.legend(loc='upper right', bbox_to_anchor=(1., 1.25), handletextpad=0.2, ncol=3, fontsize=20)
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+
+    fig.subplots_adjust(wspace=0.3) 
+    
+    ffig = os.path.join(dir_doc, 'proposal_forecast.png')
+    fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex 
+    return None 
+
+
 if __name__=="__main__": 
     # covariance matrices
     '''
@@ -4033,8 +4106,8 @@ if __name__=="__main__":
         p02bForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'], dmnu='fin')
         p02bForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'], dmnu='fin')
     '''
+    proposal_Forecast()
     # fisher forecasts as a function of kmax with different nuisance parameters 
-    forecastP02B_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'], planck=True)
     '''
         Fii_kmax(rsd='all', flag='reg', dmnu='fin')
         forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'])

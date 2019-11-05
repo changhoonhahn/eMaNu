@@ -707,7 +707,7 @@ def Fij(dmudts, Cinv):
     return Fij 
     
 
-def plotEllipse(Finv_sub, sub, theta_fid_ij=None, color='C0', sigmas=[1, 2], alphas=[1., 0.7]): 
+def plotEllipse(Finv_sub, sub, theta_fid_ij=None, color='C0', sigmas=[1, 2], alphas=[1., 0.7], **kwargs): 
     ''' Given the inverse fisher sub-matrix, calculate ellipse parameters and
     add to subplot 
     '''
@@ -722,7 +722,7 @@ def plotEllipse(Finv_sub, sub, theta_fid_ij=None, color='C0', sigmas=[1, 2], alp
     for ii, i_alpha in enumerate(sigmas):
         alpha = _alphas[i_alpha-1]
         e = Ellipse(xy=(theta_fid_i, theta_fid_j), 
-                width=alpha * a, height=alpha * b, angle=theta * 360./(2.*np.pi))
+                width=alpha * a, height=alpha * b, angle=theta * 360./(2.*np.pi), **kwargs)
         sub.add_artist(e)
         e.set_alpha(alphas[ii])
         e.set_facecolor(color) 
