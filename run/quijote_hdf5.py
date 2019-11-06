@@ -264,9 +264,9 @@ def quijoteP_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     
     if rsd not in [0, 1, 2, 'real']: raise ValueError 
     if subdir == 'fiducial' and flag == 'reg': nmocks = 15000
-    elif subdir == 'fiducial' and flag == 'ncv': nmocks = 500
+    elif subdir == 'fiducial' and flag == 'ncv': nmocks = 250
     elif subdir == 'fiducial_za': nmocks=500
-    else: nmocks = 500 
+    else: nmocks = 250 
     
     # compile files 
     fpks = [] 
@@ -472,8 +472,7 @@ if __name__=="__main__":
         quijoteP_hdf5('fiducial_za', rsd=rsd, flag='ncv')
         quijoteB_hdf5('fiducial_za', rsd=rsd, flag='ncv')
     '''
-    thetas_hod = ['Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'Om_m', 'Om_p', 'Ob2_m', 'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p', 
-            'alpha_m', 'alpha_p', 'logM0_m', 'logM0_p', 'logM1_m', 'logM1_p', 'logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'fiducial']
+    thetas_hod = ['fiducial']
     #thetas_hod = ['logM0_p', 'logM1_m', 'logM1_p', 'logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'fiducial']
     for sub in thetas_hod: 
         for rsd in [0, 1, 2, 'real']: 
