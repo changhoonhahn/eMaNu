@@ -286,7 +286,7 @@ def quijoteP_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
                 fpks.append('NCV_1_%i/Pk_RS%i_z=0.txt' % (i, rsd))
 
     npk = len(fpks) 
-    print('%i bispectrum files in /%s' % (npk, subdir))  
+    print('%i power spectrum files in /%s' % (npk, subdir))  
     
     # check the number of bispectrum
     #if subdir == 'fiducial': assert nbk == 15000, "not the right number of files"
@@ -370,8 +370,24 @@ def quijoteB_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
         either regular Nbody runs or fixed-paired (reg vs ncv). If None it reads 
         in all the files in the directory 
     '''
+    subdir_dict = {
+            'alpha_m':          'fiducial_alpha=0.9',
+            'alpha_p':          'fiducial_alpha=1.3',
+            'logM0_m':          'fiducial_logM0=13.8',
+            'logM0_p':          'fiducial_logM0=14.2',
+            'logM1_m':          'fiducial_logM1=13.8',
+            'logM1_p':          'fiducial_logM1=14.2',
+            'logMmin_m':        'fiducial_logMmin=13.60',
+            'logMmin_p':        'fiducial_logMmin=13.70',
+            'sigma_logM_m':     'fiducial_sigma_logM=0.18',
+            'sigma_logM_p':     'fiducial_sigma_logM=0.22'}
+    if subdir in subdir_dict.keys(): 
+        _subdir = subdir_dict[subdir]
+    else: 
+        _subdir = subdir
+    
     # directory where the quijote bispectrum are at 
-    if machine in ['mbp', 'cori']: dir_quij = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote', subdir) 
+    if machine in ['mbp', 'cori']: dir_quij = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_hod', _subdir) 
     else: raise NotImplementedError 
     
     if rsd not in [0, 1, 2, 'real']: raise ValueError 
@@ -381,22 +397,21 @@ def quijoteB_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     else: nmocks = 500 
 
     fbks = [] 
-    if rsd != 'real' and flag == 'reg': 
+    if flag == 'reg': # regular Nbody 
         for i in range(nmocks): 
-            fbks.append('Bk_RS%i_%i_z=0.txt' % (rsd, i)) 
-    elif rsd != 'real' and flag == 'ncv':
-        for i in range(nmocks/2): 
-            fbks.append('Bk_RS%i_NCV_0_%i_z=0.txt' % (rsd, i)) 
-            fbks.append('Bk_RS%i_NCV_1_%i_z=0.txt' % (rsd, i)) 
-    elif rsd == 'real' and flag == 'reg': 
+            if rsd == 'real': 
+                fbks.append('%i/Bk_z=0.txt' % i) 
+            else: 
+                fbks.append('%i/Bk_RS%i_z=0.txt' % (i, rsd))
+    elif flag == 'ncv': # paired-fixed
         for i in range(nmocks): 
-            fbks.append('Bk_%i_z=0.txt' % i) 
-    elif rsd == 'real' and flag == 'ncv': 
-        for i in range(nmocks/2): 
-            fbks.append('Bk_NCV_0_%i_z=0.txt' % i)
-            fbks.append('Bk_NCV_1_%i_z=0.txt' % i)
+            if rsd == 'real': 
+                fbks.append('NCV_0_%i/Bk_z=0.txt' % i) 
+                fbks.append('NCV_1_%i/Bk_z=0.txt' % i) 
+            else: 
+                fbks.append('NCV_0_%i/Bk_RS%i_z=0.txt' % (i, rsd))
+                fbks.append('NCV_1_%i/Bk_RS%i_z=0.txt' % (i, rsd))
 
-    print([os.path.basename(fbk) for fbk in fbks[::10][:10]])
     nbk = len(fbks) 
     print('%i bispectrum files in /%s' % (nbk, subdir))  
     
@@ -409,7 +424,7 @@ def quijoteB_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
         i_k, j_k, l_k, _p0k1, _p0k2, _p0k3, b123, q123, b_sn, cnts = np.loadtxt(
                 os.path.join(dir_quij, fbk), skiprows=1, unpack=True, usecols=range(10)) 
         hdr = open(os.path.join(dir_quij, fbk)).readline().rstrip() 
-        Nhalo = int(hdr.split('Nhalo=')[-1])
+        Nhalo = int(hdr.split('Ngal=')[-1])
  
         if i == 0: 
             Nhalos = np.zeros((nbk)) 
@@ -428,7 +443,7 @@ def quijoteB_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
         bsn[i,:] = b_sn 
 
     # save to hdf5 file 
-    quij_dir = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote', 'z0') 
+    quij_dir = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_hod', 'z0') 
     if rsd != 'real':  # reshift space 
         fhdf5 = os.path.join(quij_dir, 'quijote_%s.%s.rsd%i.hdf5' % (subdir, flag, rsd))
     else: 
@@ -444,8 +459,8 @@ def quijoteB_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     f.create_dataset('q123', data=qks) 
     f.create_dataset('b_sn', data=bsn) 
     f.create_dataset('counts', data=cnts) 
-    f.create_dataset('Nhalos', data=Nhalos) 
-    f.create_dataset('files', data=fbks) 
+    f.create_dataset('Ngalaxies', data=Nhalos) 
+    #f.create_dataset('files', data=fbks) 
     f.close()
     return None 
 
@@ -472,9 +487,12 @@ if __name__=="__main__":
         quijoteP_hdf5('fiducial_za', rsd=rsd, flag='ncv')
         quijoteB_hdf5('fiducial_za', rsd=rsd, flag='ncv')
     '''
-    thetas_hod = ['fiducial']
-    #thetas_hod = ['logM0_p', 'logM1_m', 'logM1_p', 'logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'fiducial']
+    thetas_hod = ['Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'Om_m', 'Om_p', 'Ob2_m', 'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p', 
+            'alpha_m', 'alpha_p', 'logM0_m', 'logM0_p', 'logM1_m', 'logM1_p', 'logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'fiducial']
+    thetas_hod = ['alpha_m', 'alpha_p', 'logM0_m', 'logM0_p', 'logM1_m', 'logM1_p', 'logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'fiducial']
     for sub in thetas_hod: 
         for rsd in [0, 1, 2, 'real']: 
             #quijoteP_hod_hdf5(sub, rsd=rsd, flag='reg')
-            quijoteP_hod_hdf5(sub, rsd=rsd, flag='ncv')
+            #quijoteP_hod_hdf5(sub, rsd=rsd, flag='ncv')
+            quijoteB_hod_hdf5(sub, rsd=rsd, flag='reg')
+            #quijoteP_hod_hdf5(sub, rsd=rsd, flag='ncv')
