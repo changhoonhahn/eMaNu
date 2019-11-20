@@ -334,9 +334,9 @@ def quijoteP_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     # save to hdf5 file 
     quij_dir = os.path.join(UT.dat_dir(), 'powerspectrum', 'quijote_hod', 'z0') 
     if rsd != 'real':  # reshift space 
-        fhdf5 = os.path.join(quij_dir, 'quijote_%s.%s.rsd%i.hdf5' % (subdir, flag, rsd))
+        fhdf5 = os.path.join(quij_dir, 'quijhod_%s.%s.rsd%i.hdf5' % (subdir, flag, rsd))
     else: 
-        fhdf5 = os.path.join(quij_dir, 'quijote_%s.%s.real.hdf5' % (subdir, flag))
+        fhdf5 = os.path.join(quij_dir, 'quijhod_%s.%s.real.hdf5' % (subdir, flag))
     f = h5py.File(fhdf5, 'w') 
     f.create_dataset('k', data=k)
     f.create_dataset('p0k', data=p0k) 
@@ -445,9 +445,9 @@ def quijoteB_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     # save to hdf5 file 
     quij_dir = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_hod', 'z0') 
     if rsd != 'real':  # reshift space 
-        fhdf5 = os.path.join(quij_dir, 'quijote_%s.%s.rsd%i.hdf5' % (subdir, flag, rsd))
+        fhdf5 = os.path.join(quij_dir, 'quijhod_%s.%s.rsd%i.hdf5' % (subdir, flag, rsd))
     else: 
-        fhdf5 = os.path.join(quij_dir, 'quijote_%s.%s.real.hdf5' % (subdir, flag))
+        fhdf5 = os.path.join(quij_dir, 'quijhod_%s.%s.real.hdf5' % (subdir, flag))
     f = h5py.File(fhdf5, 'w') 
     f.create_dataset('k1', data=i_k)
     f.create_dataset('k2', data=j_k)
@@ -494,5 +494,5 @@ if __name__=="__main__":
         for rsd in [0, 1, 2, 'real']: 
             #quijoteP_hod_hdf5(sub, rsd=rsd, flag='reg')
             #quijoteP_hod_hdf5(sub, rsd=rsd, flag='ncv')
-            quijoteB_hod_hdf5(sub, rsd=rsd, flag='reg')
-            #quijoteP_hod_hdf5(sub, rsd=rsd, flag='ncv')
+            #quijoteB_hod_hdf5(sub, rsd=rsd, flag='reg')
+            quijoteB_hod_hdf5(sub, rsd=rsd, flag='ncv')
