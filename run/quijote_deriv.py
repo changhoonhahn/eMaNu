@@ -323,7 +323,7 @@ if __name__=="__main__":
             dBdtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
             dBdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
     '''
-    thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1'] #'Mnu', 
+    thetas = ['Mnu', 'Om', 'Ob2', 'h', 'ns', 's8', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1'] #'Mnu', 
     for theta in thetas: 
         for rsd in ['real', 0, 1, 2]: 
             for flag in ['reg']: #'ncv' 
