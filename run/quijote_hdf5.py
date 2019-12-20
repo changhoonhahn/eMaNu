@@ -265,7 +265,8 @@ def quijoteP_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     if rsd not in [0, 1, 2, 'real']: raise ValueError 
     if subdir == 'fiducial' and flag == 'reg': nmocks = 15000
     elif subdir == 'fiducial' and flag == 'ncv': nmocks = 250
-    elif subdir == 'fiducial_za': nmocks=500
+    elif subdir == 'fiducial_ZA' and flag == 'reg': nmocks=500
+    elif subdir == 'fiducial_ZA' and flag == 'ncv': nmocks=250
     else: nmocks = 250 
     
     # compile files 
@@ -334,9 +335,9 @@ def quijoteP_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     # save to hdf5 file 
     quij_dir = os.path.join(UT.dat_dir(), 'powerspectrum', 'quijote_hod', 'z0') 
     if rsd != 'real':  # reshift space 
-        fhdf5 = os.path.join(quij_dir, 'quijote_%s.%s.rsd%i.hdf5' % (subdir, flag, rsd))
+        fhdf5 = os.path.join(quij_dir, 'quijhod_%s.%s.rsd%i.hdf5' % (subdir, flag, rsd))
     else: 
-        fhdf5 = os.path.join(quij_dir, 'quijote_%s.%s.real.hdf5' % (subdir, flag))
+        fhdf5 = os.path.join(quij_dir, 'quijhod_%s.%s.real.hdf5' % (subdir, flag))
     f = h5py.File(fhdf5, 'w') 
     f.create_dataset('k', data=k)
     f.create_dataset('p0k', data=p0k) 
@@ -393,7 +394,8 @@ def quijoteB_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     if rsd not in [0, 1, 2, 'real']: raise ValueError 
     if subdir == 'fiducial' and flag == 'reg': nmocks = 15000
     elif subdir == 'fiducial' and flag == 'ncv': nmocks = 500
-    elif subdir == 'fiducial_za': nmocks=500
+    elif subdir == 'fiducial_ZA' and flag == 'reg': nmocks=500
+    elif subdir == 'fiducial_ZA' and flag == 'ncv': nmocks=250
     else: nmocks = 500 
 
     fbks = [] 
@@ -445,9 +447,9 @@ def quijoteB_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     # save to hdf5 file 
     quij_dir = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_hod', 'z0') 
     if rsd != 'real':  # reshift space 
-        fhdf5 = os.path.join(quij_dir, 'quijote_%s.%s.rsd%i.hdf5' % (subdir, flag, rsd))
+        fhdf5 = os.path.join(quij_dir, 'quijhod_%s.%s.rsd%i.hdf5' % (subdir, flag, rsd))
     else: 
-        fhdf5 = os.path.join(quij_dir, 'quijote_%s.%s.real.hdf5' % (subdir, flag))
+        fhdf5 = os.path.join(quij_dir, 'quijhod_%s.%s.real.hdf5' % (subdir, flag))
     f = h5py.File(fhdf5, 'w') 
     f.create_dataset('k1', data=i_k)
     f.create_dataset('k2', data=j_k)
@@ -490,9 +492,10 @@ if __name__=="__main__":
     thetas_hod = ['Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'Om_m', 'Om_p', 'Ob2_m', 'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p', 
             'alpha_m', 'alpha_p', 'logM0_m', 'logM0_p', 'logM1_m', 'logM1_p', 'logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'fiducial']
     thetas_hod = ['alpha_m', 'alpha_p', 'logM0_m', 'logM0_p', 'logM1_m', 'logM1_p', 'logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'fiducial']
+    thetas_hod = ['fiducial_ZA']
     for sub in thetas_hod: 
         for rsd in [0, 1, 2, 'real']: 
-            #quijoteP_hod_hdf5(sub, rsd=rsd, flag='reg')
-            #quijoteP_hod_hdf5(sub, rsd=rsd, flag='ncv')
+            quijoteP_hod_hdf5(sub, rsd=rsd, flag='reg')
+            quijoteP_hod_hdf5(sub, rsd=rsd, flag='ncv')
             quijoteB_hod_hdf5(sub, rsd=rsd, flag='reg')
-            #quijoteP_hod_hdf5(sub, rsd=rsd, flag='ncv')
+            quijoteB_hod_hdf5(sub, rsd=rsd, flag='ncv')

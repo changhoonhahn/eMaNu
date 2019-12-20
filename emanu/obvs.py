@@ -117,6 +117,112 @@ def hadesBk_s8(sig8, nzbin=4, rsd=True):
     return _bks
 
 
+def quijhod_Bk(theta, z=0, rsd='all', flag=None, silent=True): 
+    ''' read in real/redshift-space bispectrum for specified model (theta) of the 
+    quijote HOD (quijhod) catalogs. 
+    
+    :param theta: 
+        string that specifies which quijote run. `theta==fiducial`  
+        for the fiducial set of parameters. 
+
+    :param rsd: (default: 'all') 
+        if rsd == 'all', read in z-space bispectrum (including all 3 RSD directions). 
+        if rsd in [0, 1, 2], read in z-space bispecturm in one RSD direction 
+        if False, read in real-space bispectrum
+
+    :param z: (default:0) 
+        redshift z=0. currently only supports z=0 
+    
+    :param flag: (default: None) 
+        specify more specific bispectrum runs. currently only flags within 
+        [None, 'ncv', 'reg']  are supported. ncv only includes paired-fixed 
+        simulations. reg only includes regular n-body simulations.
+
+    :return _bks: 
+        dictionary that contains all the bispectrum data from quijhod 
+    '''
+    if z == 0: zdir = 'z0'
+    else: raise NotImplementedError
+    
+    assert flag in [None, 'ncv', 'reg'], "flag=%s unspecified" % flag
+    assert rsd in [0, 1, 2, 'all', 'real'] 
+    
+    # get files to read-in 
+    quij_dir = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_hod', zdir) 
+    if rsd == 'all': # include all 3 rsd directions
+        fbks = ['quijhod_%s.%s.rsd%i.hdf5' % (theta, flag, irsd) for irsd in [0, 1, 2]] 
+    elif rsd in [0, 1, 2]: # include a single rsd direction 
+        fbks = ['quijhod_%s.%s.rsd%i.hdf5' % (theta, flag, rsd)]
+    elif rsd == 'real': # real-space 
+        fbks = ['quijhod_%s.%s.real.hdf5' % (theta, flag)]
+    
+    # combine the files  
+    if not silent: print(fbks) 
+    _bks = {}
+    for i_f, fbk in enumerate(fbks): 
+        bks = h5py.File(os.path.join(quij_dir, fbk), 'r') 
+        if i_f == 0:  
+            for k in bks.keys(): 
+                _bks[k] = bks[k].value 
+        else: 
+            for k in ['p0k1', 'p0k2', 'p0k3', 'b123', 'b_sn', 'q123', 'Ngalaxies']: 
+                _bks[k] = np.concatenate([_bks[k], bks[k].value]) 
+    return _bks
+
+
+def quijhod_Pk(theta, z=0, rsd='all', flag=None, silent=True): 
+    ''' read in real/redshift-space powerspectrum monopole (for RSD quadru- and hexadeca-poles) 
+    for specified model (theta) of the quijote hod (quijhod) simulations. 
+    
+    :param theta: 
+        string that specifies which quijote run. `theta==fiducial`  
+        for the fiducial set of parameters. 
+
+    :param z: (default:0) 
+        redshift z=0. currently only supports z=0 
+
+    :param rsd: (default: 'all') 
+        if rsd == 'all', read in z-space bispectrum (including all 3 RSD directions). 
+        if rsd in [0, 1, 2], read in z-space bispecturm in one RSD direction 
+        if False, read in real-space bispectrum
+    
+    :param flag: (default: None) 
+        specify more specific bispectrum runs. currently only flags within 
+        [None, 'ncv', 'reg']  are supported. ncv only includes paired-fixed 
+        simulations. reg only includes regular n-body simulations.
+
+    :return _bks: 
+        dictionary that contains all the bispectrum data from quijote simulation
+    '''
+    if z == 0: zdir = 'z0'
+    else: raise NotImplementedError
+    
+    assert flag in [None, 'ncv', 'reg'], "flag=%s unspecified" % flag
+    assert rsd in [0, 1, 2, 'all', 'real'] 
+    
+    # get files to read-in 
+    quij_dir = os.path.join(UT.dat_dir(), 'powerspectrum', 'quijote_hod', zdir) 
+    if rsd == 'all': # include all 3 rsd directions
+        fpks = ['quijhod_%s.%s.rsd%i.hdf5' % (theta, flag, irsd) for irsd in [0, 1, 2]] 
+    elif rsd in [0, 1, 2]: # include a single rsd direction 
+        fpks = ['quijhod_%s.%s.rsd%i.hdf5' % (theta, flag, rsd)]
+    elif rsd == 'real': # real-space 
+        fpks = ['quijhod_%s.%s.real.hdf5' % (theta, flag)]
+    
+    # combine the files  
+    if not silent: print(fpks) 
+    _pks = {}
+    for i_f, fpk in enumerate(fpks): 
+        pks = h5py.File(os.path.join(quij_dir, fpk), 'r') 
+        if i_f == 0:  
+            for k in pks.keys(): 
+                _pks[k] = pks[k].value 
+        else: 
+            for k in ['p0k', 'p2k', 'p4k', 'p_sn']: 
+                _pks[k] = np.concatenate([_pks[k], pks[k].value]) 
+    return _pks
+
+
 def quijoteBk(theta, z=0, rsd='all', flag=None, silent=True): 
     ''' read in real/redshift-space bispectrum for specified model (theta) of the quijote simulations. 
     
