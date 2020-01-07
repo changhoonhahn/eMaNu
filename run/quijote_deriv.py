@@ -323,10 +323,11 @@ if __name__=="__main__":
             dBdtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
             dBdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
     '''
-    thetas = ['Mnu', 'Om', 'Ob2', 'h', 'ns', 's8', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1'] #'Mnu', 
+    thetas = ['Mnu', 'Om', 'Ob2', 'h', 'ns', 's8', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1', 'Asn', 'Bsn'] 
     for theta in thetas: 
         for rsd in ['real', 0, 1, 2, 'all']: 
             for flag in ['reg']: #'ncv' 
-                hod_dPdtheta(theta, z=0, rsd=rsd, flag=flag, silent=False)
-                if rsd != 'real': hod_dP02dtheta(theta, z=0, rsd=rsd, flag=flag, silent=False)
+                if theta not in ['Bsn']: 
+                    hod_dPdtheta(theta, z=0, rsd=rsd, flag=flag, silent=False)
+                    if rsd != 'real': hod_dP02dtheta(theta, z=0, rsd=rsd, flag=flag, silent=False)
                 hod_dBdtheta(theta, z=0, rsd=rsd, flag=flag, silent=False) 

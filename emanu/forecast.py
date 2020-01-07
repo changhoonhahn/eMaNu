@@ -157,7 +157,7 @@ def quijhod_dP02kdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0,
         tts = ['fiducial'] 
         coeffs = [0.] 
         h = 1. 
-        quij = Obvs.quihod_Pk('fiducial', z=z, flag=flag, rsd=rsd, silent=silent)
+        quij = Obvs.quijhod_Pk('fiducial', z=z, flag=flag, rsd=rsd, silent=silent)
         _p02ks = np.concatenate([quij['p0k'], quij['p2k']], axis=1)
         if not log: c_dpk = np.ones(_p02ks.shape[1]) 
         else: c_dpk = 1./np.average(_p02ks, axis=0) 
