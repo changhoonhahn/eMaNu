@@ -31,11 +31,14 @@ from matplotlib.colors import LogNorm
 
 kf = 2.*np.pi/1000. # fundmaentla mode
 
+dir_doc = os.path.join(UT.doc_dir(), 'paper2', 'figs') # figures for paper 
 dir_hod = os.path.join(UT.dat_dir(), 'hod_forecast') 
 
 fscale_pk = 1e5 # see fscale_Pk() for details
 
-thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']
+thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1'] 
+theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$', 
+        r'$\log M_{\rm min}$', r'$\sigma_{\log M}$', r'$\log M_0$', r'$\alpha$', r'$\log M_1$']
 
 # --- covariance matrices --- 
 def p02kCov(rsd=2, flag='reg', silent=True): 
@@ -294,19 +297,55 @@ def dP02B(theta, log=False, rsd='all', flag='reg', dmnu='fin', returnks=False, s
         return np.concatenate([dp, db]) 
 
 
-def plot_dP02B(kmax=0.5, rsd='all', flag='reg', log=True): 
-    ''' compare derivatives 
+def plot_dP02B(kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True): 
+    ''' compare derivatives: columns are dP0/dtt, dP2/dtt, and dB/dtt
     '''
+    # y range of P0, P2 plots 
+    logplims = [(-10., 5.), (-5, 15), (-3., 3.), (-5., 7.), (-2., 2.6), (-0.1, 0.6), None, None, None, None, None] 
+    logblims = [(-17., 6.), (-2., 24.), (-5., -0.5), (-5., -0.5), (-6., 0), (-1.5, 2.), None, None, None, None, None] 
+
+    fig = plt.figure(figsize=(2*len(thetas),12))
+    gs = mpl.gridspec.GridSpec(len(thetas), 3, figure=fig, width_ratios=[1,1,2], hspace=0.05) 
+
+    for i, tt in enumerate(thetas): 
+        _k, _ik, _jk, _lk, dpb = dP02B(tt, log=log, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True, silent=False)
+        
+        nk0 = len(k)/2
+        kp  = _k[:nk0]
+        dp0 = dpb[:nk0]
+        dp2 = dpb[nk0:len(k)]
+        db  = dpb[len(k):] 
+
+        # k limits 
+        pklim = (kp < kmax) 
+        bklim = ((_ik*kf <= kmax) & (_jk*kf <= kmax) & (_lk*kf <= kmax))
+        
+        # plot dP0/dtheta and dP2/theta
+        for _i, dp in enumerate([dp0, dp2]): 
+            sub = plt.subplot(gs[3*i+_i])
+            sub.plot(kp0[p0klim], dp0[p0klim])
+
+            sub.set_xscale('log') 
+            sub.set_xlim(5e-3, kmax) 
+            if not log: 
+                sub.set_yscale('log') 
+                sub.set_ylim(1e2, 1e6) 
+            else: 
+                sub.set_ylim(logplims[i]) 
+
+        # plot dB/dtheta
+        sub = plt.subplot(gs[3*i+2])
+        sub.plot(range(np.sum(bklim)), db[bklim])
+        sub.set_xlim(0, np.sum(bklim)) 
+        if not log: 
+            sub.set_yscale('log') 
+        else: 
+            sub.set_ylim(logblims[i]) 
+        sub.text(0.95, 0.95, theta_lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=25)
     
-    fig = plt.figure(figsize=(12,12))
-    # continue here
-    # continue here
-    # continue here
-    # continue here
-    # continue here
-    # continue here
-    # continue here
-    # continue here
+    ffig = os.path.join(dir_doc, 'quijote_d%P02Bdtheta%s%s.%s.png' % (['', 'log'][log], _rsd_str(rsd), _flag_str(flag), dmnu))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
 
 
 def _rsd_str(rsd): 
@@ -323,6 +362,7 @@ def _flag_str(flag):
 
 
 if __name__=="__main__": 
+    # covariance matrices 
     '''
         # calculate the covariance matrices 
         p02kCov(rsd=2, flag='reg', silent=False)
@@ -333,5 +373,5 @@ if __name__=="__main__":
         # plot the covariance matrices 
         plot_p02bkCov(kmax=0.5, rsd=2, flag='reg')
     '''
-    plot_p02bkCov(kmax=0.5, rsd=2, flag='reg')
-
+    # derivatives 
+    plot_dP02B(kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True)
