@@ -7,6 +7,7 @@ using halo catalogs from the Quijote simulations.
 import os 
 import h5py
 import numpy as np 
+from copy import copy as copy
 # --- eMaNu --- 
 from emanu import util as UT
 from emanu import obvs as Obvs
@@ -39,6 +40,12 @@ fscale_pk = 1e5 # see fscale_Pk() for details
 thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1'] 
 theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$', 
         r'$\log M_{\rm min}$', r'$\sigma_{\log M}$', r'$\log M_0$', r'$\alpha$', r'$\log M_1$']
+theta_fid = {'Mnu': 0., 'Ob': 0.049, 'Ob2': 0.049, 'Om': 0.3175, 'h': 0.6711,  'ns': 0.9624,  's8': 0.834, 
+        'logMmin': 13.65, 'sigma_logM': 0.2, 'logM0': 14.0, 'alpha': 1.1, 'logM1': 14.0} # fiducial theta 
+# nuisance parameters
+theta_nuis_lbls = {'Amp': "$b'$", 'Asn': r"$A_{\rm SN}$", 'Bsn': r"$B_{\rm SN}$", 'b2': '$b_2$', 'g2': '$g_2$'}
+theta_nuis_fids = {'Amp': 1., 'Asn': 1e-6, 'Bsn': 1e-3, 'b2': 1., 'g2': 1.} 
+theta_nuis_lims = {'Amp': (0.75, 1.25), 'Asn': (0., 1.), 'Bsn': (0., 1.), 'b2': (0.95, 1.05), 'g2': (0.95, 1.05)} 
 
 # --- covariance matrices --- 
 def p02kCov(rsd=2, flag='reg', silent=True): 
@@ -281,7 +288,7 @@ def dBk(theta, log=False, rsd='all', flag='reg', dmnu='fin', returnks=False, sil
     else: return i_k, j_k, l_k, dbdt 
 
 
-def dP02B(theta, log=False, rsd='all', flag='reg', dmnu='fin', returnks=False, silent=True):
+def dP02Bk(theta, log=False, rsd='all', flag='reg', dmnu='fin', fscale_pk=1., returnks=False, silent=True):
     ''' dP0/dtt, dP2/dtt, dB/dtt
     '''
     # dP0/dtheta, dP2/dtheta
@@ -292,59 +299,368 @@ def dP02B(theta, log=False, rsd='all', flag='reg', dmnu='fin', returnks=False, s
     if returnks: 
         _k, _dp = dp 
         _ik, _jk, _lk, _db = db
-        return _k, _ik, _jk, _lk, np.concatenate([_dp, _db]) 
+        return _k, _ik, _jk, _lk, np.concatenate([fscale_pk * _dp, _db]) 
     else: 
-        return np.concatenate([dp, db]) 
+        return np.concatenate([fscale_pk * dp, db]) 
 
 
 def plot_dP02B(kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True): 
-    ''' compare derivatives: columns are dP0/dtt, dP2/dtt, and dB/dtt
+    ''' compare derivatives w.r.t. the different thetas
     '''
     # y range of P0, P2 plots 
-    logplims = [(-10., 5.), (-5, 15), (-3., 3.), (-5., 7.), (-2., 2.6), (-0.1, 0.6), None, None, None, None, None] 
-    logblims = [(-17., 6.), (-2., 24.), (-5., -0.5), (-5., -0.5), (-6., 0), (-1.5, 2.), None, None, None, None, None] 
+    logplims = [(-10., 5.), (-2, 15), (-3., 1.), (-4., 0.), (-2., 2.), (-0.5, 0.5), (-2., 4), (-2., 1.), None, (-1., 2.), (-5., 1.)] 
+    logblims = [(-17., 6.), (-2., 24.), (-5., -0.5), (-5., -0.5), (-2., 2.), (0.2, 0.7), (3., 6.), None, None, (2, 4.5), None] 
 
-    fig = plt.figure(figsize=(2*len(thetas),12))
-    gs = mpl.gridspec.GridSpec(len(thetas), 3, figure=fig, width_ratios=[1,1,2], hspace=0.05) 
+    fig = plt.figure(figsize=(24,3*len(thetas)))
+    gs = mpl.gridspec.GridSpec(len(thetas), 2, figure=fig, width_ratios=[1,8], hspace=0.1, wspace=0.15) 
 
     for i, tt in enumerate(thetas): 
-        _k, _ik, _jk, _lk, dpb = dP02B(tt, log=log, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True, silent=False)
+        _k, _ik, _jk, _lk, dpb = dP02Bk(tt, log=log, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True, silent=False)
         
-        nk0 = len(k)/2
+        nk0 = int(len(_k)/2) 
         kp  = _k[:nk0]
         dp0 = dpb[:nk0]
-        dp2 = dpb[nk0:len(k)]
-        db  = dpb[len(k):] 
+        dp2 = dpb[nk0:len(_k)]
+        db  = dpb[len(_k):] 
 
         # k limits 
         pklim = (kp < kmax) 
         bklim = ((_ik*kf <= kmax) & (_jk*kf <= kmax) & (_lk*kf <= kmax))
         
         # plot dP0/dtheta and dP2/theta
-        for _i, dp in enumerate([dp0, dp2]): 
-            sub = plt.subplot(gs[3*i+_i])
-            sub.plot(kp0[p0klim], dp0[p0klim])
+        sub = plt.subplot(gs[2*i])
+        sub.plot(kp[pklim], dp0[pklim], c='C0', label=r'$\ell = 0$')
+        sub.plot(kp[pklim], dp2[pklim], c='C1', label=r'$\ell = 2$')
 
-            sub.set_xscale('log') 
-            sub.set_xlim(5e-3, kmax) 
-            if not log: 
-                sub.set_yscale('log') 
-                sub.set_ylim(1e2, 1e6) 
-            else: 
-                sub.set_ylim(logplims[i]) 
+        sub.set_xscale('log') 
+        sub.set_xlim(5e-3, kmax) 
+        if i != len(thetas)-1: sub.set_xticklabels([]) 
+        else: 
+            sub.set_xlabel('k [$h$/Mpc]', fontsize=25) 
+            sub.legend(handletextpad=0.1, loc='upper left', fontsize=15) 
+
+        if not log: 
+            sub.set_yscale('symlog', linthreshy=1e3) 
+        else: 
+            sub.set_ylim(logplims[i]) 
+        if i == 5: sub.set_ylabel(r'${\rm d} %s P_\ell/{\rm d}\theta$' % (['', '\log'][log]), fontsize=25) 
 
         # plot dB/dtheta
-        sub = plt.subplot(gs[3*i+2])
+        sub = plt.subplot(gs[2*i+1])
         sub.plot(range(np.sum(bklim)), db[bklim])
         sub.set_xlim(0, np.sum(bklim)) 
         if not log: 
-            sub.set_yscale('log') 
+            #sub.set_yscale('symlog') 
+            sub.set_yscale('symlog', linthreshy=1e8) 
         else: 
             sub.set_ylim(logblims[i]) 
-        sub.text(0.95, 0.95, theta_lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=25)
-    
-    ffig = os.path.join(dir_doc, 'quijote_d%P02Bdtheta%s%s.%s.png' % (['', 'log'][log], _rsd_str(rsd), _flag_str(flag), dmnu))
+        sub.text(0.99, 0.9, theta_lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=25, bbox=dict(facecolor='white', alpha=0.75, edgecolor='None'))
+        if i != len(thetas)-1: sub.set_xticklabels([]) 
+        else: sub.set_xlabel('triangles', fontsize=25) 
+        if i == 5: sub.set_ylabel(r'${\rm d} %s B_0/{\rm d}\theta$' % (['', '\log'][log]), fontsize=25) 
+
+    ffig = os.path.join(dir_doc, 'quijote_d%sP02Bdtheta%s%s.%s.png' % (['', 'log'][log], _rsd_str(rsd), _flag_str(flag), dmnu))
     fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+
+def plot_dP02B_Mnu_degen(kmax=0.5, rsd='all', flag='reg', dmnu='fin'): 
+    ''' compare derivatives that appear to be degenerate with the deriv. w.r.t. Mnu 
+    '''
+    fig = plt.figure(figsize=(30,8))
+    gs = mpl.gridspec.GridSpec(2, 3, figure=fig, width_ratios=[1,1,8], wspace=0.2) 
+    sub0 = plt.subplot(gs[0]) 
+    sub1 = plt.subplot(gs[1]) 
+    sub2 = plt.subplot(gs[2]) 
+    sub3 = plt.subplot(gs[3]) 
+    sub4 = plt.subplot(gs[4]) 
+    sub5 = plt.subplot(gs[5]) 
+    
+    # factor to scale bk deriv.s
+    #fbks = [1., 0.1, 0.1]
+    fbks = [1., 1., 1.]
+
+    for i, tt in enumerate(['Mnu', 'logMmin', 'alpha']): 
+        _k, _ik, _jk, _lk, dpb = dP02Bk(tt, log=False, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True, silent=False)
+        
+        nk0 = int(len(_k)/2) 
+        kp  = _k[:nk0]
+        dp0 = dpb[:nk0]
+        dp2 = dpb[nk0:len(_k)]
+        db  = dpb[len(_k):] 
+
+        # k limits 
+        pklim = (kp < kmax) 
+        bklim = ((_ik*kf <= kmax) & (_jk*kf <= kmax) & (_lk*kf <= kmax))
+        
+        # plot dP0/dtheta and dP2/theta
+        sub0.plot(kp[pklim], dp0[pklim], c='C%i' % i)
+        sub1.plot(kp[pklim], dp2[pklim], c='C%i' % i)
+        
+        # plot dB/dtheta
+        sub2.plot(range(np.sum(bklim)), fbks[i] * db[bklim], c='C%i' % i, lw=1, label=theta_lbls[thetas.index(tt)])
+        if tt == 'Mnu': 
+            dp0_mnu = dp0
+            dp2_mnu = dp2
+            db_mnu = db
+        else: 
+            print('--- (dB/d%s)/(dB/dMnu) ---' % tt) 
+            print((db/db_mnu)[bklim][::10]) 
+            sub3.plot(kp[pklim], (dp0/dp0_mnu)[pklim], c='C%i' % i) 
+            sub4.plot(kp[pklim], (dp2/dp2_mnu)[pklim], c='C%i' % i) 
+            sub5.plot(range(np.sum(bklim)), (db/db_mnu)[bklim], c='C%i' % i) 
+    
+    for i, sub in enumerate([sub0, sub1]):
+        sub.set_xscale('log') 
+        sub.set_xlim(5e-3, kmax) 
+        sub.set_xticklabels([]) 
+        sub.set_yscale('symlog', linthreshy=1e3) 
+        sub.set_ylabel(r'${\rm d} P_%i/{\rm d}\theta$' % (2*i), fontsize=25) 
+
+    for i, sub in enumerate([sub3, sub4]):
+        sub.set_xlim(5e-3, kmax) 
+        sub.set_xlabel('k [$h$/Mpc]', fontsize=25) 
+        sub.set_ylabel(r'$({\rm d} P_%i/{\rm d}\theta)/({\rm d} P_%i/{\rm d}M_\nu)$' % (2*i, 2*i), fontsize=25) 
+
+    sub2.set_xlim(0, np.sum(bklim)) 
+    sub5.set_xlim(0, np.sum(bklim)) 
+    sub2.set_yscale('symlog', linthreshy=1e8) 
+    sub2.set_xticklabels([]) 
+    sub5.set_xlabel('triangles', fontsize=25) 
+    sub2.set_ylabel(r'${\rm d} B_0/{\rm d}\theta$', fontsize=25) 
+    sub5.set_ylabel(r'$({\rm d} B_0/{\rm d}\theta)/({\rm d} B_0/{\rm d}M_\nu)$', fontsize=25) 
+    sub2.legend(handletextpad=0.1, loc='upper right', fontsize=20)
+
+    ffig = os.path.join(dir_hod, 'quijote_dP02Bdtheta_Mnu_degen%s%s.%s.png' % (_rsd_str(rsd), _flag_str(flag), dmnu))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+
+def plot_dP02B_Mnu(kmax=0.5, rsd='all', flag='reg', log=True):
+    ''' compare the derivative w.r.t. Mnu for different methods 
+    '''
+    fig = plt.figure(figsize=(30,4))
+    gs = mpl.gridspec.GridSpec(1, 3, figure=fig, width_ratios=[1,1,8], wspace=0.2) 
+    sub0 = plt.subplot(gs[0]) 
+    sub1 = plt.subplot(gs[1]) 
+    sub2 = plt.subplot(gs[2]) 
+    
+    for i, dmnu in enumerate(['fin', 'p', 'pp', 'fin_2lpt']): 
+        _k, _ik, _jk, _lk, dpb = dP02B('Mnu', log=False, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True, silent=False)
+        
+        nk0 = int(len(_k)/2) 
+        kp  = _k[:nk0]
+        dp0 = dpb[:nk0]
+        dp2 = dpb[nk0:len(_k)]
+        db  = dpb[len(_k):] 
+
+        # k limits 
+        pklim = (kp < kmax) 
+        bklim = ((_ik*kf <= kmax) & (_jk*kf <= kmax) & (_lk*kf <= kmax))
+        
+        # plot dP0/dtheta and dP2/theta
+        sub0.plot(kp[pklim], dp0[pklim], c='C%i' % i)
+        sub1.plot(kp[pklim], dp2[pklim], c='C%i' % i)
+        
+        # plot dB/dtheta
+        sub2.plot(range(np.sum(bklim)), db[bklim], c='C%i' % i, lw=1, label=dmnu.replace('_', ' '))
+    
+    for i, sub in enumerate([sub0, sub1]):
+        sub.set_xlabel('k [$h$/Mpc]', fontsize=25) 
+        sub.set_xscale('log') 
+        sub.set_xlim(5e-3, kmax) 
+        sub.set_xticklabels([]) 
+        sub.set_yscale('symlog', linthreshy=1e3) 
+        sub.set_ylabel(r'${\rm d} P_%i/{\rm d}\theta$' % (2*i), fontsize=25) 
+
+    sub2.set_xlim(0, np.sum(bklim)) 
+    sub2.set_yscale('symlog', linthreshy=1e8) 
+    sub2.set_xticklabels([]) 
+    sub2.set_xlabel('triangles', fontsize=25) 
+    sub2.set_ylabel(r'${\rm d} B_0/{\rm d}\theta$', fontsize=25) 
+    sub2.legend(handletextpad=0.1, loc='upper right', fontsize=20, ncol=5)
+
+    ffig = os.path.join(dir_hod, 'quijote_dP02BdMnu%s%s.png' % (_rsd_str(rsd), _flag_str(flag)))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+
+# --- forecasts --- 
+def FisherMatrix(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None, cross_covariance=True, Cgauss=False): 
+    ''' calculate fisher matrix for parameters ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu'] 
+    and specified nuisance parameters
+    
+    :param obs: 
+        observable ('p02k', 'bk', 'p02bk') 
+    :param kmax: (default: 0.5) 
+        kmax of the analysis 
+    :param rsd: (default: True) 
+        rsd kwarg that specifies rsd set up for B(k) deriv.. 
+        If rsd == 'all', include 3 RSD directions. 
+        If rsd in [0,1,2] include one of the directions
+    :param flag: (default: None) 
+        kwarg specifying the flag for B(k). 
+        If `flag is None`, include paired-fixed and regular N-body simulation. 
+        If `flag == 'ncv'` only include paired-fixed. 
+        If `flag == 'reg'` only include regular N-body
+    :param dmnu: (default: 'fin') 
+        derivative finite differences setup
+    :param theta_nuis: (default: None) 
+        list of nuisance parameters to include in the forecast. 
+    '''
+    # calculate covariance matrix (with shotnoise; this is the correct one) 
+    # *** rsd and flag kwargs are ignored for the covariace matirx ***
+
+    if obs == 'p02k':  # monopole and quadrupole 
+        k, _Cov, nmock = p02kCov(rsd=2, flag='reg') # only reg. N-body and 1 RSD direction (z) 
+        klim = (k <= kmax) # determine k limit 
+        Cov = _Cov[klim,:][:,klim]
+    elif obs == 'bk':
+        i_k, j_k, l_k, _Cov, nmock = bkCov(rsd=2, flag='reg') # only N-body for covariance
+        klim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # k limit 
+        Cov = _Cov[:,klim][klim,:]
+    elif obs == 'p02bk': 
+        ks, _Cov, nmock = p02bkCov(rsd=2, flag='reg')
+        k, i_k, j_k, l_k = ks 
+
+        pklim = (k <= kmax) 
+        bklim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # k limit 
+        klim = np.concatenate([pklim, bklim]) 
+        Cov = _Cov[:,klim][klim,:]
+    else: 
+        raise NotImplementedError
+
+    ndata = np.sum(klim) 
+    f_hartlap = float(nmock - ndata - 2)/float(nmock - 1) 
+    C_inv = f_hartlap * np.linalg.inv(Cov) # invert the covariance 
+    
+    _thetas = copy(thetas) 
+    if theta_nuis is not None: _thetas += theta_nuis 
+    
+    # calculate the derivatives along all the thetas 
+    dobs_dt = [] 
+    for par in _thetas: 
+        if obs == 'p02k': 
+            dobs_dti = dP02k(par, rsd=rsd, flag=flag, dmnu=dmnu)
+        elif obs == 'bk': 
+            # rsd and flag kwargs are passed to the derivatives
+            dobs_dti = dBk(par, rsd=rsd, flag=flag, dmnu=dmnu)
+        elif obs == 'p02bk': 
+            dobs_dti = dP02Bk(par, rsd=rsd, flag=flag, dmnu=dmnu, fscale_pk=fscale_pk) 
+        dobs_dt.append(dobs_dti[klim])
+            
+    Fij = Forecast.Fij(dobs_dt, C_inv) 
+    return Fij 
+
+
+def forecast(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False):
+    ''' fisher forecast for quijote observables where we marginalize over theta_nuis parameters. 
+    
+    :param obs: 
+        observable ('p02k', 'bk', 'p02bk') 
+    :param kmax: (default: 0.5) 
+        kmax of the analysis 
+    :param rsd: (default: True) 
+        specifies the rsd set up for the B(k) derivative. 
+        If rsd == 'all', include 3 RSD directions. 
+        If rsd in [0,1,2] include one of the directions
+    :param flag: (default: None) 
+        kwarg specifying the flag for B(k). 
+        If `flag is None`, include paired-fixed and regular N-body simulation. 
+        If `flag == 'ncv'` only include paired-fixed. 
+        If `flag == 'reg'` only include regular N-body
+    :param dmnu: (default: 'fin') 
+        derivative finite differences setup
+    :param theta_nuis: (default: None) 
+        list of nuisance parameters to include in the forecast. 
+    :param planck: (default: False)
+        If True add Planck prior 
+    '''
+    # fisher matrix (Fij)
+    _Fij    = FisherMatrix(obs, kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=None) # no nuisance param. 
+    Fij     = FisherMatrix(obs, kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=theta_nuis) # marg. over nuisance param. 
+    cond = np.linalg.cond(Fij)
+    if cond > 1e16: print('Fij is ill-conditioned %.5e' % cond)
+    _Finv   = np.linalg.inv(_Fij) # invert fisher matrix 
+    Finv    = np.linalg.inv(Fij) # invert fisher matrix 
+    
+    if planck: # add planck prior 
+        _Finv_noplanck = Finv.copy() 
+        _Fij_planck = np.load(os.path.join(UT.dat_dir(), 'Planck_2018_s8.npy')) # read in planck prior fisher (order is Om, Ob, h, ns, s8 and Mnu) 
+        Fij_planck = Fij.copy() 
+        Fij_planck[:6,:6] += _Fij_planck
+        Finv = np.linalg.inv(Fij_planck)
+
+    i_Mnu = thetas.index('Mnu')
+    if not planck: 
+        print('--- i = Mnu ---')
+        print('n nuis. Fii=%f, sigma_i = %f' % (_Fij[i_Mnu,i_Mnu], np.sqrt(_Finv[i_Mnu,i_Mnu])))
+        print("y nuis. Fii=%f, sigma_i = %f" % (Fij[i_Mnu,i_Mnu], np.sqrt(Finv[i_Mnu,i_Mnu])))
+        print('--- thetas ---')
+        print('n nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(_Finv))]))
+        print('y nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(Finv))]))
+    else: 
+        print('n nuis. Fii=%f, sigma_i = %f' % (_Fij[i_Mnu,i_Mnu], np.sqrt(_Finv[i_Mnu,i_Mnu])))
+        print("y nuis. Fii=%f, sigma_i = %f" % (Fij[i_Mnu,i_Mnu], np.sqrt(_Finv_noplanck[i_Mnu,i_Mnu])))
+        print("w/ Planck2018")
+        print("y nuis. Fii=%f, sigma_i = %f" % (Fij_planck[i_Mnu,i_Mnu], np.sqrt(Finv[i_Mnu,i_Mnu])))
+        print('--- thetas ---')
+        print('n nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(_Finv))]))
+        print('y nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(_Finv_noplanck))]))
+        print("w/ Planck2018")
+        print('y nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(Finv))]))
+     
+    _thetas = copy(thetas) 
+    _theta_lbls = copy(theta_lbls) 
+    _theta_fid = theta_fid.copy() # fiducial thetas
+    _theta_lims = [(0.25, 0.385), (0.02, 0.08), (0.3, 1.1), (0.6, 1.3), (0.8, 0.88), (-0.4, 0.4), (13.3, 14.), [0.1, 0.3], [13., 15.], [0.5, 1.7], [13., 15.]]
+
+    if theta_nuis is not None: 
+        _thetas += theta_nuis 
+        _thetas_lbls += [theta_nuis_lbls[tt] for tt in theta_nuis]
+        for tt in theta_nuis: _theta_fid[tt] = theta_nuis_fids[tt]
+        _theta_lims += [theta_nuis_lims[tt] for tt in theta_nuis]
+
+    fig = plt.figure(figsize=(17, 15))
+    for i in range(len(_thetas)+1): 
+        for j in range(i+1, len(_thetas)): 
+            # sub inverse fisher matrix 
+            Finv_sub = np.array([[Finv[i,i], Finv[i,j]], [Finv[j,i], Finv[j,j]]]) 
+            # plot the ellipse
+            sub = fig.add_subplot(len(_thetas)-1, len(_thetas)-1, (len(_thetas)-1) * (j-1) + i + 1) 
+            Forecast.plotEllipse(Finv_sub, sub, 
+                    theta_fid_ij=[_theta_fid[_thetas[i]], _theta_fid[_thetas[j]]], color='C0')
+            sub.set_xlim(_theta_lims[i])
+            sub.set_ylim(_theta_lims[j])
+            if i == 0:   
+                sub.set_ylabel(_theta_lbls[j], fontsize=30) 
+            else: 
+                sub.set_yticks([])
+                sub.set_yticklabels([])
+            
+            if j == len(_thetas)-1: 
+                sub.set_xlabel(_theta_lbls[i], labelpad=10, fontsize=30) 
+            else: 
+                sub.set_xticks([])
+                sub.set_xticklabels([]) 
+    fig.subplots_adjust(wspace=0.05, hspace=0.05) 
+    
+    nuis_str = ''
+    if theta_nuis is not None: 
+        if 'Amp' in theta_nuis: nuis_str += 'b'
+        if 'Mmin' in theta_nuis: nuis_str += 'Mmin'
+        if ('Asn' in theta_nuis) or ('Bsn' in theta_nuis): nuis_str += 'SN'
+        if 'b2' in theta_nuis: nuis_str += 'b2'
+        if 'g2' in theta_nuis: nuis_str += 'g2'
+
+    planck_str = ''
+    if planck: planck_str = '.planck'
+
+    ffig = os.path.join(dir_doc, 
+            'quijote.%sFisher.%s.dmnu_%s.kmax%.2f%s%s%s.png' % 
+            (obs, nuis_str, dmnu, kmax, _rsd_str(rsd), _flag_str(flag), planck_str))
+    fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex version 
     return None 
 
 
@@ -374,4 +690,18 @@ if __name__=="__main__":
         plot_p02bkCov(kmax=0.5, rsd=2, flag='reg')
     '''
     # derivatives 
-    plot_dP02B(kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True)
+    '''
+        # compare derivatives w.r.t. the cosmology + HOD parameters 
+        plot_dP02B(kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=False)
+        # compare derivatives for a subset of parameters to look into 
+        # dgenerates with deriv. w.r.t. Mnu
+        plot_dP02B_Mnu_degen(kmax=0.5, rsd='all', flag='reg', dmnu='fin')
+        # deriv. w.r.t. Mnu for different methods 
+        plot_dP02B_Mnu(kmax=0.5, rsd='all', flag='reg', log=True)
+    '''
+    # forecasts 
+    forecast('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Asn'], planck=False)
+    '''
+        forecast('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
+        forecast('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
+    '''
