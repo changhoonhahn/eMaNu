@@ -325,7 +325,7 @@ if __name__=="__main__":
     '''
     thetas = ['Mnu', 'Om', 'Ob2', 'h', 'ns', 's8', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1'] #'Mnu', 
     for theta in thetas: 
-        for rsd in ['real', 0, 1, 2]: 
+        for rsd in ['real', 0, 1, 2, 'all']: 
             for flag in ['reg']: #'ncv' 
                 hod_dPdtheta(theta, z=0, rsd=rsd, flag=flag, silent=False)
                 if rsd != 'real': hod_dP02dtheta(theta, z=0, rsd=rsd, flag=flag, silent=False)
