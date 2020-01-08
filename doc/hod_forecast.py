@@ -314,13 +314,25 @@ def plot_dP02B(kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True):
     '''
     # y range of P0, P2 plots 
     logplims = [(-10., 5.), (-2, 15), (-3., 1.), (-4., 0.), (-2., 2.), (-0.5, 0.5), (-2., 4), (-2., 1.), None, (-1., 2.), (-5., 1.)] 
-    logblims = [(-13., -6.), (-2., 24.), (-5., -0.5), (-5., -0.5), (-2., 2.), (0.2, 0.7), (3., 6.), None, None, (2, 4.5), None] 
+    logblims = [(-13., -6.), (-2., 24.), (-5., -0.5), (-5., -0.5), (-2., 2.), (0.2, 0.7), (3., 6.), None, None, (2, 6), None] 
 
-    fig = plt.figure(figsize=(24,3*len(thetas)))
-    gs = mpl.gridspec.GridSpec(len(thetas), 2, figure=fig, width_ratios=[1,8], hspace=0.1, wspace=0.15) 
+
+    if log: 
+        qhod_p = Obvs.quijhod_Pk('fiducial', flag=flag, rsd=rsd, silent=False) 
+        p0g, p2g  = np.average(qhod_p['p0k'], axis=0), np.average(qhod_p['p2k'], axis=0)
+
+        qhod_b = Obvs.quijhod_Bk('fiducial', flag=flag, rsd=rsd, silent=False) 
+        b0g = np.average(qhod_b['b123'], axis=0) 
+        pbg_fid = np.concatenate([p0g, p2g, b0g]) 
+
+
+    fig = plt.figure(figsize=(30,3*len(thetas)))
+    gs = mpl.gridspec.GridSpec(len(thetas), 2, figure=fig, width_ratios=[1,7], hspace=0.1, wspace=0.15) 
 
     for i, tt in enumerate(thetas): 
-        _k, _ik, _jk, _lk, dpb = dP02Bk(tt, log=log, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True, silent=False)
+        #_k, _ik, _jk, _lk, dpb = dP02Bk(tt, log=log, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True, silent=False)
+        _k, _ik, _jk, _lk, dpb = dP02Bk(tt, log=False, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True, silent=False)
+        if log: dpb /= pbg_fid
         
         nk0 = int(len(_k)/2) 
         kp  = _k[:nk0]
@@ -342,7 +354,10 @@ def plot_dP02B(kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True):
         if i != len(thetas)-1: sub.set_xticklabels([]) 
         else: 
             sub.set_xlabel('k [$h$/Mpc]', fontsize=25) 
-            sub.legend(handletextpad=0.1, loc='upper left', fontsize=15) 
+            if log: 
+                sub.legend(handletextpad=0.1, loc='lower left', fontsize=15) 
+            else: 
+                sub.legend(handletextpad=0.1, loc='upper left', fontsize=15) 
 
         if not log: 
             sub.set_yscale('symlog', linthreshy=1e3) 
@@ -359,7 +374,8 @@ def plot_dP02B(kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True):
             sub.set_yscale('symlog', linthreshy=1e8) 
         else: 
             sub.set_ylim(logblims[i]) 
-        sub.text(0.99, 0.9, theta_lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=25, bbox=dict(facecolor='white', alpha=0.75, edgecolor='None'))
+        sub.text(0.99, 0.9, theta_lbls[i], ha='right', va='top', 
+                transform=sub.transAxes, fontsize=25, bbox=dict(facecolor='white', alpha=0.75, edgecolor='None'))
         if i != len(thetas)-1: sub.set_xticklabels([]) 
         else: sub.set_xlabel('triangles', fontsize=25) 
         if i == 5: sub.set_ylabel(r'${\rm d} %s B_0/{\rm d}\theta$' % (['', '\log'][log]), fontsize=25) 
@@ -490,113 +506,278 @@ def plot_dP02B_Mnu(kmax=0.5, rsd='all', flag='reg', log=True):
     return None 
 
 
-# --- power/bispectrum --- 
-def plot_PBg_PBh(theta, rsd='all', flag='reg'): 
-    ''' comparison between the galaxy power/bispectrum to the halo power/bispectrum
+def dP02Bh(theta, log=False, rsd='all', flag='reg', dmnu='fin', fscale_pk=1., returnks=False, silent=True):
+    ''' read in halo dP0/dtt, dP2/dtt, dB/dtt derivatives
     '''
-    if theta == 'fiducial': 
-        _theta = theta
+    # dP0/dtheta, dP2/dtheta
+    dir_dat = os.path.join(UT.doc_dir(), 'dat') 
+    fdpk = os.path.join(dir_dat, 'dP02dtheta.%s%s%s.dat' % (theta, _rsd_str(rsd), _flag_str(flag))) 
+    if not silent: print('--- reading %s ---' % fdpk) 
+    i_dpk = 1 
+    if theta == 'Mnu': 
+        index_dict = {'fin': 1, 'fin0': 3, 'p': 5, 'pp': 7, 'ppp': 9, 'fin_2lpt': 11}  
+        i_dpk = index_dict[dmnu] 
+    if log: i_dpk += 1 
+
+    _k, _dp = np.loadtxt(fdpk, skiprows=1, unpack=True, usecols=[0,i_dpk]) 
+
+    # dB0/dtheta
+    fdbk = os.path.join(dir_dat, 'dBdtheta.%s%s%s.dat' % (theta, _rsd_str(rsd), _flag_str(flag))) 
+    if not silent: print('--- reading %s ---' % fdbk) 
+    i_dbk = 3 
+    if theta == 'Mnu': 
+        index_dict = {'fin': 3, 'fin0': 5, 'p': 7, 'pp': 9, 'ppp': 11,  'fin_2lpt': 13}  
+        i_dbk = index_dict[dmnu] 
+    if log: i_dbk += 1 
+    
+    _ik, _jk, _lk, _db = np.loadtxt(fdbk, skiprows=1, unpack=True, usecols=[0,1,2,i_dbk]) 
+
+    if returnks: 
+        return _k, _ik, _jk, _lk, np.concatenate([fscale_pk * _dp, _db]) 
     else: 
-        _theta = theta+'_m'
+        return np.concatenate([fscale_pk * _dp, _db]) 
+
+
+def plot_dPBg_dPBh(theta, rsd='all', flag='reg', dmnu='fin', log=False): 
+    ''' compare derivatives w.r.t. the different thetas
+    '''
+    # y range of log dP02,B plots 
+    logplims = [(-10., 10.), (-2, 15), (-3., 1.), (-4., 0.), (-2., 2.), (-0.5, 0.5)] 
+    logblims = [(-13., 0.), (-2., 24.), (-5., -0.5), (-5., -0.5), (-5., 2.), (-0.5, 0.7)] 
+
+    k, ik, jk, lk, dpbg = dP02Bk(theta, log=log, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True, silent=False)
+    #k, ik, jk, lk, dpbg = dP02Bk(theta, log=False, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True, silent=False)
+    #if log: 
+    #    qhod_p = Obvs.quijhod_Pk('fiducial', flag=flag, rsd=rsd, silent=False) 
+    #    p0g, p2g  = np.average(qhod_p['p0k'], axis=0), np.average(qhod_p['p2k'], axis=0)
+
+    #    qhod_b = Obvs.quijhod_Bk('fiducial', flag=flag, rsd=rsd, silent=False) 
+    #    b0g = np.average(qhod_b['b123'], axis=0) 
+    #    pbg_fid = np.concatenate([p0g, p2g, b0g]) 
+    #    dpbg /= pbg_fid
+
+    dpbh = dP02Bh(theta, log=log, rsd=rsd, flag=flag, dmnu=dmnu, returnks=False, silent=False)
+    k0 = k[:int(len(k)/2)]
+    k2 = k[int(len(k)/2):]
+    dp0g = dpbg[:int(len(k)/2)]
+    dp2g = dpbg[int(len(k)/2):len(k)]
+    db0g = dpbg[len(k):]
+    dp0h = dpbh[:int(len(k)/2)]
+    dp2h = dpbh[int(len(k)/2):len(k)]
+    db0h = dpbh[len(k):]
+
+    p0klim = (k0 < 0.5) 
+    p2klim = (k2 < 0.5) 
+    b0klim = ((ik*kf <= 0.5) & (jk*kf <= 0.5) & (lk*kf <= 0.5)) # k limit 
+
+    fig = plt.figure(figsize=(30,3))
+    gs = mpl.gridspec.GridSpec(1, 3, figure=fig, width_ratios=[1,1,6], wspace=0.2) 
+    sub0 = plt.subplot(gs[0]) 
+    sub1 = plt.subplot(gs[1]) 
+    sub2 = plt.subplot(gs[2]) 
+    
+    sub0.plot(k0[p0klim], dp0g[p0klim], c='k') 
+    sub0.plot(k0[p0klim], dp0h[p0klim], c='C1') 
+    sub0.set_xlabel('k', fontsize=25) 
+    sub0.set_xscale('log') 
+    sub0.set_xlim(5e-3, 0.5) 
+    sub0.set_ylabel(r'${\rm d} %s P_0/{\rm d}\theta$' % (['', '\log'][log]), fontsize=20)
+    if not log: sub0.set_yscale('symlog', linthreshy=1e3) 
+    else: sub0.set_ylim(logplims[thetas.index(theta)]) 
+    
+    sub1.plot(k2[p2klim], dp2g[p2klim], c='k') 
+    sub1.plot(k2[p2klim], dp2h[p2klim], c='C1') 
+    sub1.set_xlabel('k', fontsize=25) 
+    sub1.set_xscale('log') 
+    sub1.set_xlim(5e-3, 0.5) 
+    sub1.set_ylabel(r'${\rm d} %s P_2/{\rm d}\theta$' % (['', '\log'][log]), fontsize=20)
+    if not log: sub1.set_yscale('symlog', linthreshy=1e3) 
+    else: sub1.set_ylim(logplims[thetas.index(theta)]) 
+
+    sub2.plot(range(np.sum(b0klim)), db0g[b0klim], c='k', label='galaxy') 
+    sub2.plot(range(np.sum(b0klim)), db0h[b0klim], c='C1', label='halo') 
+    sub2.legend(loc='upper left', fontsize=20, ncol=2) 
+    sub2.set_xlabel('triangles', fontsize=25) 
+    sub2.set_xlim(0, np.sum(b0klim)) 
+    sub2.set_ylabel(r'${\rm d} %s B_0/{\rm d}\theta$' % (['', '\log'][log]), fontsize=20)
+    if not log: 
+        if theta == 'Mnu': 
+            sub2.set_ylim(1e5, 5e10)
+            sub2.set_yscale('log')
+        else: sub2.set_yscale('symlog', linthreshy=1e8) 
+    else: sub2.set_ylim(logblims[thetas.index(theta)]) 
+    sub2.text(0.99, 0.9, theta_lbls[thetas.index(theta)], ha='right', va='top', 
+            transform=sub2.transAxes, fontsize=25, bbox=dict(facecolor='white', alpha=0.75, edgecolor='None'))
+    
+    ffig = os.path.join(dir_hod, 
+            'd%sPBg_d%sPBh.%s%s%s.png' % (['', 'log'][log], ['', 'log'][log], theta, _rsd_str(rsd), _flag_str(flag)))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+
+# --- power/bispectrum --- 
+def plot_PBg(rsd='all', flag='reg'): 
+    ''' plot Pg0, Pg2, Bg0 with Ph0, Ph2, Bh0 included for reference. 
+    '''
     # read in P0g, P2g, and Bg
-    qhod_p = Obvs.quijhod_Pk(_theta, flag=flag, rsd=rsd, silent=False) 
+    qhod_p = Obvs.quijhod_Pk('fiducial', flag=flag, rsd=rsd, silent=False) 
     k, p0g, p2g  = qhod_p['k'], np.average(qhod_p['p0k'], axis=0), np.average(qhod_p['p2k'], axis=0)
 
-    qhod_b = Obvs.quijhod_Bk(_theta, flag=flag, rsd=rsd, silent=False) 
+    qhod_b = Obvs.quijhod_Bk('fiducial', flag=flag, rsd=rsd, silent=False) 
     i_k, j_k, l_k, b0g = qhod_b['k1'], qhod_b['k2'], qhod_b['k3'], np.average(qhod_b['b123'], axis=0) 
 
-    quij_p = Obvs.quijotePk(_theta, rsd=rsd, flag=flag, silent=False) 
+    # read in P0h, P2h, and Bh
+    quij_p = Obvs.quijotePk('fiducial', rsd=rsd, flag=flag, silent=False) 
     p0h, p2h = np.average(quij_p['p0k'], axis=0), np.average(quij_p['p2k'], axis=0)
-    quij_b = Obvs.quijoteBk(_theta, flag=flag, rsd=rsd, silent=False) 
+
+    quij_b = Obvs.quijoteBk('fiducial', flag=flag, rsd=rsd, silent=False) 
     b0h = np.average(quij_b['b123'], axis=0) 
-    
-    if theta != 'fiducial': 
-        _qhod_p = Obvs.quijhod_Pk(theta+'_p', flag=flag, rsd=rsd, silent=False) 
-        _p0g, _p2g  = np.average(_qhod_p['p0k'], axis=0), np.average(_qhod_p['p2k'], axis=0)
-
-        _qhod_b = Obvs.quijhod_Bk(theta+'_p', flag=flag, rsd=rsd, silent=False) 
-        _b0g = np.average(_qhod_b['b123'], axis=0) 
-
-        _quij_p = Obvs.quijotePk(theta+'_p', rsd=rsd, flag=flag, silent=False) 
-        _p0h, _p2h = np.average(_quij_p['p0k'], axis=0), np.average(_quij_p['p2k'], axis=0)
-        _quij_b = Obvs.quijoteBk(theta+'_p', flag=flag, rsd=rsd, silent=False) 
-        _b0h = np.average(_quij_b['b123'], axis=0) 
 
     pklim = (k < 0.5) 
     bklim = ((i_k*kf <= 0.5) & (j_k*kf <= 0.5) & (l_k*kf <= 0.5)) # k limit 
 
     fig = plt.figure(figsize=(30,3))
-    gs = mpl.gridspec.GridSpec(1, 3, figure=fig, width_ratios=[1,1,8], wspace=0.2) 
+    gs = mpl.gridspec.GridSpec(1, 2, figure=fig, width_ratios=[1,6], wspace=0.15) 
+    sub0 = plt.subplot(gs[0]) 
+    sub1 = plt.subplot(gs[1]) 
+
+    sub0.plot(k[pklim], p0h[pklim], c='k', lw=0.5) 
+    sub0.plot(k[pklim], p2h[pklim], c='k', lw=0.5, ls='--') 
+
+    sub0.plot(k[pklim], p0g[pklim], c='C0', label=r'$\ell = 0$')
+    sub0.plot(k[pklim], np.abs(p2g[pklim]), c='C0', ls='--', label=r'$\ell = 2$')
+    
+    sub0.legend(loc='lower left', handletextpad=0.1, fontsize=15) 
+    sub0.set_xlabel('k [$h$/Mpc]', fontsize=25) 
+    sub0.set_xscale('log') 
+    sub0.set_xlim(5e-3, 0.5) 
+    sub0.set_ylabel('$|P^g_\ell(k)|$', fontsize=25) 
+    sub0.set_yscale('log') 
+    
+    _bhplt, = sub1.plot(range(np.sum(bklim)), b0h[bklim], c='k', lw=0.25) 
+    _bgplt, = sub1.plot(range(np.sum(bklim)), b0g[bklim], c='C0') 
+    sub1.legend([_bgplt, _bhplt], [r'galaxy $P_\ell, B_0$', r'halo $P_\ell, B_0$'], loc='upper right', 
+            handletextpad=0.2, fontsize=15) 
+    sub1.set_xlabel('triangle configurations', fontsize=25) 
+    sub1.set_xlim(0, np.sum(bklim)) 
+    sub1.set_ylabel('$B^g_0(k_1, k_2, k_3)$', fontsize=25) 
+    sub1.set_yscale('log') 
+    sub1.set_ylim(1e7, 5e10)
+    
+    ffig = os.path.join(dir_doc, 'PBg%s%s.png' % (_rsd_str(rsd), _flag_str(flag)))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+
+def plot_PBg_PBh(theta, rsd='all', flag='reg'): 
+    ''' comparison between the galaxy power/bispectrum to the halo power/bispectrum
+    '''
+    if theta in ['fiducial', 'fiducial_za']: 
+        _thetas = [theta] 
+    elif theta == 'Mnu': 
+        _thetas = ['fiducial_za', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp'] 
+    else: 
+        _thetas = [theta+'_m', theta+'_p']
+
+    p0gs, p2gs, b0gs = [], [], [] 
+    p0hs, p2hs, b0hs = [], [], [] 
+
+    for tt in _thetas: 
+        # read in P0g, P2g, and Bg
+        qhod_p = Obvs.quijhod_Pk(tt, flag=flag, rsd=rsd, silent=False) 
+        k, p0g, p2g  = qhod_p['k'], np.average(qhod_p['p0k'], axis=0), np.average(qhod_p['p2k'], axis=0)
+
+        qhod_b = Obvs.quijhod_Bk(tt, flag=flag, rsd=rsd, silent=False) 
+        i_k, j_k, l_k, b0g = qhod_b['k1'], qhod_b['k2'], qhod_b['k3'], np.average(qhod_b['b123'], axis=0) 
+
+        # read in P0h, P2h, and Bh
+        quij_p = Obvs.quijotePk(tt, rsd=rsd, flag=flag, silent=False) 
+        p0h, p2h = np.average(quij_p['p0k'], axis=0), np.average(quij_p['p2k'], axis=0)
+
+        quij_b = Obvs.quijoteBk(tt, flag=flag, rsd=rsd, silent=False) 
+        b0h = np.average(quij_b['b123'], axis=0) 
+
+        p0gs.append(p0g)
+        p2gs.append(p2g)
+        b0gs.append(b0g)
+        p0hs.append(p0h)
+        p2hs.append(p2h)
+        b0hs.append(b0h)
+
+    pklim = (k < 0.5) 
+    bklim = ((i_k*kf <= 0.5) & (j_k*kf <= 0.5) & (l_k*kf <= 0.5)) # k limit 
+
+    fig = plt.figure(figsize=(30,3))
+    gs = mpl.gridspec.GridSpec(1, 3, figure=fig, width_ratios=[1,1,6], wspace=0.2) 
     sub0 = plt.subplot(gs[0]) 
     sub1 = plt.subplot(gs[1]) 
     sub2 = plt.subplot(gs[2]) 
-
-    sub0.plot(k[pklim], p0g[pklim], c='k') 
-    sub0.plot(k[pklim], p0h[pklim], c='C1') 
-    if theta != 'fiducial': 
-        sub0.plot(k[pklim], _p0g[pklim], c='k', ls=':') 
-        sub0.plot(k[pklim], _p0h[pklim], c='C1', ls=':') 
+    
+    _ls = ['-', ':', '-.', '--'] 
+    for i in range(len(p0gs)): 
+        sub0.plot(k[pklim], p0gs[i][pklim], c='k', ls=_ls[i]) 
+        sub0.plot(k[pklim], p0hs[i][pklim], c='C1', ls=_ls[i]) 
     sub0.set_xlabel('k', fontsize=25) 
     sub0.set_xscale('log') 
     sub0.set_xlim(5e-3, 0.5) 
-    sub0.set_ylabel('$P_0(k)$', fontsize=25) 
+    sub0.set_ylabel('$P_0(k)$', fontsize=20) 
     sub0.set_yscale('log') 
     
-    sub1.plot(k[pklim], p2g[pklim], c='k') 
-    sub1.plot(k[pklim], p2h[pklim], c='C1') 
-    if theta != 'fiducial': 
-        sub1.plot(k[pklim], _p2g[pklim], c='k', ls=':') 
-        sub1.plot(k[pklim], _p2h[pklim], c='C1', ls=':') 
+    for i in range(len(p0gs)): 
+        sub1.plot(k[pklim], p2gs[i][pklim], c='k', ls=_ls[i]) 
+        sub1.plot(k[pklim], p2hs[i][pklim], c='C1', ls=_ls[i]) 
     sub1.set_xlabel('k', fontsize=25) 
     sub1.set_xscale('log') 
     sub1.set_xlim(5e-3, 0.5) 
-    sub1.set_ylabel('$P_2(k)$', fontsize=25) 
+    sub1.set_ylabel('$P_2(k)$', fontsize=20) 
     sub1.set_yscale('log') 
     
-    sub2.plot(range(np.sum(bklim)), b0g[bklim], c='k', label='galaxy') 
-    sub2.plot(range(np.sum(bklim)), b0h[bklim], c='C1', label='halo') 
-    if theta != 'fiducial': 
-        sub2.plot(range(np.sum(bklim)), _b0g[bklim], c='k', ls=':') 
-        sub2.plot(range(np.sum(bklim)), _b0h[bklim], c='C1', ls=':') 
+    for i in range(len(p0gs)): 
+        sub2.plot(range(np.sum(bklim)), b0gs[i][bklim], c='k', ls=_ls[i], label='galaxy') 
+        sub2.plot(range(np.sum(bklim)), b0hs[i][bklim], c='C1', ls=_ls[i], label='halo') 
+        if i == 0: sub2.legend(loc='upper right', fontsize=20, ncol=2) 
     sub2.set_xlabel('triangles', fontsize=25) 
     sub2.set_xlim(0, np.sum(bklim)) 
-    sub2.set_ylabel('$B(k_1, k_2, k_3)$', fontsize=25) 
+    sub2.set_ylabel('$B(k_1, k_2, k_3)$', fontsize=20) 
     sub2.set_yscale('log') 
-    sub2.legend(loc='upper right', fontsize=20, ncol=2) 
     
     ffig = os.path.join(dir_hod, 'PBg_PBh.%s%s%s.png' % (theta, _rsd_str(rsd), _flag_str(flag)))
     fig.savefig(ffig, bbox_inches='tight') 
     if theta == 'fiducial':  return None 
 
     fig = plt.figure(figsize=(30,3))
-    gs = mpl.gridspec.GridSpec(1, 3, figure=fig, width_ratios=[1,1,8], wspace=0.2) 
+    gs = mpl.gridspec.GridSpec(1, 3, figure=fig, width_ratios=[1,1,6], wspace=0.2) 
     sub0 = plt.subplot(gs[0]) 
     sub1 = plt.subplot(gs[1]) 
     sub2 = plt.subplot(gs[2]) 
 
-    sub0.plot(k[pklim], _p0g[pklim] - p0g[pklim], c='k') 
-    sub0.plot(k[pklim], _p0h[pklim] - p0h[pklim], c='C1') 
+    for i in range(1, len(p0gs)): 
+        sub0.plot(k[pklim], p0gs[i][pklim] - p0gs[0][pklim], c='k', ls=_ls[i]) 
+        sub0.plot(k[pklim], p0hs[i][pklim] - p0hs[0][pklim], c='C1', ls=_ls[i]) 
     sub0.set_xlabel('k', fontsize=25) 
     sub0.set_xscale('log') 
     sub0.set_xlim(5e-3, 0.5) 
-    sub0.set_ylabel('$\Delta P_0(k)$', fontsize=25) 
+    sub0.set_ylabel('$\Delta P_0(k)$', fontsize=20) 
     sub0.set_yscale('symlog') 
     
-    sub1.plot(k[pklim], _p2g[pklim] - p2g[pklim], c='k') 
-    sub1.plot(k[pklim], _p2h[pklim] - p2h[pklim], c='C1') 
+    for i in range(1, len(p0gs)): 
+        sub1.plot(k[pklim], p2gs[i][pklim] - p2gs[0][pklim], c='k', ls=_ls[i]) 
+        sub1.plot(k[pklim], p2hs[i][pklim] - p2hs[0][pklim], c='C1', ls=_ls[i]) 
     sub1.set_xlabel('k', fontsize=25) 
     sub1.set_xscale('log') 
     sub1.set_xlim(5e-3, 0.5) 
-    sub1.set_ylabel('$\Delta P_2(k)$', fontsize=25) 
+    sub1.set_ylabel('$\Delta P_2(k)$', fontsize=20) 
     sub1.set_yscale('symlog') 
     
-    sub2.plot(range(np.sum(bklim)), _b0g[bklim] - b0g[bklim], c='k', label='galaxy') 
-    sub2.plot(range(np.sum(bklim)), _b0h[bklim] - b0h[bklim], c='C1', label='halo') 
+    for i in range(1, len(p0gs)): 
+        sub2.plot(range(np.sum(bklim)), b0gs[i][bklim] - b0gs[0][bklim], c='k', ls=_ls[i], label='galaxy') 
+        sub2.plot(range(np.sum(bklim)), b0hs[i][bklim] - b0hs[0][bklim], c='C1', ls=_ls[i], label='halo') 
+        if i == 1: sub2.legend(loc='upper right', fontsize=20, ncol=2) 
     sub2.set_xlabel('triangles', fontsize=25) 
     sub2.set_xlim(0, np.sum(bklim)) 
-    sub2.set_ylabel('$\Delta B(k_1, k_2, k_3)$', fontsize=25) 
-    sub2.set_yscale('symlog', linthreshy=1e6) 
-    sub2.legend(loc='upper right', fontsize=20, ncol=2) 
+    sub2.set_ylabel('$\Delta B(k_1, k_2, k_3)$', fontsize=20) 
+    if theta == 'Mnu': sub2.set_yscale('log') 
+    else: sub2.set_yscale('symlog', linthreshy=1e6) 
     
     ffig = os.path.join(dir_hod, 'dPBg_PBh.%s%s%s.png' % (theta, _rsd_str(rsd), _flag_str(flag)))
     fig.savefig(ffig, bbox_inches='tight') 
@@ -950,9 +1131,15 @@ if __name__=="__main__":
         # deriv. w.r.t. Mnu for different methods 
         plot_dP02B_Mnu(kmax=0.5, rsd='all', flag='reg', log=True)
     '''
-    # P,B comparisons
-    for theta in ['Om', 'Ob2', 'h', 'ns', 's8']: #'fiducial', 
-        plot_PBg_PBh(theta, rsd='all', flag='reg')
+    # comparisons between galaxy and halo P and B 
+    plot_PBg(rsd='all', flag='reg')
+    '''
+        for theta in ['fiducial', 'Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']: 
+            plot_PBg_PBh(theta, rsd='all', flag='reg')
+        for theta in ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']: 
+            plot_dPBg_dPBh(theta, rsd='all', flag='reg', dmnu='fin', log=False)
+            plot_dPBg_dPBh(theta, rsd='all', flag='reg', dmnu='fin', log=True)
+    '''
     # forecasts 
     #P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
     #P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
