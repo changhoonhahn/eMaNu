@@ -31,7 +31,7 @@ def hadesPlk(mneut, nzbin=4, rsd=True):
     
     _pks = {}
     for k in pks.keys(): 
-        _pks[k] = pks[k].value 
+        _pks[k] = pks[k][...]
     return _pks
 
 
@@ -60,7 +60,7 @@ def hadesPlk_s8(sig8, nzbin=4, rsd=True):
     
     _pks = {}
     for k in pks.keys(): 
-        _pks[k] = pks[k].value 
+        _pks[k] = pks[k][...]
     return _pks
 
 
@@ -86,7 +86,7 @@ def hadesBk(mneut, nzbin=4, rsd=True):
     
     _bks = {}
     for k in bks.keys(): 
-        _bks[k] = bks[k].value 
+        _bks[k] = bks[k][...]
     return _bks
 
 
@@ -113,7 +113,7 @@ def hadesBk_s8(sig8, nzbin=4, rsd=True):
 
     _bks = {}
     for k in bks.keys(): 
-        _bks[k] = bks[k].value 
+        _bks[k] = bks[k][...]
     return _bks
 
 
@@ -163,10 +163,10 @@ def quijhod_Bk(theta, z=0, rsd='all', flag=None, silent=True):
         bks = h5py.File(os.path.join(quij_dir, fbk), 'r') 
         if i_f == 0:  
             for k in bks.keys(): 
-                _bks[k] = bks[k].value 
+                _bks[k] = bks[k][...]
         else: 
             for k in ['p0k1', 'p0k2', 'p0k3', 'b123', 'b_sn', 'q123', 'Ngalaxies']: 
-                _bks[k] = np.concatenate([_bks[k], bks[k].value]) 
+                _bks[k] = np.concatenate([_bks[k], bks[k][...]]) 
     return _bks
 
 
@@ -216,10 +216,10 @@ def quijhod_Pk(theta, z=0, rsd='all', flag=None, silent=True):
         pks = h5py.File(os.path.join(quij_dir, fpk), 'r') 
         if i_f == 0:  
             for k in pks.keys(): 
-                _pks[k] = pks[k].value 
+                _pks[k] = pks[k][...]
         else: 
             for k in ['p0k', 'p2k', 'p4k', 'p_sn']: 
-                _pks[k] = np.concatenate([_pks[k], pks[k].value]) 
+                _pks[k] = np.concatenate([_pks[k], pks[k][...]]) 
     return _pks
 
 
@@ -278,10 +278,10 @@ def quijoteBk(theta, z=0, rsd='all', flag=None, silent=True):
         bks = h5py.File(os.path.join(quij_dir, fbk), 'r') 
         if i_f == 0:  
             for k in bks.keys(): 
-                _bks[k] = bks[k].value 
+                _bks[k] = bks[k][...] 
         else: 
             for k in ['p0k1', 'p0k2', 'p0k3', 'b123', 'b_sn', 'q123', 'Nhalos']: 
-                _bks[k] = np.concatenate([_bks[k], bks[k].value]) 
+                _bks[k] = np.concatenate([_bks[k], bks[k][...]]) 
     return _bks
 
 
@@ -341,8 +341,8 @@ def quijotePk(theta, z=0, rsd='all', flag=None, silent=True):
         pks = h5py.File(os.path.join(quij_dir, fpk), 'r') 
         if i_f == 0:  
             for k in pks.keys(): 
-                _pks[k] = pks[k].value 
+                _pks[k] = pks[k][...]
         else: 
             for k in ['p0k', 'p2k', 'p4k', 'p_sn']: 
-                _pks[k] = np.concatenate([_pks[k], pks[k].value]) 
+                _pks[k] = np.concatenate([_pks[k], pks[k][...]]) 
     return _pks
