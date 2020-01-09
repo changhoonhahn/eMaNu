@@ -1492,25 +1492,26 @@ def plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=
     logplims = [(-10., 5.), (-2, 15), (-3., 1.), (-4., 0.), (-2., 2.), (-0.5, 0.5), (-2., 4), (-2., 1.), None, (-1., 2.), (-5., 1.)] 
     logblims = [(-13., -6.), (-2., 24.), (-5., -0.5), (-5., -0.5), (-2., 2.), (0.2, 0.7), (3., 6.), None, None, (2, 6), None] 
 
+    fid = 'fiducial' 
+    if theta == 'Mnu': fid = 'fiducial_za'
+    qhod_p = Obvs.quijhod_Pk(fid, flag=flag, rsd=rsd, silent=False) 
+    _k, p0g, p2g  = qhod_p['k'], np.average(qhod_p['p0k'], axis=0), np.average(qhod_p['p2k'], axis=0)
+    k = np.concatenate([_k, _k]) 
 
-    if log: 
-        fid = 'fiducial' 
-        if theta == 'Mnu': fid = 'fiducial_za'
-        qhod_p = Obvs.quijhod_Pk(fid, flag=flag, rsd=rsd, silent=False) 
-        _k, p0g, p2g  = qhod_p['k'], np.average(qhod_p['p0k'], axis=0), np.average(qhod_p['p2k'], axis=0)
-        k = np.concatenate([_k, _k]) 
-
-        qhod_b = Obvs.quijhod_Bk(fid, flag=flag, rsd=rsd, silent=False) 
-        _ik, _jk, _lk, b0g = qhod_b['k1'], qhod_b['k2'], qhod_b['k3'], np.average(qhod_b['b123'], axis=0) 
-        pbg_fid = np.concatenate([p0g, p2g, b0g]) 
+    qhod_b = Obvs.quijhod_Bk(fid, flag=flag, rsd=rsd, silent=False) 
+    _ik, _jk, _lk, b0g = qhod_b['k1'], qhod_b['k2'], qhod_b['k3'], np.average(qhod_b['b123'], axis=0) 
+    pbg_fid = np.concatenate([p0g, p2g, b0g]) 
 
     fig = plt.figure(figsize=(30,3))
-    gs = mpl.gridspec.GridSpec(1, 3, figure=fig, width_ratios=[1,1,5], hspace=0.1, wspace=0.15) 
+    gs = mpl.gridspec.GridSpec(1, 3, figure=fig, width_ratios=[1,1,5], hspace=0.1, wspace=0.2) 
     sub0 = plt.subplot(gs[0])
     sub1 = plt.subplot(gs[1])
     sub2 = plt.subplot(gs[2])
 
-    for nderiv, clr in zip([500, 1000, 1500], ['C1', 'C0', 'k']): 
+    if rsd == 'all': nderivs = [500, 1000, 1500]
+    else: nderivs = [100, 250, 500]
+
+    for i, nderiv, clr in zip(range(3), nderivs, ['C1', 'C0', 'k']): 
         dpb = _converge_dP02Bk(theta, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=nderiv)
         if log: dpb /= pbg_fid
         
@@ -1525,9 +1526,9 @@ def plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=
         bklim = ((_ik*kf <= kmax) & (_jk*kf <= kmax) & (_lk*kf <= kmax))
         
         # plot dP0/dtheta and dP2/theta
-        sub0.plot(kp[pklim], dp0[pklim], c=clr)
-        sub1.plot(kp[pklim], dp2[pklim], c=clr)
-        sub2.plot(range(np.sum(bklim)), db[bklim])
+        sub0.plot(kp[pklim], dp0[pklim], lw=1-0.25*i, c=clr)
+        sub1.plot(kp[pklim], dp2[pklim], lw=1-0.25*i, c=clr)
+        sub2.plot(range(np.sum(bklim)), db[bklim], lw=1-0.25*i, c=clr, label=r'$N_{\rm deriv} = %i$' % nderiv)
 
     sub0.set_xscale('log') 
     sub0.set_xlim(5e-3, kmax) 
@@ -1542,7 +1543,8 @@ def plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=
     if log: sub1.set_ylim(logplims[thetas.index(theta)])
     else: sub1.set_yscale('symlog', linthreshy=1e3) 
     sub1.set_ylabel(r'${\rm d} %s P_2/{\rm d}\theta (N_{\rm deriv})$' % (['', '\log'][log]), fontsize=25) 
-
+    
+    sub2.legend(loc='upper left', ncol=3, handletextpad=0.2)
     sub2.set_xlim(0, np.sum(bklim)) 
     if not log: sub2.set_yscale('symlog', linthreshy=1e8) 
     else: sub2.set_ylim(logblims[thetas.index(theta)]) 
@@ -1619,8 +1621,11 @@ if __name__=="__main__":
             P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
     '''
     # convergence tests
-    for theta in ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']: 
-        plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True)
+    for rsd in [0, 1]: 
+        for theta in ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']: 
+            plot_converge_dP02B(theta, kmax=0.5, rsd=rsd, flag='reg', dmnu='fin', log=False)
+            plot_converge_dP02B(theta, kmax=0.5, rsd=rsd, flag='reg', dmnu='fin', log=True)
     #converge_Fij('p02bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', silent=True)
+    #converge_Fij('p02bk', kmax=0.5, rsd=2, flag='reg', dmnu='fin', silent=True)
     #converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin')
 
