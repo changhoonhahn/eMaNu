@@ -53,11 +53,12 @@ def compressedFisher_1sigma_PCA(kmax=0.3, correction='tdist'):
     ''' ratio of 1 sigma parameter Fisher constraints of compressed over "true" (full)  
     for PCA compression 
     '''
-    fig = plt.figure(figsize=(10, 5))
-    sub0 = fig.add_subplot(121) # pk panel 
-    sub1 = fig.add_subplot(122) # bk panel 
+    fig = plt.figure(figsize=(15, 5))
+    sub0 = fig.add_subplot(131) # pk panel 
+    sub1 = fig.add_subplot(132) # bk panel 
+    sub2 = fig.add_subplot(133) # qk panel
 
-    for obvs, sub in zip(['pk', 'bk'], [sub0, sub1]): 
+    for obvs, sub in zip(['pk', 'bk', 'qk'], [sub0, sub1, sub2]): 
         # read in data, covariance matrix, inverse covariance matrix, and derivatives of observable X. 
         X, Cov, Cinv, dXdt = load_X(obvs=obvs, kmax=kmax)
         Finv_true = Finv_full(X, Cov, dXdt, correction=correction)
@@ -69,7 +70,7 @@ def compressedFisher_1sigma_PCA(kmax=0.3, correction='tdist'):
         if obvs == 'pk': 
             Ncomps = [10, 15, 20, 25, 30, 35, 40, 45, 50]
             Nmocks = [10000, 5000, 4000, 3000, 2000, 1000][::-1]
-        elif obvs == 'bk': 
+        elif obvs in ['bk', 'qk']: 
             Ncomps = [20, 30, 40, 50, 60, 70, 80, 90, 100]
             Nmocks = [10000, 5000, 4000, 3000, 2000, 1000][::-1]
         Nmocks = np.array(Nmocks)[np.array(Nmocks) > 2*X.shape[1]] 
@@ -97,6 +98,7 @@ def compressedFisher_1sigma_PCA(kmax=0.3, correction='tdist'):
         sub.set_ylim(Ncomps[0], Ncomps[-1]) 
     sub0.text(0.95, 0.95, r'$P_\ell$', color='w', ha='right', va='top', transform=sub0.transAxes, fontsize=25)
     sub1.text(0.95, 0.95, r'$B_0$', color='w', ha='right', va='top', transform=sub1.transAxes, fontsize=25)
+    sub2.text(0.95, 0.95, r'$Q_0$', color='w', ha='right', va='top', transform=sub2.transAxes, fontsize=25)
     m = cm.ScalarMappable(cmap=cm.coolwarm)
     m.set_array(csig1s[:,:,0].T/sig1_true[0])
     m.set_clim(1., 5.) 
@@ -530,6 +532,30 @@ def load_X(obvs='pk', kmax=0.5):
             dXdt_i = dBkdtheta(par, rsd='all', flag='reg', dmnu='fin')
             dXdt.append(dXdt_i[klim])
         dXdt = np.array(dXdt) 
+    elif obvs == 'qk': 
+        # reduced bispectrum 
+        quij    = Obvs.quijoteBk('fiducial', rsd=0, flag='reg') 
+        
+        # k limit 
+        i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
+        klim    = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # k limit
+        X       = quij['q123'][:,klim] + \
+                quij['b_sn'][:,klim] / (quij['p0k1'][:,klim] * quij['p0k2'][:,klim] + quij['p0k1'][:,klim] * quij['p0k3'][:,klim] + quij['p0k2'][:,klim]* quij['p0k3'][:,klim])
+
+        # calculate covariance
+        Cov     = np.cov(X.T) 
+        if np.linalg.cond(Cov) >= 1e16: print('Covariance matrix is ill-conditioned') 
+
+        # calculate inverse covariance
+        Cinv    = np.linalg.inv(Cov) 
+    
+        # derivative of B w.r.t theta
+        dXdt = [] 
+        for par in thetas: 
+            dXdt_i = dQkdtheta(par, rsd='all', flag='reg', dmnu='fin')
+            dXdt.append(dXdt_i[klim])
+        dXdt = np.array(dXdt) 
+
     else: 
         raise NotImplementedError 
     return X, Cov, Cinv, dXdt 
@@ -772,6 +798,26 @@ def dBkdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', returnks=False
     else: return i_k, j_k, l_k, dbdt 
 
 
+def dQkdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', returnks=False):
+    ''' read d Q(k)/d theta  
+
+    :param theta: 
+        string that specifies the parameter to take the 
+        derivative by. 
+    '''
+    dir_dat = os.path.join(UT.doc_dir(), 'dat') 
+    fdbk = os.path.join(dir_dat, 'dQdtheta.%s%s%s.dat' % (theta, _rsd_str(rsd), _flag_str(flag))) 
+    i_dbk = 3 
+    if theta == 'Mnu': 
+        index_dict = {'fin': 3, 'fin0': 5, 'p': 7, 'pp': 9, 'ppp': 11}  
+        i_dbk = index_dict[dmnu] 
+    if log: i_dbk += 1 
+
+    i_k, j_k, l_k, dbdt = np.loadtxt(fdbk, skiprows=1, unpack=True, usecols=[0,1,2,i_dbk]) 
+    if not returnks: return dbdt 
+    else: return i_k, j_k, l_k, dbdt 
+
+
 def _rsd_str(rsd): 
     # assign string based on rsd kwarg 
     if rsd == 'all': return ''
@@ -787,7 +833,7 @@ def _flag_str(flag):
 
 if __name__=='__main__': 
     #compressedFisher_1sigma_PCA(kmax=0.3, correction='tdist')
-    #compressedFisher_1sigma_KL(kmax=0.3, correction='tdist')
+    compressedFisher_1sigma_KL(kmax=0.3, correction='tdist')
     #compressedFisher_contour_PCA_KL(kmax=0.3, correction='tdist')
 
     #compressedFisher_1sigma(obvs='pk', method='KL', kmax=0.3, correction='tdist')
@@ -803,4 +849,4 @@ if __name__=='__main__':
     #    compressedFisher(obvs='pk', method='PCA', kmax=0.5, n_components=ncomp)
     #for ncomp in [50, 100, 200, 300, 500]: 
     #    compressedFisher_contour(obvs='bk', method='PCA', kmax=0.3, n_components=ncomp)
-    tdist_factor(kmax=0.5)
+    #tdist_factor(kmax=0.5)

@@ -207,6 +207,39 @@ def dBdtheta(theta, z=0, rsd='all', flag=None, silent=True):
     return None 
 
 
+def dQdtheta(theta, z=0, rsd='all', flag=None, silent=True): 
+    ''' write out derivatives of Q with respect to theta to file in the following format: 
+    k1, k2, k3, dQ/dtheta, dlogQ/dtheta.
+    '''
+    fderiv = os.path.join(UT.doc_dir(), 'dat', 'dQdtheta.%s%s%s.dat' % (theta, _rsd_str(rsd), _flag_str(flag))) 
+    print("--- writing dQ/d%s to %s ---" % (theta, fderiv))
+
+    if theta == 'Mnu': 
+        for i_dmnu, dmnu in enumerate(['fin', 'fin0', 'p', 'pp', 'ppp', 'fin_2lpt']): 
+            # calculate dB/dtheta and dlogB/dtheta 
+            k1, k2, k3, dqk = Forecast.quijote_dQkdtheta(theta, log=False, z=z, dmnu=dmnu, flag=flag, rsd=rsd, silent=silent)
+            _, _, _, dlogqk = Forecast.quijote_dQkdtheta(theta, log=True, z=z, dmnu=dmnu, flag=flag, rsd=rsd, silent=silent)
+            if i_dmnu == 0: 
+                datastack = [k1, k2, k3]
+                hdr = 'k1, k2, k3'
+                fmt = '%i %i %i'
+            datastack.append(dqk)
+            datastack.append(dlogqk) 
+            hdr += (', dQ/dtheta %s, dlogQ/dtheta %s' % (dmnu, dmnu)) # header
+            fmt += ' %.5e %.5e' # format 
+        
+        np.savetxt(fderiv, np.vstack(datastack).T, header=hdr, delimiter=',\t', fmt=fmt)
+    else: 
+        # calculate dB/dtheta and dlogB/dtheta 
+        k1, k2, k3, dqk = Forecast.quijote_dQkdtheta(theta, log=False, z=z, flag=flag, rsd=rsd, silent=silent)
+        _, _, _, dlogqk = Forecast.quijote_dQkdtheta(theta, log=True, z=z, flag=flag, rsd=rsd, silent=silent)
+
+        hdr = 'k1, k2, k3, dQ/dtheta, dlogQ/dtheta'
+        # save to file 
+        np.savetxt(fderiv, np.vstack([k1, k2, k3, dqk, dlogqk]).T, header=hdr, delimiter=',\t', fmt='%i %i %i %.5e %.5e')
+    return None 
+
+
 def dPdtheta(theta, z=0, rsd='all', flag=None, silent=True): 
     ''' write out  derivatives of P with respect to theta to file in the following format: 
     k, dP/dtheta, dlogP/dtheta.
@@ -311,17 +344,19 @@ def _flag_str(flag):
 
 
 if __name__=="__main__": 
-    '''
-    thetas = ['Mnu']#, 'Om', 'Ob2', 'h', 'ns', 's8', 'Mmin', 'Amp', 'Asn', 'Bsn', 'b2', 'g2']
+    thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu', 'Mmin', 'Amp', 'Asn', 'Bsn', 'b2', 'g2']
     for theta in thetas: 
-        for rsd in ['real']:#0, 1, 2, 'all']: #[True, 0, 'real']: 
-            if theta not in ['Bsn', 'b2', 'g2']: 
-                dPdtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
-                dPdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
-                #dP02dtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
-                #dP02dtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
-            dBdtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
-            dBdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
+        for rsd in ['real', 0, 1, 2, 'all']: #[True, 0, 'real']: 
+            #if theta not in ['Bsn', 'b2', 'g2']: 
+            #    dPdtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
+            #    dPdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
+            #    #dP02dtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
+            #    #dP02dtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
+            #dBdtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
+            #dBdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
+            if theta not in ['Asn', 'Bsn', 'b2', 'g2']: 
+                dQdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
+                dQdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
     '''
     thetas = ['Mnu', 'Om', 'Ob2', 'h', 'ns', 's8', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1', 'Asn', 'Bsn'] 
     for theta in thetas: 
@@ -331,3 +366,5 @@ if __name__=="__main__":
                     hod_dPdtheta(theta, z=0, rsd=rsd, flag=flag, silent=False)
                     if rsd != 'real': hod_dP02dtheta(theta, z=0, rsd=rsd, flag=flag, silent=False)
                 hod_dBdtheta(theta, z=0, rsd=rsd, flag=flag, silent=False) 
+
+    '''
