@@ -728,6 +728,116 @@ def quijote_dBkdtheta(theta, log=False, rsd='all', flag=None, z=0, dmnu='fin', N
     return quij['k1'], quij['k2'], quij['k3'], dbk / h + c_dbk 
 
 
+def quijote_dQkdtheta(theta, log=False, rsd='all', flag=None, z=0, dmnu='fin', average=True, silent=True):
+    ''' calculate d Q(k)/d theta using quijote simulations run on perturbed theta 
+
+    :param theta: 
+        string that specifies the parameter to take the 
+        derivative by. 
+
+    :param log: (default: False) 
+        boolean that specifies whether to return dB/dtheta or dlogB/dtheta 
+   
+    :param rsd: (default: 'all') 
+        rsd kwarg that specifies rsd set up for B(k). 
+        If rsd == 'all', include 3 RSD directions. 
+        If rsd in [0,1,2] include one of the directions
+    
+    :param flag: (default: None) 
+        kwarg specifying the flag for B(k). 
+        If `flag is None`, include paired-fixed and regular N-body simulation.(not advised)
+        If `flag == 'ncv'` only include paired-fixed. 
+        If `flag == 'reg'` only include regular N-body
+
+    :param dmnu: (default: 'fin') 
+        stirng that specifies the derivative method for dB/dMnu. Default 
+        is finite difference method using 0, 0.1, 0.2, 0.4 eVs
+
+    :return k1, k2, k3, dbk
+        triangle sides and derivatives
+    '''
+    quijote_thetas = {
+            'Mnu': [0.1, 0.2, 0.4], # +, ++, +++ 
+            'Ob': [0.048, 0.050],   # others are - + 
+            'Ob2': [0.047, 0.051],   
+            'Om': [0.3075, 0.3275],
+            'h': [0.6511, 0.6911],
+            'ns': [0.9424, 0.9824],
+            's8': [0.819, 0.849]}
+
+    c_dqk = 0. 
+    if theta == 'Mnu': 
+        if not silent: print("--- calculating dB/d%s using %s ---" % (theta, dmnu)) 
+        # derivative w.r.t. Mnu using 0, 0.1, 0.2, 0.4 eV
+        tts = ['fiducial_za', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
+        if dmnu == 'p': 
+            coeffs = [-1., 1., 0., 0.]  # derivative at 0.05eV
+            h = 0.1
+        elif dmnu == 'pp': 
+            coeffs = [-1., 0., 1., 0.]  # derivative at 0.1eV
+            h = 0.2
+        elif dmnu == 'ppp': 
+            coeffs = [-1., 0., 0., 1.]  # derivative at 0.2eV
+            h = 0.4
+        elif dmnu == 'fin0': 
+            coeffs = [-3., 4., -1., 0.] # finite difference coefficient
+            h = 0.2
+        elif dmnu == 'fin': 
+            coeffs = [-21., 32., -12., 1.] # finite difference coefficient
+            h = 1.2
+        elif dmnu == 'fin_2lpt': 
+            tts = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp'] # use ZA inital conditions
+            coeffs = [-21., 32., -12., 1.] # finite difference coefficient
+            h = 1.2
+        elif dmnu == '0.2eV_2LPTZA': # derivative @ 0.2 eV (not using 0.0eV which has 2LPT IC) 
+            coeffs = [0., -20., 15., 5.] 
+            h = 3. 
+        elif dmnu == '0.2eV_ZA': # derivative @ 0.2 eV (not using 0.0eV which has 2LPT IC) 
+            coeffs = [15., -80., 60., 5.] 
+            h = 6. 
+        else: 
+            raise NotImplementedError
+    elif theta == 'Mmin': 
+        if not silent: print("--- calculating dQ/dMmin ---") 
+        tts = ['Mmin_m', 'Mmin_p'] 
+        coeffs = [-1., 1.] 
+        h = 0.2 # 3.3x10^13 - 3.1x10^13 Msun 
+    elif theta == 'Amp': 
+        if not silent: print("--- calculating dQ/db' ---") 
+        # amplitude scaling is a free parameter
+        tts = ['fiducial'] 
+        coeffs = [0.] 
+        h = 1. 
+        quij = Obvs.quijoteBk('fiducial', z=z, flag=flag, rsd=rsd, silent=silent)
+        if not log: c_dqk = np.average(quij['q123'], axis=0) 
+        else: c_dqk = np.ones(quij['q123'].shape[1])
+    else: 
+        if not silent: print("--- calculating dQ/d%s ---" % theta) 
+        tts = [theta+'_m', theta+'_p'] 
+        coeffs = [-1., 1.]
+        h = quijote_thetas[theta][1] - quijote_thetas[theta][0]
+
+    for i_tt, tt, coeff in zip(range(len(tts)), tts, coeffs): 
+        quij = Obvs.quijoteBk(tt, z=z, flag=flag, rsd=rsd, silent=silent)
+
+        if average: 
+            _qk = np.average(quij['q123'], axis=0)  
+        else: 
+            _qk = quij['q123']
+            if theta == 'Mnu' and dmnu == 'fin_2lpt' and not average: 
+                if rsd == 'all': 
+                    _qk = quij['q123'][:1500,:]
+                else: 
+                    _qk = quij['q123'][:500,:]
+        
+        if i_tt == 0: dqk = np.zeros(_qk.shape) 
+
+        if log: _qk = np.log(_qk) 
+        dqk += coeff * _qk 
+
+    return quij['k1'], quij['k2'], quij['k3'], dqk / h + c_dqk 
+
+
 def _PF_quijote_dPkdtheta(theta, log=False, rsd='all', flag='reg', z=0, dmnu='fin', dh='pm', average=True, silent=True):
     ''' calculate d P0(k)/d theta using the paired and fixed quijote simulations
     run on perturbed theta 
