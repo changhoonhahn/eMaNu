@@ -254,9 +254,9 @@ for i in numbers:
 
     # create galaxy catalogue
     fGC = '%s/GC_%d_z=%s.hdf5' % (folder_out, seed, z)
-    #if not os.path.exists(fGC):  
-    #create_HOD(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC)
-    create_ALL(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC)
+    if not os.path.exists(fGC):  
+        create_HOD(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC)
+    #create_ALL(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC)
 
 ###### paired fixed realizations ######
 for i in numbers:
@@ -274,6 +274,6 @@ for i in numbers:
 
         # create galaxy catalogue
         fGC = '%s/GC_%d_z=%s.hdf5'%(folder_out,seed,z)
-        #if not(os.path.exists(fGC)):  
-        #create_HOD(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC)
-        create_ALL(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC)
+        if not(os.path.exists(fGC)):  
+            create_HOD(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC)
+        #create_ALL(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC)
