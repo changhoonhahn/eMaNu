@@ -344,19 +344,20 @@ def _flag_str(flag):
 
 
 if __name__=="__main__": 
-    thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu', 'Mmin', 'Amp', 'Asn', 'Bsn', 'b2', 'g2']
+    #thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu', 'Mmin', 'Amp', 'Asn', 'Bsn', 'b2', 'g2']
+    thetas = ['b1']
     for theta in thetas: 
-        for rsd in ['real', 0, 1, 2, 'all']: #[True, 0, 'real']: 
-            #if theta not in ['Bsn', 'b2', 'g2']: 
+        for rsd in [0, 1, 2, 'all']: #'real']: 
+            if theta not in ['Bsn', 'b2', 'g2']: 
             #    dPdtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
             #    dPdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
-            #    #dP02dtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
-            #    #dP02dtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
-            #dBdtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
-            #dBdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
-            if theta not in ['Asn', 'Bsn', 'b2', 'g2']: 
-                dQdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
-                dQdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
+                dP02dtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
+                dP02dtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
+            dBdtheta(theta, z=0, rsd=rsd, flag='ncv', silent=False)
+            dBdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
+            #if theta not in ['Asn', 'Bsn', 'b2', 'g2']: 
+            #    dQdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
+            #    dQdtheta(theta, z=0, rsd=rsd, flag='reg', silent=False) 
     '''
     thetas = ['Mnu', 'Om', 'Ob2', 'h', 'ns', 's8', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1', 'Asn', 'Bsn'] 
     for theta in thetas: 
@@ -366,5 +367,4 @@ if __name__=="__main__":
                     hod_dPdtheta(theta, z=0, rsd=rsd, flag=flag, silent=False)
                     if rsd != 'real': hod_dP02dtheta(theta, z=0, rsd=rsd, flag=flag, silent=False)
                 hod_dBdtheta(theta, z=0, rsd=rsd, flag=flag, silent=False) 
-
     '''

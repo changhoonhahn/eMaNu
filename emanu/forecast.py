@@ -489,6 +489,16 @@ def quijote_dP02kdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0,
         tts = ['Mmin_m', 'Mmin_p'] 
         coeffs = [-1., 1.] 
         h = 0.2 # 3.3 - 3.1 x 10^13 Msun 
+    elif theta == 'b1': 
+        if not silent: print("--- calculating dP/db' ---") 
+        # amplitude of P(k) is a free parameter
+        tts = ['fiducial'] 
+        coeffs = [0.] 
+        h = 1. 
+        quij = Obvs.quijotePk('fiducial', z=z, flag=flag, rsd=rsd, silent=silent)
+        _p02ks = np.concatenate([quij['p0k'], quij['p2k']], axis=1)
+        if not log: c_dpk = 2.*np.average(_p02ks, axis=0) 
+        else: c_dpk = 2.*np.ones(_p02ks.shape[1]) 
     elif theta == 'Amp': 
         if not silent: print("--- calculating dP/db' ---") 
         # amplitude of P(k) is a free parameter
@@ -625,6 +635,15 @@ def quijote_dBkdtheta(theta, log=False, rsd='all', flag=None, z=0, dmnu='fin', N
         tts = ['Mmin_m', 'Mmin_p'] 
         coeffs = [-1., 1.] 
         h = 0.2 # 3.3x10^13 - 3.1x10^13 Msun 
+    elif theta == 'b1': 
+        if not silent: print("--- calculating dB/db' ---") 
+        # amplitude scaling is a free parameter
+        tts = ['fiducial'] 
+        coeffs = [0.] 
+        h = 1. 
+        quij = Obvs.quijoteBk('fiducial', z=z, flag=flag, rsd=rsd, silent=silent)
+        if not log: c_dbk = 3.*np.average(quij['b123'], axis=0) 
+        else: c_dbk = 3.*np.ones(quij['b123'].shape[1])
     elif theta == 'Amp': 
         if not silent: print("--- calculating dB/db' ---") 
         # amplitude scaling is a free parameter
