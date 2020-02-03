@@ -79,7 +79,7 @@ def create_HOD(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC):
     return None 
 
 
-def create_all(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC):
+def create_ALL(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC):
     ''' Compute and saves the galaxy catalog to hdf5, computes P, computes B
     '''
     # read in the halo catalog
@@ -115,6 +115,7 @@ def create_all(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC):
     gal_type = np.array(hod['gal_type'])
 
     # save catalogue to file
+    print('--- creating %s ---' % os.path.basename(fGC))
     f = h5py.File(fGC, 'w')
     f.create_dataset('pos', data=pos)
     f.create_dataset('vel', data=vel)
@@ -157,6 +158,7 @@ def create_all(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC):
 
         hdr = ('Ngalaxies=%i BoxSize=%.3f' % (xyz.shape[0], 1000.))    
         fpk = os.path.join(os.path.dirname(fGC), 'Pk_%s_%s' % (rsd_str, os.path.basename(fGC).replace('.hdf5', '.txt')))
+    	print('--- creating %s ---' % (os.path.basename(fpk))) 
         if rsd == 'real': 
             np.savetxt(fpk, np.transpose([Pk.k3D, Pk.Pk[:,0]]), delimiter='\t', header=hdr)
         else:
@@ -188,6 +190,7 @@ def create_all(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC):
         hdr = ('galaxy Bk for cosmology=%s, redshift bin %i; k_f = 2pi/%.1f, Ngal=%i'%\
                (cosmo, snapnum, BoxSize, xyz.shape[0]))
         fbk = os.path.join(os.path.dirname(fGC), 'Bk_%s_%s' % (rsd_str, os.path.basename(fGC).replace('.hdf5', '.txt')))
+    	print('--- creating %s ---' % (os.path.basename(fbk))) 
         np.savetxt(fbk, np.array([i_k,j_k,l_k,p0k1,p0k2, p0k3, b123, q123, b_sn, cnts]).T, 
                    fmt='%i %i %i %.5e %.5e %.5e %.5e %.5e %.5e %.5e', 
                    delimiter='\t', header=hdr)
