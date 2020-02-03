@@ -8,6 +8,9 @@ import sys,os,h5py
 from emanu import forwardmodel as FM
 from emanu.sims import data as simData
 from pyspectrum import pyspectrum as pySpec
+# -- pylians3 -- 
+import MAS_library as MASL
+import Pk_library as PKL
 
 ###### MPI DEFINITIONS ######                                    
 comm   = MPI.COMM_WORLD
@@ -238,8 +241,6 @@ numbers = np.arange(args.first, args.last)[numbers]
 
 ######## standard simulations #########
 for i in numbers:
-    print(i)
-
     # find halo and snap folders
     halo_folder = '%s/Halos/%s/%d' % (root,cosmo,i)
     snap_folder = '%s/Snapshots/%s/%d' % (root,cosmo,i)
