@@ -126,6 +126,7 @@ def create_ALL(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC):
     f.create_dataset('halo_id', data=id_halo) 
     f.create_dataset('gal_type', data=gal_type) 
     f.close()
+
     # loop through  real, RSD x, y, z 
     for rsd in ['real', 0, 1, 2]: 
         if rsd == 'real': 
@@ -158,7 +159,7 @@ def create_ALL(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC):
 
         hdr = ('Ngalaxies=%i BoxSize=%.3f' % (xyz.shape[0], 1000.))    
         fpk = os.path.join(os.path.dirname(fGC), 'Pk_%s_%s' % (rsd_str, os.path.basename(fGC).replace('.hdf5', '.txt')))
-    	print('--- creating %s ---' % (os.path.basename(fpk))) 
+        print('--- creating %s ---' % os.path.basename(fpk)) 
         if rsd == 'real': 
             np.savetxt(fpk, np.transpose([Pk.k3D, Pk.Pk[:,0]]), delimiter='\t', header=hdr)
         else:
@@ -190,7 +191,7 @@ def create_ALL(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC):
         hdr = ('galaxy Bk for cosmology=%s, redshift bin %i; k_f = 2pi/%.1f, Ngal=%i'%\
                (cosmo, snapnum, BoxSize, xyz.shape[0]))
         fbk = os.path.join(os.path.dirname(fGC), 'Bk_%s_%s' % (rsd_str, os.path.basename(fGC).replace('.hdf5', '.txt')))
-    	print('--- creating %s ---' % (os.path.basename(fbk))) 
+        print('--- creating %s ---' % os.path.basename(fbk)) 
         np.savetxt(fbk, np.array([i_k,j_k,l_k,p0k1,p0k2, p0k3, b123, q123, b_sn, cnts]).T, 
                    fmt='%i %i %i %.5e %.5e %.5e %.5e %.5e %.5e %.5e', 
                    delimiter='\t', header=hdr)
