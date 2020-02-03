@@ -76,46 +76,11 @@ def create_HOD(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC):
     f.create_dataset('halo_id', data=id_halo) 
     f.create_dataset('gal_type', data=gal_type) 
     f.close() 
-    # real, RSD x, y, z 
-	for 
-    if do_RSD: 
-        if   axis==0:  xyz = FM.RSD(hod, LOS=[1,0,0]) 
-        elif axis==1:  xyz = FM.RSD(hod, LOS=[0,1,0]) 
-        elif axis==2:  xyz = FM.RSD(hod, LOS=[0,0,1])
-        else:  raise Exception('wrong axis')
-    else:      xyz = np.array(hod['Position']) 
-
-    # calculate bispectrum 
-    b123out = pySpec.Bk_periodic(xyz.T, Lbox=BoxSize, Ngrid=Ngrid, step=step,
-                Ncut=Ncut, Nmax=Nmax, fft='pyfftw', nthreads=2, silent=False)
-
-    i_k  = b123out['i_k1']
-    j_k  = b123out['i_k2']
-    l_k  = b123out['i_k3']
-    p0k1 = b123out['p0k1']
-    p0k2 = b123out['p0k2']
-    p0k3 = b123out['p0k3']
-    b123 = b123out['b123']
-    b_sn = b123out['b123_sn']
-    q123 = b123out['q123']
-    cnts = b123out['counts']
-
-    # save results to file
-    hdr = ('galaxy Bk for cosmology=%s, redshift bin %i; k_f = 2pi/%.1f, Ngal=%i'%\
-           (cosmo, snapnum, BoxSize, xyz.shape[0]))
-    np.savetxt(fbk, np.array([i_k,j_k,l_k,p0k1,p0k2, p0k3, b123, q123, b_sn, cnts]).T, 
-               fmt='%i %i %i %.5e %.5e %.5e %.5e %.5e %.5e %.5e', 
-               delimiter='\t', header=hdr)
-
-
-
-
-
     return None 
 
 
-def create_HOD_all(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC):
-    ''' Compute and saves the galaxy catalog to hdf5 
+def create_all(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC):
+    ''' Compute and saves the galaxy catalog to hdf5, computes P, computes B
     '''
     # read in the halo catalog
     halos = simData.hqHalos(halo_folder, snap_folder, snapnum) 
@@ -160,6 +125,72 @@ def create_HOD_all(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC):
     f.create_dataset('halo_id', data=id_halo) 
     f.create_dataset('gal_type', data=gal_type) 
     f.close()
+    # loop through  real, RSD x, y, z 
+    for rsd in ['real', 0, 1, 2]: 
+        if rsd == 'real': 
+            xyz = np.array(hod['Position'])
+            rsd_str = 'real'
+            axis = 0 
+        elif rsd == 0:  
+            xyz = FM.RSD(hod, LOS=[1,0,0]) 
+            rsd_str = 'RS0'
+            axis = 0
+        elif rsd == 1: 
+            xyz = FM.RSD(hod, LOS=[0,1,0]) 
+            rsd_str = 'RS1'
+            axis = 1
+        elif rsd == 2: 
+            xyz = FM.RSD(hod, LOS=[0,0,1])
+            rsd_str = 'RS2'
+            axis = 2
+
+        # calculate powerspectrum 
+        delta = np.zeros((1024, 1024, 1024), dtype=np.float32)
+        MASL.MA(xyz, delta, 1000., 'CIC')
+        delta /= np.mean(delta, dtype=np.float64)
+        delta -= 1.0 
+        Pk = PKL.Pk(delta, 
+                1000., 
+                axis, 
+                'CIC', 
+                threads=1)
+
+        hdr = ('Ngalaxies=%i BoxSize=%.3f' % (xyz.shape[0], 1000.))    
+        fpk = os.path.join(os.path.dirname(fGC), 'Pk_%s_%s' % (rsd_str, os.path.basename(fGC).replace('.hdf5', '.txt')))
+        if rsd == 'real': 
+            np.savetxt(fpk, np.transpose([Pk.k3D, Pk.Pk[:,0]]), delimiter='\t', header=hdr)
+        else:
+            np.savetxt(fpk, np.transpose([Pk.k3D, Pk.Pk[:,0], Pk.Pk[:,1], Pk.Pk[:,2]]), delimiter='\t', header=hdr)
+
+        # calculate bispectrum 
+        b123out = pySpec.Bk_periodic(xyz.T, 
+                Lbox=1000.0, #Mpc/h
+                Ngrid=360, 
+                step=3, 
+                Ncut=3, 
+                Nmax=40, 
+                fft='pyfftw', 
+                nthreads=2, 
+                silent=False)
+
+        i_k  = b123out['i_k1']
+        j_k  = b123out['i_k2']
+        l_k  = b123out['i_k3']
+        p0k1 = b123out['p0k1']
+        p0k2 = b123out['p0k2']
+        p0k3 = b123out['p0k3']
+        b123 = b123out['b123']
+        b_sn = b123out['b123_sn']
+        q123 = b123out['q123']
+        cnts = b123out['counts']
+
+        # save results to file
+        hdr = ('galaxy Bk for cosmology=%s, redshift bin %i; k_f = 2pi/%.1f, Ngal=%i'%\
+               (cosmo, snapnum, BoxSize, xyz.shape[0]))
+        fbk = os.path.join(os.path.dirname(fGC), 'Bk_%s_%s' % (rsd_str, os.path.basename(fGC).replace('.hdf5', '.txt')))
+        np.savetxt(fbk, np.array([i_k,j_k,l_k,p0k1,p0k2, p0k3, b123, q123, b_sn, cnts]).T, 
+                   fmt='%i %i %i %.5e %.5e %.5e %.5e %.5e %.5e %.5e', 
+                   delimiter='\t', header=hdr)
     return None 
 
 ##################################### INPUT #########################################
@@ -219,7 +250,8 @@ for i in numbers:
     # create galaxy catalogue
     fGC = '%s/GC_%d_z=%s.hdf5' % (folder_out, seed, z)
     if not os.path.exists(fGC):  
-        create_HOD(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC)
+        #create_HOD(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC)
+        create_ALL(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC)
 
 ###### paired fixed realizations ######
 for i in numbers:
@@ -238,4 +270,5 @@ for i in numbers:
         # create galaxy catalogue
         fGC = '%s/GC_%d_z=%s.hdf5'%(folder_out,seed,z)
         if not(os.path.exists(fGC)):  
-            create_HOD(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC)
+            #create_HOD(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC)
+            create_ALL(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC)
