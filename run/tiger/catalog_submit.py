@@ -8,9 +8,10 @@ offset     = 0    #the count will start from offset
 snapnum    = 4    #4(z=0), 3(z=0.5), 2(z=1), 1(z=2), 0(z=3)
 ######################################################################################
 
-thetas = ['Om_p', 'Ob_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p', 'Om_m', 'Ob_m', 'Ob2_m', 'h_m', 'ns_m', 's8_m', 
-        'Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'logM0_m', 
-        'logM0_p', 'alpha_m', 'alpha_p', 'logM1_m', 'logM1_p', 'fiducial', 'fiducial_ZA']
+#thetas = ['Om_p', 'Ob_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p', 'Om_m', 'Ob_m', 'Ob2_m', 'h_m', 'ns_m', 's8_m', 
+#        'Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'logM0_m', 
+#        'logM0_p', 'alpha_m', 'alpha_p', 'logM1_m', 'logM1_p', 'fiducial', 'fiducial_ZA']
+thetas = ['testing'] 
 
 # do a loop over the different cosmologies
 for theta in thetas: 
@@ -56,13 +57,14 @@ for theta in thetas:
     elif theta == 'logM1_p': 
         logM1 = 14.2
 
-    for i in range(nodes): # loop over the different realizations
+    for i in range(int(nodes)): # loop over the different realizations
         a = '\n'.join(["#!/bin/bash", 
             "#SBATCH -J HOD",
             "#SBATCH --exclusive",
             "#SBATCH --nodes=1",
-            "#SBATCH --ntasks-per-node=48",
+            "#SBATCH --ntasks-per-node=40",
             "#SBATCH --partition=general",
+	    "#SBATCH --time=00:30:00",
             "#SBATCH --export=ALL",
             "#SBATCH --mail-type=all",
             "#SBATCH --mail-user=changhoonhahn@lbl.gov",
