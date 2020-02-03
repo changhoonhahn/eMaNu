@@ -3,7 +3,7 @@ import numpy as np
 import sys,os
 
 ################################## INPUT #############################################
-step       = 500  #number of realizations each cpu will do
+step       = 100  #number of realizations each cpu will do
 offset     = 0    #the count will start from offset
 snapnum    = 4    #4(z=0), 3(z=0.5), 2(z=1), 1(z=2), 0(z=3)
 ######################################################################################

@@ -192,7 +192,7 @@ def create_ALL(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC):
 
         # save results to file
         hdr = ('galaxy Bk for cosmology=%s, redshift bin %i; k_f = 2pi/%.1f, Ngal=%i'%\
-               (cosmo, snapnum, BoxSize, xyz.shape[0]))
+               (cosmo, snapnum, 1000., xyz.shape[0]))
         fbk = os.path.join(os.path.dirname(fGC), 'Bk_%s_%s' % (rsd_str, os.path.basename(fGC).replace('.hdf5', '.txt')))
         print('--- creating %s ---' % os.path.basename(fbk)) 
         np.savetxt(fbk, np.array([i_k,j_k,l_k,p0k1,p0k2, p0k3, b123, q123, b_sn, cnts]).T, 
