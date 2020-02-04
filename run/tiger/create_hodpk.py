@@ -35,8 +35,9 @@ first, last, cosmo, snapnum = args.first, args.last, args.cosmo, args.snapnum
 logMmin, sigma_logM = args.logMmin, args.sigma_logM
 logM0, alpha, logM1 = args.logM0, args.alpha, args.logM1
 
-def create_HOD(halo_folder, snapnum, Om, Ol, z, h, Hz, hod_dict, seed, fGC):
-    ''' Compute and saves the galaxy catalog to hdf5 
+
+def create_P(halo_folder, snapnum, Om, Ol, z, h, Hz, hod_dict, seed, fGC):
+    ''' Compute and saves the galaxy catalog to hdf5 and quickly computes P
     '''
     # read in the halo catalog
     halos = simData.hqHalos(halo_folder, None, snapnum, Om=Om, Ol=Ol, z=z, h=h, Hz=Hz) 
@@ -47,6 +48,7 @@ def create_HOD(halo_folder, snapnum, Om, Ol, z, h, Hz, hod_dict, seed, fGC):
     # get positions and velocities of the galaxies
     pos = np.array(hod['Position'])
     vel = np.array(hod['Velocity'])
+    vel_offset = np.array(hod['VelocityOffset']) 
 
     # extra columns (for Christina and Alice) 
     # halo position 
@@ -75,13 +77,52 @@ def create_HOD(halo_folder, snapnum, Om, Ol, z, h, Hz, hod_dict, seed, fGC):
     f = h5py.File(fGC, 'w')
     f.create_dataset('pos', data=pos)
     f.create_dataset('vel', data=vel)
+    f.create_dataset('vel_offset', data=vel_offset) 
     f.create_dataset('halo_pos', data=pos_halo) 
     f.create_dataset('halo_vel', data=vel_halo) 
     f.create_dataset('halo_mvir', data=mvir_halo) 
     f.create_dataset('halo_rvir', data=rvir_halo) 
     f.create_dataset('halo_id', data=id_halo) 
     f.create_dataset('gal_type', data=gal_type) 
-    f.close() 
+    f.close()
+
+    # loop through  real, RSD x, y, z 
+    for rsd in ['real', 0, 1, 2]: 
+        if rsd == 'real': 
+            xyz = np.array(hod['Position'])
+            rsd_str = 'real'
+            axis = 0 
+        elif rsd == 0:  
+            xyz = FM.RSD(hod, LOS=[1,0,0]) 
+            rsd_str = 'RS0'
+            axis = 0
+        elif rsd == 1: 
+            xyz = FM.RSD(hod, LOS=[0,1,0]) 
+            rsd_str = 'RS1'
+            axis = 1
+        elif rsd == 2: 
+            xyz = FM.RSD(hod, LOS=[0,0,1])
+            rsd_str = 'RS2'
+            axis = 2
+
+        # calculate powerspectrum 
+        delta = np.zeros((1024, 1024, 1024), dtype=np.float32)
+        MASL.MA(xyz, delta, 1000., 'CIC')
+        delta /= np.mean(delta, dtype=np.float64)
+        delta -= 1.0 
+        Pk = PKL.Pk(delta, 
+                1000., 
+                axis, 
+                'CIC', 
+                threads=1)
+
+        hdr = ('Ngalaxies=%i BoxSize=%.3f' % (xyz.shape[0], 1000.))    
+        fpk = os.path.join(os.path.dirname(fGC), 'Pk_%s_%s' % (rsd_str, os.path.basename(fGC).replace('.hdf5', '.txt')))
+        print('--- creating %s ---' % os.path.basename(fpk)) 
+        if rsd == 'real': 
+            np.savetxt(fpk, np.transpose([Pk.k3D, Pk.Pk[:,0]]), delimiter='\t', header=hdr)
+        else:
+            np.savetxt(fpk, np.transpose([Pk.k3D, Pk.Pk[:,0], Pk.Pk[:,1], Pk.Pk[:,2]]), delimiter='\t', header=hdr)
     return None 
 
 ##################################### INPUT #########################################
@@ -143,31 +184,33 @@ for i in numbers:
 
     # create galaxy catalogue
     fGC = '%s/GC_%d_z=%s.hdf5' % (folder_out, seed, z)
-    if not os.path.exists(fGC):  
-        print('--- creating %s ---' % os.path.basename(fGC)) 
-        create_HOD(halo_folder, snapnum, 
-                hdr['Om'][i_hdr], hdr['Ol'][i_hdr], hdr['z'][i_hdr], hdr['h'][i_hdr], hdr['Hz'][i_hdr], 
-                hod_dict, seed, fGC)
-    else:
-        print('--- already exists %s ---' % os.path.basename(fGC)) 
+    #if not os.path.exists(fGC):  
+    print('--- creating %s ---' % os.path.basename(fGC)) 
+    create_P(halo_folder, snapnum, 
+            hdr['Om'][i_hdr], hdr['Ol'][i_hdr], hdr['z'][i_hdr], hdr['h'][i_hdr], hdr['Hz'][i_hdr], 
+            hod_dict, seed, fGC)
+    #else:
+    #    print('--- already exists %s ---' % os.path.basename(fGC)) 
 
+'''
+    ###### paired fixed realizations ######
+    for i in numbers:
+        for pair in [0,1]:
+            # find halo and snap folders
+            halo_folder = '%s/Halos/%s/NCV_%d_%d'%(root,cosmo,pair,i)
 
-###### paired fixed realizations ######
-for i in numbers:
-    for pair in [0,1]:
-        # find halo and snap folders
-        halo_folder = '%s/Halos/%s/NCV_%d_%d'%(root,cosmo,pair,i)
+            # find output folder and create it if it doesnt exist
+            folder_out = '%s/%s/NCV_%d_%d/'%(root_out, cosmo2, pair, i)
+            if not(os.path.exists(folder_out)):  os.system('mkdir %s'%folder_out)
 
-        # find output folder and create it if it doesnt exist
-        folder_out = '%s/%s/NCV_%d_%d/'%(root_out, cosmo2, pair, i)
-        if not(os.path.exists(folder_out)):  os.system('mkdir %s'%folder_out)
-
-        # create galaxy catalogue
-        fGC = '%s/GC_%d_z=%s.hdf5'%(folder_out,seed,z)
-        if not(os.path.exists(fGC)):  
-            print('--- creating %s ---' % os.path.basename(fGC)) 
-            create_HOD(halo_folder, snapnum, 
-                    hdr['Om'][i_hdr], hdr['Ol'][i_hdr], hdr['z'][i_hdr], hdr['h'][i_hdr], hdr['Hz'][i_hdr], 
-                    hod_dict, seed, fGC)
-        else:
-            print('--- already exists %s ---' % os.path.basename(fGC)) 
+            # create galaxy catalogue
+            fGC = '%s/GC_%d_z=%s.hdf5'%(folder_out,seed,z)
+            if not(os.path.exists(fGC)):  
+                print('--- creating %s ---' % os.path.basename(fGC)) 
+                create_HOD(halo_folder, snapnum, 
+                        hdr['Om'][i_hdr], hdr['Ol'][i_hdr], hdr['z'][i_hdr], hdr['h'][i_hdr], hdr['Hz'][i_hdr], 
+                        hod_dict, seed, fGC)
+            else:
+                print('--- already exists %s ---' % os.path.basename(fGC)) 
+            #create_ALL(halo_folder, snapnum, hdr['Om'][i_hdr], hdr['Ol'][i_hdr], hdr['z'][i_hdr], hdr['h'][i_hdr], hdr['Hz'][i_hdr], hod_dict, seed, fGC)
+'''
