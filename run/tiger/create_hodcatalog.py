@@ -246,8 +246,9 @@ numbers = np.arange(args.first, args.last)[numbers]
 # look up header info 
 hdr = np.genfromtxt(os.path.join(UT.dat_dir(), 'quijote_header_lookup.dat'), 
         delimiter='\t', dtype=None, names=('theta', 'snapnum', 'Om', 'Ol', 'z', 'h', 'Hz'))
-assert cosmo in hdr['theta'] 
-i_hdr = hdr['theta'].index(cosmo)  
+_cosmos = list(hdr['theta'].astype(str)) 
+assert cosmo in _cosmos
+i_hdr = _cosmos.index(cosmo)  
 
 ######## standard simulations #########
 for i in numbers:
