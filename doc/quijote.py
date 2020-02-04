@@ -58,11 +58,12 @@ theta_lims = [(0.25, 0.385), (0.02, 0.08), (0.3, 1.1), (0.6, 1.35), (0.8, 0.87),
 theta_fid = {'Mnu': 0., 'Ob': 0.049, 'Ob2': 0.049, 'Om': 0.3175, 'h': 0.6711,  'ns': 0.9624,  's8': 0.834} # fiducial theta 
 ntheta = len(thetas)
 # nuisance params.
-theta_nuis_lbls = {'Mmin': r'$M_{\rm min}$', 'Amp': "$b'$", 'Asn': r"$A_{\rm SN}$", 'Bsn': r"$B_{\rm SN}$", 
+theta_nuis_lbls = {'Mmin': r'$M_{\rm min}$', 'Amp': "$b'$", 'b1': '$b_1$', 
+        'Asn': r"$A_{\rm SN}$", 'Bsn': r"$B_{\rm SN}$", 
         'b2': '$b_2$', 'g2': '$g_2$'}
-theta_nuis_fids = {'Mmin': 3.2, 'Amp': 1., 'Asn': 1e-6, 'Bsn': 1e-3, 'b2': 1., 'g2': 1.} 
-theta_nuis_lims = {'Mmin': (2.1, 4.3), 'Amp': (0.75, 1.25), 'Asn': (0., 1.), 'Bsn': (0., 1.), 
-        'b2': (0.95, 1.05), 'g2': (0.95, 1.05)} 
+theta_nuis_fids = {'Mmin': 3.2, 'Amp': 1., 'b1': 1., 'Asn': 1e-6, 'Bsn': 1e-3, 'b2': 1., 'g2': 1.} 
+theta_nuis_lims = {'Mmin': (2.1, 4.3), 'Amp': (0.75, 1.25), 'b1': (0.9, 1.1), 
+        'Asn': (0., 1.), 'Bsn': (0., 1.), 'b2': (0.95, 1.05), 'g2': (0.95, 1.05)} 
 
 #fscale_pk = 2e5
 fscale_pk = 1e6
@@ -1175,10 +1176,10 @@ def FisherMatrix(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None
         else: 
             print('fiducial covariance') 
             C_fid = _Cfid[:,klim][klim,:]
-        print('Cpk', C_fid[:4,:4]) 
-        print('Cpb', C_fid[:4,np.sum(pklim):np.sum(pklim)+4]) 
-        print('Cbk', C_fid[np.sum(pklim):np.sum(pklim)+4,np.sum(pklim):np.sum(pklim)+4]) 
-        print(np.linalg.cond(C_fid))
+        #print('Cpk', C_fid[:4,:4]) 
+        #print('Cpb', C_fid[:4,np.sum(pklim):np.sum(pklim)+4]) 
+        #print('Cbk', C_fid[np.sum(pklim):np.sum(pklim)+4,np.sum(pklim):np.sum(pklim)+4]) 
+        #print(np.linalg.cond(C_fid))
     else: 
         raise NotImplementedError
 
@@ -1616,6 +1617,129 @@ def p02bForecast(kmax=0.5, rsd=True, flag=None, theta_nuis=None, dmnu='fin', pla
     return None 
 
 
+def joint_p02bForecast(kmax=0.5, rsd='all', flag=None, theta_nuis=None, dmnu='fin', planck=False):
+    ''' fisher forecast for quijote P0+P2 and B where theta_nuis are added as free parameters. 
+    
+    :param kmax: (default: 0.5) 
+        kmax of the analysis 
+    :param rsd: (default: True) 
+        rsd kwarg that specifies rsd set up for B(k). 
+        If rsd == True, include 3 RSD directions. 
+        If rsd in [0,1,2] include one of the directions
+    :param flag: (default: None) 
+        kwarg specifying the flag for B(k). 
+        If `flag is None`, include paired-fixed and regular N-body simulation. 
+        If `flag == 'ncv'` only include paired-fixed. 
+        If `flag == 'reg'` only include regular N-body
+    :param dmnu: (default: 'fin') 
+        derivative finite differences setup
+    :param theta_nuis: (default: None) 
+        list of nuisance parameters to include in the forecast. 
+    :param planck: (default: False)
+        If True add Planck prior 
+    '''
+    for tt in ['Bsn', 'b2', 'g2']: 
+        if tt in theta_nuis: raise ValueError
+
+    # fisher matrix (Fij)
+    pkFij   = FisherMatrix('p02k', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=theta_nuis)  
+    bkFij   = FisherMatrix('bk', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=theta_nuis)  
+    pbkFij  = FisherMatrix('p02bk', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=theta_nuis)  
+
+    if planck: # add planck prior 
+        _Fij_planck = np.load(os.path.join(UT.dat_dir(), 'Planck_2018_s8.npy')) # read in planck prior fisher (order is Om, Ob, h, ns, s8 and Mnu) 
+        print('Planck Fii', np.diag(_Fij_planck)) 
+        pkFij[:6,:6] += _Fij_planck
+        bkFij[:6,:6] += _Fij_planck
+        pbkFij[:6,:6] += _Fij_planck
+    pkFinv  = np.linalg.inv(pkFij) 
+    bkFinv  = np.linalg.inv(bkFij) 
+    pbkFinv = np.linalg.inv(pbkFij) 
+
+    i_Mnu = thetas.index('Mnu')
+    print('--- i = Mnu ---') 
+    print('P Fii=%f, sigma_i = %f' % (pkFij[i_Mnu, i_Mnu], np.sqrt(pkFinv[i_Mnu,i_Mnu])))
+    print("B Fii=%f, sigma_i = %f" % (bkFij[i_Mnu, i_Mnu], np.sqrt(bkFinv[i_Mnu,i_Mnu])))
+    print("P+B Fii=%f, sigma_i = %f" % (pbkFij[i_Mnu, i_Mnu], np.sqrt(pbkFinv[i_Mnu,i_Mnu])))
+    print('--- thetas ---') 
+    print('P sigmas %s' % ', '.join(['%.4f' % sii for sii in np.sqrt(np.diag(pkFinv))]))
+    print('B sigmas %s' % ', '.join(['%.4f' % sii for sii in np.sqrt(np.diag(bkFinv))]))
+    print('P+B sigmas %s' % ', '.join(['%.4f' % sii for sii in np.sqrt(np.diag(pbkFinv))]))
+    print('B improvement %s' % ', '.join(['%.1f' % (pii/bii) for pii, bii in zip(np.sqrt(np.diag(pkFinv)), np.sqrt(np.diag(bkFinv)))]))
+    print('P+B improvement %s' % ', '.join(['%.1f' % (pii/pbii) for pii, pbii in zip(np.sqrt(np.diag(pkFinv)), np.sqrt(np.diag(pbkFinv)))]))
+
+    _thetas = copy(thetas) + theta_nuis 
+    _theta_lbls = copy(theta_lbls) + [theta_nuis_lbls[tt] for tt in theta_nuis]
+    _theta_fid = theta_fid.copy() # fiducial thetas
+    for tt in theta_nuis: _theta_fid[tt] = theta_nuis_fids[tt]
+    # theta_fid = { 's8': 0.834} # fiducial theta 
+    _theta_lims = [(0.28, 0.355), (0.028, 0.07), (0.4422, 0.9), (0.7248, 1.2), (0.778, 0.89), (-0.39, 0.39)]
+    if kmax < 0.2: _theta_lims = [(0.1, 0.5), (0.0, 0.15), (0.0, 1.6), (0., 2.), (0.5, 1.3), (0, 2.)]
+    if planck: 
+        _theta_lims = [(_theta_fid[tt] - dtt, _theta_fid[tt] + dtt) for tt, dtt in zip(thetas, [0.03, 0.003, 0.02, 0.01, 0.05, 0.2])] 
+    _theta_lims += [theta_nuis_lims[tt] for tt in theta_nuis]
+
+    fig = plt.figure(figsize=(17, 15))
+    gs = mpl.gridspec.GridSpec(2, 1, figure=fig, height_ratios=[5,2], hspace=0.15) 
+    gs0 = mpl.gridspec.GridSpecFromSubplotSpec(5, 8, subplot_spec=gs[0])
+    gs1 = mpl.gridspec.GridSpecFromSubplotSpec(2, 8, subplot_spec=gs[1])
+    for i in range(ntheta+1): 
+        for j in range(i+1, ntheta+2): 
+            theta_fid_i, theta_fid_j = _theta_fid[_thetas[i]], _theta_fid[_thetas[j]] # fiducial parameter 
+            
+            if j < ntheta: sub = plt.subplot(gs0[j-1,i])
+            else: sub = plt.subplot(gs1[j-6,i])
+
+            for _i, Finv in enumerate([pkFinv, bkFinv, pbkFinv]):
+                Finv_sub = np.array([[Finv[i,i], Finv[i,j]], [Finv[j,i], Finv[j,j]]]) # sub inverse fisher matrix 
+                Forecast.plotEllipse(Finv_sub, sub, theta_fid_ij=[theta_fid_i, theta_fid_j], color='C%i' % _i)
+
+            sub.set_xlim(_theta_lims[i])
+            sub.set_ylim(_theta_lims[j])
+            if i == 0:   
+                sub.set_ylabel(_theta_lbls[j], labelpad=5, fontsize=28) 
+                sub.get_yaxis().set_label_coords(-0.35,0.5)
+            else: 
+                sub.set_yticks([])
+                sub.set_yticklabels([])
+            
+            if j == ntheta+1: 
+                sub.set_xlabel(_theta_lbls[i], labelpad=7, fontsize=28) 
+            elif j == ntheta-1: 
+                sub.set_xlabel(_theta_lbls[i], fontsize=26) 
+            else: 
+                sub.set_xticks([])
+                sub.set_xticklabels([]) 
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.fill_between([],[],[], color='C0', label=r'$P^{\rm halo}_0(k) + P^{\rm halo}_2(k)$') 
+    bkgd.fill_between([],[],[], color='C1', label=r'$B^{\rm halo}(k_1, k_2, k_3)$') 
+    bkgd.legend(loc='upper right', bbox_to_anchor=(0.875, 0.775), fontsize=25)
+    bkgd.text(0.8, 0.61, r'$k_{\rm max} = %.1f$; $z=0.$' % kmax, ha='right', va='bottom', 
+            transform=bkgd.transAxes, fontsize=25)
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    fig.subplots_adjust(wspace=0.05, hspace=0.05) 
+    
+    if theta_nuis is None: nuis_str = ''
+    else: nuis_str = '.'
+    if 'Amp' in theta_nuis: nuis_str += 'b'
+    if 'b1' in theta_nuis: nuis_str += 'b1'
+    if 'Mmin' in theta_nuis: nuis_str += 'Mmin'
+    if ('Asn' in theta_nuis) or ('Bsn' in theta_nuis): nuis_str += 'SN'
+    if 'b2' in theta_nuis: nuis_str += 'b2'
+    if 'g2' in theta_nuis: nuis_str += 'g2'
+
+    planck_str = ''
+    if planck: planck_str = '.planck'
+
+    ffig = os.path.join(dir_doc,
+            'quijote.joint_p02bkFisher%s.dmnu_%s.kmax%.2f%s%s%s.png' % 
+            (nuis_str, dmnu, kmax, _rsd_str(rsd), _flag_str(flag), planck_str))
+    fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex 
+    return None 
+
+
 def Fii_kmax(rsd=True, flag=None, dmnu='fin'):
     ''' 1/sqrt(Fii) as a function of kmax 
     
@@ -1854,7 +1978,7 @@ def forecastP02B_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False
     '''
     #kmaxs = kf * 3 * np.arange(2, 28) 
     #kmaxs = kf * 3 * np.array([1, 3, 5, 10, 15, 20, 27]) 
-    kmaxs = kf * 3 * np.arange(1, 28) 
+    kmaxs = kf * 3 * np.arange(2, 28) 
     
     pk_theta_nuis = list(np.array(theta_nuis).copy())
     bk_theta_nuis = list(np.array(theta_nuis).copy())
@@ -1866,47 +1990,59 @@ def forecastP02B_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False
         _Fij_planck = np.load(os.path.join(UT.dat_dir(), 'Planck_2018_s8.npy')) 
     
     # read in fisher matrix (Fij)
-    sig_pk, sig_bk, sig_pk_planck, sig_bk_planck, sig_pm, sig_pcb = [], [], [], [], [], [] 
+    sig_pk, sig_bk, sig_pbk = [], [], [] 
+    sig_pk_planck, sig_bk_planck, sig_pbk_planck, sig_pm, sig_pcb = [], [], [], [], [] 
     for i_k, kmax in enumerate(kmaxs): 
         if LT: 
             pmFij   = LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints=5) # linear theory Pm 
             pcbFij  = LT.Fij_Pm(np.logspace(-5, 2, 500), kmax=kmax, npoints=5, flag='cb') 
         pkFij   = FisherMatrix('p02k', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=pk_theta_nuis) 
         bkFij   = FisherMatrix('bk', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=bk_theta_nuis) 
+        pbkFij  = FisherMatrix('p02bk', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=bk_theta_nuis) 
     
         if planck: # add planck prior 
             pkFij_planck = pkFij.copy() 
             bkFij_planck = bkFij.copy() 
+            pbkFij_planck = pbkFij.copy() 
             pkFij_planck[:6,:6] += _Fij_planck
             bkFij_planck[:6,:6] += _Fij_planck
+            pbkFij_planck[:6,:6] += _Fij_planck
 
         if np.linalg.cond(pkFij) > 1e16: 
             print('P02 Fij ill-conditioned; cond # = %.2e' % np.linalg.cond(pkFij)) 
         if np.linalg.cond(bkFij) > 1e16: 
             print('B Fij ill-conditioned; cond # = %.2e' % np.linalg.cond(bkFij)) 
+        if np.linalg.cond(pbkFij) > 1e16: 
+            print('P+B Fij ill-conditioned; cond # = %.2e' % np.linalg.cond(bkFij)) 
         if LT: 
             sig_pm.append(np.sqrt(np.diag(np.linalg.inv(pmFij))))
             sig_pcb.append(np.sqrt(np.diag(np.linalg.inv(pcbFij))))
         sig_pk.append(np.sqrt(np.diag(np.linalg.inv(pkFij))))
         sig_bk.append(np.sqrt(np.diag(np.linalg.inv(bkFij))))
+        sig_pbk.append(np.sqrt(np.diag(np.linalg.inv(pbkFij))))
         if planck: 
             sig_pk_planck.append(np.sqrt(np.diag(np.linalg.inv(pkFij_planck))))
             sig_bk_planck.append(np.sqrt(np.diag(np.linalg.inv(bkFij_planck))))
+            sig_pbk_planck.append(np.sqrt(np.diag(np.linalg.inv(pbkFij_planck))))
         print('kmax=%.3f ---' %  kmax) 
         print('pk: %s' % ', '.join(['%.2e' % fii for fii in sig_pk[-1]])) 
         print('bk: %s' % ', '.join(['%.2e' % fii for fii in sig_bk[-1]])) 
+        print('pbk: %s' % ', '.join(['%.2e' % fii for fii in sig_pbk[-1]])) 
         if planck: 
             print('pk w/ planck: %s' % ', '.join(['%.2e' % fii for fii in sig_pk_planck[-1]])) 
             print('bk w/ planck: %s' % ', '.join(['%.2e' % fii for fii in sig_bk_planck[-1]])) 
+            print('pbk w/ planck: %s' % ', '.join(['%.2e' % fii for fii in sig_pbk_planck[-1]])) 
         if LT: 
             print('pm: %s' % ', '.join(['%.2e' % fii for fii in sig_pm[-1]])) 
             print('pcb: %s' % ', '.join(['%.2e' % fii for fii in sig_pcb[-1]])) 
 
     sig_pk  = np.array(sig_pk)
     sig_bk  = np.array(sig_bk)
+    sig_pbk = np.array(sig_pbk)
     if planck: 
         sig_pk_planck = np.array(sig_pk_planck)
         sig_bk_planck = np.array(sig_bk_planck)
+        sig_pbk_planck = np.array(sig_pbk_planck)
     if LT: 
         sig_pm  = np.array(sig_pm)
         sig_pcb = np.array(sig_pcb)
@@ -1914,8 +2050,10 @@ def forecastP02B_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False
     #cond_pk = (kmaxs > float(len(sig_pk[-1])) * kf)
     cond_pk = (kmaxs > 5. * kf)
     cond_bk = (kmaxs > 12. * kf)
+    cond_pbk = (kmaxs > 12. * kf)
     print('PK kmax > %f' % (5. * kf)) 
     print('BK kmax > %f' %  (12. * kf))
+    print('PBK kmax > %f' %  (12. * kf))
 
     #print('improvement of B over P') 
     #for i_k in range(len(kmaxs)): 
@@ -1927,10 +2065,13 @@ def forecastP02B_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False
         kmax_preset[(np.abs(kmaxs - kmax)).argmin()] = True
     pk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_pk[kmax_preset,:].T)).T 
     bk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_bk[kmax_preset,:].T)).T 
+    pbk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_pbk[kmax_preset,:].T)).T 
     fpk = os.path.join(UT.doc_dir(), 'dat', 'p02k_forecast_kmax.dat') 
     np.savetxt(fpk, pk_dat, delimiter=', ', fmt='%.5f')
     fbk = os.path.join(UT.doc_dir(), 'dat', 'bk_forecast_kmax.dat') 
     np.savetxt(fbk, bk_dat, delimiter=', ', fmt='%.5f')
+    fpbk = os.path.join(UT.doc_dir(), 'dat', 'pbk_forecast_kmax.dat') 
+    np.savetxt(fpbk, pbk_dat, delimiter=', ', fmt='%.5f')
 
     sigma_theta_lims = [(5e-3, 1.), (1e-3, 1.), (1e-2, 10), (1e-2, 10.), (1e-2, 10.), (1e-2, 1e1)]
     if planck: sigma_theta_lims = [(5e-3, 0.8), (5e-4, 1.), (5e-3, 10), (3e-3, 10), (5e-3, 10), (1e-2, 10.)]
@@ -1940,9 +2081,11 @@ def forecastP02B_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False
         sub = fig.add_subplot(2,len(thetas)/2,i+1) 
         sub.plot(kmaxs[cond_pk], sig_pk[:,i][cond_pk], c='C0', ls='-') 
         sub.plot(kmaxs[cond_bk], sig_bk[:,i][cond_bk], c='C1', ls='-') 
+        sub.plot(kmaxs[cond_pbk], sig_pbk[:,i][cond_bk], c='C2', ls='-') 
         if planck: 
             sub.plot(kmaxs[cond_pk], sig_pk_planck[:,i][cond_pk], c='C0', ls='--', lw=1) 
             _plt, =sub.plot(kmaxs[cond_bk], sig_bk_planck[:,i][cond_bk], c='C1', ls='--', lw=1) 
+            sub.plot(kmaxs[cond_pbk], sig_pbk_planck[:,i][cond_pbk], c='C2', ls='--', lw=1) 
             if theta == 'Mnu': 
                 sub.legend([_plt], ['w/ Planck priors'], loc='lower left', handletextpad=0.25, fontsize=18) 
         if LT: 
@@ -1969,6 +2112,7 @@ def forecastP02B_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False
     if theta_nuis is None: nuis_str = ''
     else: nuis_str = '.'
     if 'Amp' in theta_nuis: nuis_str += 'b'
+    if 'b1' in theta_nuis: nuis_str += 'b1'
     if 'Mmin' in theta_nuis: nuis_str += 'Mmin'
     if ('Asn' in theta_nuis) or ('Bsn' in theta_nuis): nuis_str += 'SN'
     if 'b2' in theta_nuis: nuis_str += 'b2'
@@ -4106,8 +4250,13 @@ if __name__=="__main__":
         p02bForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'], dmnu='fin')
         p02bForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'], dmnu='fin')
     '''
-    proposal_Forecast()
+    # P, B, P+B fisher forecast
+    '''
+        joint_p02bForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['b1', 'Mmin'], dmnu='fin')
+        joint_p02bForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['b1', 'Mmin'], dmnu='fin', planck=True)
+    '''
     # fisher forecasts as a function of kmax with different nuisance parameters 
+    forecastP02B_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['b1', 'Mmin'], planck=True)
     '''
         Fii_kmax(rsd='all', flag='reg', dmnu='fin')
         forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'])
