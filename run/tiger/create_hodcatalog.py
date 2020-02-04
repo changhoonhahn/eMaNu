@@ -5,6 +5,8 @@ import argparse
 from mpi4py import MPI
 import numpy as np
 import sys,os,h5py
+# -- emanu -- 
+from emanu import util as UT 
 from emanu import forwardmodel as FM
 from emanu.sims import data as simData
 from pyspectrum import pyspectrum as pySpec
@@ -33,11 +35,11 @@ first, last, cosmo, snapnum = args.first, args.last, args.cosmo, args.snapnum
 logMmin, sigma_logM = args.logMmin, args.sigma_logM
 logM0, alpha, logM1 = args.logM0, args.alpha, args.logM1
 
-def create_HOD(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC):
+def create_HOD(halo_folder, snapnum, Om, Ol, z, h, Hz, hod_dict, seed, fGC):
     ''' Compute and saves the galaxy catalog to hdf5 
     '''
     # read in the halo catalog
-    halos = simData.hqHalos(halo_folder, snap_folder, snapnum) 
+    halos = simData.hqHalos(halo_folder, None, snapnum, Om=Om, Ol=Ol, z=z, h=h, Hz=Hz) 
 
     # populate halos with galaxies
     hod = FM.hodGalaxies(halos, hod_dict, seed=seed)
@@ -83,11 +85,11 @@ def create_HOD(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC):
     return None 
 
 
-def create_ALL(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC):
+def create_ALL(halo_folder, snapnum, Om, Ol, z, h, Hz, hod_dict, seed, fGC):
     ''' Compute and saves the galaxy catalog to hdf5, computes P, computes B
     '''
     # read in the halo catalog
-    halos = simData.hqHalos(halo_folder, snap_folder, snapnum) 
+    halos = simData.hqHalos(halo_folder, None, snapnum, Om=Om, Ol=Ol, z=z, h=h, Hz=Hz) 
 
     # populate halos with galaxies
     hod = FM.hodGalaxies(halos, hod_dict, seed=seed)
@@ -240,14 +242,17 @@ if myrank==0:
 numbers = np.where(np.arange(args.first, args.last)%nprocs==myrank)[0]
 numbers = np.arange(args.first, args.last)[numbers]
 
+
+# look up header info 
+hdr = np.genfromtxt(os.path.join(UT.dat_dir(), 'quijote_header_lookup.dat'), 
+        delimiter='\t', dtype=None, names=('theta', 'snapnum', 'Om', 'Ol', 'z', 'h', 'Hz'))
+assert cosmo in hdr['theta'] 
+i_hdr = hdr['theta'].index(cosmo)  
+
 ######## standard simulations #########
 for i in numbers:
     # find halo and snap folders
     halo_folder = '%s/Halos/%s/%d' % (root,cosmo,i)
-    snap_folder = '%s/Snapshots/%s/%d' % (root,cosmo,i)
-    if not os.path.exists(snap_folder):
-        print('### %s DOES NOT EXIST ###' % snap_folder)
-        continue
 
     # find output folder and create it if it doesnt exist
     folder_out = '%s/%s/%d/' % (root_out, cosmo2, i)
@@ -258,20 +263,19 @@ for i in numbers:
     fGC = '%s/GC_%d_z=%s.hdf5' % (folder_out, seed, z)
     if not os.path.exists(fGC):  
         print('--- creating %s ---' % os.path.basename(fGC)) 
-        create_HOD(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC)
+        create_HOD(halo_folder, snapnum, 
+                hdr['Om'][i_hdr], hdr['Ol'][i_hdr], hdr['z'][i_hdr], hdr['h'][i_hdr], hdr['Hz'][i_hdr], 
+                hod_dict, seed, fGC)
     else:
         print('--- already exists %s ---' % os.path.basename(fGC)) 
-    #create_ALL(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC)
+    #create_ALL(halo_folder, snapnum, hdr['Om'][i_hdr], hdr['Ol'][i_hdr], hdr['z'][i_hdr], hdr['h'][i_hdr], hdr['Hz'][i_hdr], hod_dict, seed, fGC)
+
 
 ###### paired fixed realizations ######
 for i in numbers:
-
     for pair in [0,1]:
-
         # find halo and snap folders
         halo_folder = '%s/Halos/%s/NCV_%d_%d'%(root,cosmo,pair,i)
-        snap_folder = '%s/Snapshots/%s/NCV_%d_%d'%(root,cosmo,pair,i)
-        if not(os.path.exists(snap_folder)):  continue
 
         # find output folder and create it if it doesnt exist
         folder_out = '%s/%s/NCV_%d_%d/'%(root_out, cosmo2, pair, i)
@@ -280,5 +284,10 @@ for i in numbers:
         # create galaxy catalogue
         fGC = '%s/GC_%d_z=%s.hdf5'%(folder_out,seed,z)
         if not(os.path.exists(fGC)):  
-            create_HOD(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC)
-        #create_ALL(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC)
+            print('--- creating %s ---' % os.path.basename(fGC)) 
+            create_HOD(halo_folder, snapnum, 
+                    hdr['Om'][i_hdr], hdr['Ol'][i_hdr], hdr['z'][i_hdr], hdr['h'][i_hdr], hdr['Hz'][i_hdr], 
+                    hod_dict, seed, fGC)
+        else:
+            print('--- already exists %s ---' % os.path.basename(fGC)) 
+        #create_ALL(halo_folder, snapnum, hdr['Om'][i_hdr], hdr['Ol'][i_hdr], hdr['z'][i_hdr], hdr['h'][i_hdr], hdr['Hz'][i_hdr], hod_dict, seed, fGC)

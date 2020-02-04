@@ -40,7 +40,7 @@ def X_fid(nreal, nzbin, obvs='plk', Nsample=100, poles=[0], mneut=0.0, Nmesh=360
         return obv_data['k'][klim], np.array(X) 
 
 
-def hqHalos(halo_folder, snap_folder, snapnum, Ob=0.049, ns=0.9624, s8=None, silent=True): 
+def hqHalos(halo_folder, snap_folder, snapnum, Om=None, Ol=None, z=None, h=None, Hz=None, Ob=0.049, ns=0.9624, s8=None, silent=True): 
     ''' read in halo catalog given the folder and snapshot # and store it as
     a nbodykit HaloCatalog object. The HaloCatalog object is convenient for 
     populating with galaxies and etc. Designed for the HADES and Quijote sim
@@ -66,14 +66,19 @@ def hqHalos(halo_folder, snap_folder, snapnum, Ob=0.049, ns=0.9624, s8=None, sil
     :return cat: 
         nbodykit.lab.HaloCatalog with HADES/Quijote simulations 
     '''
-    # read in Gadget header (~65.1 microsec) 
-    header = RG.header(os.path.join(snap_folder, 'snapdir_%s' % str(snapnum).zfill(3), 
-        'snap_%s' % str(snapnum).zfill(3)))
-    Om  = header.omega_m
-    Ol  = header.omega_l
-    z   = header.redshift
-    h   = header.hubble 
-    Hz  = header.Hubble #100.0 * np.sqrt(Om * (1.0 + z)**3 + Ol) # km/s/(Mpc/h)
+    if snap_folder is not None: 
+        # read in Gadget header (~65.1 microsec) 
+        header = RG.header(os.path.join(snap_folder, 'snapdir_%s' % str(snapnum).zfill(3), 
+            'snap_%s' % str(snapnum).zfill(3)))
+        Om  = header.omega_m
+        Ol  = header.omega_l
+        z   = header.redshift
+        h   = header.hubble 
+        Hz  = header.Hubble #100.0 * np.sqrt(Om * (1.0 + z)**3 + Ol) # km/s/(Mpc/h)
+    else: 
+        # if snapshot folder is not specified 
+        # then all values have to be specified in kwargs
+        assert all([tt is not None for tt in [Om, Ol, z, h, Hz]]) 
 
     # this is a discrepant cosmology. it is not used for anything. but it's included for nbodykit 
     cosmo = NBlab.cosmology.Planck15.clone() 
