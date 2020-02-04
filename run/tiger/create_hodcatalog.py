@@ -69,6 +69,7 @@ def create_HOD(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC):
     gal_type = np.array(hod['gal_type'])
 
     # save catalogue to file
+    print('--- creating %s ---' % os.path.basename(fGC))
     f = h5py.File(fGC, 'w')
     f.create_dataset('pos', data=pos)
     f.create_dataset('vel', data=vel)
@@ -215,7 +216,7 @@ hod_dict = {
     'logM1': logM1}
 
 # output folder name
-root_out = '/projects/QUIJOTE/Galaxies/' 
+root_out = '/projects/QUIJOTE/Galaxies' 
 #####################################################################################
 
 # find the redshift
@@ -228,12 +229,12 @@ if logM0!=14.0:      suffix='logM0=%.1f' % logM0
 if alpha!=1.1:       suffix='alpha=%.1f' % alpha
 if logM1!=14.0:      suffix='logM1=%.1f' % logM1
 
-if suffix!=None:  cosmo2 = '%s_%s'%(cosmo, suffix)
+if suffix is not None:  cosmo2 = '%s_%s'%(cosmo, suffix)
 else:             cosmo2 = cosmo
 
 # create output folder if it does not exist
 if myrank==0:
-    if not os.path.exists(root_out+cosmo2):  os.system('mkdir %s/%s/'%(root_out,cosmo2))
+    if not os.path.exists(os.path.join(root_out, cosmo2)):  os.system('mkdir %s' % os.path.join(root_out,cosmo2))
 
 # get the realizations each cpu works on
 numbers = np.where(np.arange(args.first, args.last)%nprocs==myrank)[0]
@@ -245,6 +246,7 @@ for i in numbers:
     halo_folder = '%s/Halos/%s/%d' % (root,cosmo,i)
     snap_folder = '%s/Snapshots/%s/%d' % (root,cosmo,i)
     if not os.path.exists(snap_folder):
+        print('### %s DOES NOT EXIST ###' % snap_folder)
         continue
 
     # find output folder and create it if it doesnt exist
@@ -255,7 +257,10 @@ for i in numbers:
     # create galaxy catalogue
     fGC = '%s/GC_%d_z=%s.hdf5' % (folder_out, seed, z)
     if not os.path.exists(fGC):  
+        print('--- creating %s ---' % os.path.basename(fGC)) 
         create_HOD(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC)
+    else:
+        print('--- already exists %s ---' % os.path.basename(fGC)) 
     #create_ALL(halo_folder, snap_folder, snapnum, hod_dict, seed, fGC)
 
 ###### paired fixed realizations ######
