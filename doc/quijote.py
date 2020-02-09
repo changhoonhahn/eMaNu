@@ -1543,8 +1543,8 @@ def p02bForecast(kmax=0.5, rsd=True, flag=None, theta_nuis=None, dmnu='fin', pla
     print('B sigmas %s' % ', '.join(['%.4f' % sii for sii in np.sqrt(np.diag(bkFinv))]))
     print('improvement %s' % ', '.join(['%.1f' % (pii/bii) for pii, bii in zip(np.sqrt(np.diag(pkFinv)), np.sqrt(np.diag(bkFinv)))]))
     #print('P+B sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(pbkFinv))]))
-    print(np.diag(pkFij))
-    print(np.diag(bkFij))
+    print(pkFij[:6,:6])
+    print(bkFij[:6,:6])
 
     _thetas = copy(thetas) + theta_nuis 
     _theta_lbls = copy(theta_lbls) + [theta_nuis_lbls[tt] for tt in theta_nuis]
@@ -1601,6 +1601,7 @@ def p02bForecast(kmax=0.5, rsd=True, flag=None, theta_nuis=None, dmnu='fin', pla
     if theta_nuis is None: nuis_str = ''
     else: nuis_str = '.'
     if 'Amp' in theta_nuis: nuis_str += 'b'
+    if 'b1' in theta_nuis: nuis_str += 'b1'
     if 'Mmin' in theta_nuis: nuis_str += 'Mmin'
     if ('Asn' in theta_nuis) or ('Bsn' in theta_nuis): nuis_str += 'SN'
     if 'b2' in theta_nuis: nuis_str += 'b2'
@@ -1665,8 +1666,9 @@ def joint_p02bForecast(kmax=0.5, rsd='all', flag=None, theta_nuis=None, dmnu='fi
     print('P sigmas %s' % ', '.join(['%.4f' % sii for sii in np.sqrt(np.diag(pkFinv))]))
     print('B sigmas %s' % ', '.join(['%.4f' % sii for sii in np.sqrt(np.diag(bkFinv))]))
     print('P+B sigmas %s' % ', '.join(['%.4f' % sii for sii in np.sqrt(np.diag(pbkFinv))]))
-    print('B improvement %s' % ', '.join(['%.1f' % (pii/bii) for pii, bii in zip(np.sqrt(np.diag(pkFinv)), np.sqrt(np.diag(bkFinv)))]))
-    print('P+B improvement %s' % ', '.join(['%.1f' % (pii/pbii) for pii, pbii in zip(np.sqrt(np.diag(pkFinv)), np.sqrt(np.diag(pbkFinv)))]))
+    print('B improvement over P %s' % ', '.join(['%.1f' % (pii/bii) for pii, bii in zip(np.sqrt(np.diag(pkFinv)), np.sqrt(np.diag(bkFinv)))]))
+    print('P+B improvement over P %s' % ', '.join(['%.1f' % (pii/pbii) for pii, pbii in zip(np.sqrt(np.diag(pkFinv)), np.sqrt(np.diag(pbkFinv)))]))
+    print('P+B improvement over B %s' % ', '.join(['%.1f' % (bii/pbii) for bii, pbii in zip(np.sqrt(np.diag(bkFinv)), np.sqrt(np.diag(pbkFinv)))]))
 
     _thetas = copy(thetas) + theta_nuis 
     _theta_lbls = copy(theta_lbls) + [theta_nuis_lbls[tt] for tt in theta_nuis]
@@ -2081,11 +2083,11 @@ def forecastP02B_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False
         sub = fig.add_subplot(2,len(thetas)/2,i+1) 
         sub.plot(kmaxs[cond_pk], sig_pk[:,i][cond_pk], c='C0', ls='-') 
         sub.plot(kmaxs[cond_bk], sig_bk[:,i][cond_bk], c='C1', ls='-') 
-        sub.plot(kmaxs[cond_pbk], sig_pbk[:,i][cond_bk], c='C2', ls='-') 
+        #sub.plot(kmaxs[cond_pbk], sig_pbk[:,i][cond_bk], c='C2', ls='-') 
         if planck: 
             sub.plot(kmaxs[cond_pk], sig_pk_planck[:,i][cond_pk], c='C0', ls='--', lw=1) 
             _plt, =sub.plot(kmaxs[cond_bk], sig_bk_planck[:,i][cond_bk], c='C1', ls='--', lw=1) 
-            sub.plot(kmaxs[cond_pbk], sig_pbk_planck[:,i][cond_pbk], c='C2', ls='--', lw=1) 
+            #sub.plot(kmaxs[cond_pbk], sig_pbk_planck[:,i][cond_pbk], c='C2', ls='--', lw=1) 
             if theta == 'Mnu': 
                 sub.legend([_plt], ['w/ Planck priors'], loc='lower left', handletextpad=0.25, fontsize=18) 
         if LT: 
@@ -4194,6 +4196,81 @@ def proposal_Forecast():
     return None 
 
 
+def p02b_planck(kmax=0.5, rsd=True, flag=None, theta_nuis=None, dmnu='fin'):
+    ''' fisher forecast for quijote P0+P2 and B where theta_nuis are added as free parameters. 
+    
+    :param kmax: (default: 0.5) 
+        kmax of the analysis 
+    :param rsd: (default: True) 
+        rsd kwarg that specifies rsd set up for B(k). 
+        If rsd == True, include 3 RSD directions. 
+        If rsd in [0,1,2] include one of the directions
+    :param flag: (default: None) 
+        kwarg specifying the flag for B(k). 
+        If `flag is None`, include paired-fixed and regular N-body simulation. 
+        If `flag == 'ncv'` only include paired-fixed. 
+        If `flag == 'reg'` only include regular N-body
+    :param dmnu: (default: 'fin') 
+        derivative finite differences setup
+    :param theta_nuis: (default: None) 
+        list of nuisance parameters to include in the forecast. 
+    :param planck: (default: False)
+        If True add Planck prior 
+    '''
+    pk_theta_nuis = list(np.array(theta_nuis).copy())
+    bk_theta_nuis = list(np.array(theta_nuis).copy())
+    if 'Bsn' in theta_nuis: pk_theta_nuis.remove('Bsn') 
+    if 'b2' in theta_nuis: pk_theta_nuis.remove('b2') 
+    if 'g2' in theta_nuis: pk_theta_nuis.remove('g2') 
+
+    # fisher matrix (Fij)
+    _pkFij   = FisherMatrix('p02k', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=pk_theta_nuis)  
+    _bkFij   = FisherMatrix('bk', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=bk_theta_nuis)  
+    pkFij = np.zeros(_pkFij.shape) 
+    for i in range(_pkFij.shape[0]): pkFij[i,i] = _pkFij[i,i]
+    bkFij = np.zeros(_bkFij.shape) 
+    for i in range(_bkFij.shape[0]): bkFij[i,i] = _bkFij[i,i]
+
+    _Fij_planck = np.load(os.path.join(UT.dat_dir(), 'Planck_2018_s8.npy')) # read in planck prior fisher (order is Om, Ob, h, ns, s8 and Mnu) 
+    pkFinv  = np.linalg.inv(pkFij) 
+    bkFinv  = np.linalg.inv(bkFij) 
+
+    #i_Mnu = thetas.index('Mnu')
+    #print('--- i = Mnu ---') 
+    #print('P Fii=%f, sigma_i = %f' % (pkFij[i_Mnu, i_Mnu], np.sqrt(pkFinv[i_Mnu,i_Mnu])))
+    #print("B Fii=%f, sigma_i = %f" % (bkFij[i_Mnu, i_Mnu], np.sqrt(bkFinv[i_Mnu,i_Mnu])))
+    ##print("P+B Fii=%f, sigma_i = %f" % (pbkFij[i_Mnu, i_Mnu], np.sqrt(pbkFinv[i_Mnu,i_Mnu])))
+    #print('--- thetas ---') 
+    print('P sigmas %s' % ', '.join(['%.4f' % sii for sii in np.sqrt(np.diag(pkFinv))]))
+    print('B sigmas %s' % ', '.join(['%.4f' % sii for sii in np.sqrt(np.diag(bkFinv))]))
+    #print('improvement %s' % ', '.join(['%.1f' % (pii/bii) for pii, bii in zip(np.sqrt(np.diag(pkFinv)), np.sqrt(np.diag(bkFinv)))]))
+    #print('P+B sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(pbkFinv))]))
+    print(np.diag(pkFij[:6,:6])) 
+    print(np.diag(bkFij[:6,:6])) 
+    print(np.diag(_Fij_planck)) 
+    
+    # plot the covariance matrix 
+    fig = plt.figure(figsize=(15,10))
+    sub = fig.add_subplot(231)
+    cm = sub.pcolormesh(pkFij[:6,:6], vmin=-1e5, vmax=1e5)
+    sub = fig.add_subplot(232)
+    cm = sub.pcolormesh(bkFij[:6,:6], vmin=-1e5, vmax=1e5)
+    sub = fig.add_subplot(233)
+    cm = sub.pcolormesh(_Fij_planck, vmin=-1e5, vmax=1e5)
+    sub = fig.add_subplot(234)
+    cm = sub.pcolormesh(pkFij[:6,:6]+_Fij_planck, vmin=-1e5, vmax=1e5)
+    sub = fig.add_subplot(235)
+    cm = sub.pcolormesh(bkFij[:6,:6]+_Fij_planck, vmin=-1e5, vmax=1e5)
+
+    #cbar = fig.colorbar(cm, ax=sub) 
+    #cbar.set_label(r'$\widehat{P}_{\ell = 0, 2}(k)$ covariance matrix, ${\bf C}_{P}$', 
+    #        fontsize=25, labelpad=10, rotation=90)
+    ffig = os.path.join(dir_doc, 
+            'p02b_planck_Fijs_kmax%s%s%s.png' % (str(kmax).replace('.', ''), _rsd_str(rsd), _flag_str(flag)))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+
 if __name__=="__main__": 
     # covariance matrices
     '''
@@ -4245,6 +4322,8 @@ if __name__=="__main__":
         forecast_kmax_table(dmnu='fin', theta_nuis=['Amp', 'Mmin'])
     '''
     # P+B fisher forecasts with different nuisance parameters 
+    #p02bForecast(kmax=0.15, rsd='all', flag='reg', theta_nuis=['b1', 'Mmin'], dmnu='fin')
+    #p02bForecast(kmax=0.15, rsd='all', flag='reg', theta_nuis=['b1', 'Mmin'], dmnu='fin', planck=True)
     '''
         p02bForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin'], dmnu='fin')
         p02bForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn'], dmnu='fin')
@@ -4256,7 +4335,6 @@ if __name__=="__main__":
         joint_p02bForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['b1', 'Mmin'], dmnu='fin', planck=True)
     '''
     # fisher forecasts as a function of kmax with different nuisance parameters 
-    forecastP02B_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['b1', 'Mmin'], planck=True)
     '''
         Fii_kmax(rsd='all', flag='reg', dmnu='fin')
         forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'])
@@ -4265,6 +4343,7 @@ if __name__=="__main__":
         forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn', 'Bsn', 'b2', 'g2'])
         forecastP02B_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'])
         forecastP02B_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'], planck=True)
+        forecastP02B_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['b1', 'Mmin'], planck=True)
     '''
     # --- convergence tests ---  
     '''
@@ -4292,3 +4371,5 @@ if __name__=="__main__":
     #zeldovich_ICtest(rsd=1)
     #zeldovich_ICtest(rsd='all')
     #P02B_crosscovariance(kmax=0.1)
+    p02b_planck(kmax=0.15, rsd='all', flag='reg', theta_nuis=['b1', 'Mmin'], dmnu='fin') 
+
