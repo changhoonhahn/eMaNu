@@ -2,17 +2,30 @@
 import numpy as np
 import sys,os
 
+#thetas = ['Om_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p', 'Om_m',  'Ob2_m', 'h_m', 'ns_m', 's8_m', 
+#        'Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'logM0_m', 
+#        'logM0_p', 'alpha_m', 'alpha_p', 'logM1_m', 'logM1_p', 'fiducial', 'fiducial_ZA']
 ################################## INPUT #############################################
-step       = 80  #number of realizations each cpu will do
-offset     = 0    #the count will start from offset
-snapnum    = 4    #4(z=0), 3(z=0.5), 2(z=1), 1(z=2), 0(z=3)
-PorB       = 'pk'
+#                                                       QOS        submit       start       finish                            
+#thetas = ['Om_p', 'Ob2_p']                         # short     2/20 9:30am
+#thetas = ['h_p', 'ns_p', 's8_p']                   # medium    2/20 9:40am
+thetas = ['Om_m',  'Ob2_m', 'h_m']                  # long      2/20 9:50am
+qos = 'long'
 ######################################################################################
 
-thetas = ['Om_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p', 'Om_m',  'Ob2_m', 'h_m', 'ns_m', 's8_m', 
-        'Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'logM0_m', 
-        'logM0_p', 'alpha_m', 'alpha_p', 'logM1_m', 'logM1_p', 'fiducial', 'fiducial_ZA']
-#thetas = ['testing'] 
+
+if qos == 'short': #number of realizations each cpu will do
+    step = 40  
+    time = 24
+elif qos == 'medium': 
+    step = 120
+    time = 72 
+elif qos == 'long': 
+    step = 240
+    time = 144
+offset      = 0    #the count will start from offset
+snapnum     = 4    #4(z=0), 3(z=0.5), 2(z=1), 1(z=2), 0(z=3)
+
 
 # do a loop over the different cosmologies
 for theta in thetas: 
@@ -60,21 +73,22 @@ for theta in thetas:
 
     for i in range(int(nodes)): # loop over the different realizations
         a = '\n'.join(["#!/bin/bash", 
-            "#SBATCH -J HOD",
+            "#SBATCH -J bk_%s_%i" % (theta, i),
+            "#SBATCH --qos=%s" % qos,
             "#SBATCH --exclusive",
             "#SBATCH --nodes=1",
             "#SBATCH --ntasks-per-node=40",
             "#SBATCH --partition=general",
-	    "#SBATCH --time=06:00:00",
+	    "#SBATCH --time=%i:00:00" % time,
             "#SBATCH --export=ALL",
-            "#SBATCH --output=_%s_%s%i.o" % (PorB, theta, i),
+            "#SBATCH --output=_bk_%s%i.o" % (theta, i),
             "#SBATCH --mail-type=all",
             "#SBATCH --mail-user=changhoonhahn@lbl.gov",
             "", 
             "module load anaconda3", 
             "source activate emanu", 
             "",
-            "srun -n 1 --mpi=pmi2 python3 create_hod%s.py %d %d %s %d %s %s %s %s %s" % (PorB, i*step+offset, (i+1)*step+offset, folder, snapnum, logMmin, sigma_logM, logM0, alpha, logM1),
+            "srun -n 1 --mpi=pmi2 python3 create_hodbk.py %d %d %s %d %s %s %s %s %s" % (i*step+offset, (i+1)*step+offset, folder, snapnum, logMmin, sigma_logM, logM0, alpha, logM1),
             ""]) 
 
         # create the script.sh file, execute it and remove it

@@ -54,13 +54,24 @@ def create_B(fGC):
             rsd_str = 'real'
         elif rsd == 0:  
             xyz = FM.RSD(hod, LOS=[1,0,0]) 
+            xyz = xyz.astype(np.float32)
             rsd_str = 'RS0'
         elif rsd == 1: 
             xyz = FM.RSD(hod, LOS=[0,1,0]) 
+            xyz = xyz.astype(np.float32)
             rsd_str = 'RS1'
         elif rsd == 2: 
             xyz = FM.RSD(hod, LOS=[0,0,1])
+            xyz = xyz.astype(np.float32)
             rsd_str = 'RS2'
+        
+        fbk = os.path.join(os.path.dirname(fGC), 'Bk_%s_%s' % (rsd_str, os.path.basename(fGC).replace('.hdf5', '.txt')))
+        if os.path.exists(fbk): 
+            print('    %s ... already exists' % fbk) 
+            continue 
+        else: 
+            print('    %s ... calculating' % fbk) 
+            pass 
 
         # calculate bispectrum 
         b123out = pySpec.Bk_periodic(xyz.T, 
@@ -87,7 +98,6 @@ def create_B(fGC):
         # save results to file
         hdr = ('galaxy Bk for cosmology=%s, redshift bin %i; k_f = 2pi/%.1f, Ngal=%i'%\
                (cosmo, snapnum, 1000., xyz.shape[0]))
-        fbk = os.path.join(os.path.dirname(fGC), 'Bk_%s_%s' % (rsd_str, os.path.basename(fGC).replace('.hdf5', '.txt')))
         print('--- creating %s ---' % os.path.basename(fbk)) 
         np.savetxt(fbk, np.array([i_k,j_k,l_k,p0k1,p0k2, p0k3, b123, q123, b_sn, cnts]).T, 
                    fmt='%i %i %i %.5e %.5e %.5e %.5e %.5e %.5e %.5e', 
@@ -97,7 +107,6 @@ def create_B(fGC):
 ##################################### INPUT #########################################
 # general parameters
 root    = '/projects/QUIJOTE'
-snapnum = 4 #4(z=0), 3(z=0.5), 2(z=1), 1(z=2), 0(z=3)
 
 # HOD parameter values
 seed     = 0    #random seed
@@ -146,9 +155,9 @@ for i in numbers:
     # find output folder and create it if it doesnt exist
     folder_out = '%s/%s/%d/' % (root_out, cosmo2, i)
 
-    # create galaxy catalogue
     fGC = '%s/GC_%d_z=%s.hdf5' % (folder_out, seed, z)
     assert os.path.exists(fGC)
+    # calculate galaxy bispectrum  
     create_B(fGC)
 
 '''
