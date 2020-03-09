@@ -9,8 +9,9 @@ import sys,os
 #                                                       QOS        submit       start       finish                            
 #thetas = ['Om_p', 'Ob2_p']                         # short     2/20 9:30am
 #thetas = ['h_p', 'ns_p', 's8_p']                   # medium    2/20 9:40am
-thetas = ['Om_m',  'Ob2_m', 'h_m']                  # long      2/20 9:50am
-qos = 'long'
+#thetas = ['Om_m',  'Ob2_m', 'h_m']                  # long      2/20 9:50am
+thetas = ['ns_m', 's8_m', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp'] 
+qos = 'short'
 ######################################################################################
 
 
@@ -59,9 +60,9 @@ for theta in thetas:
     elif theta == 'sigma_logM_p': 
         sigma_logM = 0.22
     elif theta == 'logM0_m': 
-        logM0_m = 13.8
+        logM0 = 13.8
     elif theta == 'logM0_p': 
-        logM0_p = 14.2
+        logM0 = 14.2
     elif theta == 'alpha_m': 
         alpha = 0.9
     elif theta == 'alpha_p': 

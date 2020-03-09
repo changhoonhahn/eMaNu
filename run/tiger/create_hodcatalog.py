@@ -47,6 +47,7 @@ def create_HOD(halo_folder, snapnum, Om, Ol, z, h, Hz, hod_dict, seed, fGC):
     # get positions and velocities of the galaxies
     pos = np.array(hod['Position'])
     vel = np.array(hod['Velocity'])
+    vel_offset = np.array(hod['VelocityOffset']) 
 
     # extra columns (for Christina and Alice) 
     # halo position 
@@ -71,17 +72,18 @@ def create_HOD(halo_folder, snapnum, Om, Ol, z, h, Hz, hod_dict, seed, fGC):
     gal_type = np.array(hod['gal_type'])
 
     # save catalogue to file
-    print('--- creating %s ---' % os.path.basename(fGC))
+    #print('--- creating %s ---' % os.path.basename(fGC))
     f = h5py.File(fGC, 'w')
     f.create_dataset('pos', data=pos)
     f.create_dataset('vel', data=vel)
+    f.create_dataset('vel_offset', data=vel_offset) 
     f.create_dataset('halo_pos', data=pos_halo) 
     f.create_dataset('halo_vel', data=vel_halo) 
     f.create_dataset('halo_mvir', data=mvir_halo) 
     f.create_dataset('halo_rvir', data=rvir_halo) 
     f.create_dataset('halo_id', data=id_halo) 
     f.create_dataset('gal_type', data=gal_type) 
-    f.close() 
+    f.close()
     return None 
 
 ##################################### INPUT #########################################
@@ -144,14 +146,22 @@ for i in numbers:
     # create galaxy catalogue
     fGC = '%s/GC_%d_z=%s.hdf5' % (folder_out, seed, z)
     if not os.path.exists(fGC):  
-        print('--- creating %s ---' % os.path.basename(fGC)) 
+        print('--- creating %s ---' % fGC) 
         create_HOD(halo_folder, snapnum, 
                 hdr['Om'][i_hdr], hdr['Ol'][i_hdr], hdr['z'][i_hdr], hdr['h'][i_hdr], hdr['Hz'][i_hdr], 
                 hod_dict, seed, fGC)
     else:
-        print('--- already exists %s ---' % os.path.basename(fGC)) 
-
-
+        f = h5py.File(fGC, 'r')
+        keys = list(f.keys()) 
+        f.close() 
+        if 'vel_offset' in keys: 
+            print('--- already exists %s ---' % fGC) 
+        else: 
+            print('--- recreating %s ---' % fGC) 
+            create_HOD(halo_folder, snapnum, 
+                    hdr['Om'][i_hdr], hdr['Ol'][i_hdr], hdr['z'][i_hdr], hdr['h'][i_hdr], hdr['Hz'][i_hdr], 
+                    hod_dict, seed, fGC)
+'''
 ###### paired fixed realizations ######
 for i in numbers:
     for pair in [0,1]:
@@ -171,3 +181,4 @@ for i in numbers:
                     hod_dict, seed, fGC)
         else:
             print('--- already exists %s ---' % os.path.basename(fGC)) 
+'''

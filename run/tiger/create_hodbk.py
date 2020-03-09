@@ -48,7 +48,8 @@ def create_B(fGC):
     f.close()
 
     # loop through  real, RSD x, y, z 
-    for rsd in ['real', 0, 1, 2]: 
+    #for rsd in ['real', 0, 1, 2]: 
+    for rsd in [0, 1, 2]: 
         if rsd == 'real': 
             xyz = np.array(hod['Position'])
             rsd_str = 'real'

@@ -9,10 +9,12 @@ snapnum    = 4    #4(z=0), 3(z=0.5), 2(z=1), 1(z=2), 0(z=3)
 PorB       = 'pk'
 ######################################################################################
 
-thetas = ['Om_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p', 'Om_m',  'Ob2_m', 'h_m', 'ns_m', 's8_m', 
-        'Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'logM0_m', 
-        'logM0_p', 'alpha_m', 'alpha_p', 'logM1_m', 'logM1_p', 'fiducial', 'fiducial_ZA']
+#theta_cosmo = ['Om_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p', 'Om_m',  'Ob2_m', 'h_m', 'ns_m', 's8_m', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
+#theta_hod = ['logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'logM0_m', 'logM0_p', 'alpha_m', 'alpha_p', 'logM1_m', 'logM1_p', 'fiducial', 'fiducial_ZA']
+
+#thetas =  theta_cosmo+theta_hod 
 #thetas = ['testing'] 
+thetas = ['logM0_m', 'logM0_p']
 
 # do a loop over the different cosmologies
 for theta in thetas: 
@@ -46,9 +48,9 @@ for theta in thetas:
     elif theta == 'sigma_logM_p': 
         sigma_logM = 0.22
     elif theta == 'logM0_m': 
-        logM0_m = 13.8
+        logM0 = 13.8
     elif theta == 'logM0_p': 
-        logM0_p = 14.2
+        logM0 = 14.2
     elif theta == 'alpha_m': 
         alpha = 0.9
     elif theta == 'alpha_p': 
@@ -60,7 +62,7 @@ for theta in thetas:
 
     for i in range(int(nodes)): # loop over the different realizations
         a = '\n'.join(["#!/bin/bash", 
-            "#SBATCH -J HOD",
+            "#SBATCH -J P_%s%i" % (theta, i),
             "#SBATCH --exclusive",
             "#SBATCH --nodes=1",
             "#SBATCH --ntasks-per-node=40",
