@@ -12,8 +12,22 @@ import sys,os
 #        'fiducial_alpha=1.3', 'fiducial_logM0=14.2', 'fiducial_logM1=14.2', 'fiducial_logMmin=13.70', 'fiducial_sigma_logM=0.22', 
 #        'fiducial', 'fiducial_ZA']
 ################################## INPUT #############################################
-thetas = ['Om_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p'] 
-_thetas = ['Om_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p']
+#Om_p -- 4 realizations missing
+#Ob2_p -- 3 realizations missing
+#h_p -- 3 realizations missing
+#ns_p -- 5 realizations missing
+#s8_p -- 7 realizations missing
+#Om_m -- 50 realizations missing
+#Ob2_m -- 20 realizations missing
+#h_m -- 20 realizations missing
+#ns_m -- 20 realizations missing
+#s8_m -- 20 realizations missing
+#Mnu_p -- 20 realizations missing
+#Mnu_pp -- 20 realizations missing
+#Mnu_ppp -- 60 realizations missing
+
+thetas = ['Om_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p', 'Om_m', 'Ob2_m', 'h_m', 'ns_m', 's8_m', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
+_thetas = ['Om_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p', 'Om_m', 'Ob2_m', 'h_m', 'ns_m', 's8_m', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp'] 
 offset     = 0    #the count will start from offset
 snapnum    = 4    #4(z=0), 3(z=0.5), 2(z=1), 1(z=2), 0(z=3)
 qos        = 'vshort' 
@@ -90,6 +104,13 @@ for i_t, theta in enumerate(thetas):
         i_last  = np.clip(i0+step-1, None, n_missing-1) 
         first   = missing[i_first] 
         last    = missing[i_last] 
+        
+        nreal = (i_last - i_first + 1)
+        if nreal < step: 
+            _time = int(np.ceil(nreal * 0.5)) 
+        else: 
+            _time = time
+        print(nreal, _time) 
     
         a = '\n'.join(["#!/bin/bash", 
             "#SBATCH -J B_%s%i" % (theta, i),
@@ -97,7 +118,7 @@ for i_t, theta in enumerate(thetas):
             "#SBATCH --nodes=1",
             "#SBATCH --ntasks-per-node=40",
             "#SBATCH --partition=general",
-	    "#SBATCH --time=%i:00:00" % time,
+	    "#SBATCH --time=%s:00:00" % (str(_time).zfill(2)),
             "#SBATCH --export=ALL",
             "#SBATCH --output=_bk_%s%i.o" % (theta, i),
             "#SBATCH --mail-type=all",

@@ -23,4 +23,5 @@ for theta in thetas:
             missing.append(i)
     print('----------------------------------------') 
     print('%s -- %i realizations missing' % (theta, len(missing))) 
+    print(missing)
 
