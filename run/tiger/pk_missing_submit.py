@@ -74,12 +74,12 @@ for i_t, theta in enumerate(thetas):
     
     i0 = 0 
     for i in range(nodes): # loop over the different realizations
-        i_first = i0 
-        i_last  = np.clip(i0+step-1, None, n_missing-1) 
+        i_first = step * i 
+        i_last  = np.clip(step * (i+1) - 1, None, n_missing-1)
         first   = missing[i_first] 
-        last    = missing[i_last] 
+        last    = missing[i_last] + 1
     
-        _min, sec   = divmod(float(i_last - i_first + 1) * 3. * 90., 60) 
+        _min, sec   = divmod(np.min([step, float(i_last - i_first + 1)]) * 3. * 90., 60) 
         hr, _min    = divmod(_min, 60) 
         if _min > 0. or sec > 0: 
             hr += 1
@@ -98,7 +98,7 @@ for i_t, theta in enumerate(thetas):
             "#SBATCH --mail-user=changhoonhahn@lbl.gov",
             "", 
             "module load anaconda3", 
-            "source activate emanu", 
+            "conda activate emanu", 
             "",
             "srun -n 1 --mpi=pmi2 python3 create_hodpk.py %d %d %s %d %s %s %s %s %s" % (first, last, folder, snapnum, logMmin, sigma_logM, logM0, alpha, logM1),
             ""]) 
