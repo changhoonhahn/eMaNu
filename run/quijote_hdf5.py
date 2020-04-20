@@ -276,9 +276,11 @@ def quijoteP_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     if flag == 'reg': # regular Nbody 
         for i in range(nmocks): 
             if rsd == 'real': 
-                fpks.append('%i/Pk_z=0.txt' % i) 
+                #fpks.append('%i/Pk_z=0.txt' % i) 
+                fpks.append('%i/Pk_GC_0_z=0.txt' % i) 
             else: 
-                fpks.append('%i/Pk_RS%i_z=0.txt' % (i, rsd))
+                #fpks.append('%i/Pk_RS%i_z=0.txt' % (i, rsd))
+                fpks.append('%i/Pk_RS%i_GC_0_z=0.txt' % (i, rsd))
     elif flag == 'ncv': # paired-fixed
         for i in range(nmocks): 
             if rsd == 'real': 
