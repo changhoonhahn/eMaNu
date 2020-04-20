@@ -26,17 +26,24 @@ import sys,os
 #Mnu_pp -- 20 realizations missing
 #Mnu_ppp -- 60 realizations missing
 
-thetas = ['Om_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p', 'Om_m', 'Ob2_m', 'h_m', 'ns_m', 's8_m', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
-_thetas = ['Om_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p', 'Om_m', 'Ob2_m', 'h_m', 'ns_m', 's8_m', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp'] 
+#thetas = ['Om_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p', 'Om_m', 'Ob2_m', 'h_m', 'ns_m', 's8_m', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
+#_thetas = ['Om_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p', 'Om_m', 'Ob2_m', 'h_m', 'ns_m', 's8_m', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp'] 
+#thetas = ['fiducial_ZA']
+#_thetas = ['fiducial_ZA']
+thetas = ['fiducial']
+_thetas = ['fiducial']
 offset     = 0    #the count will start from offset
 snapnum    = 4    #4(z=0), 3(z=0.5), 2(z=1), 1(z=2), 0(z=3)
-qos        = 'vshort' 
+qos        = 'vvshort' 
 ######################################################################################
 dir_quij = '/projects/QUIJOTE/Galaxies/'
 
 if qos == 'vshort': #number of realizations each cpu will do
     step = 12
     time = 6 
+elif qos == 'vvshort': #number of realizations each cpu will do
+    step = 2
+    time = 1 
 elif qos == 'short': 
     step = 40  
     time = 24
@@ -60,12 +67,14 @@ for i_t, theta in enumerate(thetas):
         nreal = 15000 
     
     missing = [] 
-    for i in range(nreal): 
-        fbk = os.path.join(dir_quij, _thetas[i_t], str(i), 'Bk_RS0_GC_0_z=0.txt')
+    for i in range(offset,nreal): 
+        fbk = os.path.join(dir_quij, _thetas[i_t], str(i), 'Bk_RS2_GC_0_z=0.txt')
         if not os.path.isfile(fbk): 
             missing.append(i)
+    missing = np.sort(missing)
     n_missing = len(missing) 
     print('%s missing %i B(k)s' % (theta, n_missing))
+    print(missing)
 
     if n_missing == 0: 
         continue 
@@ -98,34 +107,28 @@ for i_t, theta in enumerate(thetas):
     elif theta == 'logM1_p': 
         logM1 = 14.2
     
-    i0 = 0 
+    i0 = 0
     for i in range(nodes): # loop over the different realizations
-        i_first = i0 
-        i_last  = np.clip(i0+step-1, None, n_missing-1) 
-        first   = missing[i_first] 
-        last    = missing[i_last] 
+        i_first = step * i 
+        i_last  = np.clip(step * (i+1) - 1, None, n_missing-1)
+        first = missing[i_first] 
+        last  = missing[i_last] + 1
+        print(first, last) 
         
-        nreal = (i_last - i_first + 1)
-        if nreal < step: 
-            _time = int(np.ceil(nreal * 0.5)) 
-        else: 
-            _time = time
-        print(nreal, _time) 
-    
         a = '\n'.join(["#!/bin/bash", 
             "#SBATCH -J B_%s%i" % (theta, i),
             "#SBATCH --exclusive",
             "#SBATCH --nodes=1",
             "#SBATCH --ntasks-per-node=40",
             "#SBATCH --partition=general",
-	    "#SBATCH --time=%s:00:00" % (str(_time).zfill(2)),
+	    "#SBATCH --time=%s:00:00" % (str(time).zfill(2)),
             "#SBATCH --export=ALL",
             "#SBATCH --output=_bk_%s%i.o" % (theta, i),
             "#SBATCH --mail-type=all",
             "#SBATCH --mail-user=changhoonhahn@lbl.gov",
             "", 
             "module load anaconda3", 
-            "source activate emanu", 
+            "conda activate emanu", 
             "",
             "srun -n 1 --mpi=pmi2 python3 create_hodbk.py %d %d %s %d %s %s %s %s %s" % (first, last, folder, snapnum, logMmin, sigma_logM, logM0, alpha, logM1),
             ""]) 

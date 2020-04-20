@@ -10,13 +10,15 @@ import sys,os
 #thetas = ['Om_p', 'Ob2_p']                         # short     2/20 9:30am
 #thetas = ['h_p', 'ns_p', 's8_p']                   # medium    2/20 9:40am
 #thetas = ['Om_m',  'Ob2_m', 'h_m']                  # long      2/20 9:50am
-thetas = ['ns_m', 's8_m', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp'] 
+#thetas = ['ns_m', 's8_m', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp'] 
+#thetas = ['fiducial_ZA'] # 'fiducial', 
+thetas = ['fiducial']
 qos = 'short'
 ######################################################################################
 
 
 if qos == 'short': #number of realizations each cpu will do
-    step = 40  
+    step = 48  
     time = 24
 elif qos == 'medium': 
     step = 120
@@ -24,7 +26,7 @@ elif qos == 'medium':
 elif qos == 'long': 
     step = 240
     time = 144
-offset      = 0    #the count will start from offset
+offset      = 10000    #the count will start from offset
 snapnum     = 4    #4(z=0), 3(z=0.5), 2(z=1), 1(z=2), 0(z=3)
 
 
@@ -37,7 +39,8 @@ for theta in thetas:
         folder  = 'Om_p'
         step    = 1
     elif theta == 'fiducial':            
-        nodes = 15000/step
+        #nodes = 10000/step
+        nodes = 5000/step
     elif theta =='latin_hypercube':    
         nodes = 2000/step
     else:                           
