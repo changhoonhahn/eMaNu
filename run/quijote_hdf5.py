@@ -260,7 +260,8 @@ def quijoteP_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     
     # directory where the quijote bispectrum are at 
     if machine in ['mbp', 'cori']: dir_quij = os.path.join(UT.dat_dir(), 'powerspectrum', 'quijote_hod', _subdir) 
-    elif machine == 'tiger': dir_quij = '/projects/QUIJOTE/Galaxies/'
+    elif machine == 'tiger': 
+        dir_quij = os.path.join('/projects/QUIJOTE/Galaxies/', _subdir)
     else: raise NotImplementedError 
     
     if rsd not in [0, 1, 2, 'real']: raise ValueError 
@@ -390,7 +391,8 @@ def quijoteB_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     
     # directory where the quijote bispectrum are at 
     if machine in ['mbp', 'cori']: dir_quij = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_hod', _subdir) 
-    elif machine == 'tiger': dir_quij = '/projects/QUIJOTE/Galaxies/'
+    elif machine == 'tiger': 
+        dir_quij = os.path.join('/projects/QUIJOTE/Galaxies/', _subdir)
     else: raise NotImplementedError 
     
     if rsd not in [0, 1, 2, 'real']: raise ValueError 
