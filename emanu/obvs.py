@@ -148,13 +148,22 @@ def quijhod_Bk(theta, z=0, rsd='all', flag=None, silent=True):
     assert rsd in [0, 1, 2, 'all', 'real'] 
     
     # get files to read-in 
-    quij_dir = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_hod', zdir) 
-    if rsd == 'all': # include all 3 rsd directions
-        fbks = ['quijhod_%s.%s.rsd%i.hdf5' % (theta, flag, irsd) for irsd in [0, 1, 2]] 
-    elif rsd in [0, 1, 2]: # include a single rsd direction 
-        fbks = ['quijhod_%s.%s.rsd%i.hdf5' % (theta, flag, rsd)]
-    elif rsd == 'real': # real-space 
-        fbks = ['quijhod_%s.%s.real.hdf5' % (theta, flag)]
+    if 'machine' in os.environ and os.environ['machine'] == 'mbp': 
+        quij_dir = os.path.join(UT.dat_dir(), 'Galaxies')
+        if rsd == 'all': # include all 3 rsd directions
+            fbks = ['quijhod_B_%s.%s.rsd%i.hdf5' % (theta, flag, irsd) for irsd in [0, 1, 2]] 
+        elif rsd in [0, 1, 2]: # include a single rsd direction 
+            fbks = ['quijhod_B_%s.%s.rsd%i.hdf5' % (theta, flag, rsd)]
+        elif rsd == 'real': # real-space 
+            fbks = ['quijhod_B_%s.%s.real.hdf5' % (theta, flag)]
+    else: 
+        quij_dir = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_hod', zdir) 
+        if rsd == 'all': # include all 3 rsd directions
+            fbks = ['quijhod_%s.%s.rsd%i.hdf5' % (theta, flag, irsd) for irsd in [0, 1, 2]] 
+        elif rsd in [0, 1, 2]: # include a single rsd direction 
+            fbks = ['quijhod_%s.%s.rsd%i.hdf5' % (theta, flag, rsd)]
+        elif rsd == 'real': # real-space 
+            fbks = ['quijhod_%s.%s.real.hdf5' % (theta, flag)]
     
     # combine the files  
     if not silent: print(fbks) 
@@ -201,14 +210,23 @@ def quijhod_Pk(theta, z=0, rsd='all', flag=None, silent=True):
     assert rsd in [0, 1, 2, 'all', 'real'] 
     
     # get files to read-in 
-    quij_dir = os.path.join(UT.dat_dir(), 'powerspectrum', 'quijote_hod', zdir) 
-    if rsd == 'all': # include all 3 rsd directions
-        fpks = ['quijhod_%s.%s.rsd%i.hdf5' % (theta, flag, irsd) for irsd in [0, 1, 2]] 
-    elif rsd in [0, 1, 2]: # include a single rsd direction 
-        fpks = ['quijhod_%s.%s.rsd%i.hdf5' % (theta, flag, rsd)]
-    elif rsd == 'real': # real-space 
-        fpks = ['quijhod_%s.%s.real.hdf5' % (theta, flag)]
-    
+    if 'machine' in os.environ and os.environ['machine'] == 'mbp': 
+        quij_dir = os.path.join(UT.dat_dir(), 'Galaxies') 
+        if rsd == 'all': # include all 3 rsd directions
+            fpks = ['quijhod_P_%s.%s.rsd%i.hdf5' % (theta, flag, irsd) for irsd in [0, 1, 2]] 
+        elif rsd in [0, 1, 2]: # include a single rsd direction 
+            fpks = ['quijhod_P_%s.%s.rsd%i.hdf5' % (theta, flag, rsd)]
+        elif rsd == 'real': # real-space 
+            fpks = ['quijhod_P_%s.%s.real.hdf5' % (theta, flag)]
+    else: 
+        quij_dir = os.path.join(UT.dat_dir(), 'powerspectrum', 'quijote_hod', zdir) 
+        if rsd == 'all': # include all 3 rsd directions
+            fpks = ['quijhod_%s.%s.rsd%i.hdf5' % (theta, flag, irsd) for irsd in [0, 1, 2]] 
+        elif rsd in [0, 1, 2]: # include a single rsd direction 
+            fpks = ['quijhod_%s.%s.rsd%i.hdf5' % (theta, flag, rsd)]
+        elif rsd == 'real': # real-space 
+            fpks = ['quijhod_%s.%s.real.hdf5' % (theta, flag)]
+        
     # combine the files  
     if not silent: print(fpks) 
     _pks = {}
