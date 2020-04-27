@@ -33,7 +33,7 @@ from matplotlib.colors import LogNorm
 kf = 2.*np.pi/1000. # fundmaentla mode
 
 dir_doc = os.path.join(UT.doc_dir(), 'paper2', 'figs') # figures for paper 
-dir_hod = os.path.join(UT.dat_dir(), 'hod_forecast') 
+dir_hod = os.path.join(UT.dat_dir(), 'Galaxies') 
 
 fscale_pk = 1e5 # see fscale_Pk() for details
 
@@ -158,7 +158,7 @@ def fscale_Pk(rsd=2, flag='reg', kmax=0.5, silent=True):
     sub.set_yscale('log') 
     sub.set_ylim(2e7, 1e11)
     sub.legend(loc='upper right', fontsize=15) 
-    fig.savefig(os.path.join(dir_hod, 'fscale_Pk.png'), bbox_inches='tight')
+    fig.savefig(os.path.join(dir_hod, 'figs', 'fscale_Pk.png'), bbox_inches='tight')
     return None 
 
 
@@ -239,7 +239,7 @@ def plot_p02bkCov(kmax=0.5, rsd=2, flag='reg'):
     cbar = fig.colorbar(cm, ax=sub) 
     cbar.set_label(r'$\widehat{P}_0(k), \widehat{P}_2(k), \widehat{B}_0(k_1, k_2, k_3)$ correlation matrix', 
             fontsize=25, labelpad=10, rotation=90)
-    ffig = os.path.join(dir_hod, 
+    ffig = os.path.join(dir_hod, 'figs', 
             'quijote_p02bCov_kmax%s%s%s.png' % (str(kmax).replace('.', ''), _rsd_str(rsd), _flag_str(flag)))
     fig.savefig(ffig, bbox_inches='tight') 
     #fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
@@ -452,7 +452,8 @@ def plot_dP02B_Mnu_degen(kmax=0.5, rsd='all', flag='reg', dmnu='fin'):
     sub5.set_ylabel(r'$({\rm d} B_0/{\rm d}\theta)/({\rm d} B_0/{\rm d}M_\nu)$', fontsize=25) 
     sub2.legend(handletextpad=0.1, loc='upper right', fontsize=20)
 
-    ffig = os.path.join(dir_hod, 'quijote_dP02Bdtheta_Mnu_degen%s%s.%s.png' % (_rsd_str(rsd), _flag_str(flag), dmnu))
+    ffig = os.path.join(dir_hod, 'figs', 
+            'quijote_dP02Bdtheta_Mnu_degen%s%s.%s.png' % (_rsd_str(rsd), _flag_str(flag), dmnu))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
@@ -467,7 +468,7 @@ def plot_dP02B_Mnu(kmax=0.5, rsd='all', flag='reg', log=True):
     sub2 = plt.subplot(gs[2]) 
     
     for i, dmnu in enumerate(['fin', 'p', 'pp', 'fin_2lpt']): 
-        _k, _ik, _jk, _lk, dpb = dP02B('Mnu', log=False, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True, silent=False)
+        _k, _ik, _jk, _lk, dpb = dP02Bk('Mnu', log=False, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True, silent=False)
         
         nk0 = int(len(_k)/2) 
         kp  = _k[:nk0]
@@ -501,7 +502,7 @@ def plot_dP02B_Mnu(kmax=0.5, rsd='all', flag='reg', log=True):
     sub2.set_ylabel(r'${\rm d} B_0/{\rm d}\theta$', fontsize=25) 
     sub2.legend(handletextpad=0.1, loc='upper right', fontsize=20, ncol=5)
 
-    ffig = os.path.join(dir_hod, 'quijote_dP02BdMnu%s%s.png' % (_rsd_str(rsd), _flag_str(flag)))
+    ffig = os.path.join(dir_hod, 'figs', 'quijote_dP02BdMnu%s%s.png' % (_rsd_str(rsd), _flag_str(flag)))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
@@ -609,7 +610,7 @@ def plot_dPBg_dPBh(theta, rsd='all', flag='reg', dmnu='fin', log=False):
     sub2.text(0.99, 0.9, theta_lbls[thetas.index(theta)], ha='right', va='top', 
             transform=sub2.transAxes, fontsize=25, bbox=dict(facecolor='white', alpha=0.75, edgecolor='None'))
     
-    ffig = os.path.join(dir_hod, 
+    ffig = os.path.join(dir_hod, 'figs', 
             'd%sPBg_d%sPBh.%s%s%s.png' % (['', 'log'][log], ['', 'log'][log], theta, _rsd_str(rsd), _flag_str(flag)))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
@@ -779,7 +780,8 @@ def plot_PBg_PBh(theta, rsd='all', flag='reg'):
     if theta == 'Mnu': sub2.set_yscale('log') 
     else: sub2.set_yscale('symlog', linthreshy=1e6) 
     
-    ffig = os.path.join(dir_hod, 'dPBg_PBh.%s%s%s.png' % (theta, _rsd_str(rsd), _flag_str(flag)))
+    ffig = os.path.join(dir_hod, 'figs', 
+            'dPBg_PBh.%s%s%s.png' % (theta, _rsd_str(rsd), _flag_str(flag)))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
@@ -1466,7 +1468,7 @@ def converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin'):
     sub = fig.add_subplot(122)
     sub.plot([100., 3000.], [1., 1.], c='k', ls='--', lw=1) 
     sub.plot([100., 3000.], [0.9, 0.9], c='k', ls=':', lw=1) 
-    for i in range(ntheta): 
+    for i in range(6): 
         sig_theta = np.sqrt(Finvs[:,i,i]) 
         sigii_theta = 1./np.sqrt(Fiis[:,i,i]) 
         sub.plot(nderivs, sig_theta/sig_theta[-1], label=(r'$%s$' % theta_lbls[i]))
@@ -1490,7 +1492,7 @@ def plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=
     '''
     # y range of P0, P2 plots 
     logplims = [(-10., 5.), (-2, 15), (-3., 1.), (-4., 0.), (-2., 2.), (-0.5, 0.5), (-2., 4), (-2., 1.), None, (-1., 2.), (-5., 1.)] 
-    logblims = [(-13., -6.), (-2., 24.), (-5., -0.5), (-5., -0.5), (-2., 2.), (0.2, 0.7), (3., 6.), None, None, (2, 6), None] 
+    logblims = [(-13., -6.), (-2., 24.), (-5., -0.5), (-5., -0.5), (-2., 2.), (0.0, 0.7), (3., 6.), None, None, (2, 6), None] 
 
 
     if log: 
@@ -1510,7 +1512,8 @@ def plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=
     sub1 = plt.subplot(gs[1])
     sub2 = plt.subplot(gs[2])
 
-    for nderiv, clr in zip([500, 1000, 1500], ['C1', 'C0', 'k']): 
+    for nderiv, clr, lw in zip([500, 1000, 1500], ['C1', 'C0', 'k'], 
+            [2, 1, 0.5]): 
         dpb = _converge_dP02Bk(theta, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=nderiv)
         if log: dpb /= pbg_fid
         
@@ -1527,30 +1530,37 @@ def plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=
         # plot dP0/dtheta and dP2/theta
         sub0.plot(kp[pklim], dp0[pklim], c=clr)
         sub1.plot(kp[pklim], dp2[pklim], c=clr)
-        sub2.plot(range(np.sum(bklim)), db[bklim])
+        sub2.plot(range(np.sum(bklim)), db[bklim], c=clr, lw=lw)
 
     sub0.set_xscale('log') 
     sub0.set_xlim(5e-3, kmax) 
     sub0.set_xlabel('k [$h$/Mpc]', fontsize=25) 
     if log: sub0.set_ylim(logplims[thetas.index(theta)])
     else: sub0.set_yscale('symlog', linthreshy=1e3) 
-    sub0.set_ylabel(r'${\rm d} %s P_0/{\rm d}\theta (N_{\rm deriv})$' % (['', '\log'][log]), fontsize=25) 
+    sub0.set_ylabel(r'${\rm d} %s X/{\rm d}\theta (N_{\rm deriv})$' % (['', '\log'][log]), fontsize=25) 
+    sub0.text(0.01, 0.9, '$P_0$', ha='left', va='top', 
+            transform=sub0.transAxes, fontsize=25)
 
     sub1.set_xscale('log') 
     sub1.set_xlim(5e-3, kmax) 
     sub1.set_xlabel('k [$h$/Mpc]', fontsize=25) 
     if log: sub1.set_ylim(logplims[thetas.index(theta)])
     else: sub1.set_yscale('symlog', linthreshy=1e3) 
-    sub1.set_ylabel(r'${\rm d} %s P_2/{\rm d}\theta (N_{\rm deriv})$' % (['', '\log'][log]), fontsize=25) 
+    sub1.text(0.01, 0.9, '$P_2$', ha='left', va='top', 
+            transform=sub1.transAxes, fontsize=25)
+    #sub1.set_ylabel(r'${\rm d} %s P_2/{\rm d}\theta (N_{\rm deriv})$' % (['', '\log'][log]), fontsize=25) 
 
     sub2.set_xlim(0, np.sum(bklim)) 
     if not log: sub2.set_yscale('symlog', linthreshy=1e8) 
     else: sub2.set_ylim(logblims[thetas.index(theta)]) 
+    sub2.text(0.01, 0.9, '$B_0$', ha='left', va='top', 
+            transform=sub2.transAxes, fontsize=25)
     sub2.text(0.99, 0.9, theta_lbls[thetas.index(theta)], ha='right', va='top', 
             transform=sub2.transAxes, fontsize=25, bbox=dict(facecolor='white', alpha=0.75, edgecolor='None'))
     sub2.set_xlabel('triangles', fontsize=25) 
-    sub2.set_ylabel(r'${\rm d} %s B_0/{\rm d}\theta (N_{\rm deriv})$' % (['', '\log'][log]), fontsize=25) 
-    ffig = os.path.join(dir_hod, 'converge.d%sP02Bd%s%s%s.%s.png' % (['', 'log'][log], theta, _rsd_str(rsd), _flag_str(flag), dmnu))
+    #sub2.set_ylabel(r'${\rm d} %s B_0/{\rm d}\theta (N_{\rm deriv})$' % (['', '\log'][log]), fontsize=25) 
+    ffig = os.path.join(dir_hod, 'figs', 
+            'converge.d%sP02Bd%s%s%s.%s.png' % (['', 'log'][log], theta, _rsd_str(rsd), _flag_str(flag), dmnu))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
@@ -1599,12 +1609,20 @@ if __name__=="__main__":
             plot_dPBg_dPBh(theta, rsd='all', flag='reg', dmnu='fin', log=False)
             plot_dPBg_dPBh(theta, rsd='all', flag='reg', dmnu='fin', log=True)
     '''
-    # forecasts 
-    #P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
-    #P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
-    #P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
-    #P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
+    # convergence tests
+    converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin')
     '''
+        for theta in ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']: 
+            plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True)
+        converge_Fij('p02bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', silent=True)
+        converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin')
+    '''
+    # forecasts 
+    '''
+        P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
+        P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
+        P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
+        P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
         for theta_nuis in [None, ['Asn', 'Bsn']]:
             # P0,P2 only 
             forecast('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=theta_nuis, planck=False)
@@ -1618,9 +1636,4 @@ if __name__=="__main__":
             P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
             P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
     '''
-    # convergence tests
-    for theta in ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']: 
-        plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True)
-    #converge_Fij('p02bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', silent=True)
-    #converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin')
 
