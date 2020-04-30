@@ -316,6 +316,9 @@ def plot_dP02B(kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True):
     logplims = [(-10., 5.), (-2, 15), (-3., 1.), (-4., 0.), (-2., 2.), (-0.5, 0.5), (-2., 4), (-2., 1.), None, (-1., 2.), (-5., 1.)] 
     logblims = [(-13., -6.), (-2., 24.), (-5., -0.5), (-5., -0.5), (-2., 2.), (0.2, 0.7), (3., 6.), None, None, (2, 6), None] 
 
+    plims = [(-5e6, 1e5), (-1e5, 5e6), (-1e6, 5e4), (-1e6, 6e4), (-1e5, 5e5),
+            (None, 5e4), (-1e5, 5e5), (-1e5, 1.1e4), (-2e4, 5e3), (-5e4, 2e5),
+            (-5e5, 1e5)]
 
     if log: 
         qhod_p = Obvs.quijhod_Pk('fiducial', flag=flag, rsd=rsd, silent=False) 
@@ -353,17 +356,20 @@ def plot_dP02B(kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True):
         sub.set_xlim(5e-3, kmax) 
         if i != len(thetas)-1: sub.set_xticklabels([]) 
         else: 
-            sub.set_xlabel('k [$h$/Mpc]', fontsize=25) 
+            sub.set_xlabel('k [$h$/Mpc]', fontsize=30) 
             if log: 
-                sub.legend(handletextpad=0.1, loc='lower left', fontsize=15) 
+                sub.legend(handletextpad=0.2, loc='lower left', fontsize=15) 
             else: 
-                sub.legend(handletextpad=0.1, loc='upper left', fontsize=15) 
+                sub.legend(handletextpad=0.2, loc='upper left', fontsize=15) 
 
         if not log: 
-            sub.set_yscale('symlog', linthreshy=1e3) 
+            sub.set_yscale('symlog', linthreshy=1e4) 
+            sub.set_ylim(plims[i]) 
         else: 
             sub.set_ylim(logplims[i]) 
-        if i == 5: sub.set_ylabel(r'${\rm d} %s P_\ell/{\rm d}\theta$' % (['', '\log'][log]), fontsize=25) 
+        if i == 5: 
+            sub.set_ylabel(r'${\rm d} %s P_{g, \ell}/{\rm d}\theta$' % 
+                    (['', '\log'][log]), fontsize=30) 
 
         # plot dB/dtheta
         sub = plt.subplot(gs[2*i+1])
@@ -377,11 +383,15 @@ def plot_dP02B(kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True):
         sub.text(0.99, 0.9, theta_lbls[i], ha='right', va='top', 
                 transform=sub.transAxes, fontsize=25, bbox=dict(facecolor='white', alpha=0.75, edgecolor='None'))
         if i != len(thetas)-1: sub.set_xticklabels([]) 
-        else: sub.set_xlabel('triangles', fontsize=25) 
-        if i == 5: sub.set_ylabel(r'${\rm d} %s B_0/{\rm d}\theta$' % (['', '\log'][log]), fontsize=25) 
+        else: sub.set_xlabel('triangles', fontsize=30) 
+
+        if i == 5: 
+            sub.set_ylabel(r'${\rm d} %s B_{g, 0}/{\rm d}\theta$' %
+                (['', '\log'][log]), fontsize=30) 
 
     ffig = os.path.join(dir_doc, 'quijote_d%sP02Bdtheta%s%s.%s.png' % (['', 'log'][log], _rsd_str(rsd), _flag_str(flag), dmnu))
     fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
     return None 
 
 
@@ -425,8 +435,8 @@ def plot_dP02B_Mnu_degen(kmax=0.5, rsd='all', flag='reg', dmnu='fin'):
             dp2_mnu = dp2
             db_mnu = db
         else: 
-            print('--- (dB/d%s)/(dB/dMnu) ---' % tt) 
-            print((db/db_mnu)[bklim][::10]) 
+            #print('--- (dB/d%s)/(dB/dMnu) ---' % tt) 
+            #print((db/db_mnu)[bklim][::10]) 
             sub3.plot(kp[pklim], (dp0/dp0_mnu)[pklim], c='C%i' % i) 
             sub4.plot(kp[pklim], (dp2/dp2_mnu)[pklim], c='C%i' % i) 
             sub5.plot(range(np.sum(bklim)), (db/db_mnu)[bklim], c='C%i' % i) 
@@ -445,6 +455,8 @@ def plot_dP02B_Mnu_degen(kmax=0.5, rsd='all', flag='reg', dmnu='fin'):
 
     sub2.set_xlim(0, np.sum(bklim)) 
     sub5.set_xlim(0, np.sum(bklim)) 
+    sub2.set_ylim(-1e2, 5e11) 
+    sub5.set_ylim(0, 50) 
     sub2.set_yscale('symlog', linthreshy=1e8) 
     sub2.set_xticklabels([]) 
     sub5.set_xlabel('triangles', fontsize=25) 
@@ -637,8 +649,8 @@ def plot_PBg(rsd='all', flag='reg'):
     pklim = (k < 0.5) 
     bklim = ((i_k*kf <= 0.5) & (j_k*kf <= 0.5) & (l_k*kf <= 0.5)) # k limit 
 
-    fig = plt.figure(figsize=(30,3))
-    gs = mpl.gridspec.GridSpec(1, 2, figure=fig, width_ratios=[1,6], wspace=0.15) 
+    fig = plt.figure(figsize=(25,4))
+    gs = mpl.gridspec.GridSpec(1, 2, figure=fig, width_ratios=[1,5], wspace=0.15) 
     sub0 = plt.subplot(gs[0]) 
     sub1 = plt.subplot(gs[1]) 
 
@@ -648,25 +660,78 @@ def plot_PBg(rsd='all', flag='reg'):
     sub0.plot(k[pklim], p0g[pklim], c='C0', label=r'$\ell = 0$')
     sub0.plot(k[pklim], np.abs(p2g[pklim]), c='C0', ls='--', label=r'$\ell = 2$')
     
-    sub0.legend(loc='lower left', handletextpad=0.1, fontsize=15) 
+    sub0.legend(loc='lower left', handletextpad=0.2, fontsize=20) 
     sub0.set_xlabel('k [$h$/Mpc]', fontsize=25) 
     sub0.set_xscale('log') 
     sub0.set_xlim(5e-3, 0.5) 
-    sub0.set_ylabel('$|P^g_\ell(k)|$', fontsize=25) 
+    sub0.set_ylabel('$|P_{g, \ell}(k)|$', fontsize=25) 
     sub0.set_yscale('log') 
     
     _bhplt, = sub1.plot(range(np.sum(bklim)), b0h[bklim], c='k', lw=0.25) 
     _bgplt, = sub1.plot(range(np.sum(bklim)), b0g[bklim], c='C0') 
-    sub1.legend([_bgplt, _bhplt], [r'galaxy $P_\ell, B_0$', r'halo $P_\ell, B_0$'], loc='upper right', 
-            handletextpad=0.2, fontsize=15) 
+    sub1.legend([_bgplt, _bhplt], [r'galaxy', r'halo'], loc='upper right', 
+            handletextpad=0.3, fontsize=20) 
     sub1.set_xlabel('triangle configurations', fontsize=25) 
     sub1.set_xlim(0, np.sum(bklim)) 
-    sub1.set_ylabel('$B^g_0(k_1, k_2, k_3)$', fontsize=25) 
+    sub1.set_ylabel('$B_{g, 0}(k_1, k_2, k_3)$', fontsize=25) 
     sub1.set_yscale('log') 
     sub1.set_ylim(1e7, 5e10)
     
     ffig = os.path.join(dir_doc, 'PBg%s%s.png' % (_rsd_str(rsd), _flag_str(flag)))
     fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex version 
+    return None 
+
+
+def _PBg_rsd_comparison(flag='reg'): 
+    ''' compare Pg0, Pg2, Bg0 for different RSD 
+    '''
+
+    for theta in ['Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'Om_m', 'Om_p', 'Ob2_m',
+            'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p', 'alpha_m',
+            'alpha_p', 'logM0_m', 'logM0_p', 'logM1_m', 'logM1_p', 'logMmin_m',
+            'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'fiducial']:
+        fig = plt.figure(figsize=(30,3))
+        gs = mpl.gridspec.GridSpec(1, 2, figure=fig, width_ratios=[1,6], wspace=0.15) 
+        sub0 = plt.subplot(gs[0]) 
+        sub1 = plt.subplot(gs[1]) 
+
+        for i, rsd, clr in zip(range(4), ['all', 0, 1, 2], ['k', 'C0', 'C1', 'C2']): 
+            # read in P0g, P2g, and Bg
+            qhod_p = Obvs.quijhod_Pk(theta, flag=flag, rsd=rsd, silent=False) 
+            k, p0g, p2g  = qhod_p['k'], np.average(qhod_p['p0k'], axis=0), np.average(qhod_p['p2k'], axis=0)
+
+            qhod_b = Obvs.quijhod_Bk(theta, flag=flag, rsd=rsd, silent=False) 
+            i_k, j_k, l_k, b0g = qhod_b['k1'], qhod_b['k2'], qhod_b['k3'], np.average(qhod_b['b123'], axis=0) 
+
+            pklim = (k < 0.5) 
+            bklim = ((i_k*kf <= 0.5) & (j_k*kf <= 0.5) & (l_k*kf <= 0.5)) # k limit 
+
+            sub0.plot(k[pklim], p0g[pklim], c=clr, label=r'$\ell = 0$')
+            sub0.plot(k[pklim], np.abs(p2g[pklim]), c=clr, ls='--', label=r'$\ell = 2$')
+            
+            if i == 0: 
+                bk_ref = b0g[bklim]
+            _bgplt, = sub1.plot(range(np.sum(bklim)), b0g[bklim]/bk_ref, c=clr) 
+            
+            if i == 0: 
+                sub0.legend(loc='lower left', handletextpad=0.1, fontsize=15) 
+        sub0.set_xlabel('k [$h$/Mpc]', fontsize=25) 
+        sub0.set_xscale('log') 
+        sub0.set_xlim(5e-3, 0.5) 
+        sub0.set_ylabel('$|P^g_\ell(k)|$', fontsize=25) 
+        sub0.set_yscale('log') 
+        
+        #sub1.legend([_bgplt], [r'galaxy $P_\ell, B_0$'], loc='upper right', handletextpad=0.2, fontsize=15) 
+        sub1.set_xlabel('triangle configurations', fontsize=25) 
+        sub1.set_xlim(0, np.sum(bklim)) 
+        sub1.set_ylabel(r'$B^g_{\rm RSD}(k_1, k_2, k_3)/B^g$', fontsize=25) 
+        sub1.set_ylim(0.9, 1.1) 
+        
+        ffig = os.path.join(dir_hod, 'figs', 
+                'PBg.%s%s.rsd_comparison.png' % (theta, _flag_str(flag)))
+        fig.savefig(ffig, bbox_inches='tight') 
+        plt.close()  
     return None 
 
 
@@ -1018,9 +1083,9 @@ def P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, 
     print("B Fii=%f, sigma_i = %f" % (bkFij[i_Mnu,i_Mnu], np.sqrt(bkFinv[i_Mnu,i_Mnu])))
     print("P+B Fii=%f, sigma_i = %f" % (pbkFij[i_Mnu,i_Mnu], np.sqrt(pbkFinv[i_Mnu,i_Mnu])))
     print('--- thetas ---')
-    print('P sigmas %s' % ', '.join(['%.3f' % sii for sii in np.sqrt(np.diag(pkFinv))]))
-    print('B sigmas %s' % ', '.join(['%.3f' % sii for sii in np.sqrt(np.diag(bkFinv))]))
-    print('P+B sigmas %s' % ', '.join(['%.3f' % sii for sii in np.sqrt(np.diag(pbkFinv))]))
+    print('P sigmas %s' % ', '.join(['%.5f' % sii for sii in np.sqrt(np.diag(pkFinv))]))
+    print('B sigmas %s' % ', '.join(['%.5f' % sii for sii in np.sqrt(np.diag(bkFinv))]))
+    print('P+B sigmas %s' % ', '.join(['%.5f' % sii for sii in np.sqrt(np.diag(pbkFinv))]))
     print('improve. over P %s' % ', '.join(['%.1f' % sii for sii in np.sqrt(np.diag(pkFinv)/np.diag(pbkFinv))]))
     print('improve. over B %s' % ', '.join(['%.1f' % sii for sii in np.sqrt(np.diag(bkFinv)/np.diag(pbkFinv))]))
         
@@ -1591,6 +1656,7 @@ if __name__=="__main__":
         plot_p02bkCov(kmax=0.5, rsd=2, flag='reg')
     '''
     # derivatives 
+    plot_dP02B(kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=False)
     '''
         # compare derivatives w.r.t. the cosmology + HOD parameters 
         plot_dP02B(kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=False)
@@ -1608,9 +1674,9 @@ if __name__=="__main__":
         for theta in ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']: 
             plot_dPBg_dPBh(theta, rsd='all', flag='reg', dmnu='fin', log=False)
             plot_dPBg_dPBh(theta, rsd='all', flag='reg', dmnu='fin', log=True)
+        _PBg_rsd_comparison(flag='reg')
     '''
     # convergence tests
-    converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin')
     '''
         for theta in ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']: 
             plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True)
@@ -1636,4 +1702,3 @@ if __name__=="__main__":
             P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
             P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
     '''
-
