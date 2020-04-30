@@ -107,6 +107,8 @@ def plot_FisherMatrix(obs):
         obs_lbl = '$w_p$'
     elif obs == 'xi': 
         obs_lbl = r'$\xi_0, \xi_2$'
+    elif obs == 'wpxi':
+        obs_lbl = r'$w_p, \xi_0, \xi_2$'
     cbar.set_label(r'%s fisher matrix' % obs_lbl, fontsize=25, labelpad=10, rotation=90)
 
     ffig = os.path.join(dat_dir, 'fij_%s.png' % obs)
@@ -126,6 +128,9 @@ def FisherMatrix(obs):
     elif obs == 'xi': 
         C_fid, nmock = cov_xi()
         dobsdt = dxidtheta
+    elif obs == 'wpxi': 
+        C_fid, nmock = cov_wpxi()
+        dobsdt = dwpxidtheta
     else: 
         raise NotImplementedError
     print('covariance matrix from %i mocks' % nmock)
@@ -206,26 +211,52 @@ def plot_cov():
     '''
     C_wp, _ = cov_wp()
     C_xi, _ = cov_xi()
+    C_wpxi, _ = cov_wpxi() 
     print('condition number for C_wp: %e' % np.linalg.cond(C_wp))
     print('condition number for C_xi: %e' % np.linalg.cond(C_xi))
+    print('condition number for C_wpxi: %e' % np.linalg.cond(C_wpxi))
     
     Ccorr_wp = ((C_wp / np.sqrt(np.diag(C_wp))).T / np.sqrt(np.diag(C_wp))).T
     Ccorr_xi = ((C_xi / np.sqrt(np.diag(C_xi))).T / np.sqrt(np.diag(C_xi))).T
+    Ccorr_wpxi = ((C_wpxi / np.sqrt(np.diag(C_wpxi))).T / np.sqrt(np.diag(C_wpxi))).T
 
     # plot the covariance matrix 
-    fig = plt.figure(figsize=(20,7))
-    sub = fig.add_subplot(121)
+    fig = plt.figure(figsize=(30,7))
+    sub = fig.add_subplot(131)
     cm = sub.pcolormesh(Ccorr_wp, vmin=-0.025, vmax=1.) 
     cbar = fig.colorbar(cm, ax=sub) 
     cbar.set_label(r'$w_p$ correlation matrix', fontsize=25, labelpad=10, rotation=90)
 
-    sub = fig.add_subplot(122)
+    sub = fig.add_subplot(132)
     cm = sub.pcolormesh(Ccorr_xi, vmin=-0.025, vmax=1.) 
     cbar = fig.colorbar(cm, ax=sub) 
     cbar.set_label(r'$\xi_0, \xi_2$ correlation matrix', fontsize=25, labelpad=10, rotation=90)
+    
+    sub = fig.add_subplot(133)
+    cm = sub.pcolormesh(Ccorr_wpxi, vmin=-0.025, vmax=1.) 
+    cbar = fig.colorbar(cm, ax=sub) 
+    cbar.set_label(r'$w_p, \xi_0, \xi_2$ correlation matrix', fontsize=25, labelpad=10, rotation=90)
+
     ffig = os.path.join(dat_dir, 'cov_wpxi.png')
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
+
+
+def cov_wpxi(): 
+    ''' covariance of wp and xi combined
+    '''
+    quij    = quijhod_wp('fiducial')
+    wps     = quij['wp']
+    
+    quij    = quijhod_xi('fiducial')
+    xi0     = quij['xi0']
+    xi2     = quij['xi2']
+    
+    data_vector = np.concatenate([wps, xi0, xi2], axis=1)
+
+    nmock = data_vector.shape[0]
+    cov = np.cov(data_vector.T) # calculate the covariance
+    return cov, nmock
 
 
 def cov_wp(): 
@@ -250,6 +281,15 @@ def cov_xi():
     nmock = xis.shape[0]
     cov = np.cov(xis.T) # calculate the covariance
     return cov, nmock
+
+
+def dwpxidtheta(theta): 
+    ''' derivative of [wp, xi0, xi2] w.r.t. theta 
+    ''' 
+    r0, dwp = dwpdtheta(theta)
+    r1, dxi = dxidtheta(theta) 
+
+    return r0, np.concatenate([dwp, dxi]) 
 
 
 def dwpdtheta(theta): 
@@ -378,9 +418,11 @@ def quijhod_xi(theta):
 
 
 if __name__=='__main__': 
-    #plot_cov()
+    plot_cov()
     #plot_dwpxi()
     #plot_FisherMatrix('wp')
     #plot_FisherMatrix('xi')
-    forecast('wp')
-    forecast('xi')
+    plot_FisherMatrix('wpxi')
+    #forecast('wp')
+    #forecast('xi')
+    forecast('wpxi')
