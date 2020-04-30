@@ -1093,7 +1093,7 @@ def P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, 
     _thetas = copy(thetas) 
     _theta_lbls = copy(theta_lbls) 
     _theta_fid = theta_fid.copy() # fiducial thetas
-    _theta_dlims = [0.0425, 0.016, 0.16, 0.15, 0.09, 0.25, 0.25, 0.3, 0.35, 0.2, 0.3]
+    _theta_dlims = [0.0425, 0.016, 0.16, 0.15, 0.09, 0.25, 0.4, 0.75, 0.4, 0.2, 0.25]
     if planck: _theta_dlims = [0.024, 0.002, 0.016, 0.0075, 0.032, 0.1, 0.16, 0.2, 0.25, 0.2, 0.2]
     
     n_nuis = 0  
@@ -1148,7 +1148,7 @@ def P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, 
     bkgd.fill_between([],[],[], color=colors[1], label=r'$B^g_0(k_1, k_2, k_3)$') 
     bkgd.fill_between([],[],[], color=colors[2], label=r'$P^g_{0} + P^g_{2} + B^g_0$') 
     bkgd.legend(loc='upper right', bbox_to_anchor=(0.875, 0.775), handletextpad=0.2, fontsize=25)
-    bkgd.text(0.825, 0.63, r'$k_{\rm max} = %.1f$; $z=0.$' % kmax, ha='right', va='bottom', 
+    bkgd.text(0.85, 0.62, r'$k_{\rm max} = %.1f$; $z=0.$' % kmax, ha='right', va='bottom', 
             transform=bkgd.transAxes, fontsize=25)
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
     fig.subplots_adjust(wspace=0.05, hspace=0.05) 
@@ -1273,7 +1273,7 @@ def P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planc
     np.savetxt(fpbk, pbk_dat, delimiter=', ', fmt='%.5f')
 
     sigma_theta_lims = [(5e-3, 1.), (1e-3, 1.), (1e-3, 2.), (1e-2, 5.), (1e-2, 1.), (1e-2, 1e1)]
-    if planck: sigma_theta_lims = [(5e-3, 0.8), (5e-4, 1.), (1e-3, 10), (3e-3, 10), (5e-3, 10), (1e-2, 10.)]
+    if planck: sigma_theta_lims = [(5e-3, 0.8), (5e-4, 1.), (1e-3, 10), (3e-3, 10), (5e-3, 10), (6e-3, 10.)]
     
     colors  = ['C0', 'C2', 'C1']
 
@@ -1287,8 +1287,8 @@ def P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planc
             sub.plot(kmaxs[cond_pk], sig_pk_planck[:,i][cond_pk], c=colors[0], ls='--', lw=1) 
             _plt, = sub.plot(kmaxs[cond_pbk], sig_pbk_planck[:,i][cond_pbk], c=colors[2], ls='--', lw=1) 
             if theta == 'Mnu': 
-                sub.legend([_plt], ['w/ Planck priors'], loc='lower left', bbox_to_anchor=(0.0, -0.05), 
-                        handletextpad=0.25, fontsize=18) 
+                sub.legend([_plt_pbk, _plt], ['LSS only', 'w/ Planck priors'], loc='lower left', 
+                        bbox_to_anchor=(0.0, -0.05), handletextpad=0.25, fontsize=18) 
 
         sub.set_xlim(0.05, 0.5)
         sub.text(0.9, 0.9, theta_lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=30)
@@ -1656,7 +1656,6 @@ if __name__=="__main__":
         plot_p02bkCov(kmax=0.5, rsd=2, flag='reg')
     '''
     # derivatives 
-    plot_dP02B(kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=False)
     '''
         # compare derivatives w.r.t. the cosmology + HOD parameters 
         plot_dP02B(kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=False)
@@ -1684,6 +1683,7 @@ if __name__=="__main__":
         converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin')
     '''
     # forecasts 
+    P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
     '''
         P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
         P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
