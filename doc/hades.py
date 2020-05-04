@@ -401,6 +401,49 @@ def compare_Bk(kmax=0.5, rsd=True):
     return None 
 
 
+def _compare_Bk_SN(kmax=0.5, rsd=True):  
+    ''' Compare the amplitude of the bispectrum for the HADES simulations to SN . 
+
+    :param krange: (default: [0.01, 0.5]) 
+        k-range of k1, k2, k3 
+
+    :param rsd: (default: True) 
+        RSD or not 
+    '''
+    hades_fid = Obvs.hadesBk(0.0, nzbin=4, rsd=rsd) # fiducial bispectrum
+    Bk_fid = np.average(hades_fid['b123'], axis=0)
+    Bk_sn = np.average(hades_fid['b_sn'], axis=0) 
+
+    i_k, j_k, l_k = hades_fid['k1'], hades_fid['k2'], hades_fid['k3']
+    klim = ((i_k * kf <= kmax) & (j_k * kf <= kmax) & (l_k * kf <= kmax)) 
+
+    i_k, j_k, l_k = i_k[klim], j_k[klim], l_k[klim] 
+
+    #ijl = UT.ijl_order(i_k, j_k, l_k, typ='GM') # order of triangles 
+
+    fig = plt.figure(figsize=(25,5))
+    sub = fig.add_subplot(111)
+    
+    tri = np.arange(np.sum(klim))
+    sub.plot(tri, Bk_fid[klim], c='k') 
+    sub.plot(tri, Bk_sn[klim], c='C0', ls='--') 
+
+    sub.set_yscale('log') 
+    
+    sub.set_xlim([0, 1898])
+    sub.set_ylim([8e5, 3e10]) 
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    bkgd.set_xlabel(r'triangle configurations', labelpad=15, fontsize=25) 
+    bkgd.set_ylabel('$\widehat{B}_0(k_1, k_2, k_3)$', labelpad=10, fontsize=25) 
+    fig.subplots_adjust(hspace=0.15)
+
+    ffig = os.path.join(UT.fig_dir(), '_haloBk_amp_SN.kmax%s%s.png' % (str(kmax).replace('.', ''), ['', '_rsd'][rsd]))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+
 def compare_Qk(kmax=0.5, rsd=True):  
     ''' Compare the reduced bispectrum for the HADES simulations. 
 
@@ -979,7 +1022,6 @@ def compare_Bk_SNuncorr(krange=[0.01, 0.5], rsd=True):
     ffig = os.path.join(UT.fig_dir(), 
             'haloBkSNuncorr_amp_%s_%s%s.png' % 
             (str(kmin).replace('.', ''), str(kmax).replace('.', ''), ['', '_rsd'][rsd]))
-    print ffig
     fig.savefig(ffig, bbox_inches='tight') 
     
     # compare ratio of B(k) amplitude
@@ -1154,8 +1196,9 @@ if __name__=="__main__":
     for kmax in [0.5]: 
         #compare_Plk(kmax=0.5)
         #ratio_Plk(kmax=0.5) 
-        compare_Bk(kmax=kmax, rsd=True)
+        #compare_Bk(kmax=kmax, rsd=True)
         #compare_Bk_shape(kmax=kmax, rsd=True, nbin=31)
+        _compare_Bk_SN(kmax=0.5, rsd=True)
         #compare_Qk(kmax=kmax, rsd=True)
 
     #compare_Bk_SNuncorr(krange=[0.01, 0.5], rsd=True)

@@ -635,6 +635,7 @@ def plot_PBg(rsd='all', flag='reg'):
     # read in P0g, P2g, and Bg
     qhod_p = Obvs.quijhod_Pk('fiducial', flag=flag, rsd=rsd, silent=False) 
     k, p0g, p2g  = qhod_p['k'], np.average(qhod_p['p0k'], axis=0), np.average(qhod_p['p2k'], axis=0)
+    print('N_galaxies = %i' % np.average(qhod_p['Ngalaxies']))
 
     qhod_b = Obvs.quijhod_Bk('fiducial', flag=flag, rsd=rsd, silent=False) 
     i_k, j_k, l_k, b0g = qhod_b['k1'], qhod_b['k2'], qhod_b['k3'], np.average(qhod_b['b123'], axis=0) 
@@ -642,6 +643,7 @@ def plot_PBg(rsd='all', flag='reg'):
     # read in P0h, P2h, and Bh
     quij_p = Obvs.quijotePk('fiducial', rsd=rsd, flag=flag, silent=False) 
     p0h, p2h = np.average(quij_p['p0k'], axis=0), np.average(quij_p['p2k'], axis=0)
+    print('N_halos = %i' % np.average(quij_p['Nhalos']))
 
     quij_b = Obvs.quijoteBk('fiducial', flag=flag, rsd=rsd, silent=False) 
     b0h = np.average(quij_b['b123'], axis=0) 
@@ -680,6 +682,36 @@ def plot_PBg(rsd='all', flag='reg'):
     ffig = os.path.join(dir_doc, 'PBg%s%s.png' % (_rsd_str(rsd), _flag_str(flag)))
     fig.savefig(ffig, bbox_inches='tight') 
     fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex version 
+    return None 
+
+
+def plot_bias(rsd='all', flag='reg'): 
+    '''plot bias via Pg/Ph
+    '''
+    # read in P0g
+    qhod_p = Obvs.quijhod_Pk('fiducial', flag=flag, rsd=rsd, silent=False) 
+    k, p0g = qhod_p['k'], np.average(qhod_p['p0k'], axis=0)
+    # read in P0h
+    quij_p = Obvs.quijotePk('fiducial', rsd=rsd, flag=flag, silent=False) 
+    p0h = np.average(quij_p['p0k'], axis=0)
+
+    # k limits 
+    pklim = (k < 0.5) 
+    
+    # --- plotting ---
+    fig = plt.figure(figsize=(6,6))
+    sub = fig.add_subplot(111)
+    
+    sub.plot(k[pklim], np.sqrt(p0g[pklim]/p0h[pklim]), c='C0', ls='-') 
+    sub.plot([5e-3, 0.5], [1.36, 1.36], c='k', ls='--', label=r'$b_g = 1.36$') 
+    sub.set_xlabel('k', fontsize=25) 
+    sub.set_xscale('log') 
+    sub.set_xlim(5e-3, 0.5) 
+    sub.set_ylabel(r'$\sqrt{\frac{P_{g,0}}{P_{h,0}}(k)}$', fontsize=20) 
+    sub.legend(loc='upper left', fontsize=25) 
+
+    ffig = os.path.join(dir_doc, 'galaxy_bias%s%s.png' % (_rsd_str(rsd), _flag_str(flag)))
+    fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
 
@@ -850,6 +882,113 @@ def plot_PBg_PBh(theta, rsd='all', flag='reg'):
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
+
+def _plot_PBg_PBh_SN(rsd='all', flag='reg'): 
+    ''' comparison between the Pg, Bg, Pg_sn, Bg_sn and Ph, Bh, Ph_sn, Bh_sn
+    '''
+    # read in P0g, P2g, and Bg
+    qhod_p = Obvs.quijhod_Pk('fiducial', flag=flag, rsd=rsd, silent=False) 
+    k, p0g, p2g = qhod_p['k'], np.average(qhod_p['p0k'], axis=0), np.average(qhod_p['p2k'], axis=0)
+    pg_uncorr = np.average(qhod_p['p0k'] + qhod_p['p_sn'][:,np.newaxis], axis=0)
+    pg_sn = np.average(qhod_p['p_sn'], axis=0)
+    
+    print('N_galaxies = %i' % np.average(qhod_p['Ngalaxies']))
+
+    qhod_b = Obvs.quijhod_Bk('fiducial', flag=flag, rsd=rsd, silent=False) 
+    i_k, j_k, l_k, b0g = qhod_b['k1'], qhod_b['k2'], qhod_b['k3'], np.average(qhod_b['b123'], axis=0) 
+    bg_uncorr = np.average(qhod_b['b123'] + qhod_b['b_sn'], axis=0) 
+    bg_sn = np.average(qhod_b['b_sn'], axis=0) 
+
+    # read in P0h, P2h, and Bh
+    quij_p = Obvs.quijotePk('fiducial', rsd=rsd, flag=flag, silent=False) 
+    p0h, p2h = np.average(quij_p['p0k'], axis=0), np.average(quij_p['p2k'], axis=0)
+    ph_uncorr = np.average(quij_p['p0k'] + quij_p['p_sn'][:,np.newaxis], axis=0) 
+    ph_sn = np.average(quij_p['p_sn'], axis=0) 
+    
+    print('N_halos = %i' % np.average(quij_p['Nhalos']))
+
+    quij_b = Obvs.quijoteBk('fiducial', flag=flag, rsd=rsd, silent=False) 
+    b0h = np.average(quij_b['b123'], axis=0) 
+    bh_uncorr = np.average(quij_b['b123'] + quij_b['b_sn'], axis=0) 
+    bh_sn = np.average(quij_b['b_sn'], axis=0) 
+    
+    # k limits 
+    pklim = (k < 0.5) 
+    bklim = ((i_k*kf <= 0.5) & (j_k*kf <= 0.5) & (l_k*kf <= 0.5)) # k limit 
+    
+    # --- plotting ---
+    fig = plt.figure(figsize=(30,7))
+    gs = mpl.gridspec.GridSpec(2, 3, figure=fig, width_ratios=[1,1,6], wspace=0.2) 
+    sub0 = plt.subplot(gs[0]) 
+    sub1 = plt.subplot(gs[1]) 
+    sub2 = plt.subplot(gs[2]) 
+    sub3 = plt.subplot(gs[3]) 
+    sub4 = plt.subplot(gs[4]) 
+    sub5 = plt.subplot(gs[5]) 
+    
+    sub0.plot(k[pklim], pg_uncorr[pklim], c='k', ls=':') 
+    sub0.plot(k[pklim], p0g[pklim], c='k', ls='-') 
+    sub0.plot(k[pklim], np.repeat(pg_sn, np.sum(pklim)), c='C0', ls='--') 
+    sub0.set_xscale('log') 
+    sub0.set_xlim(5e-3, 0.5) 
+    sub0.set_xticklabels([]) 
+    sub0.set_ylabel('$P_{g,0}(k)$', fontsize=20) 
+    sub0.set_yscale('log') 
+    sub0.set_ylim(1e3, 2e5)
+
+    sub3.plot(k[pklim], ph_uncorr[pklim], c='k', ls=':') 
+    sub3.plot(k[pklim], p0h[pklim], c='k', ls='-') 
+    sub3.plot(k[pklim], np.repeat(ph_sn, np.sum(pklim)), c='C0', ls='--') 
+    sub3.set_xlabel('k', fontsize=25) 
+    sub3.set_xscale('log') 
+    sub3.set_xlim(5e-3, 0.5) 
+    sub3.set_ylabel('$P_{h,0}(k)$', fontsize=20) 
+    sub3.set_yscale('log') 
+    sub3.set_ylim(1e3, 2e5)
+    
+    sub1.plot(k[pklim], p2g[pklim], c='k') 
+    sub1.set_xscale('log') 
+    sub1.set_xlim(5e-3, 0.5) 
+    sub1.set_xticklabels([]) 
+    sub1.set_ylabel('$P_{g,2}(k)$', fontsize=20) 
+    sub1.set_yscale('log') 
+    sub1.set_ylim(5e2, 6e4)
+
+    sub4.plot(k[pklim], p2h[pklim], c='k') 
+    sub4.set_xlabel('k', fontsize=25) 
+    sub4.set_xscale('log') 
+    sub4.set_xlim(5e-3, 0.5) 
+    sub4.set_ylabel('$P_{h,2}(k)$', fontsize=20) 
+    sub4.set_yscale('log') 
+    sub4.set_ylim(5e2, 6e4)
+    
+    sub2.plot(range(np.sum(bklim)), bg_uncorr[bklim], c='k', ls=':', 
+            label='SN uncorr.') 
+    sub2.plot(range(np.sum(bklim)), b0g[bklim], c='k', ls='-') 
+    sub2.plot(range(np.sum(bklim)), bg_sn[bklim], c='C0', ls='--', label='shot noise') 
+    sub2.plot(range(np.sum(bklim)), np.repeat(pg_sn**2, np.sum(bklim)), c='C1',
+            ls=':', lw=0.5, label=r'$1/\bar{n}_g^2$') 
+    sub2.legend(loc='upper right', fontsize=20, ncol=2) 
+    sub2.set_xlim(0, np.sum(bklim)) 
+    sub2.set_xticklabels([]) 
+    sub2.set_ylabel('$B_g(k_1, k_2, k_3)$', fontsize=20) 
+    sub2.set_yscale('log') 
+    sub2.set_ylim(1e7, 7e10)
+
+    sub5.plot(range(np.sum(bklim)), bh_uncorr[bklim], c='k', ls=':') 
+    sub5.plot(range(np.sum(bklim)), b0h[bklim], c='k', ls='-') 
+    sub5.plot(range(np.sum(bklim)), bh_sn[bklim], c='C0', ls='--') 
+    sub5.plot(range(np.sum(bklim)), np.repeat(ph_sn**2, np.sum(bklim)), c='C1',
+            ls=':', lw=0.5) 
+    sub5.set_xlabel('triangles', fontsize=25) 
+    sub5.set_xlim(0, np.sum(bklim)) 
+    sub5.set_ylabel('$B_h(k_1, k_2, k_3)$', fontsize=20) 
+    sub5.set_yscale('log') 
+    sub5.set_ylim(1e7, 7e10)
+    
+    ffig = os.path.join(dir_hod, 'figs', '_PBg_PBh_SN%s%s.png' % (_rsd_str(rsd), _flag_str(flag)))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
 
 # --- forecasts --- 
 def FisherMatrix(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, cross_covariance=True, Cgauss=False): 
@@ -1260,7 +1399,7 @@ def P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planc
 
     # write out to table
     kmax_preset = np.zeros(len(kmaxs)).astype(bool) 
-    for kmax in [0.2, 0.3, 0.4, 0.5]: 
+    for kmax in [0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]: 
         kmax_preset[(np.abs(kmaxs - kmax)).argmin()] = True
     pk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_pk[kmax_preset,:].T)).T 
     bk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_bk[kmax_preset,:].T)).T 
@@ -1273,7 +1412,8 @@ def P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planc
     np.savetxt(fpbk, pbk_dat, delimiter=', ', fmt='%.5f')
 
     sigma_theta_lims = [(5e-3, 1.), (1e-3, 1.), (1e-3, 2.), (1e-2, 5.), (1e-2, 1.), (1e-2, 1e1)]
-    if planck: sigma_theta_lims = [(5e-3, 0.8), (5e-4, 1.), (1e-3, 10), (3e-3, 10), (5e-3, 10), (6e-3, 10.)]
+    #if planck: sigma_theta_lims = [(5e-3, 0.8), (5e-4, 1.), (1e-3, 10), (3e-3, 10), (5e-3, 10), (6e-3, 10.)]
+    if planck: sigma_theta_lims = [(5e-3, 1.), (5e-4, 1.), (5e-3, 10), (3e-3, 10), (5e-3, 10), (1e-2, 10.)]
     
     colors  = ['C0', 'C2', 'C1']
 
@@ -1321,6 +1461,44 @@ def P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planc
     fig.savefig(ffig, bbox_inches='tight') 
     fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex 
     return None
+
+
+def _PgPh_Forecast_kmax(): 
+    ''' quick comparison of the Pg and Ph forecasts as a function of kmax 
+    '''
+    # read constraints from P02B_Forecast_kmax
+    fpg = os.path.join(UT.doc_dir(), 'dat', 'P02g_forecast_kmax.dat') 
+    sigmas_pg = np.loadtxt(fpg, delimiter=',', unpack=True, usecols=range(7))
+
+    fph = os.path.join(UT.doc_dir(), 'dat', 'p02k_forecast_kmax.dat') 
+    sigmas_ph = np.loadtxt(fph, delimiter=',', unpack=True, usecols=range(7))
+    
+    sigma_theta_lims = [(5e-3, 1.), (5e-4, 1.), (5e-3, 10), (3e-3, 10), (5e-3, 10), (1e-2, 10.)]
+    
+    fig = plt.figure(figsize=(15,8))
+    for i, theta in enumerate(thetas[:6]): 
+        sub = fig.add_subplot(2,3,i+1) 
+        _plt_ph, = sub.plot(sigmas_ph[0], sigmas_ph[i+1], c='k', ls='-') 
+        _plt_pg, = sub.plot(sigmas_pg[0], sigmas_pg[i+1], c='C0', ls='-') 
+
+        sub.set_xlim(0.05, 0.5)
+        sub.text(0.9, 0.9, theta_lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=30)
+        sub.set_ylim(sigma_theta_lims[i]) 
+        sub.set_yscale('log') 
+        if i == 1: 
+            sub.legend([_plt_ph, _plt_pg], [r"$P_{h,\ell}$", r"$P_{g,\ell}$"], 
+                    loc='lower center', bbox_to_anchor=(0.5, 1.0), handletextpad=0.2, fontsize=20, ncol=20)
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    bkgd.set_xlabel(r'$k_{\rm max}$', fontsize=28) 
+    bkgd.set_ylabel(r'{\fontsize{28pt}{3em}\selectfont{}$\sigma_\theta~/$}{\fontsize{20pt}{3em}\selectfont{}$\sqrt{\frac{V}{1 ({\rm Gpc}/h)^3}}$}', labelpad=15)#, fontsize=28) 
+    fig.subplots_adjust(wspace=0.2, hspace=0.15) 
+    
+    ffig = os.path.join(dir_doc, '_PgPh_Forecast_kmax.png')
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
 
 
 # --- convergence tests --- 
@@ -1668,12 +1846,14 @@ if __name__=="__main__":
     # comparisons between galaxy and halo P and B 
     '''
         plot_PBg(rsd='all', flag='reg')
+        _plot_PBg_PBh_SN(rsd='all', flag='reg')
         for theta in ['fiducial', 'Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']: 
             plot_PBg_PBh(theta, rsd='all', flag='reg')
         for theta in ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']: 
             plot_dPBg_dPBh(theta, rsd='all', flag='reg', dmnu='fin', log=False)
             plot_dPBg_dPBh(theta, rsd='all', flag='reg', dmnu='fin', log=True)
         _PBg_rsd_comparison(flag='reg')
+        plot_bias(rsd='all', flag='reg')
     '''
     # convergence tests
     '''
@@ -1683,7 +1863,8 @@ if __name__=="__main__":
         converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin')
     '''
     # forecasts 
-    P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
+    #P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
+    _PgPh_Forecast_kmax()
     '''
         P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
         P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
@@ -1701,4 +1882,5 @@ if __name__=="__main__":
             # Forecast(kmax) 
             P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
             P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
+        _PgPh_Forecast_kmax() # comparison of Pg forecast to Ph 
     '''

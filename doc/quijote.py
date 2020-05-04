@@ -2063,7 +2063,7 @@ def forecastP02B_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False
 
     # write out to table
     kmax_preset = np.zeros(len(kmaxs)).astype(bool) 
-    for kmax in [0.2, 0.3, 0.4, 0.5]: 
+    for kmax in [0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]: 
         kmax_preset[(np.abs(kmaxs - kmax)).argmin()] = True
     pk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_pk[kmax_preset,:].T)).T 
     bk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_bk[kmax_preset,:].T)).T 
@@ -4335,6 +4335,7 @@ if __name__=="__main__":
         joint_p02bForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['b1', 'Mmin'], dmnu='fin', planck=True)
     '''
     # fisher forecasts as a function of kmax with different nuisance parameters 
+    forecastP02B_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['b1', 'Mmin'], planck=True)
     '''
         Fii_kmax(rsd='all', flag='reg', dmnu='fin')
         forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'])
@@ -4371,5 +4372,5 @@ if __name__=="__main__":
     #zeldovich_ICtest(rsd=1)
     #zeldovich_ICtest(rsd='all')
     #P02B_crosscovariance(kmax=0.1)
-    p02b_planck(kmax=0.15, rsd='all', flag='reg', theta_nuis=['b1', 'Mmin'], dmnu='fin') 
+    #p02b_planck(kmax=0.15, rsd='all', flag='reg', theta_nuis=['b1', 'Mmin'], dmnu='fin') 
 
