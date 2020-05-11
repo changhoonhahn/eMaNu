@@ -2,7 +2,6 @@
 import numpy as np
 import sys,os
 
-# logM0 not included right now  
 #thetas = ['Om_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p', 'Om_m',  'Ob2_m', 'h_m', 'ns_m', 's8_m', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp', 
 #        'alpha_m', 'logM0_m', 'logM1_m', 'logMmin_m', 'sigma_logM_m',
 #        'alpha_p', 'logM0_p', 'logM1_p', 'logMmin_p', 'sigma_logM_p', 
@@ -30,11 +29,21 @@ import sys,os
 #_thetas = ['Om_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p', 'Om_m', 'Ob2_m', 'h_m', 'ns_m', 's8_m', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp'] 
 #thetas = ['fiducial_ZA']
 #_thetas = ['fiducial_ZA']
-thetas = ['fiducial']
-_thetas = ['fiducial']
-offset     = 0    #the count will start from offset
-snapnum    = 4    #4(z=0), 3(z=0.5), 2(z=1), 1(z=2), 0(z=3)
-qos        = 'vvshort' 
+#thetas      = ['fiducial']
+#_thetas     = ['fiducial']
+thetas = ['Om_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p', 'Om_m',  'Ob2_m', 'h_m', 'ns_m', 's8_m', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp', 
+        'alpha_m', 'logM0_m', 'logM1_m', 'logMmin_m', 'sigma_logM_m',
+        'alpha_p', 'logM0_p', 'logM1_p', 'logMmin_p', 'sigma_logM_p', 
+        'fiducial_ZA']
+_thetas = ['Om_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p', 'Om_m',  'Ob2_m', 'h_m', 'ns_m', 's8_m', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp', 
+        'fiducial_alpha=0.9', 'fiducial_logM0=13.8', 'fiducial_logM1=13.8', 'fiducial_logMmin=13.60', 'fiducial_sigma_logM=0.18',
+        'fiducial_alpha=1.3', 'fiducial_logM0=14.2', 'fiducial_logM1=14.2', 'fiducial_logMmin=13.70', 'fiducial_sigma_logM=0.22', 
+        'fiducial_ZA']
+######################################################################################
+offset      = 0    #the count will start from offset
+snapnum     = 4    #4(z=0), 3(z=0.5), 2(z=1), 1(z=2), 0(z=3)
+qos         = 'vvshort' 
+seed        = 1 
 ######################################################################################
 dir_quij = '/projects/QUIJOTE/Galaxies/'
 
@@ -62,13 +71,14 @@ for i_t, theta in enumerate(thetas):
     if theta in ['logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'logM0_m', 'logM0_p', 'alpha_m', 'alpha_p', 'logM1_m', 'logM1_p']: 
         folder = 'fiducial'
 
-    nreal = 500
+    nreal = 100
     if theta == 'fiducial': 
         nreal = 15000 
     
     missing = [] 
     for i in range(offset,nreal): 
-        fbk = os.path.join(dir_quij, _thetas[i_t], str(i), 'Bk_RS2_GC_0_z=0.txt')
+        fbk = os.path.join(dir_quij, _thetas[i_t], str(i), 
+                'Bk_RS0_GC_%i_z=0.txt' % seed)
         if not os.path.isfile(fbk): 
             missing.append(i)
     missing = np.sort(missing)

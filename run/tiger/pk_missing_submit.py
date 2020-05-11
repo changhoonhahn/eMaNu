@@ -7,6 +7,7 @@ step       = 80  #number of realizations each cpu will do
 offset     = 0    #the count will start from offset
 snapnum    = 4    #4(z=0), 3(z=0.5), 2(z=1), 1(z=2), 0(z=3)
 PorB       = 'pk'
+seed       = 1
 ######################################################################################
 dir_quij = '/projects/QUIJOTE/Galaxies/'
 
@@ -14,12 +15,15 @@ dir_quij = '/projects/QUIJOTE/Galaxies/'
 thetas = ['Om_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p', 'Om_m',  'Ob2_m', 'h_m', 'ns_m', 's8_m', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp', 
         'alpha_m', 'logM0_m', 'logM1_m', 'logMmin_m', 'sigma_logM_m',
         'alpha_p', 'logM0_p', 'logM1_p', 'logMmin_p', 'sigma_logM_p', 
-        'fiducial', 'fiducial_ZA']
+        'fiducial_ZA']
 
 _thetas = ['Om_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p', 'Om_m',  'Ob2_m', 'h_m', 'ns_m', 's8_m', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp', 
         'fiducial_alpha=0.9', 'fiducial_logM0=13.8', 'fiducial_logM1=13.8', 'fiducial_logMmin=13.60', 'fiducial_sigma_logM=0.18',
         'fiducial_alpha=1.3', 'fiducial_logM0=14.2', 'fiducial_logM1=14.2', 'fiducial_logMmin=13.70', 'fiducial_sigma_logM=0.22', 
-        'fiducial', 'fiducial_ZA']
+        'fiducial_ZA']
+
+thetas = ['fiducial_ZA']
+_thetas = ['fiducial_ZA']
 
 
 # do a loop over the different cosmologies
@@ -35,15 +39,15 @@ for i_t, theta in enumerate(thetas):
     
     missing = [] 
     for i in range(nreal): 
-        fbk = os.path.join(dir_quij, _thetas[i_t], str(i), 'Pk_RS0_GC_0_z=0.txt') 
+        fbk = os.path.join(dir_quij, _thetas[i_t], str(i), 'Pk_RS0_GC_%i_z=0.txt' % seed) 
         if not os.path.isfile(fbk): 
             missing.append(i)
     n_missing = len(missing) 
     print('%s missing %i P(k)s' % (theta, n_missing))
+    print(missing)
 
     if n_missing == 0: 
         continue 
-
     nodes = int(np.ceil(n_missing/step)) 
 
     logMmin    = 13.65
@@ -78,6 +82,7 @@ for i_t, theta in enumerate(thetas):
         i_last  = np.clip(step * (i+1) - 1, None, n_missing-1)
         first   = missing[i_first] 
         last    = missing[i_last] + 1
+        print(first, last) 
     
         _min, sec   = divmod(np.min([step, float(i_last - i_first + 1)]) * 3. * 90., 60) 
         hr, _min    = divmod(_min, 60) 
@@ -91,7 +96,7 @@ for i_t, theta in enumerate(thetas):
             "#SBATCH --nodes=1",
             "#SBATCH --ntasks-per-node=40",
             "#SBATCH --partition=general",
-	    "#SBATCH --time=%s:00:00" % str(int(hr)).zfill(2),
+	    "#SBATCH --time=%s:59:59" % str(int(hr)-1).zfill(2),
             "#SBATCH --export=ALL",
             "#SBATCH --output=_%s_%s%i.o" % (PorB, theta, i),
             "#SBATCH --mail-type=all",

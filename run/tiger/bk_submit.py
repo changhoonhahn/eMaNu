@@ -12,7 +12,11 @@ import sys,os
 #thetas = ['Om_m',  'Ob2_m', 'h_m']                  # long      2/20 9:50am
 #thetas = ['ns_m', 's8_m', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp'] 
 #thetas = ['fiducial_ZA'] # 'fiducial', 
-thetas = ['fiducial']
+#thetas = ['fiducial']
+theta_cosmo = ['Om_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p', 'Om_m',  'Ob2_m', 'h_m', 'ns_m', 's8_m', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
+#theta_hod = ['logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'logM0_m', 'logM0_p', 'alpha_m', 'alpha_p', 'logM1_m', 'logM1_p', 'fiducial', 'fiducial_ZA']
+theta_hod = ['logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'logM0_m', 'logM0_p', 'alpha_m', 'alpha_p', 'logM1_m', 'logM1_p', 'fiducial_ZA']
+thetas =  theta_cosmo+theta_hod 
 qos = 'short'
 ######################################################################################
 
@@ -26,7 +30,7 @@ elif qos == 'medium':
 elif qos == 'long': 
     step = 240
     time = 144
-offset      = 10000    #the count will start from offset
+offset      = 0    #the count will start from offset
 snapnum     = 4    #4(z=0), 3(z=0.5), 2(z=1), 1(z=2), 0(z=3)
 
 
@@ -44,7 +48,8 @@ for theta in thetas:
     elif theta =='latin_hypercube':    
         nodes = 2000/step
     else:                           
-        nodes = 500/step
+        #nodes = 500/step
+        nodes = 100/step
         if theta in ['logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'logM0_m', 
                 'logM0_p', 'alpha_m', 'alpha_p', 'logM1_m', 'logM1_p']: 
             folder = 'fiducial'

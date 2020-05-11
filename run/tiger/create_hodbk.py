@@ -110,7 +110,7 @@ def create_B(fGC):
 root    = '/projects/QUIJOTE'
 
 # HOD parameter values
-seed     = 0    #random seed
+seed     = 1    #random seed
 hod_dict = {
     'logMmin': logMmin, 
     'sigma_logM': sigma_logM, 

@@ -102,7 +102,7 @@ root    = '/projects/QUIJOTE'
 snapnum = 4 #4(z=0), 3(z=0.5), 2(z=1), 1(z=2), 0(z=3)
 
 # HOD parameter values
-seed     = 0    #random seed
+seed     = 1    #random seed
 hod_dict = {
     'logMmin': logMmin, 
     'sigma_logM': sigma_logM, 
