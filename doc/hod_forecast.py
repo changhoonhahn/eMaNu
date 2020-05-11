@@ -1500,21 +1500,27 @@ def _PgPh_Forecast_kmax():
     return None 
 
 
-
 # --- convergence tests --- 
-def _converge_dP02Bk(theta, rsd='all', flag='reg', dmnu='fin', fscale_pk=1., Nderiv=None, silent=True):
+def _converge_dobs(obs, theta, rsd='all', flag='reg', dmnu='fin', fscale_pk=1., Nderiv=None, silent=True):
     ''' dP0/dtt, dP2/dtt, dB/dtt
     '''
-    if Nderiv is None: return dP02Bk(theta, rsd=rsd, flag=flag, dmnu=dmnu, fscale_pk=fscale_pk, silent=silent) 
+    if Nderiv is None: 
+        if obs == 'p02k': 
+            return dP02k(theta, rsd=rsd, flag=flag, dmnu=dmnu, silent=silent) 
+        elif obs == 'p02bk': 
+            return dP02Bk(theta, rsd=rsd, flag=flag, dmnu=dmnu, fscale_pk=fscale_pk, silent=silent) 
 
     # dP0/dtheta, dP2/dtheta
     _, dp = Forecast.quijhod_dP02kdtheta(theta, 
             log=False, z=0, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=Nderiv, silent=silent)
 
-    # dB0/dtheta
-    _, _, _, db = Forecast.quijhod_dBkdtheta(theta, 
-            log=False, z=0, dmnu=dmnu, flag=flag, rsd=rsd, Nderiv=Nderiv, silent=silent)
-    return np.concatenate([fscale_pk * dp, db]) 
+    if obs == 'p02k': 
+        return dp
+    else: 
+        # dB0/dtheta
+        _, _, _, db = Forecast.quijhod_dBkdtheta(theta, 
+                log=False, z=0, dmnu=dmnu, flag=flag, rsd=rsd, Nderiv=Nderiv, silent=silent)
+        return np.concatenate([fscale_pk * dp, db]) 
 
 
 def _converge_FisherMatrix(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, Ncov=None, Nderiv=None): 
@@ -1568,6 +1574,24 @@ def _converge_FisherMatrix(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin', the
         bklim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) # k limit 
         klim = np.concatenate([pklim, bklim]) 
         Cov = _Cov[:,klim][klim,:]
+    elif obs == 'p02k': 
+        if Ncov is None: 
+            k, _Cov, nmock = p02kCov(rsd=2, flag='reg')
+        else: 
+            # read in P(k) 
+            quij = Obvs.quijhod_Pk('fiducial', rsd=2, flag='reg', silent=True) 
+            p0ks = quij['p0k'] + quij['p_sn'][:,None] # shotnoise uncorrected P0 
+            p2ks = quij['p2k'] # P2 
+            k = np.concatenate([quij['k'], quij['k']]) 
+
+            pks = np.concatenate([p0ks, p2ks], axis=1)[:Ncov]
+            
+            _Cov = np.cov(pks.T) # calculate the covariance
+            nmock = pks.shape[0]
+            print('Ncov = %i' % Ncov) 
+
+        klim = (k <= kmax) 
+        Cov = _Cov[:,klim][klim,:]
     else: 
         raise NotImplementedError
 
@@ -1584,7 +1608,7 @@ def _converge_FisherMatrix(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin', the
     # calculate the derivatives along all the thetas 
     dobs_dt = [] 
     for par in _thetas: 
-        dobs_dti = _converge_dP02Bk(par, rsd=rsd, flag=flag, dmnu=dmnu, fscale_pk=fscale_pk, Nderiv=Nderiv) 
+        dobs_dti = _converge_dobs(obs, par, rsd=rsd, flag=flag, dmnu=dmnu, fscale_pk=fscale_pk, Nderiv=Nderiv) 
         dobs_dt.append(dobs_dti[klim])
             
     Fij = Forecast.Fij(dobs_dt, C_inv) 
@@ -1737,17 +1761,15 @@ def plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=
     logplims = [(-10., 5.), (-2, 15), (-3., 1.), (-4., 0.), (-2., 2.), (-0.5, 0.5), (-2., 4), (-2., 1.), None, (-1., 2.), (-5., 1.)] 
     logblims = [(-13., -6.), (-2., 24.), (-5., -0.5), (-5., -0.5), (-2., 2.), (0.0, 0.7), (3., 6.), None, None, (2, 6), None] 
 
+    fid = 'fiducial' 
+    if theta == 'Mnu': fid = 'fiducial_za'
+    qhod_p = Obvs.quijhod_Pk(fid, flag=flag, rsd=rsd, silent=False) 
+    _k, p0g, p2g  = qhod_p['k'], np.average(qhod_p['p0k'], axis=0), np.average(qhod_p['p2k'], axis=0)
+    k = np.concatenate([_k, _k]) 
 
-    if log: 
-        fid = 'fiducial' 
-        if theta == 'Mnu': fid = 'fiducial_za'
-        qhod_p = Obvs.quijhod_Pk(fid, flag=flag, rsd=rsd, silent=False) 
-        _k, p0g, p2g  = qhod_p['k'], np.average(qhod_p['p0k'], axis=0), np.average(qhod_p['p2k'], axis=0)
-        k = np.concatenate([_k, _k]) 
-
-        qhod_b = Obvs.quijhod_Bk(fid, flag=flag, rsd=rsd, silent=False) 
-        _ik, _jk, _lk, b0g = qhod_b['k1'], qhod_b['k2'], qhod_b['k3'], np.average(qhod_b['b123'], axis=0) 
-        pbg_fid = np.concatenate([p0g, p2g, b0g]) 
+    qhod_b = Obvs.quijhod_Bk(fid, flag=flag, rsd=rsd, silent=False) 
+    _ik, _jk, _lk, b0g = qhod_b['k1'], qhod_b['k2'], qhod_b['k3'], np.average(qhod_b['b123'], axis=0) 
+    pbg_fid = np.concatenate([p0g, p2g, b0g]) 
 
     fig = plt.figure(figsize=(30,3))
     gs = mpl.gridspec.GridSpec(1, 3, figure=fig, width_ratios=[1,1,5], hspace=0.1, wspace=0.15) 
@@ -1757,7 +1779,7 @@ def plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=
 
     for nderiv, clr, lw in zip([500, 1000, 1500], ['C1', 'C0', 'k'], 
             [2, 1, 0.5]): 
-        dpb = _converge_dP02Bk(theta, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=nderiv)
+        dpb = _converge_dobs('p02bk', theta, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=nderiv)
         if log: dpb /= pbg_fid
         
         nk0 = int(len(k)/2) 
@@ -1773,7 +1795,8 @@ def plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=
         # plot dP0/dtheta and dP2/theta
         sub0.plot(kp[pklim], dp0[pklim], c=clr)
         sub1.plot(kp[pklim], dp2[pklim], c=clr)
-        sub2.plot(range(np.sum(bklim)), db[bklim], c=clr, lw=lw)
+        sub2.plot(range(np.sum(bklim)), db[bklim], c=clr, lw=lw,
+                label=r'$N_{\rm deriv} = %i$' % nderiv)
 
     sub0.set_xscale('log') 
     sub0.set_xlim(5e-3, kmax) 
@@ -1792,7 +1815,8 @@ def plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=
     sub1.text(0.01, 0.9, '$P_2$', ha='left', va='top', 
             transform=sub1.transAxes, fontsize=25)
     #sub1.set_ylabel(r'${\rm d} %s P_2/{\rm d}\theta (N_{\rm deriv})$' % (['', '\log'][log]), fontsize=25) 
-
+    
+    sub2.legend(loc='upper right', ncol=3, handletextpad=0.1, fontsize=20) 
     sub2.set_xlim(0, np.sum(bklim)) 
     if not log: sub2.set_yscale('symlog', linthreshy=1e8) 
     else: sub2.set_ylim(logblims[thetas.index(theta)]) 
@@ -1806,6 +1830,75 @@ def plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=
             'converge.d%sP02Bd%s%s%s.%s.png' % (['', 'log'][log], theta, _rsd_str(rsd), _flag_str(flag), dmnu))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
+
+
+def _converge_P02_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin'):
+    ''' convergence test of cosmological parameter constraints for P02 only
+    '''
+    # convegence of covariance matrix 
+    ncovs = [3000, 4000, 5000, 7500, 10000, 12000, 14000, 15000]
+    # read in fisher matrix (Fij)
+    Finvs, Fiis = [], [] 
+    for ncov in ncovs: 
+        Fij = _converge_FisherMatrix('p02k', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, Ncov=ncov, Nderiv=None)
+        Finvs.append(np.linalg.inv(Fij)) # invert fisher matrix 
+        Fiis.append(np.diag(Fij)) 
+    Finvs = np.array(Finvs) 
+    Fiis = np.array(Fiis) 
+
+    fig = plt.figure(figsize=(12,6))
+    sub = fig.add_subplot(121) 
+    sub.plot([3000, 15000], [1., 1.], c='k', ls='--', lw=1) 
+    sub.plot([3000, 15000], [0.9, 0.9], c='k', ls=':', lw=1) 
+
+    for i in range(6): 
+        sig_theta = np.sqrt(Finvs[:,i,i]) 
+        sigii_theta = 1./np.sqrt(Fiis[:,i]) 
+        sub.plot(ncovs, sig_theta/sig_theta[-1], label=r'$%s$' % theta_lbls[i]) 
+
+        print('--- %s ---' % theta_lbls[i]) 
+        print(sig_theta/sig_theta[-1]) 
+
+    sub.set_xlabel(r"$N_{\rm cov}$", labelpad=10, fontsize=25) 
+    sub.set_xlim(3000, 15000) 
+    sub.set_ylabel(r'$\sigma_\theta(N_{\rm cov})/\sigma_\theta(N_{\rm cov}=15000)$', fontsize=25)
+    sub.set_ylim(0.5, 1.1) 
+
+    print('--- Nderiv test ---' ) 
+    # convergence of derivatives 
+    #if rsd == 'all': nderivs = [100, 200, 400, 600, 800, 1000, 1200, 1400, 1500]
+    #else: nderivs = [100, 200, 300, 350, 400, 450, 475, 500]
+    if rsd == 'all': nderivs = [100, 500, 1000, 1400, 1500]
+    else: nderivs = [100, 300, 450, 475, 500]
+    # read in fisher matrix (Fij)
+    Finvs, Fiis = [], [] 
+    for nderiv in nderivs: 
+        Fij = _converge_FisherMatrix('p02k', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, Ncov=None, Nderiv=nderiv)
+        Finvs.append(np.linalg.inv(Fij)) # invert fisher matrix 
+        Fiis.append(Fij) 
+    Finvs = np.array(Finvs) 
+    Fiis = np.array(Fiis) 
+
+    sub = fig.add_subplot(122)
+    sub.plot([100., 3000.], [1., 1.], c='k', ls='--', lw=1) 
+    sub.plot([100., 3000.], [0.9, 0.9], c='k', ls=':', lw=1) 
+    for i in range(6): 
+        sig_theta = np.sqrt(Finvs[:,i,i]) 
+        sigii_theta = 1./np.sqrt(Fiis[:,i,i]) 
+        sub.plot(nderivs, sig_theta/sig_theta[-1], label=(r'$%s$' % theta_lbls[i]))
+        print('--- %s ---' % theta_lbls[i]) 
+        print(sig_theta/sig_theta[-1]) 
+    sub.legend(loc='lower right', fontsize=20) 
+    sub.set_xlabel(r"$N_{\rm deriv.}$", labelpad=10, fontsize=25) 
+    sub.set_xlim(200, nderivs[-1]) 
+    sub.set_ylabel(r'$\sigma_\theta(N_{\rm deriv.})/\sigma_\theta(N_{\rm deriv.}=%i)$' % nderivs[-1], fontsize=25)
+    sub.set_ylim([0.5, 1.1]) 
+    fig.subplots_adjust(wspace=0.25) 
+
+    ffig = os.path.join(dir_hod, 'figs', 'converge.p02kFisher%s%s.dmnu_%s.kmax%.1f.png' % (_rsd_str(rsd), _flag_str(flag), dmnu, kmax))
+    fig.savefig(ffig, bbox_inches='tight') 
+    fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
+    return None
 
 
 def _rsd_str(rsd): 
@@ -1856,15 +1949,17 @@ if __name__=="__main__":
         plot_bias(rsd='all', flag='reg')
     '''
     # convergence tests
+    for theta in ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']: 
+        plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=False)
     '''
         for theta in ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']: 
             plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True)
         converge_Fij('p02bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', silent=True)
         converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin')
+        converge_Fij('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin', silent=True)
+        _converge_P02_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin')
     '''
     # forecasts 
-    #P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
-    _PgPh_Forecast_kmax()
     '''
         P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
         P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
