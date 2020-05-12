@@ -991,7 +991,8 @@ def _plot_PBg_PBh_SN(rsd='all', flag='reg'):
     return None 
 
 # --- forecasts --- 
-def FisherMatrix(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, cross_covariance=True, Cgauss=False): 
+def FisherMatrix(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin',
+        params='default', theta_nuis=None, cross_covariance=True, Cgauss=False): 
     ''' calculate fisher matrix for parameters ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu'] 
     and specified nuisance parameters
     
@@ -1039,7 +1040,12 @@ def FisherMatrix(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=No
     f_hartlap = float(nmock - ndata - 2)/float(nmock - 1) 
     C_inv = f_hartlap * np.linalg.inv(Cov) # invert the covariance 
     
-    _thetas = copy(thetas) 
+    if params == 'default': # default set of parameters 
+        _thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1'] 
+    elif params == 'lcdm': 
+        _thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1'] 
+    else: 
+        raise NotImplementedError
     if theta_nuis is not None: _thetas += theta_nuis 
     
     # calculate the derivatives along all the thetas 
@@ -1058,7 +1064,8 @@ def FisherMatrix(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=No
     return Fij 
 
 
-def forecast(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False):
+def forecast(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin',
+        params='default', theta_nuis=None, planck=False):
     ''' fisher forecast for quijote observables where we marginalize over theta_nuis parameters. 
     
     :param obs: 
@@ -1081,9 +1088,26 @@ def forecast(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, 
     :param planck: (default: False)
         If True add Planck prior 
     '''
+    if params == 'default': 
+        _thetas = copy(thetas) 
+        _theta_lbls = copy(theta_lbls) 
+        _theta_dlims = [0.07, 0.03, 0.4, 0.35, 0.04, 0.4, 0.35, 0.15, 1., 0.6, 1.]
+    elif params == 'lcdm': 
+        _thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1'] 
+        _theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', 
+                r'$\log M_{\rm min}$', r'$\sigma_{\log M}$', r'$\log M_0$', r'$\alpha$', r'$\log M_1$']
+        #_theta_lims = [(0.25, 0.385), (0.02, 0.08), (0.3, 1.1), (0.6, 1.3), (0.8, 0.88), (-0.4, 0.4), (13.3, 14.), [0.1, 0.3], [13., 15.], [0.5, 1.7], [13., 15.]]
+        _theta_dlims = [0.07, 0.03, 0.4, 0.35, 0.04, 0.35, 0.15, 1., 0.6, 1.]
+    else: 
+        raise NotImplementedError
+
+    _theta_fid = theta_fid.copy() # fiducial thetas
+
     # fisher matrix (Fij)
-    _Fij    = FisherMatrix(obs, kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=None) # no nuisance param. 
-    Fij     = FisherMatrix(obs, kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=theta_nuis) # marg. over nuisance param. 
+    _Fij    = FisherMatrix(obs, kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu,
+            params=params, theta_nuis=None) # no nuisance param. 
+    Fij     = FisherMatrix(obs, kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu,
+            params=params, theta_nuis=theta_nuis) # marg. over nuisance param. 
     cond = np.linalg.cond(Fij)
     if cond > 1e16: print('Fij is ill-conditioned %.5e' % cond)
     _Finv   = np.linalg.inv(_Fij) # invert fisher matrix 
@@ -1095,31 +1119,23 @@ def forecast(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, 
         Fij_planck = Fij.copy() 
         Fij_planck[:6,:6] += _Fij_planck
         Finv = np.linalg.inv(Fij_planck)
-
-    i_Mnu = thetas.index('Mnu')
-    if not planck: 
+    
+    if params == 'default': 
+        i_Mnu = thetas.index('Mnu')
         print('--- i = Mnu ---')
         print('n nuis. Fii=%f, sigma_i = %f' % (_Fij[i_Mnu,i_Mnu], np.sqrt(_Finv[i_Mnu,i_Mnu])))
         print("y nuis. Fii=%f, sigma_i = %f" % (Fij[i_Mnu,i_Mnu], np.sqrt(Finv[i_Mnu,i_Mnu])))
-        print('--- thetas ---')
-        print('n nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(_Finv))]))
-        print('y nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(Finv))]))
-    else: 
-        print('n nuis. Fii=%f, sigma_i = %f' % (_Fij[i_Mnu,i_Mnu], np.sqrt(_Finv[i_Mnu,i_Mnu])))
-        print("y nuis. Fii=%f, sigma_i = %f" % (Fij[i_Mnu,i_Mnu], np.sqrt(_Finv_noplanck[i_Mnu,i_Mnu])))
-        print("w/ Planck2018")
-        print("y nuis. Fii=%f, sigma_i = %f" % (Fij_planck[i_Mnu,i_Mnu], np.sqrt(Finv[i_Mnu,i_Mnu])))
-        print('--- thetas ---')
-        print('n nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(_Finv))]))
-        print('y nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(_Finv_noplanck))]))
+        if planck: 
+            print("w/ Planck2018")
+            print("y nuis. Fii=%f, sigma_i = %f" % (Fij_planck[i_Mnu,i_Mnu], np.sqrt(Finv[i_Mnu,i_Mnu])))
+    print('--- thetas ---')
+    print('               %s' % ',    \t'.join(_thetas))
+    print('n nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(_Finv))]))
+    print('y nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(Finv))]))
+    if planck: 
         print("w/ Planck2018")
         print('y nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(Finv))]))
      
-    _thetas = copy(thetas) 
-    _theta_lbls = copy(theta_lbls) 
-    _theta_fid = theta_fid.copy() # fiducial thetas
-    #_theta_lims = [(0.25, 0.385), (0.02, 0.08), (0.3, 1.1), (0.6, 1.3), (0.8, 0.88), (-0.4, 0.4), (13.3, 14.), [0.1, 0.3], [13., 15.], [0.5, 1.7], [13., 15.]]
-    _theta_dlims = [0.07, 0.03, 0.4, 0.35, 0.04, -0.4, 0.35, 0.15, 1., 0.6, 1.]
 
     if theta_nuis is not None: 
         _thetas += theta_nuis 
@@ -1163,8 +1179,8 @@ def forecast(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, 
     if planck: planck_str = '.planck'
 
     ffig = os.path.join(dir_doc, 
-            'quijote.%sFisher.%s.dmnu_%s.kmax%.2f%s%s%s.png' % 
-            (obs, nuis_str, dmnu, kmax, _rsd_str(rsd), _flag_str(flag), planck_str))
+            'quijote.%sFisher%s%s.dmnu_%s.kmax%.2f%s%s%s.png' % 
+            (obs, _params_str(params), nuis_str, dmnu, kmax, _rsd_str(rsd), _flag_str(flag), planck_str))
     fig.savefig(ffig, bbox_inches='tight') 
     fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex version 
     return None 
@@ -1523,7 +1539,8 @@ def _converge_dobs(obs, theta, rsd='all', flag='reg', dmnu='fin', fscale_pk=1., 
         return np.concatenate([fscale_pk * dp, db]) 
 
 
-def _converge_FisherMatrix(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, Ncov=None, Nderiv=None): 
+def _converge_FisherMatrix(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin',
+        params='default', theta_nuis=None, Ncov=None, Nderiv=None): 
     ''' calculate fisher matrix for parameters ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu'] 
     and specified nuisance parameters
     
@@ -1602,7 +1619,13 @@ def _converge_FisherMatrix(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin', the
     print('f_hartlap = %.3f, f_tdist = %.3f' % (f_hartlap, f_tdist))
     C_inv = f_tdist * np.linalg.inv(Cov) # invert the covariance 
     
-    _thetas = copy(thetas) 
+
+    if params == 'default': # default set of parameters 
+        _thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1'] 
+    elif params == 'lcdm': 
+        _thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1'] 
+    else: 
+        raise NotImplementedError
     if theta_nuis is not None: _thetas += theta_nuis 
     
     # calculate the derivatives along all the thetas 
@@ -1615,7 +1638,8 @@ def _converge_FisherMatrix(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin', the
     return Fij 
 
 
-def converge_Fij(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', silent=True): 
+def converge_Fij(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin',
+        params='default', silent=True): 
     ''' convergence test of Fisher matrix elements  when we calculate the covariance 
     matrix or derivatives using different number of mocks. 
     '''
@@ -1634,7 +1658,8 @@ def converge_Fij(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', silent=True):
     # read in fisher matrix (Fij)
     Fijs = []
     for ncov in ncovs: 
-        Fijs.append(_converge_FisherMatrix(obs, kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, Ncov=ncov, Nderiv=None)) 
+        Fijs.append(_converge_FisherMatrix(obs, kmax=kmax, rsd=rsd, flag=flag,
+            params=params, dmnu=dmnu, Ncov=ncov, Nderiv=None)) 
     Fijs = np.array(Fijs) 
 
     fig = plt.figure(figsize=(12,15))
@@ -1661,7 +1686,8 @@ def converge_Fij(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', silent=True):
     # read in fisher matrix (Fij)
     Fijs = []
     for nderiv in nderivs: 
-        Fijs.append(_converge_FisherMatrix(obs, kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, Ncov=None, Nderiv=nderiv)) 
+        Fijs.append(_converge_FisherMatrix(obs, kmax=kmax, rsd=rsd, flag=flag, 
+            params=params, dmnu=dmnu, Ncov=None, Nderiv=nderiv)) 
     Fijs = np.array(Fijs) 
     sub = fig.add_subplot(122)
     for _i, ij in enumerate(ij_pairs): 
@@ -1679,21 +1705,34 @@ def converge_Fij(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', silent=True):
     sub.set_yticks([1. - 0.3 * ii for ii in range(len(ij_pairs))])
     sub.set_yticklabels(ij_pairs_str) 
     fig.subplots_adjust(wspace=0.4) 
-    ffig = os.path.join(dir_doc, 'converge.%sFij%s%s.dmnu_%s.kmax%.1f.png' % (obs, _rsd_str(rsd), _flag_str(flag), dmnu, kmax))
+
+    ffig = os.path.join(dir_doc, 'converge.%sFij%s%s%s.dmnu_%s.kmax%.1f.png' %
+            (obs, _params_str(params), _rsd_str(rsd), _flag_str(flag), dmnu, kmax))
     fig.savefig(ffig, bbox_inches='tight') 
     fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex version 
     return None
 
 
-def converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin'):
+def converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin',
+        params='default'):
     ''' convergence test of cosmological parameter constraints 
     '''
+    if params == 'default': 
+        theta_cosmo = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']
+        theta_cosmo_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$'] 
+    elif params == 'lcdm': 
+        theta_cosmo = ['Om', 'Ob2', 'h', 'ns', 's8']
+        theta_cosmo_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$'] 
+    else: 
+        raise ValueError
+
     # convegence of covariance matrix 
     ncovs = [3000, 4000, 5000, 7500, 10000, 12000, 14000, 15000]
     # read in fisher matrix (Fij)
     Finvs, Fiis = [], [] 
     for ncov in ncovs: 
-        Fij = _converge_FisherMatrix('p02bk', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, Ncov=ncov, Nderiv=None)
+        Fij = _converge_FisherMatrix('p02bk', kmax=kmax, rsd=rsd, flag=flag,
+                dmnu=dmnu, params=params, Ncov=ncov, Nderiv=None)
         Finvs.append(np.linalg.inv(Fij)) # invert fisher matrix 
         Fiis.append(np.diag(Fij)) 
     Finvs = np.array(Finvs) 
@@ -1704,10 +1743,10 @@ def converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin'):
     sub.plot([3000, 15000], [1., 1.], c='k', ls='--', lw=1) 
     sub.plot([3000, 15000], [0.9, 0.9], c='k', ls=':', lw=1) 
 
-    for i in range(6): 
+    for i in range(len(theta_cosmo)): 
         sig_theta = np.sqrt(Finvs[:,i,i]) 
         sigii_theta = 1./np.sqrt(Fiis[:,i]) 
-        sub.plot(ncovs, sig_theta/sig_theta[-1], label=r'$%s$' % theta_lbls[i]) 
+        sub.plot(ncovs, sig_theta/sig_theta[-1], label=r'$%s$' % theta_cosmo_lbls[i]) 
 
         print('--- %s ---' % theta_lbls[i]) 
         print(sig_theta/sig_theta[-1]) 
@@ -1726,7 +1765,8 @@ def converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin'):
     # read in fisher matrix (Fij)
     Finvs, Fiis = [], [] 
     for nderiv in nderivs: 
-        Fij = _converge_FisherMatrix('p02bk', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, Ncov=None, Nderiv=nderiv)
+        Fij = _converge_FisherMatrix('p02bk', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, 
+                params=params, Ncov=None, Nderiv=nderiv)
         Finvs.append(np.linalg.inv(Fij)) # invert fisher matrix 
         Fiis.append(Fij) 
     Finvs = np.array(Finvs) 
@@ -1735,10 +1775,10 @@ def converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin'):
     sub = fig.add_subplot(122)
     sub.plot([100., 3000.], [1., 1.], c='k', ls='--', lw=1) 
     sub.plot([100., 3000.], [0.9, 0.9], c='k', ls=':', lw=1) 
-    for i in range(6): 
+    for i in range(len(theta_cosmo)): 
         sig_theta = np.sqrt(Finvs[:,i,i]) 
         sigii_theta = 1./np.sqrt(Fiis[:,i,i]) 
-        sub.plot(nderivs, sig_theta/sig_theta[-1], label=(r'$%s$' % theta_lbls[i]))
+        sub.plot(nderivs, sig_theta/sig_theta[-1], label=(r'$%s$' % theta_cosmo_lbls[i]))
         print('--- %s ---' % theta_lbls[i]) 
         print(sig_theta/sig_theta[-1]) 
     sub.legend(loc='lower right', fontsize=20) 
@@ -1748,7 +1788,9 @@ def converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin'):
     sub.set_ylim([0.5, 1.1]) 
     fig.subplots_adjust(wspace=0.25) 
 
-    ffig = os.path.join(dir_doc, 'converge.p02bkFisher%s%s.dmnu_%s.kmax%.1f.png' % (_rsd_str(rsd), _flag_str(flag), dmnu, kmax))
+    ffig = os.path.join(dir_doc, 
+            'converge.p02bkFisher%s%s%s.dmnu_%s.kmax%.1f.png' %
+            (_params_str(params), _rsd_str(rsd), _flag_str(flag), dmnu, kmax))
     fig.savefig(ffig, bbox_inches='tight') 
     fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
     return None
@@ -1832,7 +1874,8 @@ def plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=
     return None 
 
 
-def _converge_P02_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin'):
+def _converge_P02_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin',
+        params='default'):
     ''' convergence test of cosmological parameter constraints for P02 only
     '''
     # convegence of covariance matrix 
@@ -1840,7 +1883,8 @@ def _converge_P02_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin'):
     # read in fisher matrix (Fij)
     Finvs, Fiis = [], [] 
     for ncov in ncovs: 
-        Fij = _converge_FisherMatrix('p02k', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, Ncov=ncov, Nderiv=None)
+        Fij = _converge_FisherMatrix('p02k', kmax=kmax, rsd=rsd, flag=flag,
+                dmnu=dmnu, params=params, Ncov=ncov, Nderiv=None)
         Finvs.append(np.linalg.inv(Fij)) # invert fisher matrix 
         Fiis.append(np.diag(Fij)) 
     Finvs = np.array(Finvs) 
@@ -1873,19 +1917,32 @@ def _converge_P02_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin'):
     # read in fisher matrix (Fij)
     Finvs, Fiis = [], [] 
     for nderiv in nderivs: 
-        Fij = _converge_FisherMatrix('p02k', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, Ncov=None, Nderiv=nderiv)
+        Fij = _converge_FisherMatrix('p02k', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, 
+                params=params, Ncov=None, Nderiv=nderiv)
         Finvs.append(np.linalg.inv(Fij)) # invert fisher matrix 
         Fiis.append(Fij) 
     Finvs = np.array(Finvs) 
     Fiis = np.array(Fiis) 
 
+    if params == 'default': 
+        _theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$', 
+                r'$\log M_{\rm min}$', r'$\sigma_{\log M}$', r'$\log M_0$', r'$\alpha$', r'$\log M_1$']
+    elif params == 'lcdm': 
+        _theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', 
+                r'$\log M_{\rm min}$', r'$\sigma_{\log M}$', r'$\log M_0$', r'$\alpha$', r'$\log M_1$']
+
     sub = fig.add_subplot(122)
     sub.plot([100., 3000.], [1., 1.], c='k', ls='--', lw=1) 
     sub.plot([100., 3000.], [0.9, 0.9], c='k', ls=':', lw=1) 
-    for i in range(6): 
+    for i in range(Fij.shape[0]): 
         sig_theta = np.sqrt(Finvs[:,i,i]) 
         sigii_theta = 1./np.sqrt(Fiis[:,i,i]) 
-        sub.plot(nderivs, sig_theta/sig_theta[-1], label=(r'$%s$' % theta_lbls[i]))
+        if i < 6: 
+            sub.plot(nderivs, sig_theta/sig_theta[-1], 
+                    label=(r'$%s$' % _theta_lbls[i]))
+        else: 
+            sub.plot(nderivs, sig_theta/sig_theta[-1], ls='--', 
+                    label=(r'$%s$' % _theta_lbls[i]))
         print('--- %s ---' % theta_lbls[i]) 
         print(sig_theta/sig_theta[-1]) 
     sub.legend(loc='lower right', fontsize=20) 
@@ -1895,7 +1952,9 @@ def _converge_P02_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin'):
     sub.set_ylim([0.5, 1.1]) 
     fig.subplots_adjust(wspace=0.25) 
 
-    ffig = os.path.join(dir_hod, 'figs', 'converge.p02kFisher%s%s.dmnu_%s.kmax%.1f.png' % (_rsd_str(rsd), _flag_str(flag), dmnu, kmax))
+    ffig = os.path.join(dir_hod, 'figs',
+            'converge.p02kFisher%s%s%s.dmnu_%s.kmax%.1f.png' %
+            (_params_str(params), _rsd_str(rsd), _flag_str(flag), dmnu, kmax))
     fig.savefig(ffig, bbox_inches='tight') 
     fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
     return None
@@ -1906,6 +1965,13 @@ def _rsd_str(rsd):
     if rsd == 'all': return ''
     elif rsd in [0, 1, 2]: return '.rsd%i' % rsd
     elif rsd == 'real': return '.real'
+    else: raise NotImplementedError
+
+
+def _params_str(params): 
+    # assign string based on rsd kwarg 
+    if params == 'default': return ''
+    elif params == 'lcdm': return '.lcdm'
     else: raise NotImplementedError
 
 
@@ -1949,17 +2015,39 @@ if __name__=="__main__":
         plot_bias(rsd='all', flag='reg')
     '''
     # convergence tests
-    for theta in ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']: 
-        plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=False)
     '''
+        # convergence of derivatives
         for theta in ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']: 
             plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True)
+        for theta in ['logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1']:
+            plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True)
+
+        # convergence of Fisher matrix  
         converge_Fij('p02bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', silent=True)
-        converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin')
-        converge_Fij('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin', silent=True)
-        _converge_P02_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin')
+    
+        # convergence of forecast 
+        converge_Fij('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin',
+                params='default', silent=True)
+        converge_Fij('p02bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin',
+                params='default', silent=True)
+        _converge_P02_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin',
+                params='default')
+        converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin',
+                params='default')
+
+        # LCDM convergence tests 
+        converge_Fij('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin',
+                params='lcdm', silent=True)
+        converge_Fij('p02bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin',
+                params='lcdm', silent=True)
+        _converge_P02_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin',
+                params='lcdm')
+        converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', 
+                params='lcdm')
     '''
     # forecasts 
+    forecast('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin', 
+            params='lcdm', planck=False)
     '''
         P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
         P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)

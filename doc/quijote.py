@@ -1118,7 +1118,8 @@ def dlogPBdMnu(rsd='all', flag='reg'):
     return None
 
 # Fisher Matrix
-def FisherMatrix(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None, cross_covariance=True, Cgauss=False): 
+def FisherMatrix(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin',
+        params='default', theta_nuis=None, cross_covariance=True, Cgauss=False): 
     ''' calculate fisher matrix for parameters ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu'] 
     and specified nuisance parameters
     
@@ -1187,7 +1188,10 @@ def FisherMatrix(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None
     f_hartlap = float(nmock - ndata - 2)/float(nmock - 1) 
     C_inv = f_hartlap * np.linalg.inv(C_fid) # invert the covariance 
     
-    _thetas = copy(thetas) 
+    if params == 'default': 
+        _thetas = copy(thetas) 
+    elif params == 'lcdm': 
+        _thetas = ['Om', 'Ob2', 'h', 'ns', 's8']
     if theta_nuis is not None: _thetas += theta_nuis 
     
     # calculate the derivatives along all the thetas 
@@ -1216,7 +1220,7 @@ def FisherMatrix(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None
 ##################################################################
 # Fisher forecasts 
 ##################################################################
-def forecast(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None, planck=False):
+def forecast(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', params='default', theta_nuis=None, planck=False):
     ''' fisher forecast for quijote observables where we include theta_nuis as free parameters. 
     
     :param obs: 
@@ -1238,10 +1242,28 @@ def forecast(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None, pl
         list of nuisance parameters to include in the forecast. 
     :param planck: (default: False)
         If True add Planck prior 
+
+    notes
+    -----
+    * 'Ob' or  'Ob2' doesn't change forecasts
     '''
+    if params == 'default': 
+        _thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu'] 
+        _theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$']
+    elif params == 'lcdm':
+        _thetas = ['Om', 'Ob2', 'h', 'ns', 's8']
+        _theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$']
+    
+    if theta_nuis is None: theta_nuis = [] 
+
+    _thetas += theta_nuis
+    _theta_lbls += [theta_nuis_lbls[tt] for tt in theta_nuis]
+
     # fisher matrix (Fij)
-    _Fij    = FisherMatrix(obs, kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=None) # no nuisance param. 
-    Fij     = FisherMatrix(obs, kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=theta_nuis) # marg. over nuisance param. 
+    _Fij    = FisherMatrix(obs, kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu,
+            params=params, theta_nuis=None) # no nuisance param. 
+    Fij     = FisherMatrix(obs, kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, 
+            params=params, theta_nuis=theta_nuis) # marg. over nuisance param. 
     cond = np.linalg.cond(Fij)
     if cond > 1e16: print('Fij is ill-conditioned %.5e' % cond)
     _Finv   = np.linalg.inv(_Fij) # invert fisher matrix 
@@ -1253,32 +1275,26 @@ def forecast(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None, pl
         Fij_planck = Fij.copy() 
         Fij_planck[:6,:6] += _Fij_planck
         Finv = np.linalg.inv(Fij_planck)
-
-    i_Mnu = thetas.index('Mnu')
-    if not planck: 
+    
+    if params == 'default': 
+        i_Mnu = thetas.index('Mnu')
         print('--- i = Mnu ---')
         print('n nuis. Fii=%f, sigma_i = %f' % (_Fij[i_Mnu,i_Mnu], np.sqrt(_Finv[i_Mnu,i_Mnu])))
         print("y nuis. Fii=%f, sigma_i = %f" % (Fij[i_Mnu,i_Mnu], np.sqrt(Finv[i_Mnu,i_Mnu])))
-        print('--- thetas ---')
-        print('n nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(_Finv))]))
-        print('y nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(Finv))]))
-    else: 
-        print('n nuis. Fii=%f, sigma_i = %f' % (_Fij[i_Mnu,i_Mnu], np.sqrt(_Finv[i_Mnu,i_Mnu])))
-        print("y nuis. Fii=%f, sigma_i = %f" % (Fij[i_Mnu,i_Mnu], np.sqrt(_Finv_noplanck[i_Mnu,i_Mnu])))
-        print("w/ Planck2018")
-        print("y nuis. Fii=%f, sigma_i = %f" % (Fij_planck[i_Mnu,i_Mnu], np.sqrt(Finv[i_Mnu,i_Mnu])))
-        print('--- thetas ---')
-        print('n nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(_Finv))]))
-        print('y nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(_Finv_noplanck))]))
+        if planck: 
+            print("w/ Planck2018")
+            print("y nuis. Fii=%f, sigma_i = %f" % (Fij_planck[i_Mnu,i_Mnu], np.sqrt(Finv[i_Mnu,i_Mnu])))
+    print('--- thetas ---')
+    print('               %s' % ',    \t'.join(_thetas))
+    print('n nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(_Finv))]))
+    print('y nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(Finv))]))
+    if planck: 
         print("w/ Planck2018")
         print('y nuis. sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(Finv))]))
     
-    if obs in ['pk', 'p02k']: _thetas = copy(thetas_pk) + theta_nuis 
-    else: _thetas = copy(thetas) + theta_nuis 
-    _theta_lbls = copy(theta_lbls) + [theta_nuis_lbls[tt] for tt in theta_nuis]
-
     _theta_fid = theta_fid.copy() # fiducial thetas
     for tt in theta_nuis: _theta_fid[tt] = theta_nuis_fids[tt]
+
     # x, y ranges
     _theta_lims = [(0.25, 0.385), (0.02, 0.08), (0.3, 1.1), (0.6, 1.3), (0.8, 0.88), (-0.4, 0.4)]
     if obs == 'pk' and kmax <= 0.2:
@@ -1323,8 +1339,8 @@ def forecast(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin', theta_nuis=None, pl
     if planck: planck_str = '.planck'
 
     ffig = os.path.join(dir_doc, 
-            'quijote.%sFisher.%s.dmnu_%s.kmax%.2f%s%s%s.png' % 
-            (obs, nuis_str, dmnu, kmax, _rsd_str(rsd), _flag_str(flag), planck_str))
+            'quijote.%sFisher%s%s.dmnu_%s.kmax%.2f%s%s%s.png' % 
+            (obs, _params_str(params), nuis_str, dmnu, kmax, _rsd_str(rsd), _flag_str(flag), planck_str))
     fig.savefig(ffig, bbox_inches='tight') 
     fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex version 
     return None 
@@ -4123,6 +4139,13 @@ def _flag_str(flag):
     return ['.%s' % flag, ''][flag is None]
 
 
+def _params_str(params): 
+    # assign string based on rsd kwarg 
+    if params == 'default': return ''
+    elif params == 'lcdm': return '.lcdm'
+    else: raise NotImplementedError
+
+
 def proposal_Forecast():
     ''' fisher forecast for quijote P0+P2 and B where theta_nuis are added as free parameters. 
     '''
@@ -4305,6 +4328,8 @@ if __name__=="__main__":
         _dBdthetas_ncv(kmax=0.5, log=True, rsd=True, dmnu='fin')
     ''' 
     # fisher forecasts with different nuisance parameters 
+    forecast('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin', 
+            params='lcdm')
     '''
         forecast('pk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'])
         forecast('pk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn'])
@@ -4335,7 +4360,6 @@ if __name__=="__main__":
         joint_p02bForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['b1', 'Mmin'], dmnu='fin', planck=True)
     '''
     # fisher forecasts as a function of kmax with different nuisance parameters 
-    forecastP02B_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['b1', 'Mmin'], planck=True)
     '''
         Fii_kmax(rsd='all', flag='reg', dmnu='fin')
         forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'])
@@ -4373,4 +4397,3 @@ if __name__=="__main__":
     #zeldovich_ICtest(rsd='all')
     #P02B_crosscovariance(kmax=0.1)
     #p02b_planck(kmax=0.15, rsd='all', flag='reg', theta_nuis=['b1', 'Mmin'], dmnu='fin') 
-
