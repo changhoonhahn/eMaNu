@@ -1490,6 +1490,8 @@ def _PgPh_Forecast_kmax():
     sigmas_ph = np.loadtxt(fph, delimiter=',', unpack=True, usecols=range(7))
     
     sigma_theta_lims = [(5e-3, 1.), (5e-4, 1.), (5e-3, 10), (3e-3, 10), (5e-3, 10), (1e-2, 10.)]
+    pg_lcdm = [2.46e-02, 8.82e-03, 8.99e-02, 1.09e-01, 5.99e-02]
+    ph_lcdm = [1.33e-02, 1.09e-02, 9.76e-02, 5.79e-02, 1.38e-02]
     
     fig = plt.figure(figsize=(15,8))
     for i, theta in enumerate(thetas[:6]): 
@@ -1504,6 +1506,9 @@ def _PgPh_Forecast_kmax():
         if i == 1: 
             sub.legend([_plt_ph, _plt_pg], [r"$P_{h,\ell}$", r"$P_{g,\ell}$"], 
                     loc='lower center', bbox_to_anchor=(0.5, 1.0), handletextpad=0.2, fontsize=20, ncol=20)
+        if i < 5: 
+            sub.plot(sigma_theta_lims[i], [pg_lcdm[i], pg_lcdm[i]], ls='--', c='C0') 
+            sub.plot(sigma_theta_lims[i], [ph_lcdm[i], ph_lcdm[i]], ls='--', c='k') 
 
     bkgd = fig.add_subplot(111, frameon=False)
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
@@ -1645,11 +1650,18 @@ def converge_Fij(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin',
     '''
     ij_pairs = [] 
     ij_pairs_str = [] 
-    nthetas = 6 # only the cosmological parameters 
+    if params == 'default': 
+        theta_cosmo = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']
+        theta_cosmo_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$M_\nu$'] 
+    elif params == 'lcdm': 
+        theta_cosmo = ['Om', 'Ob2', 'h', 'ns', 's8']
+        theta_cosmo_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$'] 
+    nthetas = len(theta_cosmo)  # only the cosmological parameters 
+
     for i in range(nthetas): 
         for j in range(i, nthetas): 
             ij_pairs.append((i,j))
-            ij_pairs_str.append(','.join([theta_lbls[i], theta_lbls[j]]))
+            ij_pairs_str.append(','.join([theta_cosmo_lbls[i], theta_cosmo_lbls[j]]))
     ij_pairs = np.array(ij_pairs) 
 
     print('--- Ncov test ---' ) 
@@ -2015,6 +2027,8 @@ if __name__=="__main__":
         plot_bias(rsd='all', flag='reg')
     '''
     # convergence tests
+    converge_Fij('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin',
+            params='lcdm', silent=True)
     '''
         # convergence of derivatives
         for theta in ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']: 
@@ -2046,8 +2060,6 @@ if __name__=="__main__":
                 params='lcdm')
     '''
     # forecasts 
-    forecast('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin', 
-            params='lcdm', planck=False)
     '''
         P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
         P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)

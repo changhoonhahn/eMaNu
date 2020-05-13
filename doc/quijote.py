@@ -1994,6 +1994,7 @@ def forecastP02B_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False
     :param planck: (default: False)
         If True add Planck prior 
     '''
+    if theta_nuis is None: theta_nuis = [] 
     #kmaxs = kf * 3 * np.arange(2, 28) 
     #kmaxs = kf * 3 * np.array([1, 3, 5, 10, 15, 20, 27]) 
     kmaxs = kf * 3 * np.arange(2, 28) 
@@ -4328,8 +4329,8 @@ if __name__=="__main__":
         _dBdthetas_ncv(kmax=0.5, log=True, rsd=True, dmnu='fin')
     ''' 
     # fisher forecasts with different nuisance parameters 
-    forecast('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin', 
-            params='lcdm')
+    forecastP02B_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None,
+            planck=False)
     '''
         forecast('pk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'])
         forecast('pk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn'])
