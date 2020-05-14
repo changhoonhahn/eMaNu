@@ -38,7 +38,7 @@ theta_fid = {'Mnu': 0., 'Ob': 0.049, 'Ob2': 0.049, 'Om': 0.3175, 'h': 0.6711,  '
         'logMmin': 13.65, 'sigma_logM': 0.2, 'logM0': 14.0, 'alpha': 1.1, 'logM1': 14.0} # fiducial theta 
 
 
-def wpxi(theta): 
+def wpxi(): 
     ''' plot wp and xi0 + xi2 for fiducial value
     '''
     fig = plt.figure(figsize=(14,4))
@@ -113,7 +113,91 @@ def wpxi(theta):
     return None
 
 
-def forecast(obs):
+def _wpxi_pm(theta): 
+    ''' plot wp and xi0 + xi2
+    '''
+    fig = plt.figure(figsize=(14,4))
+    sub0 = fig.add_subplot(131) 
+    sub0.set_xlabel(r'$r$', fontsize=25) 
+    sub0.set_xscale('log') 
+    sub0.set_xlim(1e-1, 3e1) 
+    sub0.set_ylabel(r'$w_p(r)$', fontsize=25) 
+    sub0.set_yscale('log') 
+
+    sub1 = fig.add_subplot(132) 
+    sub1.set_xlabel(r'$r$', fontsize=25) 
+    sub1.set_xscale('log') 
+    sub1.set_xlim(1e-1, 3e1) 
+    sub1.set_ylabel(r'$r^2\xi_0(r)$', fontsize=25) 
+    sub1.set_ylim(-200, 400) 
+    #sub1.set_ylabel(r'$\xi_0(r)$', fontsize=25) 
+    #sub1.set_yscale('log')
+
+    sub2 = fig.add_subplot(133) 
+    sub2.set_xlabel(r'$r$', fontsize=25) 
+    sub2.set_xscale('log') 
+    sub2.set_xlim(1e-1, 3e1) 
+    sub2.set_ylabel(r'$r^2\xi_2(r)$', fontsize=25) 
+    sub2.set_ylim(-200, 400) 
+    #sub2.set_ylabel(r'$\xi_2(r)$', fontsize=25) 
+    #sub2.set_yscale('log')
+
+    for i, _theta in enumerate([theta, 'fiducial']): 
+        if _theta  == 'fiducial': 
+            steps = ['']
+            clr = 'k'
+        elif _theta != 'Mnu': 
+            steps = ['_m', '_p']
+            clr = 'C0'
+        else: 
+            steps = ['_p', '_pp', '_ppp'] 
+            clr = 'C0'
+        lstyles = ['-', '--', ':']
+    
+        wps, xis = [], [] 
+        for ii, step in enumerate(steps): 
+            wp = quijhod_wp('%s%s' % (_theta, step))
+            xi = quijhod_xi('%s%s' % (_theta, step)) 
+
+            sub0.plot(np.average(wp['r'], axis=0), 
+                    np.average(wp['wp'], axis=0), 
+                    c=clr, ls=lstyles[ii], lw=0.5)
+            sub1.plot(np.average(xi['r'], axis=0), 
+                    np.average(xi['r']**2 * xi['xi0'], axis=0), 
+                    #np.average(xi['xi0'], axis=0), 
+                    c=clr, ls=lstyles[ii], lw=0.5)
+            sub2.plot(np.average(xi['r'], axis=0), 
+                    np.average(xi['r']**2 * xi['xi2'], axis=0), 
+                    #np.average(xi['xi2'], axis=0), 
+                    c=clr, ls=lstyles[ii], lw=0.5)
+            if ii == 0 and _theta != 'fiducial': 
+                sub2.plot([0], [0], c=clr, label=theta_lbls[thetas.index(_theta)])
+
+            wps.append(wp)
+            xis.append(xi) 
+
+        if _theta not in ['fiducial', 'Mnu']: 
+            sub0.plot(np.average(wps[0]['r'], axis=0), 
+                    np.average(wps[1]['wp'] - wps[0]['wp'], axis=0), 
+                    c='C1', ls=lstyles[ii], lw=0.5)
+            sub1.plot(np.average(xis[0]['r'], axis=0), 
+                    np.average(xis[1]['r']**2 * xis[1]['xi0'] - xis[0]['r']**2 * xis[0]['xi0'], axis=0), 
+                    #np.average(xi['xi0'], axis=0), 
+                    c='C1', ls=lstyles[ii], lw=0.5)
+            sub2.plot(np.average(xi['r'], axis=0), 
+                    np.average(xis[1]['r']**2 * xis[1]['xi2'] - xis[0]['r']**2 * xis[0]['xi2'], axis=0), 
+                    #np.average(xi['xi2'], axis=0), 
+                    c='C1', ls=lstyles[ii], lw=0.5)
+            sub2.plot([0], [0], c='C1', label=r'$\theta^+ - \theta^-$')
+
+    sub2.legend(loc='lower left', handletextpad=0.1, ncol=3)
+    fig.subplots_adjust(wspace=0.4) 
+    ffig = os.path.join(dat_dir, 'wpxi.%s.png' % theta)
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
+
+
+def forecast(obs, params='default'):
     ''' fisher forecast  
     '''
     if isinstance(obs, list): 
@@ -122,11 +206,19 @@ def forecast(obs):
         obs_list = [obs] 
 
     # x, y ranges
-    dlim = [0.1, 0.06, 0.5, 0.5, 0.15, 0.75, 0.2, 0.4, 0.2, 0.2]
+    if params == 'default': 
+        _thetas = thetas
+    elif isinstance(params, list): 
+        _thetas = params
+    else: 
+        raise NotImplementedError
+
+    dlim = [[0.1, 0.06, 0.5, 0.5, 0.15, 0.75, 0.2, 0.4, 0.2,
+        0.2][thetas.index(_tt)] for _tt in _thetas]
 
     fig = plt.figure(figsize=(17, 15))
     for i_obs, obs in enumerate(obs_list): 
-        Fij = FisherMatrix(obs) # fisher matrix (Fij)
+        Fij = FisherMatrix(obs, params=params) # fisher matrix (Fij)
 
         cond = np.linalg.cond(Fij)
         if cond > 1e16: print('Fij is ill-conditioned %.5e' % cond)
@@ -134,30 +226,37 @@ def forecast(obs):
         Finv    = np.linalg.inv(Fij) # invert fisher matrix 
         print('sigmas %s' % ', '.join(['%.2e' % sii for sii in np.sqrt(np.diag(Finv))]))
 
-        for i in range(len(thetas)+1): 
-            for j in range(i+1, len(thetas)): 
+        for i in range(len(_thetas)+1): 
+            for j in range(i+1, len(_thetas)): 
                 # sub inverse fisher matrix 
                 Finv_sub = np.array([[Finv[i,i], Finv[i,j]], [Finv[j,i], Finv[j,j]]]) 
                 # plot the ellipse
-                sub = fig.add_subplot(len(thetas)-1, len(thetas)-1, (len(thetas)-1) * (j-1) + i + 1) 
+                sub = fig.add_subplot(len(_thetas)-1, len(_thetas)-1, (len(_thetas)-1) * (j-1) + i + 1) 
 
                 Forecast.plotEllipse(Finv_sub, sub, 
-                        theta_fid_ij=[theta_fid[thetas[i]],
-                            theta_fid[thetas[j]]], color='C%i'% i_obs)
+                        theta_fid_ij=[theta_fid[_thetas[i]],
+                            theta_fid[_thetas[j]]], color='C%i'% i_obs)
 
-                sub.set_xlim(theta_fid[thetas[i]] - dlim[i], theta_fid[thetas[i]] + dlim[i])
-                sub.set_ylim(theta_fid[thetas[j]] - dlim[j], theta_fid[thetas[j]] + dlim[j])
+                sub.set_xlim(theta_fid[_thetas[i]] - dlim[i], theta_fid[_thetas[i]] + dlim[i])
+                sub.set_ylim(theta_fid[_thetas[j]] - dlim[j], theta_fid[_thetas[j]] + dlim[j])
                 if i == 0:   
-                    sub.set_ylabel(theta_lbls[j], fontsize=20) 
+                    sub.set_ylabel(theta_lbls[thetas.index(_thetas[j])], fontsize=20) 
                 else: 
                     sub.set_yticks([])
                     sub.set_yticklabels([])
                 
-                if j == len(thetas)-1: 
-                    sub.set_xlabel(theta_lbls[i], labelpad=10, fontsize=20) 
+                if j == len(_thetas)-1: 
+                    sub.set_xlabel(theta_lbls[thetas.index(_thetas[i])], labelpad=10, fontsize=20) 
                 else: 
                     sub.set_xticks([])
                     sub.set_xticklabels([]) 
+
+        # write out Fisher matrix  
+        hdr = '%s\n%s' % (', '.join(_thetas), '1sigma %s' % ', '.join(['%.2e' %
+            sii for sii in np.sqrt(np.diag(Finv))]))
+        
+        ffish = os.path.join(dat_dir, 'fij_%s%s.dat' % (obs, _params_str(params)))
+        np.savetxt(ffish, Fij, delimiter='\t', header=hdr)
     
     fig.subplots_adjust(wspace=0.05, hspace=0.05) 
 
@@ -170,19 +269,69 @@ def forecast(obs):
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
     
     obs_str = '.'.join(obs_list) 
-    ffig = os.path.join(dat_dir, '%s.forecast.png' % obs_str)
+    ffig = os.path.join(dat_dir, '%s%s.forecast.png' % (obs_str,
+        _params_str(params)))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
 
-def plot_FisherMatrix(obs): 
+def _forecast_converge(obs, params='default'):
+    ''' fisher forecast  
+    '''
+    assert isinstance(obs, str)
+    Nderivs = [200, 300, 350, 400, 425, 450, 475, 500]
+
+    # x, y ranges
+    if params == 'default': 
+        _thetas = thetas
+    elif isinstance(params, list): 
+        _thetas = params
+    else: 
+        raise NotImplementedError
+
+    dlim = [[0.1, 0.06, 0.5, 0.5, 0.15, 0.75, 0.2, 0.4, 0.2,
+        0.2][thetas.index(_tt)] for _tt in _thetas]
+    
+    onesigs = [] 
+    for i_deriv, Nderiv in enumerate(Nderivs): 
+        Fij = FisherMatrix(obs, params=params, Nderiv=Nderiv) # fisher matrix (Fij)
+
+        cond = np.linalg.cond(Fij)
+        if cond > 1e16: print('Fij is ill-conditioned %.5e' % cond)
+
+        Finv = np.linalg.inv(Fij) # invert fisher matrix 
+        onesig = np.sqrt(np.diag(Finv))
+        print('sigmas %s' % ', '.join(['%.2e' % sii for sii in onesig]))
+        onesigs.append(onesig) 
+    onesigs = np.array(onesigs) 
+
+    fig = plt.figure(figsize=(6,6))
+    sub = fig.add_subplot(111)
+    for i, theta in enumerate(_thetas): 
+        sub.plot(Nderivs, onesigs[:,i]/onesigs[-1,i], c='C%i' % i,
+                label=theta_lbls[thetas.index(theta)]) 
+    sub.plot([0, 1000], [1., 1.], c='k', ls='--') 
+    sub.legend(loc='lower left', fontsize=20)   
+    sub.set_xlabel(r'$N_{\rm deriv}$', fontsize=20) 
+    sub.set_xlim(np.min(Nderivs), 500) 
+    sub.set_ylabel(r'$N_{\rm deriv}$', fontsize=20) 
+    sub.set_ylim(0.8, 1.1) 
+    ffig = os.path.join(dat_dir, '_%s%s.forecast_converge.png' % (obs,
+        _params_str(params)))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+
+def plot_FisherMatrix(obs, params='default'): 
     ''' plot the Fisher matrix
     '''
-    Fij = FisherMatrix(obs)
-
-    theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', '$h$', '$n_s$', r'$\sigma_8$',
-            r'$\log M_{\rm min}$', r'$\sigma_{\log M}$', r'$\alpha$', 
-            r'$\log M_1$'] 
+    Fij = FisherMatrix(obs, params=params)
+    
+    if params == 'default': 
+        theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', '$h$', '$n_s$', r'$\sigma_8$',
+                r'$\log M_{\rm min}$', r'$\sigma_{\log M}$', r'$\alpha$', r'$\log M_1$'] 
+    else: 
+        raise NotImplementedError
     
     # plot the  fisher matrix 
     fig = plt.figure(figsize=(20,7))
@@ -209,7 +358,7 @@ def plot_FisherMatrix(obs):
 
 
 # Fisher Matrix
-def FisherMatrix(obs): 
+def FisherMatrix(obs, params='default', Nderiv=None): 
     ''' calculate fisher matrix 
     '''
     # calculate covariance matrix (with shotnoise; this is the correct one) 
@@ -243,12 +392,11 @@ def FisherMatrix(obs):
     ndata = C_fid.shape[0] 
     f_hartlap = float(nmock - ndata - 2)/float(nmock - 1) 
     C_inv = f_hartlap * np.linalg.inv(C_fid) # invert the covariance 
-    
-    # calculate the derivatives along all the thetas 
 
+    # calculate the derivatives along all the thetas 
     dobs_dt = [] 
     for par in thetas: 
-        _, dobsdt_i = dobsdt(par)
+        _, dobsdt_i = dobsdt(par, Nderiv=Nderiv)
         
         if obs == 'xi0': 
             dobsdt_i = dobsdt_i[:nbin]
@@ -258,7 +406,12 @@ def FisherMatrix(obs):
         dobs_dt.append(dobsdt_i) 
             
     Fij = Forecast.Fij(dobs_dt, C_inv) 
-    return Fij 
+
+    if params == 'default': 
+        return Fij 
+    elif isinstance(params, list): 
+        i_thetas = np.array([thetas.index(param) for param in params]) 
+        return Fij[i_thetas,:][:,i_thetas]
 
 
 def plot_dwpxi(): 
@@ -308,6 +461,58 @@ def plot_dwpxi():
     sub0.legend(loc='lower left', handletextpad=0.1, ncol=2)
 
     ffig = os.path.join(dat_dir, 'dwpxidtheta.png')
+    fig.subplots_adjust(wspace=0.4) 
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+
+def _plot_dwpxi_theta(theta): 
+    ''' compare wp, xi0, and xi2 derivatives w.r.t. input theta
+    '''
+    i_theta = thetas.index(theta) 
+    theta_lbl = theta_lbls[i_theta].replace('$', '') 
+
+    fig = plt.figure(figsize=(14,4))
+    sub0 = fig.add_subplot(131)
+    sub0.set_xscale('log') 
+    sub0.set_xlim(0.1, 30.) 
+    sub0.set_ylabel(r'$|{\rm d} w_{\rm p}/{\rm d}%s|$' % theta_lbl, fontsize=25) 
+    sub0.set_yscale('log') 
+    sub0.set_ylim(0.5, 1e5) 
+    
+    sub1 = fig.add_subplot(132)
+    sub1.set_xscale('log') 
+    sub1.set_xlim(0.1, 30.) 
+    sub1.set_xlabel('$r$', fontsize=25)
+    sub1.set_yscale('log') 
+    sub1.set_ylabel(r'$|{\rm d} r^2\xi_0/{\rm d}%s|$' % theta_lbl, fontsize=25) 
+        
+    sub2 = fig.add_subplot(133)
+    sub2.set_xscale('log') 
+    sub2.set_xlim(0.1, 30.) 
+    sub2.set_yscale('log') 
+    sub2.set_ylabel(r'$|{\rm d} r^2\xi_2/{\rm d}%s|$' % theta_lbl, fontsize=25) 
+
+    r, dwp = dwpdtheta(theta)
+
+    line, = sub0.plot(r, np.abs(dwp), c='k', ls='--')
+    dwp[dwp < 0] = np.nan
+    sub0.plot(r, dwp, color=line.get_color(), ls='-')
+
+    r, dxis = dxidtheta(theta)
+    dxi0 = dxis[:len(dxis)//2]
+    dxi2 = dxis[len(dxis)//2:]
+
+    # plot dxi_ell/dtheta
+    sub1.plot(r, np.abs(r**2*dxi0), c='k', ls='--')
+    dxi0[dxi0 < 0] = np.nan 
+    sub1.plot(r, r**2*dxi0, c=line.get_color(), ls='-')
+
+    sub2.plot(r, np.abs(r**2*dxi2), c='k', ls='--')
+    dxi2[dxi2 < 0] = np.nan
+    sub2.plot(r, r**2*dxi2, c=line.get_color(), ls='-')
+
+    ffig = os.path.join(dat_dir, 'dwpxid%s.png' % theta)
     fig.subplots_adjust(wspace=0.4) 
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
@@ -390,16 +595,16 @@ def cov_xi():
     return cov, nmock
 
 
-def dwpxidtheta(theta): 
+def dwpxidtheta(theta, Nderiv=None): 
     ''' derivative of [wp, xi0, xi2] w.r.t. theta 
     ''' 
-    r0, dwp = dwpdtheta(theta)
-    r1, dxi = dxidtheta(theta) 
+    r0, dwp = dwpdtheta(theta, Nderiv=Nderiv)
+    r1, dxi = dxidtheta(theta, Nderiv=Nderiv) 
 
     return r0, np.concatenate([dwp, dxi]) 
 
 
-def dwpdtheta(theta): 
+def dwpdtheta(theta, Nderiv=None): 
     ''' derivative of wp w.r.t theta  
     '''
     quijote_thetas = {
@@ -432,16 +637,19 @@ def dwpdtheta(theta):
         if i == 0: 
             dwp = np.zeros(quij['wp'].shape[1])
             r   = np.zeros(quij['r'].shape[1])
-
-        dwp += coeff * np.average(quij['wp'], axis=0) 
+        
         r   += np.average(quij['r'], axis=0) 
+        if Nderiv is None: 
+            dwp += coeff * np.average(quij['wp'], axis=0) 
+        else: 
+            dwp += coeff * np.average(quij['wp'][:Nderiv], axis=0) 
     
     dwp  /= h 
     r   /= float(len(steps))
     return r, dwp 
 
 
-def dxidtheta(theta): 
+def dxidtheta(theta, Nderiv=None): 
     ''' derivative of wp w.r.t theta  
     '''
     quijote_thetas = {
@@ -477,8 +685,12 @@ def dxidtheta(theta):
             dxi2    = np.zeros(quij['xi2'].shape[1])
 
         r       += np.average(quij['r'], axis=0) 
-        dxi0    += coeff * np.average(quij['xi0'], axis=0) 
-        dxi2    += coeff * np.average(quij['xi2'], axis=0) 
+        if Nderiv is None: 
+            dxi0    += coeff * np.average(quij['xi0'], axis=0) 
+            dxi2    += coeff * np.average(quij['xi2'], axis=0) 
+        else: 
+            dxi0    += coeff * np.average(quij['xi0'][:Nderiv], axis=0) 
+            dxi2    += coeff * np.average(quij['xi2'][:Nderiv], axis=0) 
     
     r       /= float(len(steps))
     dxi0    /= h 
@@ -524,13 +736,26 @@ def quijhod_xi(theta):
     return out
 
 
+def _params_str(params): 
+    if params == 'default': return ''
+    elif isinstance(params, list): 
+        return '.%s' % ''.join(params)
+
+
 if __name__=='__main__': 
-    #wpxi('fiducial')
+    #wpxi()
+    #for theta in thetas: 
+    #    _wpxi_pm(theta)
+    #    _plot_dwpxi_theta(theta)
     #plot_cov()
     #plot_dwpxi()
     #plot_FisherMatrix('wp')
     #plot_FisherMatrix('xi')
     #plot_FisherMatrix('wpxi')
-    forecast(['wp', 'xi0', 'xi', 'wpxi'])
+    #forecast('wp')
     #forecast('xi')
     #forecast('wpxi')
+    #forecast(['wp', 'xi0', 'xi', 'wpxi'], params='default')
+    #forecast(['wp', 'xi0', 'xi', 'wpxi'], params=['Om', 'h', 'ns', 's8', 'Mnu', 'logMmin', 'sigma_logM', 'alpha', 'logM1'])
+    for obs in ['wp', 'xi0', 'xi', 'wpxi']:
+        _forecast_converge(obs, params='default')
