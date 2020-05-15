@@ -22,9 +22,6 @@ _thetas = ['Om_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p', 'Om_m',  'Ob2_m', 'h_m', 'ns_
         'fiducial_alpha=1.3', 'fiducial_logM0=14.2', 'fiducial_logM1=14.2', 'fiducial_logMmin=13.70', 'fiducial_sigma_logM=0.22', 
         'fiducial_ZA']
 
-thetas = ['fiducial_ZA']
-_thetas = ['fiducial_ZA']
-
 
 # do a loop over the different cosmologies
 for i_t, theta in enumerate(thetas): 
