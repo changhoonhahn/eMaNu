@@ -222,7 +222,7 @@ def quijoteB_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     return None 
 
 
-def quijoteP_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None): 
+def quijoteP_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None, seed=0): 
     ''' read in quijote HOD power spectrum transferred from CCA servers
     and write out to combined hdf5 file for fast and easier access in 
     the future. 
@@ -269,7 +269,7 @@ def quijoteP_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     elif subdir == 'fiducial' and flag == 'ncv': nmocks = 250
     elif subdir == 'fiducial_ZA' and flag == 'reg': nmocks=500
     elif subdir == 'fiducial_ZA' and flag == 'ncv': nmocks=250
-    else: nmocks = 250 
+    else: nmocks = 500 
     
     # compile files 
     fpks = [] 
@@ -277,18 +277,12 @@ def quijoteP_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
         for i in range(nmocks): 
             if rsd == 'real': 
                 #fpks.append('%i/Pk_z=0.txt' % i) 
-                fpks.append('%i/Pk_GC_0_z=0.txt' % i) 
+                fpks.append('%i/Pk_GC_%i_z=0.txt' % (i, seed)) 
             else: 
                 #fpks.append('%i/Pk_RS%i_z=0.txt' % (i, rsd))
-                fpks.append('%i/Pk_RS%i_GC_0_z=0.txt' % (i, rsd))
+                fpks.append('%i/Pk_RS%i_GC_%i_z=0.txt' % (i, rsd, seed))
     elif flag == 'ncv': # paired-fixed
-        for i in range(nmocks): 
-            if rsd == 'real': 
-                fpks.append('NCV_0_%i/Pk_z=0.txt' % i) 
-                fpks.append('NCV_1_%i/Pk_z=0.txt' % i) 
-            else: 
-                fpks.append('NCV_0_%i/Pk_RS%i_z=0.txt' % (i, rsd))
-                fpks.append('NCV_1_%i/Pk_RS%i_z=0.txt' % (i, rsd))
+        raise NotImplementedError
 
     npk = len(fpks) 
     print('%i power spectrum files in /%s' % (npk, subdir))  
@@ -337,11 +331,14 @@ def quijoteP_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
             p0k[i,:] = _p0k - 1./nbar 
 
     # save to hdf5 file 
-    quij_dir = os.path.join(UT.dat_dir(), 'powerspectrum', 'quijote_hod', 'z0') 
-    if rsd != 'real':  # reshift space 
-        fhdf5 = os.path.join(quij_dir, 'quijhod_%s.%s.rsd%i.hdf5' % (subdir, flag, rsd))
+    if machine == 'tiger': 
+        quij_dir = os.path.join('/projects/QUIJOTE/Galaxies/')
     else: 
-        fhdf5 = os.path.join(quij_dir, 'quijhod_%s.%s.real.hdf5' % (subdir, flag))
+        quij_dir = os.path.join(UT.dat_dir(), 'powerspectrum', 'quijote_hod', 'z0') 
+    if rsd != 'real':  # reshift space 
+        fhdf5 = os.path.join(quij_dir, 'quijhod_P_%s.%s.seed%i.rsd%i.hdf5' % (subdir, flag, seed, rsd))
+    else: 
+        fhdf5 = os.path.join(quij_dir, 'quijhod_P_%s.%s.seed%i.real.hdf5' % (subdir, flag, seed))
     f = h5py.File(fhdf5, 'w') 
     f.create_dataset('k', data=k)
     f.create_dataset('p0k', data=p0k) 
@@ -355,7 +352,7 @@ def quijoteP_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     return None 
 
 
-def quijoteB_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None): 
+def quijoteB_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None, seed=0): 
     ''' read in quijote HOD bispectrum transferred from CCA servers
     and write out to combined hdf5 file for fast and easier access in 
     the future. 
@@ -402,23 +399,21 @@ def quijoteB_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     elif subdir == 'fiducial' and flag == 'ncv': nmocks = 500
     elif subdir == 'fiducial_ZA' and flag == 'reg': nmocks=500
     elif subdir == 'fiducial_ZA' and flag == 'ncv': nmocks=250
-    else: nmocks = 500 
+    else: 
+        nmocks = 500 
+    if seed == 1: nmocks = 100 
 
     fbks = [] 
     if flag == 'reg': # regular Nbody 
         for i in range(nmocks): 
             if rsd == 'real': 
-                fbks.append('%i/Bk_z=0.txt' % i) 
+                #fbks.append('%i/Bk_z=0.txt' % i) 
+                fbks.append('%i/Bk_real_GC_%i_z=0.txt' % (i, seed)) 
             else: 
-                fbks.append('%i/Bk_RS%i_z=0.txt' % (i, rsd))
+                #fbks.append('%i/Bk_RS%i_z=0.txt' % (i, rsd))
+                fbks.append('%i/Bk_RS%i_GC_%i_z=0.txt' % (i, rsd, seed))
     elif flag == 'ncv': # paired-fixed
-        for i in range(nmocks): 
-            if rsd == 'real': 
-                fbks.append('NCV_0_%i/Bk_z=0.txt' % i) 
-                fbks.append('NCV_1_%i/Bk_z=0.txt' % i) 
-            else: 
-                fbks.append('NCV_0_%i/Bk_RS%i_z=0.txt' % (i, rsd))
-                fbks.append('NCV_1_%i/Bk_RS%i_z=0.txt' % (i, rsd))
+        raise NotImplementedError
 
     nbk = len(fbks) 
     print('%i bispectrum files in /%s' % (nbk, subdir))  
@@ -429,8 +424,12 @@ def quijoteB_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     
     # load in all the files 
     for i, fbk in enumerate(fbks):
-        i_k, j_k, l_k, _p0k1, _p0k2, _p0k3, b123, q123, b_sn, cnts = np.loadtxt(
-                os.path.join(dir_quij, fbk), skiprows=1, unpack=True, usecols=range(10)) 
+        try: 
+            i_k, j_k, l_k, _p0k1, _p0k2, _p0k3, b123, q123, b_sn, cnts = np.loadtxt(
+                    os.path.join(dir_quij, fbk), skiprows=1, unpack=True, usecols=range(10)) 
+        except: 
+            print(fbk) 
+            raise ValueError
         hdr = open(os.path.join(dir_quij, fbk)).readline().rstrip() 
         Nhalo = int(hdr.split('Ngal=')[-1])
  
@@ -451,11 +450,14 @@ def quijoteB_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
         bsn[i,:] = b_sn 
 
     # save to hdf5 file 
-    quij_dir = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_hod', 'z0') 
-    if rsd != 'real':  # reshift space 
-        fhdf5 = os.path.join(quij_dir, 'quijhod_%s.%s.rsd%i.hdf5' % (subdir, flag, rsd))
+    if machine == 'tiger': 
+        quij_dir = os.path.join('/projects/QUIJOTE/Galaxies/')
     else: 
-        fhdf5 = os.path.join(quij_dir, 'quijhod_%s.%s.real.hdf5' % (subdir, flag))
+        quij_dir = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_hod', 'z0') 
+    if rsd != 'real':  # reshift space 
+        fhdf5 = os.path.join(quij_dir, 'quijhod_B_%s.%s.seed%i.rsd%i.hdf5' % (subdir, flag, seed, rsd))
+    else: 
+        fhdf5 = os.path.join(quij_dir, 'quijhod_B_%s.%s.seed%i.real.hdf5' % (subdir, flag, seed))
     f = h5py.File(fhdf5, 'w') 
     f.create_dataset('k1', data=i_k)
     f.create_dataset('k2', data=j_k)
@@ -468,7 +470,6 @@ def quijoteB_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None):
     f.create_dataset('b_sn', data=bsn) 
     f.create_dataset('counts', data=cnts) 
     f.create_dataset('Ngalaxies', data=Nhalos) 
-    #f.create_dataset('files', data=fbks) 
     f.close()
     return None 
 
@@ -496,12 +497,13 @@ if __name__=="__main__":
         quijoteB_hdf5('fiducial_za', rsd=rsd, flag='ncv')
     '''
     thetas_hod = ['Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'Om_m', 'Om_p', 'Ob2_m', 'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p', 
-            'alpha_m', 'alpha_p', 'logM0_m', 'logM0_p', 'logM1_m', 'logM1_p', 'logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'fiducial']
-    thetas_hod = ['alpha_m', 'alpha_p', 'logM0_m', 'logM0_p', 'logM1_m', 'logM1_p', 'logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'fiducial']
-    thetas_hod = ['fiducial_ZA']
+            'alpha_m', 'alpha_p', 'logM0_m', 'logM0_p', 'logM1_m', 'logM1_p', 'logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'fiducial_ZA'] # 'fiducial']
+    #thetas_hod = ['alpha_m', 'alpha_p', 'logM0_m', 'logM0_p', 'logM1_m', 'logM1_p', 'logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'fiducial']
+    #thetas_hod = ['fiducial_ZA']
+    #thetas_hod = ['fiducial']
     for sub in thetas_hod: 
-        for rsd in [0, 1, 2, 'real']: 
-            quijoteP_hod_hdf5(sub, machine='tiger', rsd=rsd, flag='reg')
-            quijoteP_hod_hdf5(sub, machine='tiger', rsd=rsd, flag='ncv')
-            quijoteB_hod_hdf5(sub, machine='tiger', rsd=rsd, flag='reg')
-            quijoteB_hod_hdf5(sub, machine='tiger', rsd=rsd, flag='ncv')
+        for rsd in [0, 1, 2]:#, 'real']: 
+            quijoteP_hod_hdf5(sub, machine='tiger', rsd=rsd, flag='reg', seed=1)
+            #quijoteP_hod_hdf5(sub, machine='tiger', rsd=rsd, flag='ncv')
+            quijoteB_hod_hdf5(sub, machine='tiger', rsd=rsd, flag='reg', seed=1)
+            #quijoteB_hod_hdf5(sub, machine='tiger', rsd=rsd, flag='ncv')

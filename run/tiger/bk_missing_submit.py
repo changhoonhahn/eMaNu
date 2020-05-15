@@ -77,9 +77,13 @@ for i_t, theta in enumerate(thetas):
     
     missing = [] 
     for i in range(offset,nreal): 
-        fbk = os.path.join(dir_quij, _thetas[i_t], str(i), 
+        fbk0 = os.path.join(dir_quij, _thetas[i_t], str(i), 
                 'Bk_RS0_GC_%i_z=0.txt' % seed)
-        if not os.path.isfile(fbk): 
+        fbk1 = os.path.join(dir_quij, _thetas[i_t], str(i), 
+                'Bk_RS1_GC_%i_z=0.txt' % seed)
+        fbk2 = os.path.join(dir_quij, _thetas[i_t], str(i), 
+                'Bk_RS2_GC_%i_z=0.txt' % seed)
+        if not np.all([os.path.isfile(fbk0), os.path.isfile(fbk1), os.path.isfile(fbk2)]):
             missing.append(i)
     missing = np.sort(missing)
     n_missing = len(missing) 
@@ -131,7 +135,7 @@ for i_t, theta in enumerate(thetas):
             "#SBATCH --nodes=1",
             "#SBATCH --ntasks-per-node=40",
             "#SBATCH --partition=general",
-	    "#SBATCH --time=%s:00:00" % (str(time).zfill(2)),
+	    "#SBATCH --time=%s:59:59" % (str(time-1).zfill(2)),
             "#SBATCH --export=ALL",
             "#SBATCH --output=_bk_%s%i.o" % (theta, i),
             "#SBATCH --mail-type=all",
