@@ -54,6 +54,15 @@ def quijhod_dPkdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0, N
             tts = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
             coeffs = [-21., 32., -12., 1.] # finite difference coefficient
             h = 1.2
+    elif theta == 'b1': 
+        if not silent: print("--- calculating dP/db' ---") 
+        # amplitude of P(k) is a free parameter
+        tts = ['fiducial'] 
+        coeffs = [0.] 
+        h = 1. 
+        quij = Obvs.quijhod_Pk('fiducial', z=z, flag=flag, rsd=rsd, silent=silent)
+        if not log: c_dpk = 2.*np.average(quij['p0k'], axis=0) 
+        else: c_dpk = 2.*np.ones(quij['p0k'].shape[1]) 
     elif theta == 'Asn' : 
         if not silent: print("--- calculating dP/dAsn ---") 
         # constant shot noise term is a free parameter
@@ -151,6 +160,16 @@ def quijhod_dP02kdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0,
             tts = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
             coeffs = [-21., 32., -12., 1.] # finite difference coefficient
             h = 1.2
+    elif theta == 'b1': 
+        if not silent: print("--- calculating dP/db' ---") 
+        # amplitude of P(k) is a free parameter
+        tts = ['fiducial'] 
+        coeffs = [0.] 
+        h = 1. 
+        quij = Obvs.quijhod_Pk('fiducial', z=z, flag=flag, rsd=rsd, silent=silent)
+        _p02ks = np.concatenate([quij['p0k'], quij['p2k']], axis=1)
+        if not log: c_dpk = 2.*np.average(_p02ks, axis=0) 
+        else: c_dpk = 2.*np.ones(_p02ks.shape[1]) 
     elif theta == 'Asn' : 
         if not silent: print("--- calculating dP/dAsn ---") 
         # constant shot noise term is a free parameter
@@ -277,6 +296,15 @@ def quijhod_dBkdtheta(theta, log=False, rsd='all', flag=None, z=0, dmnu='fin', N
             h = 6. 
         else: 
             raise NotImplementedError
+    elif theta == 'b1': 
+        if not silent: print("--- calculating dB/db' ---") 
+        # amplitude scaling is a free parameter
+        tts = ['fiducial'] 
+        coeffs = [0.] 
+        h = 1. 
+        quij = Obvs.quijhod_Bk('fiducial', z=z, flag=flag, rsd=rsd, silent=silent)
+        if not log: c_dbk = 3.*np.average(quij['b123'], axis=0) 
+        else: c_dbk = 3.*np.ones(quij['b123'].shape[1])
     elif theta == 'Asn' : 
         # free parameter that's supposed to account for the constant shot noise term -- 1/n^2
         # B = B_nbody + Bsn * (P1 + P2 + P3) + Asn

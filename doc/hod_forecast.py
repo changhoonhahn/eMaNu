@@ -43,9 +43,9 @@ theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', r'$
 theta_fid = {'Mnu': 0., 'Ob': 0.049, 'Ob2': 0.049, 'Om': 0.3175, 'h': 0.6711,  'ns': 0.9624,  's8': 0.834, 
         'logMmin': 13.65, 'sigma_logM': 0.2, 'logM0': 14.0, 'alpha': 1.1, 'logM1': 14.0} # fiducial theta 
 # nuisance parameters
-theta_nuis_lbls = {'Amp': "$b'$", 'Asn': r"$A_{\rm SN}$", 'Bsn': r"$B_{\rm SN}$", 'b2': '$b_2$', 'g2': '$g_2$'}
-theta_nuis_fids = {'Amp': 1., 'Asn': 1e-6, 'Bsn': 1e-3, 'b2': 1., 'g2': 1.} 
-theta_nuis_lims = {'Amp': (0.75, 1.25), 'Asn': (0., 1.), 'Bsn': (0., 1.), 'b2': (0.95, 1.05), 'g2': (0.95, 1.05)} 
+theta_nuis_lbls = {'Amp': "$b'$", 'b1': r'$b_1$', 'Asn': r"$A_{\rm SN}$", 'Bsn': r"$B_{\rm SN}$", 'b2': '$b_2$', 'g2': '$g_2$'}
+theta_nuis_fids = {'Amp': 1., 'b1': 1., 'Asn': 1e-6, 'Bsn': 1e-3, 'b2': 1., 'g2': 1.} 
+theta_nuis_lims = {'Amp': (0.75, 1.25), 'b1': (0.9, 1.1), 'Asn': (0., 1.), 'Bsn': (0., 1.), 'b2': (0.95, 1.05), 'g2': (0.95, 1.05)} 
 
 # --- covariance matrices --- 
 def p02kCov(rsd=2, flag='reg', silent=True): 
@@ -1241,7 +1241,10 @@ def P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, 
     print('P sigmas %s' % ', '.join(['%.5f' % sii for sii in np.sqrt(np.diag(pkFinv))]))
     print('B sigmas %s' % ', '.join(['%.5f' % sii for sii in np.sqrt(np.diag(bkFinv))]))
     print('P+B sigmas %s' % ', '.join(['%.5f' % sii for sii in np.sqrt(np.diag(pbkFinv))]))
-    print('improve. over P %s' % ', '.join(['%.1f' % sii for sii in np.sqrt(np.diag(pkFinv)/np.diag(pbkFinv))]))
+    if theta_nuis is not None and 'Bsn' in theta_nuis: 
+        pass 
+    else: 
+        print('improve. over P %s' % ', '.join(['%.1f' % sii for sii in np.sqrt(np.diag(pkFinv)/np.diag(pbkFinv))]))
     print('improve. over B %s' % ', '.join(['%.1f' % sii for sii in np.sqrt(np.diag(bkFinv)/np.diag(pbkFinv))]))
         
     ntheta = len(thetas) 
@@ -1256,7 +1259,8 @@ def P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, 
         _thetas += theta_nuis 
         _theta_lbls += [theta_nuis_lbls[tt] for tt in theta_nuis]
         for tt in theta_nuis: _theta_fid[tt] = theta_nuis_fids[tt]
-        _theta_lims += [theta_nuis_lims[tt] for tt in theta_nuis]
+        #_theta_lims += [theta_nuis_lims[tt] for tt in theta_nuis]
+        _theta_dlims += [0.5 * (theta_nuis_lims[tt][1] - theta_nuis_lims[tt][0]) for tt in theta_nuis]
         n_nuis = len(theta_nuis) 
 
     Finvs   = [pkFinv, bkFinv, pbkFinv]
@@ -1277,7 +1281,10 @@ def P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, 
             else: sub = plt.subplot(gs1[j-6,i]) # the rest
 
             for _i, Finv in enumerate(Finvs):
-                Finv_sub = np.array([[Finv[i,i], Finv[i,j]], [Finv[j,i], Finv[j,j]]]) # sub inverse fisher matrix 
+                try:
+                    Finv_sub = np.array([[Finv[i,i], Finv[i,j]], [Finv[j,i], Finv[j,j]]]) # sub inverse fisher matrix 
+                except IndexError: 
+                    continue 
                 Forecast.plotEllipse(Finv_sub, sub, theta_fid_ij=[theta_fid_i, theta_fid_j], color=colors[_i], 
                         sigmas=sigmas[_i], alphas=alphas[_i])
 
@@ -1311,8 +1318,7 @@ def P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, 
     nuis_str = ''
     if theta_nuis is not None: 
         nuis_str += '.'
-        if 'Amp' in theta_nuis: nuis_str += 'b'
-        if 'Mmin' in theta_nuis: nuis_str += 'Mmin'
+        if 'b1' in theta_nuis: nuis_str += 'b1'
         if ('Asn' in theta_nuis) or ('Bsn' in theta_nuis): nuis_str += 'SN'
         if 'b2' in theta_nuis: nuis_str += 'b2'
         if 'g2' in theta_nuis: nuis_str += 'g2'
@@ -2027,8 +2033,6 @@ if __name__=="__main__":
         plot_bias(rsd='all', flag='reg')
     '''
     # convergence tests
-    converge_Fij('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin',
-            params='lcdm', silent=True)
     '''
         # convergence of derivatives
         for theta in ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']: 

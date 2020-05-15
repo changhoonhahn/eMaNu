@@ -175,11 +175,12 @@ def _flag_str(flag):
 
 
 if __name__=="__main__": 
-    thetas = ['Mnu', 'Om', 'Ob2', 'h', 'ns', 's8', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1', 'Asn', 'Bsn'] 
+    #thetas = ['Mnu', 'Om', 'Ob2', 'h', 'ns', 's8', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1', 'Asn', 'Bsn'] 
+    thetas = ['b1']
     for theta in thetas: 
         for rsd in [0, 1, 2, 'all']: # 'real', 
             for flag in ['reg']: #'ncv' 
                 if theta not in ['Bsn']: 
-                    hod_dPdtheta(theta, z=0, rsd=rsd, flag=flag, silent=False)
+                    #hod_dPdtheta(theta, z=0, rsd=rsd, flag=flag, silent=False)
                     if rsd != 'real': hod_dP02dtheta(theta, z=0, rsd=rsd, flag=flag, silent=False)
                 hod_dBdtheta(theta, z=0, rsd=rsd, flag=flag, silent=False) 
