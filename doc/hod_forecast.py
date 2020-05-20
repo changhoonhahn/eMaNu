@@ -629,6 +629,21 @@ def plot_dPBg_dPBh(theta, rsd='all', flag='reg', dmnu='fin', log=False):
 
 
 # --- power/bispectrum --- 
+def nbar(): 
+    ''' galaxy number density for the fiducial HOD parameters at fiducial
+    cosmology. Also calculate number density of halos. 
+    '''
+    hod = Obvs.quijhod_Pk('fiducial', seed=0, flag='reg', rsd='all',
+            silent=True) 
+    nbar_g = 1./hod['p_sn']
+    print('median galaxy number density = %.5e' % np.median(nbar_g)) 
+
+    halo = Obvs.quijotePk('fiducial', flag='reg', rsd='all', silent=True)
+    nbar_h = 1./halo['p_sn']
+    print('median halo number density = %.5e' % np.median(nbar_h)) 
+    return None 
+
+
 def plot_PBg(rsd='all', flag='reg'): 
     ''' plot Pg0, Pg2, Bg0 with Ph0, Ph2, Bh0 included for reference. 
     '''
@@ -669,7 +684,7 @@ def plot_PBg(rsd='all', flag='reg'):
     sub0.set_ylabel('$|P_{g, \ell}(k)|$', fontsize=25) 
     sub0.set_yscale('log') 
     
-    _bhplt, = sub1.plot(range(np.sum(bklim)), b0h[bklim], c='k', lw=0.25) 
+    _bhplt, = sub1.plot(range(np.sum(bklim)), b0h[bklim], c='k', ls=':') 
     _bgplt, = sub1.plot(range(np.sum(bklim)), b0g[bklim], c='C0') 
     sub1.legend([_bgplt, _bhplt], [r'galaxy', r'halo'], loc='upper right', 
             handletextpad=0.3, fontsize=20) 
@@ -686,28 +701,34 @@ def plot_PBg(rsd='all', flag='reg'):
 
 
 def plot_bias(rsd='all', flag='reg'): 
-    '''plot bias via Pg/Ph
+    '''plot bias by comparing the ratio of the galaxy and halo power spectrum
+    monopole (P0g, P0h) to the matter power spectrum (Pm) 
     '''
+    from emanu import lineartheory as LT 
     # read in P0g
     qhod_p = Obvs.quijhod_Pk('fiducial', flag=flag, rsd=rsd, silent=False) 
     k, p0g = qhod_p['k'], np.average(qhod_p['p0k'], axis=0)
     # read in P0h
     quij_p = Obvs.quijotePk('fiducial', rsd=rsd, flag=flag, silent=False) 
     p0h = np.average(quij_p['p0k'], axis=0)
+    # read in Pm 
+    plin = LT._Pm_Mnu(0., k) 
 
     # k limits 
     pklim = (k < 0.5) 
-    
     # --- plotting ---
     fig = plt.figure(figsize=(6,6))
     sub = fig.add_subplot(111)
     
-    sub.plot(k[pklim], np.sqrt(p0g[pklim]/p0h[pklim]), c='C0', ls='-') 
-    sub.plot([5e-3, 0.5], [1.36, 1.36], c='k', ls='--', label=r'$b_g = 1.36$') 
+    sub.plot(k[pklim], np.sqrt(p0g[pklim]/plin[pklim]), c='C0', ls='-') 
+    sub.plot(k[pklim], np.sqrt(p0h[pklim]/plin[pklim]), c='C1', ls='-') 
+    sub.plot([5e-3, 0.5], [2.55, 2.55], c='k', ls='--', label=r'$b_g = 2.55$') 
+    sub.plot([5e-3, 0.5], [1.85, 1.85], c='k', ls=':', label=r'$b_h = 1.85$') 
     sub.set_xlabel('k', fontsize=25) 
     sub.set_xscale('log') 
     sub.set_xlim(5e-3, 0.5) 
-    sub.set_ylabel(r'$\sqrt{\frac{P_{g,0}}{P_{h,0}}(k)}$', fontsize=20) 
+    sub.set_ylabel(r'$\sqrt{\frac{P_{g,0}}{P_m}(k)}$', fontsize=20) 
+    sub.set_ylim(1.5, 3.5)
     sub.legend(loc='upper left', fontsize=25) 
 
     ffig = os.path.join(dir_doc, 'galaxy_bias%s%s.png' % (_rsd_str(rsd), _flag_str(flag)))
@@ -1044,6 +1065,8 @@ def FisherMatrix(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin',
         _thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1'] 
     elif params == 'lcdm': 
         _thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1'] 
+    elif params == 'halo':  # same parameters as halo case
+        _thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu', 'logMmin'] 
     else: 
         raise NotImplementedError
     if theta_nuis is not None: _thetas += theta_nuis 
@@ -1334,7 +1357,7 @@ def P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, 
     return None 
 
 
-def P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False):
+def P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None):
     ''' fisher forecast for quijote P0+P2 and B where theta_nuis are added as free parameters 
     as a function of kmax.
     
@@ -1365,77 +1388,65 @@ def P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planc
         if 'b2' in theta_nuis: pk_theta_nuis.remove('b2') 
         if 'g2' in theta_nuis: pk_theta_nuis.remove('g2') 
     
-    if planck: # add planck prior 
-        _Fij_planck = np.load(os.path.join(UT.dat_dir(), 'Planck_2018_s8.npy')) # read in planck prior fisher (order is Om, Ob, h, ns, s8 and Mnu) 
+    _Fij_planck = np.load(os.path.join(UT.dat_dir(), 'Planck_2018_s8.npy')) # read in planck prior fisher (order is Om, Ob, h, ns, s8 and Mnu) 
 
     # read in fisher matrix (Fij)
-    sig_pk, sig_bk, sig_pbk, sig_pk_planck, sig_pbk_planck = [], [], [], [], []
+    sig_pk, sig_pbk, sig_pk_planck, sig_pbk_planck = [], [], [], []
     for i_k, kmax in enumerate(kmaxs): 
         pkFij   = FisherMatrix('p02k', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=pk_theta_nuis)  
-        bkFij   = FisherMatrix('bk', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=bk_theta_nuis)  
         pbkFij  = FisherMatrix('p02bk', kmax=kmax, rsd=rsd,  flag=flag, dmnu=dmnu, theta_nuis=theta_nuis)  
         
-        if planck: 
-            pkFij_planck = pkFij.copy() 
-            bkFij_planck = bkFij.copy() 
-            pbkFij_planck = pbkFij.copy() 
-            pkFij_planck[:6,:6] += _Fij_planck
-            pbkFij_planck[:6,:6] += _Fij_planck
+        pkFij_planck = pkFij.copy() 
+        pbkFij_planck = pbkFij.copy() 
+        pkFij_planck[:6,:6] += _Fij_planck
+        pbkFij_planck[:6,:6] += _Fij_planck
         
         sig_pk.append(np.sqrt(np.diag(np.linalg.inv(pkFij))))
-        sig_bk.append(np.sqrt(np.diag(np.linalg.inv(bkFij))))
         sig_pbk.append(np.sqrt(np.diag(np.linalg.inv(pbkFij))))
 
-        if planck: 
-            sig_pk_planck.append(np.sqrt(np.diag(np.linalg.inv(pkFij_planck))))
-            sig_pbk_planck.append(np.sqrt(np.diag(np.linalg.inv(pbkFij_planck))))
+        sig_pk_planck.append(np.sqrt(np.diag(np.linalg.inv(pkFij_planck))))
+        sig_pbk_planck.append(np.sqrt(np.diag(np.linalg.inv(pbkFij_planck))))
 
         print('kmax=%.3f, %i---' %  (kmax, int(kmax/kf)))
         if np.linalg.cond(pkFij) > 1e16: 
-            print('P02 Fij ill-conditioned; cond # = %.2e' % np.linalg.cond(pkFij)) 
-        if np.linalg.cond(bkFij) > 1e16: 
-            print('B Fij ill-conditioned; cond # = %.2e' % np.linalg.cond(bkFij)) 
+            print('  P02 Fij ill-conditioned; cond # = %.2e' % np.linalg.cond(pkFij)) 
+        #if np.linalg.cond(bkFij) > 1e16: 
+        #    print('B Fij ill-conditioned; cond # = %.2e' % np.linalg.cond(bkFij)) 
         if np.linalg.cond(pbkFij) > 1e16: 
-            print('P02+B Fij ill-conditioned; cond # = %.2e' % np.linalg.cond(bkFij)) 
+            print('  P02+B Fij ill-conditioned; cond # = %.2e' % np.linalg.cond(bkFij)) 
 
-        print('pk: %s' % ', '.join(['%.2e' % fii for fii in sig_pk[-1]])) 
-        print('bk: %s' % ', '.join(['%.2e' % fii for fii in sig_bk[-1]])) 
-        print('pbk: %s' % ', '.join(['%.2e' % fii for fii in sig_pbk[-1]])) 
-        if planck: 
-            print('pk w/ planck: %s' % ', '.join(['%.2e' % fii for fii in sig_pk_planck[-1]])) 
-            print('pbk w/ planck: %s' % ', '.join(['%.2e' % fii for fii in sig_pbk_planck[-1]])) 
+        print('  pk: %s' % ', '.join(['%.2e' % fii for fii in sig_pk[-1]])) 
+        print('  pbk: %s' % ', '.join(['%.2e' % fii for fii in sig_pbk[-1]])) 
+        print('  pk w/ planck: %s' % ', '.join(['%.2e' % fii for fii in sig_pk_planck[-1]])) 
+        print('  pbk w/ planck: %s' % ', '.join(['%.2e' % fii for fii in sig_pbk_planck[-1]])) 
 
     sig_pk  = np.array(sig_pk)
-    sig_bk  = np.array(sig_bk)
     sig_pbk = np.array(sig_pbk)
-    if planck: 
-        sig_pk_planck = np.array(sig_pk_planck)
-        sig_pbk_planck= np.array(sig_pbk_planck)
+    sig_pk_planck = np.array(sig_pk_planck)
+    sig_pbk_planck= np.array(sig_pbk_planck)
      
     cond_pk = (kmaxs > 6. * kf)
-    cond_bk = (kmaxs > 12. * kf)
     cond_pbk = (kmaxs > 12. * kf)
     print('PK kmax > %f' % (5. * kf)) 
-    print('BK kmax > %f' %  (12. * kf))
     print('PBK kmax > %f' %  (12. * kf))
 
     # write out to table
     kmax_preset = np.zeros(len(kmaxs)).astype(bool) 
     for kmax in [0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]: 
         kmax_preset[(np.abs(kmaxs - kmax)).argmin()] = True
+
     pk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_pk[kmax_preset,:].T)).T 
-    bk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_bk[kmax_preset,:].T)).T 
     pbk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_pbk[kmax_preset,:].T)).T 
-    fpk = os.path.join(UT.doc_dir(), 'dat', 'P02g_forecast_kmax.dat') 
+
+    fpk = os.path.join(UT.doc_dir(), 'dat', 
+            'P02g_forecast_kmax%s.dat' % _nuis_str(pk_theta_nuis)) 
     np.savetxt(fpk, pk_dat, delimiter=', ', fmt='%.5f')
-    fbk = os.path.join(UT.doc_dir(), 'dat', 'B0g_forecast_kmax.dat') 
-    np.savetxt(fbk, bk_dat, delimiter=', ', fmt='%.5f')
-    fpbk = os.path.join(UT.doc_dir(), 'dat', 'P02Bg_forecast_kmax.dat') 
+    fpbk = os.path.join(UT.doc_dir(), 'dat', 
+            'P02Bg_forecast_kmax%s.dat' % _nuis_str(bk_theta_nuis))
     np.savetxt(fpbk, pbk_dat, delimiter=', ', fmt='%.5f')
 
-    sigma_theta_lims = [(5e-3, 1.), (1e-3, 1.), (1e-3, 2.), (1e-2, 5.), (1e-2, 1.), (1e-2, 1e1)]
-    #if planck: sigma_theta_lims = [(5e-3, 0.8), (5e-4, 1.), (1e-3, 10), (3e-3, 10), (5e-3, 10), (6e-3, 10.)]
-    if planck: sigma_theta_lims = [(5e-3, 1.), (5e-4, 1.), (5e-3, 10), (3e-3, 10), (5e-3, 10), (1e-2, 10.)]
+    #sigma_theta_lims = [(5e-3, 0.8), (5e-4, 1.), (1e-3, 10), (3e-3, 10), (5e-3, 10), (6e-3, 10.)]
+    sigma_theta_lims = [(5e-3, 1.), (5e-4, 1.), (5e-3, 10), (3e-3, 10), (5e-3, 10), (1e-2, 10.)]
     
     colors  = ['C0', 'C2', 'C1']
 
@@ -1443,21 +1454,20 @@ def P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planc
     for i, theta in enumerate(thetas[:6]): 
         sub = fig.add_subplot(2,3,i+1) 
         _plt_pk, = sub.plot(kmaxs[cond_pk], sig_pk[:,i][cond_pk], c=colors[0], ls='-') 
-        _plt_bk, = sub.plot(kmaxs[cond_bk], sig_bk[:,i][cond_bk], c=colors[1], ls='-') 
         _plt_pbk, = sub.plot(kmaxs[cond_pbk], sig_pbk[:,i][cond_pbk], c=colors[2], ls='-') 
-        if planck: 
-            sub.plot(kmaxs[cond_pk], sig_pk_planck[:,i][cond_pk], c=colors[0], ls='--', lw=1) 
-            _plt, = sub.plot(kmaxs[cond_pbk], sig_pbk_planck[:,i][cond_pbk], c=colors[2], ls='--', lw=1) 
-            if theta == 'Mnu': 
-                sub.legend([_plt_pbk, _plt], ['LSS only', 'w/ Planck priors'], loc='lower left', 
-                        bbox_to_anchor=(0.0, -0.05), handletextpad=0.25, fontsize=18) 
+
+        sub.plot(kmaxs[cond_pk], sig_pk_planck[:,i][cond_pk], c=colors[0], ls='--', lw=1) 
+        _plt, = sub.plot(kmaxs[cond_pbk], sig_pbk_planck[:,i][cond_pbk], c=colors[2], ls='--', lw=1) 
+        if theta == 'Mnu': 
+            sub.legend([_plt_pbk, _plt], ['LSS only', 'w/ Planck priors'], loc='lower left', 
+                    bbox_to_anchor=(0.0, -0.05), handletextpad=0.25, fontsize=18) 
 
         sub.set_xlim(0.05, 0.5)
         sub.text(0.9, 0.9, theta_lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=30)
         sub.set_ylim(sigma_theta_lims[i]) 
         sub.set_yscale('log') 
         if i == 1: 
-            sub.legend([_plt_pk, _plt_bk, _plt_pbk], [r"$P^g_\ell$", r"$B^g_0$", r"$P^g_\ell+B^g_0$"], 
+            sub.legend([_plt_pk, _plt_pbk], [r"$P^g_\ell$", r"$P^g_\ell+B^g_0$"], 
                     loc='lower center', bbox_to_anchor=(0.5, 1.0), handletextpad=0.2, fontsize=20, ncol=20)
 
     bkgd = fig.add_subplot(111, frameon=False)
@@ -1466,55 +1476,246 @@ def P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planc
     bkgd.set_ylabel(r'{\fontsize{28pt}{3em}\selectfont{}$\sigma_\theta~/$}{\fontsize{20pt}{3em}\selectfont{}$\sqrt{\frac{V}{1 ({\rm Gpc}/h)^3}}$}', labelpad=15)#, fontsize=28) 
     fig.subplots_adjust(wspace=0.2, hspace=0.15) 
 
-    if theta_nuis is None: nuis_str = ''
-    else: 
-        nuis_str = '.'
-        if 'Amp' in theta_nuis: nuis_str += 'b'
-        if 'Mmin' in theta_nuis: nuis_str += 'Mmin'
-        if ('Asn' in theta_nuis) or ('Bsn' in theta_nuis): nuis_str += 'SN'
-        if 'b2' in theta_nuis: nuis_str += 'b2'
-        if 'g2' in theta_nuis: nuis_str += 'g2'
-
-    planck_str = ''
-    if planck: planck_str = '.planck'
-
     ffig = os.path.join(dir_doc, 
-            'Fisher_kmax.p02bk%s.dmnu_%s%s%s%s.png' % (nuis_str, dmnu, _rsd_str(rsd), _flag_str(flag), planck_str))
+            'Fisher_kmax.p02bk%s.dmnu_%s%s%s.png' % (_nuis_str(bk_theta_nuis), dmnu, _rsd_str(rsd), _flag_str(flag)))
     fig.savefig(ffig, bbox_inches='tight') 
     fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex 
     return None
 
 
-def _PgPh_Forecast_kmax(): 
-    ''' quick comparison of the Pg and Ph forecasts as a function of kmax 
+def _P02B_P02Bh_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None):
+    ''' fisher forecast for quijote P0+P2 and B where theta_nuis are added as free parameters 
+    as a function of kmax.
     '''
-    # read constraints from P02B_Forecast_kmax
-    fpg = os.path.join(UT.doc_dir(), 'dat', 'P02g_forecast_kmax.dat') 
-    sigmas_pg = np.loadtxt(fpg, delimiter=',', unpack=True, usecols=range(7))
+    assert rsd == 'all'
+    assert flag == 'reg'
+    assert dmnu == 'fin'
 
-    fph = os.path.join(UT.doc_dir(), 'dat', 'p02k_forecast_kmax.dat') 
+    pk_theta_nuis = copy(theta_nuis)
+    bk_theta_nuis = copy(theta_nuis)
+    if theta_nuis is not None: 
+        if 'Bsn' in theta_nuis: pk_theta_nuis.remove('Bsn') 
+        if 'b2' in theta_nuis: pk_theta_nuis.remove('b2') 
+        if 'g2' in theta_nuis: pk_theta_nuis.remove('g2') 
+    
+    # read the galaxy constraints
+    # Pg constraint with {theta_cosmo}
+    fpg = os.path.join(UT.doc_dir(), 'dat', 
+            'P02g_forecast_kmax%s.dat' % _nuis_str(pk_theta_nuis)) 
+    sigmas_pg = np.loadtxt(fpg, delimiter=',', unpack=True, usecols=range(7))
+    # Pg+Bg constraint with {theta_cosmo}
+    fpbg = os.path.join(UT.doc_dir(), 'dat', 
+            'P02Bg_forecast_kmax%s.dat' % _nuis_str(bk_theta_nuis))
+    sigmas_pbg = np.loadtxt(fpbg, delimiter=',', unpack=True, usecols=range(7))
+
+    # read the halo constraints
+    # Ph constraint with {theta_cosmo}
+    fph = os.path.join(UT.doc_dir(), 'dat', 'P02h_forecast_kmax.dat') 
     sigmas_ph = np.loadtxt(fph, delimiter=',', unpack=True, usecols=range(7))
+    # Ph+Bh constraint with {theta_cosmo}
+    fpbh = os.path.join(UT.doc_dir(), 'dat', 'P02Bh_forecast_kmax.dat') 
+    sigmas_pbh = np.loadtxt(fpbh, delimiter=',', unpack=True, usecols=range(7))
+
+    # read the halo constraints with nuisance parameters
+    # Ph constraint with {theta_cosmo}
+    fphn = os.path.join(UT.doc_dir(), 'dat', 'P02h_forecast_kmax.b1Mmin.dat') 
+    sigmas_phn = np.loadtxt(fphn, delimiter=',', unpack=True, usecols=range(7))
+    # Ph+Bh constraint with {theta_cosmo}
+    fpbhn = os.path.join(UT.doc_dir(), 'dat', 'P02Bh_forecast_kmax.b1Mmin.dat') 
+    sigmas_pbhn = np.loadtxt(fpbhn, delimiter=',', unpack=True, usecols=range(7))
+
+    #sigma_theta_lims = [(5e-3, 0.8), (5e-4, 1.), (1e-3, 10), (3e-3, 10), (5e-3, 10), (6e-3, 10.)]
+    sigma_theta_lims = [(1e-3, 1.), (5e-4, 1.), (5e-3, 10), (3e-3, 10), (1e-3, 10), (1e-2, 10.)]
     
-    sigma_theta_lims = [(5e-3, 1.), (5e-4, 1.), (5e-3, 10), (3e-3, 10), (5e-3, 10), (1e-2, 10.)]
-    pg_lcdm = [2.46e-02, 8.82e-03, 8.99e-02, 1.09e-01, 5.99e-02]
-    ph_lcdm = [1.33e-02, 1.09e-02, 9.76e-02, 5.79e-02, 1.38e-02]
-    
+    colors  = ['C0', 'C2', 'C1']
     fig = plt.figure(figsize=(15,8))
     for i, theta in enumerate(thetas[:6]): 
         sub = fig.add_subplot(2,3,i+1) 
-        _plt_ph, = sub.plot(sigmas_ph[0], sigmas_ph[i+1], c='k', ls='-') 
-        _plt_pg, = sub.plot(sigmas_pg[0], sigmas_pg[i+1], c='C0', ls='-') 
+
+        _plt_pg, = sub.plot(sigmas_pg[0], sigmas_pg[i+1], c=colors[0], ls='-') 
+        _plt_ph, = sub.plot(sigmas_ph[0], sigmas_ph[i+1], c=colors[0], ls='--') 
+        _plt_phn, = sub.plot(sigmas_phn[0], sigmas_phn[i+1], c=colors[0], ls=':') 
+        _plt_pbg, = sub.plot(sigmas_pbg[0], sigmas_pbg[i+1], c=colors[2], ls='-') 
+        _plt_pbh, = sub.plot(sigmas_pbh[0], sigmas_pbh[i+1], c=colors[2], ls='--') 
+        _plt_pbhn, = sub.plot(sigmas_pbhn[0], sigmas_pbhn[i+1], c=colors[2], ls=':') 
+
+        if theta == 'Mnu': 
+            sub.legend(
+                    [_plt_pbg, _plt_pbh, _plt_pbhn], 
+                    ['galaxy', 'halo', r'halo + $b_1, M_{\rm min}$'], loc='lower left', 
+                    bbox_to_anchor=(0.0, -0.05), handletextpad=0.25, fontsize=18) 
 
         sub.set_xlim(0.05, 0.5)
         sub.text(0.9, 0.9, theta_lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=30)
         sub.set_ylim(sigma_theta_lims[i]) 
         sub.set_yscale('log') 
         if i == 1: 
-            sub.legend([_plt_ph, _plt_pg], [r"$P_{h,\ell}$", r"$P_{g,\ell}$"], 
+            sub.legend([_plt_pg, _plt_pbg], [r"$P_\ell$", r"$P_\ell+B_0$"], 
                     loc='lower center', bbox_to_anchor=(0.5, 1.0), handletextpad=0.2, fontsize=20, ncol=20)
-        if i < 5: 
-            sub.plot(sigma_theta_lims[i], [pg_lcdm[i], pg_lcdm[i]], ls='--', c='C0') 
-            sub.plot(sigma_theta_lims[i], [ph_lcdm[i], ph_lcdm[i]], ls='--', c='k') 
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    bkgd.set_xlabel(r'$k_{\rm max}$', fontsize=28) 
+    bkgd.set_ylabel(r'{\fontsize{28pt}{3em}\selectfont{}$\sigma_\theta~/$}{\fontsize{20pt}{3em}\selectfont{}$\sqrt{\frac{V}{1 ({\rm Gpc}/h)^3}}$}', labelpad=15)#, fontsize=28) 
+    fig.subplots_adjust(wspace=0.2, hspace=0.15) 
+
+    ffig = os.path.join(dir_doc, 
+            'Fisher_kmax.galaxy_v_halos%s.png' % (_nuis_str(bk_theta_nuis)))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
+
+
+def _P02B_Forecast_kmax_flex(rsd='all', flag='reg', dmnu='fin',
+        params='default', theta_nuis=None):
+    ''' flexible version of fisher forecast for quijote P0+P2 and B where theta_nuis are added as free parameters 
+    as a function of kmax.
+    '''
+    kmaxs = kf * 3 * np.arange(3, 28) 
+
+    pk_theta_nuis = copy(theta_nuis)
+    bk_theta_nuis = copy(theta_nuis)
+    if theta_nuis is not None: 
+        if 'Bsn' in theta_nuis: pk_theta_nuis.remove('Bsn') 
+        if 'b2' in theta_nuis: pk_theta_nuis.remove('b2') 
+        if 'g2' in theta_nuis: pk_theta_nuis.remove('g2') 
+    
+    _Fij_planck = np.load(os.path.join(UT.dat_dir(), 'Planck_2018_s8.npy')) # read in planck prior fisher (order is Om, Ob, h, ns, s8 and Mnu) 
+
+    # read in fisher matrix (Fij)
+    sig_pk, sig_pbk, sig_pk_planck, sig_pbk_planck = [], [], [], []
+    for i_k, kmax in enumerate(kmaxs): 
+        pkFij   = FisherMatrix('p02k', kmax=kmax, rsd=rsd, flag=flag,
+                dmnu=dmnu, params=params, theta_nuis=pk_theta_nuis)  
+        pbkFij  = FisherMatrix('p02bk', kmax=kmax, rsd=rsd,  flag=flag,
+                dmnu=dmnu, params=params, theta_nuis=theta_nuis) 
+        
+        pkFij_planck = pkFij.copy() 
+        pbkFij_planck = pbkFij.copy() 
+        pkFij_planck[:6,:6] += _Fij_planck
+        pbkFij_planck[:6,:6] += _Fij_planck
+        
+        sig_pk.append(np.sqrt(np.diag(np.linalg.inv(pkFij))))
+        sig_pbk.append(np.sqrt(np.diag(np.linalg.inv(pbkFij))))
+
+        sig_pk_planck.append(np.sqrt(np.diag(np.linalg.inv(pkFij_planck))))
+        sig_pbk_planck.append(np.sqrt(np.diag(np.linalg.inv(pbkFij_planck))))
+
+        print('kmax=%.3f, %i---' %  (kmax, int(kmax/kf)))
+        if np.linalg.cond(pkFij) > 1e16: 
+            print('  P02 Fij ill-conditioned; cond # = %.2e' % np.linalg.cond(pkFij)) 
+        #if np.linalg.cond(bkFij) > 1e16: 
+        #    print('B Fij ill-conditioned; cond # = %.2e' % np.linalg.cond(bkFij)) 
+        if np.linalg.cond(pbkFij) > 1e16: 
+            print('  P02+B Fij ill-conditioned; cond # = %.2e' % np.linalg.cond(bkFij)) 
+
+        print('  pk: %s' % ', '.join(['%.2e' % fii for fii in sig_pk[-1]])) 
+        print('  pbk: %s' % ', '.join(['%.2e' % fii for fii in sig_pbk[-1]])) 
+        print('  pk w/ planck: %s' % ', '.join(['%.2e' % fii for fii in sig_pk_planck[-1]])) 
+        print('  pbk w/ planck: %s' % ', '.join(['%.2e' % fii for fii in sig_pbk_planck[-1]])) 
+
+    sig_pk  = np.array(sig_pk)
+    sig_pbk = np.array(sig_pbk)
+    sig_pk_planck = np.array(sig_pk_planck)
+    sig_pbk_planck= np.array(sig_pbk_planck)
+     
+    cond_pk = (kmaxs > 6. * kf)
+    cond_pbk = (kmaxs > 12. * kf)
+    print('PK kmax > %f' % (5. * kf)) 
+    print('PBK kmax > %f' %  (12. * kf))
+
+    # write out to table
+    kmax_preset = np.zeros(len(kmaxs)).astype(bool) 
+    for kmax in [0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]: 
+        kmax_preset[(np.abs(kmaxs - kmax)).argmin()] = True
+
+    pk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_pk[kmax_preset,:].T)).T 
+    pbk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_pbk[kmax_preset,:].T)).T 
+
+    fpk = os.path.join(UT.doc_dir(), 'dat', 
+            'P02g_forecast_kmax%s%s.dat' % 
+            (_params_str(params), _nuis_str(pk_theta_nuis))) 
+    np.savetxt(fpk, pk_dat, delimiter=', ', fmt='%.5f')
+    fpbk = os.path.join(UT.doc_dir(), 'dat', 
+            'P02Bg_forecast_kmax%s%s.dat' % 
+            (_params_str(params), _nuis_str(bk_theta_nuis))) 
+    np.savetxt(fpbk, pbk_dat, delimiter=', ', fmt='%.5f')
+
+    sigma_theta_lims = [(5e-3, 1.), (5e-4, 1.), (5e-3, 10), (3e-3, 10), (5e-3, 10), (1e-2, 10.)]
+    
+    colors  = ['C0', 'C2', 'C1']
+
+    fig = plt.figure(figsize=(15,8))
+    for i, theta in enumerate(thetas[:6]): 
+        sub = fig.add_subplot(2,3,i+1) 
+        _plt_pk, = sub.plot(kmaxs[cond_pk], sig_pk[:,i][cond_pk], c=colors[0], ls='-') 
+        _plt_pbk, = sub.plot(kmaxs[cond_pbk], sig_pbk[:,i][cond_pbk], c=colors[2], ls='-') 
+
+        sub.plot(kmaxs[cond_pk], sig_pk_planck[:,i][cond_pk], c=colors[0], ls='--', lw=1) 
+        _plt, = sub.plot(kmaxs[cond_pbk], sig_pbk_planck[:,i][cond_pbk], c=colors[2], ls='--', lw=1) 
+        if theta == 'Mnu': 
+            sub.legend([_plt_pbk, _plt], ['LSS only', 'w/ Planck priors'], loc='lower left', 
+                    bbox_to_anchor=(0.0, -0.05), handletextpad=0.25, fontsize=18) 
+
+        sub.set_xlim(0.05, 0.5)
+        sub.text(0.9, 0.9, theta_lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=30)
+        sub.set_ylim(sigma_theta_lims[i]) 
+        sub.set_yscale('log') 
+        if i == 1: 
+            sub.legend([_plt_pk, _plt_pbk], [r"$P^g_\ell$", r"$P^g_\ell+B^g_0$"], 
+                    loc='lower center', bbox_to_anchor=(0.5, 1.0), handletextpad=0.2, fontsize=20, ncol=20)
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    bkgd.set_xlabel(r'$k_{\rm max}$', fontsize=28) 
+    bkgd.set_ylabel(r'{\fontsize{28pt}{3em}\selectfont{}$\sigma_\theta~/$}{\fontsize{20pt}{3em}\selectfont{}$\sqrt{\frac{V}{1 ({\rm Gpc}/h)^3}}$}', labelpad=15)#, fontsize=28) 
+    fig.subplots_adjust(wspace=0.2, hspace=0.15) 
+
+    ffig = os.path.join(dir_doc, 
+            'Fisher_kmax.p02bk%s%s.dmnu_%s%s%s.png' % (_params_str(params),
+                _nuis_str(theta_nuis), dmnu, _rsd_str(rsd), _flag_str(flag)))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None
+
+
+def _PgPh_Forecast_kmax(): 
+    ''' quick comparison of the Pg and Ph forecasts as a function of kmax 
+    '''
+    # Pg constraint with {theta_cosmo, theta_hod} 
+    fpg0 = os.path.join(UT.doc_dir(), 'dat', 'P02g_forecast_kmax.dat') 
+    sigmas_pg0 = np.loadtxt(fpg0, delimiter=',', unpack=True, usecols=range(7))
+    # Pg constraint with {theta_cosmo, b1, Mmin} 
+    fpg1 = os.path.join(UT.doc_dir(), 'dat', 'P02g_forecast_kmax.halo_param.b1.dat')
+    sigmas_pg1 = np.loadtxt(fpg1, delimiter=',', unpack=True, usecols=range(7))
+    
+    # Ph constraint with {theta_cosmo, b1, Mmin}
+    fph = os.path.join(UT.doc_dir(), 'dat', 'p02k_forecast_kmax.b1Mmin.dat') 
+    sigmas_ph = np.loadtxt(fph, delimiter=',', unpack=True, usecols=range(7))
+    
+    sigma_theta_lims = [(5e-3, 1.), (5e-4, 1.), (5e-3, 10), (3e-3, 10), (5e-3, 10), (1e-2, 10.)]
+    #pg_lcdm = [2.46e-02, 8.82e-03, 8.99e-02, 1.09e-01, 5.99e-02]
+    #ph_lcdm = [1.33e-02, 1.09e-02, 9.76e-02, 5.79e-02, 1.38e-02]
+    
+    fig = plt.figure(figsize=(15,8))
+    for i, theta in enumerate(thetas[:6]): 
+        sub = fig.add_subplot(2,3,i+1) 
+        _plt_ph, = sub.plot(sigmas_ph[0], sigmas_ph[i+1], c='k', ls='-') 
+        _plt_pg0, = sub.plot(sigmas_pg0[0], sigmas_pg0[i+1], c='C0', ls='-') 
+        _plt_pg1, = sub.plot(sigmas_pg1[0], sigmas_pg1[i+1], c='C1', ls='-') 
+
+        sub.set_xlim(0.05, 0.5)
+        sub.text(0.9, 0.9, theta_lbls[i], ha='right', va='top', transform=sub.transAxes, fontsize=30)
+        sub.set_ylim(sigma_theta_lims[i]) 
+        sub.set_yscale('log') 
+        if i == 1: 
+            sub.legend([_plt_ph, _plt_pg0, _plt_pg1], 
+            [
+                r"$P_{h}$ $\{\theta_{\rm cosmo}, b_1, M_{\rm min}\}$", 
+                r"$P_{g}$ $\{\theta_{\rm cosmo}, \theta_{\rm HOD}\}$", 
+                r"$P_{g}$ $\{\theta_{\rm cosmo}, b_1, M_{\rm min}\}$"], 
+                    loc='lower center', bbox_to_anchor=(0.5, 1.0), handletextpad=0.2, fontsize=20, ncol=20)
+        #if i < 5: 
+        #    sub.plot(sigma_theta_lims[i], [pg_lcdm[i], pg_lcdm[i]], ls='--', c='C0') 
+        #    sub.plot(sigma_theta_lims[i], [ph_lcdm[i], ph_lcdm[i]], ls='--', c='k') 
 
     bkgd = fig.add_subplot(111, frameon=False)
     bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
@@ -1978,6 +2179,102 @@ def _converge_P02_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin',
     return None
 
 
+def _signal_to_noise(): 
+    ''' calculate SN as a function of kmax  using Eq. (47) in Chan & Blot (2017). 
+    '''
+    # galaxy P  
+    quij = Obvs.quijhod_Pk('fiducial', rsd='all', flag='reg', silent=False) 
+    k_p = np.concatenate([quij['k'], quij['k']]) 
+    pg = np.concatenate([np.average(quij['p0k'], axis=0),
+        np.average(quij['p2k'], axis=0)]) 
+    # shotnoise uncorrected Pg
+    pgsn = np.concatenate([quij['p0k'] + quij['p_sn'][:,None], quij['p2k']], axis=1) 
+    
+    # galaxy B 
+    quij = Obvs.quijhod_Bk('fiducial', rsd='all', flag='reg', silent=False)  
+    bg = np.average(quij['b123'], axis=0) 
+    bgsn = quij['b123'] + quij['b_sn'] # uncorrected for shot noise  
+    i_k, l_k, j_k = quij['k1'], quij['k2'], quij['k3'] 
+
+    # halo P 
+    quij = Obvs.quijotePk('fiducial', rsd='all', flag='reg', silent=False) 
+    ph = np.concatenate([np.average(quij['p0k'], axis=0),
+        np.average(quij['p2k'], axis=0)]) 
+    phsn = np.concatenate([quij['p0k'] + quij['p_sn'][:,None], quij['p2k']],
+            axis=1) 
+    # halo B 
+    quij = Obvs.quijoteBk('fiducial', rsd='all', flag='reg', silent=False)  
+    bh = np.average(quij['b123'], axis=0) 
+    bhsn = quij['b123'] + quij['b_sn'] # uncorrected for shot noise  
+
+    kmaxs = np.linspace(0.04, 0.75, 10) 
+    SN_Bg, SN_Pg = [], [] 
+    SN_Bh, SN_Ph = [], [] 
+    for kmax in kmaxs: 
+        # k limit 
+        pklim = (k_p <= kmax) 
+        bklim = ((i_k*kf <= kmax) & (j_k*kf <= kmax) & (l_k*kf <= kmax)) 
+        
+        C_bk = np.cov(bgsn[:,bklim].T) # calculate the Bg covariance
+        Ci_B = np.linalg.inv(C_bk) 
+        C_pk = np.cov(pgsn[:,pklim].T) # calculate the P covariance  
+        Ci_P = np.linalg.inv(C_pk) 
+        sn_b_i = np.sqrt(np.matmul(bg[bklim].T, np.matmul(Ci_B, bg[bklim])))
+        sn_p_i = np.sqrt(np.matmul(pg[pklim].T, np.matmul(Ci_P, pg[pklim])))
+        SN_Bg.append(sn_b_i)
+        SN_Pg.append(sn_p_i)
+
+        C_bk = np.cov(bhsn[:,bklim].T) # calculate the B covariance
+        Ci_B = np.linalg.inv(C_bk) 
+        C_pk = np.cov(phsn[:,pklim].T) # calculate the P covariance  
+        Ci_P = np.linalg.inv(C_pk) 
+        sn_b_i = np.sqrt(np.matmul(bh[bklim].T, np.matmul(Ci_B, bh[bklim])))
+        sn_p_i = np.sqrt(np.matmul(ph[pklim].T, np.matmul(Ci_P, ph[pklim])))
+        SN_Bh.append(sn_b_i)
+        SN_Ph.append(sn_p_i)
+        print('kmax=%.2f: Pg:%f, Bg:%f, Ph:%f, Bh:%f' % (kmax, SN_Pg[-1], SN_Bg[-1], SN_Ph[-1], SN_Bh[-1])) 
+    
+    # Chan & Blot numbers 
+    #cb_p_kmax = np.array([0.04869675251658636, 0.06760829753919823, 0.07673614893618194, 0.08609937521846012, 0.10592537251772895, 0.11415633046188466, 0.1341219935405372, 0.14288939585111032, 0.1612501027337743, 0.17080477200597086, 0.18728370830175495, 0.19838096568365063, 0.21134890398366477, 0.22908676527677735, 0.25703957827688645, 0.3037386091946106, 0.3823842536581126, 0.44668359215096326, 0.5339492735741767, 0.6760829753919819, 0.8511380382023763, 0.9828788730000325, 1.1481536214968824]) 
+    #cb_p_sn = np.array([9.554281212853747, 14.56687309222178, 16.512840354510395, 18.506604023110235, 21.462641346777612, 22.20928889966336, 24.054044983627143, 24.329804200374014, 25.176195307362626, 25.756751569612643, 25.756751569612643, 26.052030872682657, 25.756751569612643, 26.35069530242852, 26.35069530242852, 26.35069530242852, 26.35069530242852, 26.65278366645541, 26.35069530242852, 26.65278366645541, 26.65278366645541, 26.65278366645541, 27.2673896573547]) 
+
+    #cb_b_kmax = np.array([0.03845917820453539, 0.05754399373371572, 0.07629568911615335, 0.09495109992021988, 0.11415633046188466, 0.1333521432163325, 0.15310874616820308, 0.17179083871575893, 0.19164610627353873, 0.21134890398366477, 0.2277718241857323, 0.24688801049062103, 0.26607250597988114, 0.2834653633489668, 0.3054921113215514, 0.325461783498046,  0.3487385841352186]) 
+    #cb_b_sn = np.array([2.027359157379195,3.5440917014545286,5.1041190104348715,6.338408101544683,7.023193813563101,7.8711756484503095,8.33282150847736,8.922674486302233,9.233078642191177,9.445990941294742,9.886657856152153,10,10.230597298425085,10.347882416158368,10.707867049863955,10.707867049863955,10.830623660351296]) 
+
+    fig = plt.figure(figsize=(6,5)) 
+    sub = fig.add_subplot(111)
+    sub.plot(kmaxs, SN_Bg, c='k', label='$B_g$') 
+    sub.plot(kmaxs, SN_Bh, c='k', ls=':', label='$B_h$') 
+    #sub.plot(cb_b_kmax, cb_b_sn, c='k', ls='--') 
+    sub.plot(kmaxs, SN_Pg, c='C0', label='$P_g$') 
+    sub.plot(kmaxs, SN_Ph, c='C0', ls=':', label='$P_h$') 
+    #sub.plot(cb_p_kmax, cb_p_sn, c='C0', ls='--', label='Chan and Blot 2017') 
+    sub.legend(loc='lower right', fontsize=15) 
+    sub.set_xlabel(r'$k_{\rm max}$ [$h$/Mpc]', fontsize=20) 
+    sub.set_xscale('log')
+    sub.set_xlim(3e-2, 1.) 
+    sub.set_ylabel(r'S/N', fontsize=20) 
+    sub.set_yscale('log') 
+    sub.set_ylim(0.5, 3e2) 
+    ffig = os.path.join(dir_doc, '_signal_to_noise.png')
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+
+# --- etc ---
+def _nuis_str(theta_nuis): 
+    if theta_nuis is None: nuis_str = ''
+    else: 
+        nuis_str = '.'
+        if 'b1' in theta_nuis: nuis_str += 'b1'
+        if 'Amp' in theta_nuis: nuis_str += 'b'
+        if 'Mmin' in theta_nuis: nuis_str += 'Mmin'
+        if ('Asn' in theta_nuis) or ('Bsn' in theta_nuis): nuis_str += 'SN'
+        if 'b2' in theta_nuis: nuis_str += 'b2'
+        if 'g2' in theta_nuis: nuis_str += 'g2'
+    return nuis_str
+
+
 def _rsd_str(rsd): 
     # assign string based on rsd kwarg 
     if rsd == 'all': return ''
@@ -1990,6 +2287,7 @@ def _params_str(params):
     # assign string based on rsd kwarg 
     if params == 'default': return ''
     elif params == 'lcdm': return '.lcdm'
+    elif params == 'halo': return '.halo_param'
     else: raise NotImplementedError
 
 
@@ -2031,6 +2329,7 @@ if __name__=="__main__":
             plot_dPBg_dPBh(theta, rsd='all', flag='reg', dmnu='fin', log=True)
         _PBg_rsd_comparison(flag='reg')
         plot_bias(rsd='all', flag='reg')
+        nbar()
     '''
     # convergence tests
     '''
@@ -2064,6 +2363,8 @@ if __name__=="__main__":
                 params='lcdm')
     '''
     # forecasts 
+    P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['b1'])
+    _P02B_P02Bh_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['b1'])
     '''
         P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
         P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
@@ -2082,4 +2383,9 @@ if __name__=="__main__":
             P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
             P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
         _PgPh_Forecast_kmax() # comparison of Pg forecast to Ph 
+        _P02B_P02Bh_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
+    '''
+    # etc
+    '''
+        _signal_to_noise()
     '''
