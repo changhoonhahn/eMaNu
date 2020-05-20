@@ -117,7 +117,7 @@ def hadesBk_s8(sig8, nzbin=4, rsd=True):
     return _bks
 
 
-def quijhod_Bk(theta, z=0, rsd='all', flag=None, silent=True): 
+def quijhod_Bk(theta, z=0, seed=0, rsd='all', flag=None, silent=True): 
     ''' read in real/redshift-space bispectrum for specified model (theta) of the 
     quijote HOD (quijhod) catalogs. 
     
@@ -151,19 +151,19 @@ def quijhod_Bk(theta, z=0, rsd='all', flag=None, silent=True):
     if 'machine' in os.environ and os.environ['machine'] == 'mbp': 
         quij_dir = os.path.join(UT.dat_dir(), 'Galaxies')
         if rsd == 'all': # include all 3 rsd directions
-            fbks = ['quijhod_B_%s.%s.rsd%i.hdf5' % (theta, flag, irsd) for irsd in [0, 1, 2]] 
+            fbks = ['quijhod_B_%s.%s.seed%i.rsd%i.hdf5' % (theta, flag, seed, irsd) for irsd in [0, 1, 2]] 
         elif rsd in [0, 1, 2]: # include a single rsd direction 
-            fbks = ['quijhod_B_%s.%s.rsd%i.hdf5' % (theta, flag, rsd)]
+            fbks = ['quijhod_B_%s.%s.seed%i.rsd%i.hdf5' % (theta, flag, seed, rsd)]
         elif rsd == 'real': # real-space 
-            fbks = ['quijhod_B_%s.%s.real.hdf5' % (theta, flag)]
+            fbks = ['quijhod_B_%s.%s.seed%i.real.hdf5' % (theta, flag, seed)]
     else: 
         quij_dir = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_hod', zdir) 
         if rsd == 'all': # include all 3 rsd directions
-            fbks = ['quijhod_%s.%s.rsd%i.hdf5' % (theta, flag, irsd) for irsd in [0, 1, 2]] 
+            fbks = ['quijhod_%s.%s.seed%i.rsd%i.hdf5' % (theta, flag, seed, irsd) for irsd in [0, 1, 2]] 
         elif rsd in [0, 1, 2]: # include a single rsd direction 
-            fbks = ['quijhod_%s.%s.rsd%i.hdf5' % (theta, flag, rsd)]
+            fbks = ['quijhod_%s.%s.seed%i.rsd%i.hdf5' % (theta, flag, seed, rsd)]
         elif rsd == 'real': # real-space 
-            fbks = ['quijhod_%s.%s.real.hdf5' % (theta, flag)]
+            fbks = ['quijhod_%s.%s.seed%i.real.hdf5' % (theta, flag, seed)]
     
     # combine the files  
     if not silent: print(fbks) 
@@ -179,7 +179,7 @@ def quijhod_Bk(theta, z=0, rsd='all', flag=None, silent=True):
     return _bks
 
 
-def quijhod_Pk(theta, z=0, rsd='all', flag=None, silent=True): 
+def quijhod_Pk(theta, z=0, seed=0, rsd='all', flag=None, silent=True): 
     ''' read in real/redshift-space powerspectrum monopole (for RSD quadru- and hexadeca-poles) 
     for specified model (theta) of the quijote hod (quijhod) simulations. 
     
@@ -213,19 +213,19 @@ def quijhod_Pk(theta, z=0, rsd='all', flag=None, silent=True):
     if 'machine' in os.environ and os.environ['machine'] == 'mbp': 
         quij_dir = os.path.join(UT.dat_dir(), 'Galaxies') 
         if rsd == 'all': # include all 3 rsd directions
-            fpks = ['quijhod_P_%s.%s.rsd%i.hdf5' % (theta, flag, irsd) for irsd in [0, 1, 2]] 
+            fpks = ['quijhod_P_%s.%s.seed%i.rsd%i.hdf5' % (theta, flag, seed, irsd) for irsd in [0, 1, 2]] 
         elif rsd in [0, 1, 2]: # include a single rsd direction 
-            fpks = ['quijhod_P_%s.%s.rsd%i.hdf5' % (theta, flag, rsd)]
+            fpks = ['quijhod_P_%s.%s.seed%i.rsd%i.hdf5' % (theta, flag, seed, rsd)]
         elif rsd == 'real': # real-space 
-            fpks = ['quijhod_P_%s.%s.real.hdf5' % (theta, flag)]
+            fpks = ['quijhod_P_%s.%s.seed%i.real.hdf5' % (theta, flag, seed)]
     else: 
         quij_dir = os.path.join(UT.dat_dir(), 'powerspectrum', 'quijote_hod', zdir) 
         if rsd == 'all': # include all 3 rsd directions
-            fpks = ['quijhod_%s.%s.rsd%i.hdf5' % (theta, flag, irsd) for irsd in [0, 1, 2]] 
+            fpks = ['quijhod_%s.%s.seed%i.rsd%i.hdf5' % (theta, flag, seed, irsd) for irsd in [0, 1, 2]] 
         elif rsd in [0, 1, 2]: # include a single rsd direction 
-            fpks = ['quijhod_%s.%s.rsd%i.hdf5' % (theta, flag, rsd)]
+            fpks = ['quijhod_%s.%s.seed%i.rsd%i.hdf5' % (theta, flag, seed, rsd)]
         elif rsd == 'real': # real-space 
-            fpks = ['quijhod_%s.%s.real.hdf5' % (theta, flag)]
+            fpks = ['quijhod_%s.%s.seed%i.real.hdf5' % (theta, flag, seed)]
         
     # combine the files  
     if not silent: print(fpks) 
