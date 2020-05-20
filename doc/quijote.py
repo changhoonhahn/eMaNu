@@ -2085,11 +2085,14 @@ def forecastP02B_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False
     pk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_pk[kmax_preset,:].T)).T 
     bk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_bk[kmax_preset,:].T)).T 
     pbk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_pbk[kmax_preset,:].T)).T 
-    fpk = os.path.join(UT.doc_dir(), 'dat', 'p02k_forecast_kmax.dat') 
+    fpk = os.path.join(UT.doc_dir(), 'dat', 'P02h_forecast_kmax%s.dat' %
+            _nuis_str(theta_nuis)) 
     np.savetxt(fpk, pk_dat, delimiter=', ', fmt='%.5f')
-    fbk = os.path.join(UT.doc_dir(), 'dat', 'bk_forecast_kmax.dat') 
+    fbk = os.path.join(UT.doc_dir(), 'dat', 'Bh_forecast_kmax%s.dat' % 
+            _nuis_str(theta_nuis)) 
     np.savetxt(fbk, bk_dat, delimiter=', ', fmt='%.5f')
-    fpbk = os.path.join(UT.doc_dir(), 'dat', 'pbk_forecast_kmax.dat') 
+    fpbk = os.path.join(UT.doc_dir(), 'dat', 'P02Bh_forecast_kmax%s.dat' %
+            _nuis_str(theta_nuis)) 
     np.savetxt(fpbk, pbk_dat, delimiter=', ', fmt='%.5f')
 
     sigma_theta_lims = [(5e-3, 1.), (1e-3, 1.), (1e-2, 10), (1e-2, 10.), (1e-2, 10.), (1e-2, 1e1)]
@@ -2128,21 +2131,12 @@ def forecastP02B_kmax(rsd=True, flag=None, theta_nuis=None, dmnu='fin', LT=False
     bkgd.set_ylabel(r'{\fontsize{28pt}{3em}\selectfont{}$\sigma_\theta~/$}{\fontsize{20pt}{3em}\selectfont{}$\sqrt{\frac{V}{1 ({\rm Gpc}/h)^3}}$}', labelpad=15)#, fontsize=28) 
     fig.subplots_adjust(wspace=0.2, hspace=0.15) 
 
-    if theta_nuis is None: nuis_str = ''
-    else: nuis_str = '.'
-    if 'Amp' in theta_nuis: nuis_str += 'b'
-    if 'b1' in theta_nuis: nuis_str += 'b1'
-    if 'Mmin' in theta_nuis: nuis_str += 'Mmin'
-    if ('Asn' in theta_nuis) or ('Bsn' in theta_nuis): nuis_str += 'SN'
-    if 'b2' in theta_nuis: nuis_str += 'b2'
-    if 'g2' in theta_nuis: nuis_str += 'g2'
-
     planck_str = ''
     if planck: planck_str = '.planck'
 
     ffig = os.path.join(dir_doc, 
             'quijote.p02bFisher_kmax%s.dmnu_%s%s%s%s%s.png' % 
-            (nuis_str, dmnu, _rsd_str(rsd), _flag_str(flag), planck_str, ['', '.LT'][LT]))
+            (_nuis_str(theta_nuis), dmnu, _rsd_str(rsd), _flag_str(flag), planck_str, ['', '.LT'][LT]))
     fig.savefig(ffig, bbox_inches='tight') 
     fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex 
     return None
@@ -4127,6 +4121,22 @@ def P02B_crosscovariance(kmax=0.2):
 ############################################################
 # etc 
 ############################################################
+def _nuis_str(theta_nuis): 
+    if theta_nuis is None: 
+        return ''
+    elif isinstance(theta_nuis, list) and len(theta_nuis) == 0: 
+        return ''
+    else: 
+        nuis_str = '.'
+        if 'b1' in theta_nuis: nuis_str += 'b1'
+        if 'Amp' in theta_nuis: nuis_str += 'b'
+        if 'Mmin' in theta_nuis: nuis_str += 'Mmin'
+        if ('Asn' in theta_nuis) or ('Bsn' in theta_nuis): nuis_str += 'SN'
+        if 'b2' in theta_nuis: nuis_str += 'b2'
+        if 'g2' in theta_nuis: nuis_str += 'g2'
+        return nuis_str
+
+
 def _rsd_str(rsd): 
     # assign string based on rsd kwarg 
     if rsd == 'all': return ''
@@ -4329,8 +4339,6 @@ if __name__=="__main__":
         _dBdthetas_ncv(kmax=0.5, log=True, rsd=True, dmnu='fin')
     ''' 
     # fisher forecasts with different nuisance parameters 
-    forecastP02B_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None,
-            planck=False)
     '''
         forecast('pk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'])
         forecast('pk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin', 'Asn'])
@@ -4361,6 +4369,7 @@ if __name__=="__main__":
         joint_p02bForecast(kmax=0.5, rsd='all', flag='reg', theta_nuis=['b1', 'Mmin'], dmnu='fin', planck=True)
     '''
     # fisher forecasts as a function of kmax with different nuisance parameters 
+    forecastP02B_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['b1', 'Mmin'], planck=True)
     '''
         Fii_kmax(rsd='all', flag='reg', dmnu='fin')
         forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['Amp', 'Mmin'])
