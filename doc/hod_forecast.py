@@ -470,7 +470,7 @@ def plot_dP02B_Mnu_degen(kmax=0.5, rsd='all', flag='reg', dmnu='fin'):
     return None 
 
 
-def plot_dP02B_Mnu(kmax=0.5, rsd='all', flag='reg', log=True):
+def plot_dP02B_Mnu(kmax=0.5, rsd='all', flag='reg'):
     ''' compare the derivative w.r.t. Mnu for different methods 
     '''
     fig = plt.figure(figsize=(30,4))
@@ -479,7 +479,7 @@ def plot_dP02B_Mnu(kmax=0.5, rsd='all', flag='reg', log=True):
     sub1 = plt.subplot(gs[1]) 
     sub2 = plt.subplot(gs[2]) 
     
-    for i, dmnu in enumerate(['fin', 'p', 'pp', 'fin_2lpt']): 
+    for i, dmnu in enumerate(['fin', 'p']):#, 'pp', 'fin_2lpt']): 
         _k, _ik, _jk, _lk, dpb = dP02Bk('Mnu', log=False, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True, silent=False)
         
         nk0 = int(len(_k)/2) 
@@ -627,6 +627,76 @@ def plot_dPBg_dPBh(theta, rsd='all', flag='reg', dmnu='fin', log=False):
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
+
+def _plot_dP02B_Mnu_Mmin(kmax=0.5, rsd='all', flag='reg', dmnu='fin'):
+    ''' compare the derivative w.r.t. Mnu and Mmin 
+    '''
+    fig = plt.figure(figsize=(30,8))
+    gs = mpl.gridspec.GridSpec(2, 3, figure=fig, width_ratios=[1,1,8],
+            height_ratios=[1,1], wspace=0.2) 
+    sub0 = plt.subplot(gs[0]) 
+    sub1 = plt.subplot(gs[1]) 
+    sub2 = plt.subplot(gs[2]) 
+    sub3 = plt.subplot(gs[3]) 
+    sub4 = plt.subplot(gs[4]) 
+    sub5 = plt.subplot(gs[5]) 
+    
+    _k, _ik, _jk, _lk, dpb_mnu = dP02Bk('Mnu', log=False, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True, silent=False)
+    _, _, _, _, dpb_mmin = dP02Bk('logMmin', log=False, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True, silent=False)
+        
+    for i, dpb in enumerate([dpb_mnu, dpb_mmin]): 
+        nk0 = int(len(_k)/2) 
+        kp  = _k[:nk0]
+        dp0 = dpb[:nk0]
+        dp2 = dpb[nk0:len(_k)]
+        db  = dpb[len(_k):] 
+
+        # k limits 
+        pklim = (kp < kmax) 
+        bklim = ((_ik*kf <= kmax) & (_jk*kf <= kmax) & (_lk*kf <= kmax))
+        
+        # plot dP0/dtheta and dP2/theta
+        sub0.plot(kp[pklim], dp0[pklim], c='C%i' % i)
+        sub1.plot(kp[pklim], dp2[pklim], c='C%i' % i)
+        
+        # plot dB/dtheta
+        sub2.plot(range(np.sum(bklim)), db[bklim], c='C%i' % i, lw=1,
+                label=[r'$M_\nu$', r'$\log M_{\rm min}$'][i])
+
+    sub3.plot(kp[pklim], (dpb_mmin/dpb_mnu)[:nk0][pklim])
+    sub4.plot(kp[pklim], (dpb_mmin/dpb_mnu)[nk0:len(_k)][pklim])
+    sub5.plot(range(np.sum(bklim)), (dpb_mmin/dpb_mnu)[len(_k):][bklim])
+        
+    for i, sub in enumerate([sub0, sub1, sub3, sub4]):
+        sub.set_xscale('log') 
+        sub.set_xlim(5e-3, kmax) 
+        sub.set_xticklabels([]) 
+        if i > 1: 
+            sub.set_xlabel('k [$h$/Mpc]', fontsize=25) 
+            sub.set_ylabel(
+                    r'$({\rm d} P_%i/{\rm d}\log M_{\rm min})/({\rm d} P_%i/{\rm d}M_\nu)$' % 
+                    (2*(i % 2), 2*(i % 2)), fontsize=25) 
+        else: 
+            sub.set_ylabel(r'${\rm d} P_%i/{\rm d}\theta$' % (2*(i % 2)), fontsize=25) 
+            sub.set_yscale('symlog', linthreshy=1e3) 
+    sub3.set_ylim(5, 36) 
+    sub4.set_ylim(0, 30) 
+
+    sub2.set_xlim(0, np.sum(bklim)) 
+    sub2.set_yscale('symlog', linthreshy=1e8) 
+    sub2.set_xticklabels([]) 
+    sub2.set_ylabel(r'${\rm d} B_0/{\rm d}\theta$', fontsize=25) 
+    sub2.legend(handletextpad=0.1, loc='upper right', fontsize=20, ncol=5)
+
+    sub5.set_xlim(0, np.sum(bklim)) 
+    sub5.set_xticklabels([]) 
+    sub5.set_ylim(5, 35)
+    sub5.set_xlabel('triangles', fontsize=25) 
+    sub5.set_ylabel(r'$({\rm d} B_0/{\rm d}\log M_{\rm min})/({\rm d} B_0/{\rm d}M_\nu)$', fontsize=25) 
+
+    ffig = os.path.join(dir_doc, '_dP02Bg_Mnu_%s_logMmin%s%s.png' % (dmnu, _rsd_str(rsd), _flag_str(flag)))
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
 
 # --- power/bispectrum --- 
 def nbar(): 
@@ -1115,6 +1185,8 @@ def forecast(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin',
         _thetas = copy(thetas) 
         _theta_lbls = copy(theta_lbls) 
         _theta_dlims = [0.07, 0.03, 0.4, 0.35, 0.04, 0.4, 0.35, 0.15, 1., 0.6, 1.]
+        if obs == 'bk': 
+            _theta_dlims = [0.07, 0.03, 0.4, 0.35, 0.04, 0.05, 0.125, 0.15, 0.4, 0.12, 0.2]
     elif params == 'lcdm': 
         _thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1'] 
         _theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', 
@@ -1439,10 +1511,10 @@ def P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None):
     pbk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_pbk[kmax_preset,:].T)).T 
 
     fpk = os.path.join(UT.doc_dir(), 'dat', 
-            'P02g_forecast_kmax%s.dat' % _nuis_str(pk_theta_nuis)) 
+            'P02g_forecast_kmax%s.dmnu_%s.dat' % (_nuis_str(pk_theta_nuis), dmnu)) 
     np.savetxt(fpk, pk_dat, delimiter=', ', fmt='%.5f')
     fpbk = os.path.join(UT.doc_dir(), 'dat', 
-            'P02Bg_forecast_kmax%s.dat' % _nuis_str(bk_theta_nuis))
+            'P02Bg_forecast_kmax%s.dmnu_%s.dat' % (_nuis_str(bk_theta_nuis), dmnu))
     np.savetxt(fpbk, pbk_dat, delimiter=', ', fmt='%.5f')
 
     #sigma_theta_lims = [(5e-3, 0.8), (5e-4, 1.), (1e-3, 10), (3e-3, 10), (5e-3, 10), (6e-3, 10.)]
@@ -1489,7 +1561,6 @@ def _P02B_P02Bh_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None
     '''
     assert rsd == 'all'
     assert flag == 'reg'
-    assert dmnu == 'fin'
 
     pk_theta_nuis = copy(theta_nuis)
     bk_theta_nuis = copy(theta_nuis)
@@ -1501,11 +1572,11 @@ def _P02B_P02Bh_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None
     # read the galaxy constraints
     # Pg constraint with {theta_cosmo}
     fpg = os.path.join(UT.doc_dir(), 'dat', 
-            'P02g_forecast_kmax%s.dat' % _nuis_str(pk_theta_nuis)) 
+            'P02g_forecast_kmax%s.dmnu_%s.dat' % (_nuis_str(pk_theta_nuis), dmnu)) 
     sigmas_pg = np.loadtxt(fpg, delimiter=',', unpack=True, usecols=range(7))
     # Pg+Bg constraint with {theta_cosmo}
     fpbg = os.path.join(UT.doc_dir(), 'dat', 
-            'P02Bg_forecast_kmax%s.dat' % _nuis_str(bk_theta_nuis))
+            'P02Bg_forecast_kmax%s.dmnu_%s.dat' % (_nuis_str(bk_theta_nuis), dmnu))
     sigmas_pbg = np.loadtxt(fpbg, delimiter=',', unpack=True, usecols=range(7))
 
     # read the halo constraints
@@ -1560,7 +1631,8 @@ def _P02B_P02Bh_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None
     fig.subplots_adjust(wspace=0.2, hspace=0.15) 
 
     ffig = os.path.join(dir_doc, 
-            'Fisher_kmax.galaxy_v_halos%s.png' % (_nuis_str(bk_theta_nuis)))
+            'Fisher_kmax.galaxy_v_halos%s.dmnu_%s.png' %
+            (_nuis_str(bk_theta_nuis), dmnu))
     fig.savefig(ffig, bbox_inches='tight') 
     return None
 
@@ -1632,12 +1704,12 @@ def _P02B_Forecast_kmax_flex(rsd='all', flag='reg', dmnu='fin',
     pbk_dat = np.vstack((np.atleast_2d(kmaxs[kmax_preset]), sig_pbk[kmax_preset,:].T)).T 
 
     fpk = os.path.join(UT.doc_dir(), 'dat', 
-            'P02g_forecast_kmax%s%s.dat' % 
-            (_params_str(params), _nuis_str(pk_theta_nuis))) 
+            'P02g_forecast_kmax%s%s.dmnu_%s.dat' % 
+            (_params_str(params), _nuis_str(pk_theta_nuis), dmnu)) 
     np.savetxt(fpk, pk_dat, delimiter=', ', fmt='%.5f')
     fpbk = os.path.join(UT.doc_dir(), 'dat', 
-            'P02Bg_forecast_kmax%s%s.dat' % 
-            (_params_str(params), _nuis_str(bk_theta_nuis))) 
+            'P02Bg_forecast_kmax%s%s.dmnu_%s.dat' % 
+            (_params_str(params), _nuis_str(bk_theta_nuis), dmnu)) 
     np.savetxt(fpbk, pbk_dat, delimiter=', ', fmt='%.5f')
 
     sigma_theta_lims = [(5e-3, 1.), (5e-4, 1.), (5e-3, 10), (3e-3, 10), (5e-3, 10), (1e-2, 10.)]
@@ -2309,6 +2381,7 @@ if __name__=="__main__":
         plot_p02bkCov(kmax=0.5, rsd=2, flag='reg')
     '''
     # derivatives 
+    plot_dP02B_Mnu(kmax=0.5, rsd='all', flag='reg')
     '''
         # compare derivatives w.r.t. the cosmology + HOD parameters 
         plot_dP02B(kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=False)
@@ -2316,7 +2389,7 @@ if __name__=="__main__":
         # dgenerates with deriv. w.r.t. Mnu
         plot_dP02B_Mnu_degen(kmax=0.5, rsd='all', flag='reg', dmnu='fin')
         # deriv. w.r.t. Mnu for different methods 
-        plot_dP02B_Mnu(kmax=0.5, rsd='all', flag='reg', log=True)
+        plot_dP02B_Mnu(kmax=0.5, rsd='all', flag='reg')
     '''
     # comparisons between galaxy and halo P and B 
     '''
@@ -2363,13 +2436,11 @@ if __name__=="__main__":
                 params='lcdm')
     '''
     # forecasts 
-    P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['b1'])
-    _P02B_P02Bh_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=['b1'])
     '''
         P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
         P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
-        P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
-        P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
+        P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None)
+        P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None)
         for theta_nuis in [None, ['Asn', 'Bsn']]:
             # P0,P2 only 
             forecast('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=theta_nuis, planck=False)
@@ -2383,7 +2454,7 @@ if __name__=="__main__":
             P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
             P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
         _PgPh_Forecast_kmax() # comparison of Pg forecast to Ph 
-        _P02B_P02Bh_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
+        _P02B_P02Bh_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None)
     '''
     # etc
     '''
