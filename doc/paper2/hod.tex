@@ -1,15 +1,17 @@
 \begin{figure}
 \begin{center}
     \includegraphics[width=0.45\textwidth]{figs/hod_fid.pdf} 
-    \caption{
-        The halo occupation our fiducial halo occupation (black) parameterized with 
-        the standard \cite{zheng2007} HOD model. For the parameter values we modify
-        the best-fit HOD parameters of the SDSS $M_r < -21.5$ or $< -22.$ sample
-        best-fit parameters from \cite{zheng2007}. The halo mass limit of the \quij 
-        simulations,  $M_{\rm lim} = 3.2\times 10^{13} h^{-1}M_\odot$ (black dashed), 
-        prevent us from directly adopting the best-fit HOD parameters from \cite{zheng2007}. 
-        We include the halo occupation of the \cite{zheng2007} best-fits of the 
-        $M_r < -21.5$ (blue dashed) or $< -22.$ sample (orange dashed) for reference.
+    \caption{Our fiducial halo occupation (black) parameterized using the
+    standard \cite{zheng2007} HOD model. We derive the parameter values of our
+    fiducial HOD model (Eq.~\ref{eq:hod_fid}) by modifying the best-fit HOD
+    parameters of the SDSS $M_r < -21.5$ and $< -22.$ samples from
+    \cite{zheng2007} to accommodate the 
+    $M_{\rm lim} = 3.2\times 10^{13} h^{-1}M_\odot$ halo mass limit of the 
+    \quij simulations (black dashed). We include the best-fit halo occupations
+    of the SDSS  $M_r < -21.5$ (blue dashed) and $< -22.$ samples (orange
+    dashed) from \cite{zheng2007} for reference. Our fiducial HOD sample has a
+    galaxy number density of $\overline{n}_g \sim 1.63\times10^{-4}~h^3/{\rm
+    Mpc}^3$.
     }\label{fig:hod}
 \end{center}
 \end{figure}
@@ -83,7 +85,7 @@ For the fiducial parameter values of the HOD model we used values motivated by
 best-fit HOD parameters from the literature, namely the \cite{zheng2007} 
 fits to the SDSS $M_r < -21.5$  and $-22$ samples: 
 \beq \label{eq:hod_fid}
-\{M_{\rm min}, \sigma_{\log M}, \log M_0, \alpha \log M_1 \} = \{13.65, 0.2, 14., 1.1, 14.\}.
+\{M_{\rm min}, \sigma_{\log M}, \log M_0, \alpha, \log M_1 \} = \{13.65, 0.2, 14., 1.1, 14.\}.
 \eeq
 In Figure~\ref{fig:hod} we present the halo occupation of our fiducial 
 HOD parameters (black). We include the best-fit halo occupations of 
@@ -112,13 +114,24 @@ we are interested in quantifying the information content of the galaxy bispectru
 and not analyzing an observed galaxy sample. We therefore opt for a more 
 conservative set of HOD parameters with respect to $M_{\rm lim}$. 
 
-\todo{bias $\sim 1.36$ and $\bar{n}_g \sim 1.63\times 10^{-4}~h^3{\rm Gpc}^{-3}$}
+\todo{bias $\sim 2.55$ and $\bar{n}_g \sim 1.63\times 10^{-4}~h^3{\rm Gpc}^{-3}$}
 
 
 \begin{figure}
 \begin{center}
     \includegraphics[width=\textwidth]{figs/PBg_reg.pdf} 
-    \caption{}
+    \caption{The redshift-space galaxy power spectrum multipoles ($\Pgl$; left)
+    and bispectrum monopole ($\Bg$; right) of our HOD galaxy sample at the
+    fidicual HOD parameters and cosmology (blue). We include for comparison the
+    halo $P_{h,\ell}$ and $B_{h}$ at the fiducial cosmology (black). The $\Bg$
+    above is averaged over 15,000 $N$-body realizations and we include all 1898
+    triangle configurations with $k_1, k_2, k_3 \ge k_{\rm max} = 0.5\hmpc$.
+    The configurations are ordered by looping through $k_3$ in the inner
+    most loop and $k_1$ in the outer most loop satisfying $k_1 \le k_2 \le k3$.
+    The HOD sample has galaxy bias $b_g\sim2.55$, significantly higher than the
+    halo bias $b_h\sim1.85$ as reflected in the higher $\Pgl$ and $Bg$
+    amplitudes.
+    }
 \label{fig:bgh}
 \end{center}
 \end{figure}
