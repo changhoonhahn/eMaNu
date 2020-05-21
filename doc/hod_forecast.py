@@ -2381,7 +2381,6 @@ if __name__=="__main__":
         plot_p02bkCov(kmax=0.5, rsd=2, flag='reg')
     '''
     # derivatives 
-    plot_dP02B_Mnu(kmax=0.5, rsd='all', flag='reg')
     '''
         # compare derivatives w.r.t. the cosmology + HOD parameters 
         plot_dP02B(kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=False)
@@ -2413,13 +2412,12 @@ if __name__=="__main__":
             plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True)
 
         # convergence of Fisher matrix  
-        converge_Fij('p02bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', silent=True)
-    
-        # convergence of forecast 
         converge_Fij('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin',
                 params='default', silent=True)
         converge_Fij('p02bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin',
                 params='default', silent=True)
+
+        # convergence of forecast 
         _converge_P02_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin',
                 params='default')
         converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin',
