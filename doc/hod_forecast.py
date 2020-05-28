@@ -1186,7 +1186,7 @@ def forecast(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin',
         _theta_lbls = copy(theta_lbls) 
         _theta_dlims = [0.07, 0.03, 0.4, 0.35, 0.04, 0.4, 0.35, 0.15, 1., 0.6, 1.]
         if obs == 'bk': 
-            _theta_dlims = [0.07, 0.03, 0.4, 0.35, 0.04, 0.05, 0.125, 0.15, 0.4, 0.12, 0.2]
+            _theta_dlims = [0.02, 0.005, 0.06, 0.05, 0.04, 0.05, 0.125, 0.15, 0.4, 0.12, 0.2]
     elif params == 'lcdm': 
         _thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1'] 
         _theta_lbls = [r'$\Omega_m$', r'$\Omega_b$', r'$h$', r'$n_s$', r'$\sigma_8$', 
@@ -2434,6 +2434,7 @@ if __name__=="__main__":
                 params='lcdm')
     '''
     # forecasts 
+    forecast('bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
     '''
         P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
         P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)

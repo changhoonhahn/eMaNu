@@ -63,7 +63,7 @@ $\log M_1$          & & & \\ [3pt]
         HOD parameters (Eq.~\ref{eq:hod_fid}), the galaxy bispectrum {\em
         significantly} improves cosmological parameter constraints above
         $k_{\rm max} > 0.1\hmpc$. Constraints from $\Pgl$ and
-        $\Pgl + \Bg$ improve with higher $k_{\rm max}$. {\em Over, 
+        $\Pgl + \Bg$ improve with higher $k_{\rm max}$. {\em Throughout 
         $0.2 < k_{\rm max} < 0.5$, including the bispectrum improves 
         $\{\Om, \Ob, h, n_s, \sig, \smnu\}$ by \ch{X, Y \%}.} When we include 
         {\em Planck} priors (dotted), the improvement from $\Bg$ is even more
@@ -81,11 +81,72 @@ $\log M_1$          & & & \\ [3pt]
 \end{figure}
 
 \section{Results} \label{sec:results} 
+presenting the results 
 
-In Figure~\ref{fig:kmax_forecast} We only include the $k_{\rm max}$ ranges where we have more data bins than
-number of parameters. 
+Figure~\ref{fig:forecast}
+\begin{itemize}
+    \item obviously the galaxy bispectrum blows the galaxy power spectrum out
+        of the water.  
+    \item parameter degeneracies in the power spectrum and bispectrum alone
+        that go away once you combine them
+\end{itemize}
 
 
-explain that combining with planck is actually underestimating the constarining
-power of galaxy clustering
+Figure~\ref{fig:kmax_forecast}
+\begin{itemize}
+    \item We only include the $k_{\rm max}$ ranges where we have more data bins than number of parameters. 
+    \item emphasize that the improvement is for consistent for $k_{\rm max} >
+        0.2$, not just at the 0.5. 
+    \item emphasize that combining with planck is actually underestimating the
+        constarining power of galaxy clustering
+\end{itemize}
 
+
+discussions
+
+first things that could be wrong with the results: 
+\begin{itemize}
+    \item convergence: we conducted the same set of convergence tests as the halo paper and
+        found \ch{some quantifying numbers} \ch{appendix or is it too
+        repetive?}
+    \item derivative w.r.t. $\smnu$ is sensitive to the choice of step size.
+        However, we use enough realizations so the results don't change
+        significantly. \ch{actually check this with the multiple HOD seeds} 
+        \ch{appendix?}
+\end{itemize}
+
+interesting findings 
+\begin{itemize}
+    \item signal-to-noise is lower for the galaxy power and bispectrums than
+        the halo power and bispectra --- fingers of god. \ch{figure?}
+    \item re-emphasize the impact of bispectrum in breaking HOD parameter
+        degeneracies. 
+    \item \ch{do we want H0 forecast and discussion on H0 tension} 
+\end{itemize}
+
+what's missing in the analysis: all the graints of salt
+\begin{itemize}
+    \item how do the unrealistic hod parameters we use map onto real galaxy
+        samples. We tried our best to get the SDSS-like sample. The main
+        ``unrealistic'' parameter choice is $\sigma_{\log M}$ --- use the
+        high resolution simulations to compare the derivative w.r.t sigma logM
+        and make some statements regarding this. \ch{appendix?}
+    \item we use a simplistic HOD model which doesn't take into account
+        assembly bias. Overview the impact of assembly bias in previous galaxy
+        clustering results and discuss how it may analogously apply to our
+        constraints.
+    \item including some extra nuisance parameters doesn't do anything for
+        cosmological constraints. We tried b1, Asn, Bsn. \ch{try b2, gamma2} 
+    \item baryonic effects are not considered and some papers have looked at
+        this recently. 
+    \item no geometry obviously. repeat of how realistic geometry lowers the
+        signal to noise. 
+\end{itemize}
+
+what's next in the paper series 
+\begin{itemize}
+    \item data compression 
+    \item outline the overall forward modeling approach that will culminate in
+        an analysis of BOSS. 
+    \item paragraph outline the obvious extensions to DESI and PFS. 
+\end{itemize}
