@@ -34,20 +34,17 @@ $\log M_1$          & & & \\ [3pt]
 %        \label{fig:db}
 %    \end{center}
 %\end{figure}
-In Figure~\ref{fig:kmax_forecast} We only include the $k_{\rm max}$ ranges where we have more data bins than
-number of parameters. 
-
 \begin{figure}
     \begin{center}
         \includegraphics[width=\textwidth]{figs/Fisher_p02bk_dmnu_fin_kmax0_50_reg.pdf}
         \caption{Fisher matrix constraints for $\smnu$ and other cosmological
         parameters for the redshift-space galaxy $\Pgl$ (blue), $\Bg$
         (green), and combined $\Pgl$ and $\Bg$ (orange) for $k_{\rm max} =
-        0.5\hmpc$. Our forecasts marginalizes over the full set of \cite{zheng2007}
+        0.5\hmpc$. Our forecasts marginalizes over the \cite{zheng2007}
         HOD parameters: $\{M_{\rm min}, \sigma_{\log M}, \log M_0, \alpha \log
         M_1 \}$ (bottom panels). The bispectrum substantially improves
-        constraints on all of the cosmological parameters over $\Pgl$.
-        Constraints on $\Om$, $\Ob$, $h$, $n_s$, and $\sig$ improve by factors
+        constraints on all of the cosmological parameters over the power
+        spectrum. $\Om$, $\Ob$, $h$, $n_s$, and $\sig$ constraints improve by factors
         of \ch{1.9, 2.6, 3.1, 3.6, and 2.6}, respectively. For $\smnu$, the
         bispectrum improves $\sigma_{\smnu}$ from \ch{0.2968 to 0.0572 eV ---
         over a factor of $\sim5$ improvement over the power spectrum}.
@@ -58,30 +55,37 @@ number of parameters.
 
 \begin{figure}
     \begin{center}
-        \includegraphics[width=\textwidth]{figs/Fisher_kmax_p02bk_dmnu_fin_reg_planck.pdf}
+        \includegraphics[width=\textwidth]{figs/Fisher_kmax_p02bk_dmnu_fin_reg.pdf}
         \caption{Marginalized $1\sigma$ constraints, $\sigma_\theta$, of the
         cosmological parameters $\Om$, $\Ob$, $h$, $n_s$, $\sig$, and $\smnu$
-        as a function of $k_{\rm max}$ for the redshift-space $\Pgl$ (blue),
-        $\Bg$ (green), and combined $\Pgl$ and $\Bg$ (orange). Even after
-        marginalizing over the \cite{zheng2007} HOD parameters
-        (Eq.~\ref{eq:hod_fid}), the bispectrum {\em significantly} improves
-        cosmological parameter constraints above $k_{\rm max} > 0.1\hmpc$.
-        While constraints improve for higher $k_{\rm max}$, throughout
-        $0.2 < k_{\rm max} < 0.5$, the $\Pgl + \Bg$ constraint improves the $\smnu$ constraint by \ch{X, Y \%}
-        over the $\Pgl$ constraints
-
-        When we include {\em Planck} priors (dotted), the improvement from
-        $\Bg$ is even more evident. The constraining power of $\Pgl$ complete
-        saturates for $k_{\rm max} \gtrsim 0.12\hmpc$. Adding $\Bg$ not only improves the
-        cosmological constraints, but the constraints continue to improve for
+        as a function of $k_{\rm max}$ for the redshift-space $\Pgl$ (blue)
+        and combined $\Pgl + \Bg$ (orange). Even after marginalizing over
+        HOD parameters (Eq.~\ref{eq:hod_fid}), the galaxy bispectrum {\em
+        significantly} improves cosmological parameter constraints above
+        $k_{\rm max} > 0.1\hmpc$. Constraints from $\Pgl$ and
+        $\Pgl + \Bg$ improve with higher $k_{\rm max}$. {\em Over, 
+        $0.2 < k_{\rm max} < 0.5$, including the bispectrum improves 
+        $\{\Om, \Ob, h, n_s, \sig, \smnu\}$ by \ch{X, Y \%}.} When we include 
+        {\em Planck} priors (dotted), the improvement from $\Bg$ is even more
+        evident. The constraining power of $\Pgl$ complete
+        saturates for $k_{\rm max} \gtrsim 0.12\hmpc$. Adding $\Bg$ not only 
+        improves constraints, but the constraints continue to improve for
         higher $k_{\rm max}$. At $k_{\rm max} = 0.2$ and $0.5\hmpc$, the $\Pgl
-        + \Bg$ constraint improves the $\smnu$ constraint by \ch{X, Y \%}
-        over the $\Pgl$ constraints. We emphasize that the constraints above
-        are for $1~({\rm Gpc}/h)^3$ box and thus are underestatimes for
-        upcoming surveys. 
+        + \Bg$ improves the $\smnu$ constraint by \ch{X, Y \%} over $\Pgl$. 
+        We emphasize that the constraints above are for $1~({\rm Gpc}/h)^3$ box
+        and thus underestimate the constraining power of upcoming galaxy
+        clustering surveys.
         }
         \label{fig:kmax_forecast}
     \end{center}
 \end{figure}
 
 \section{Results} \label{sec:results} 
+
+In Figure~\ref{fig:kmax_forecast} We only include the $k_{\rm max}$ ranges where we have more data bins than
+number of parameters. 
+
+
+explain that combining with planck is actually underestimating the constarining
+power of galaxy clustering
+
