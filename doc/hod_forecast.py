@@ -246,70 +246,313 @@ def plot_p02bkCov(kmax=0.5, rsd=2, flag='reg'):
     return None 
 
 # --- derivatives --- 
-def dP02k(theta, log=False, rsd='all', flag='reg', dmnu='fin', returnks=False, silent=True):
-    ''' read in derivatives d P_l(k) / d theta  
+def dP02k(theta, seed='all', rsd='all', dmnu='fin', Nderiv=None, silent=True, overwrite=False):
+    ''' d P_l,g(k)/d theta. Derivative of the HOD power spectrum multipole. 
 
     :param theta: 
         string that specifies the parameter to take the 
         derivative by. 
+
+    :param seed:
+        If seed == 'all', use all the HOD seeds, which as of 06/03/2020 is
+        seeds 0 to 5. For seed = 0, 1 there are 500 realizations. For seed =
+        2-4 there are 100 but more are being run. (default: 'all') 
+
+    :param rsd: 
+        RSD direction (0, 1, 2, or 'all'). If rsd == 'all', combines the
+        derivatives along all three RSD directions  
+
+    :param dmnu: 
+        finite different step choices for calculating derivative along Mnu.
+        fin = {fid_za, +, ++, +++}
+        p = {fid_za, p} 
+        (default: 'fin') 
+
+    :param Nderiv: 
+        reduced number of realizations for derivatives. This is used for
+        convergence tests only. (default: None) 
+
+    :param silent: 
+        If False, prints out info 
+
+    :param overwrite: 
+        If True, overwrites file stores in ${doc_dir}/dat/hod/
+
+    :return: 
+        [k, dp02, dlogp02]
     '''
-    dir_dat = os.path.join(UT.doc_dir(), 'dat') 
-    fdpk = os.path.join(dir_dat, 'hod_dP02dtheta.%s%s%s.dat' % (theta, _rsd_str(rsd), _flag_str(flag))) 
-    if not silent: print('--- reading %s ---' % fdpk) 
-    i_dpk = 1 
-    if theta == 'Mnu': 
-        index_dict = {'fin': 1, 'fin0': 3, 'p': 5, 'pp': 7, 'ppp': 9, 'fin_2lpt': 11}  
-        i_dpk = index_dict[dmnu] 
-    if log: i_dpk += 1 
-    
-    if theta not in ['Bsn']: 
-        k, dpdt = np.loadtxt(fdpk, skiprows=1, unpack=True, usecols=[0,i_dpk]) 
+    # --- hardcoded settings --- 
+    if seed == 'all': seeds = range(4) 
+    else: seeds = [seed] 
+    flag = 'reg'
+    z = 0 
+    # --- 
+    dir_dat = os.path.join(UT.doc_dir(), 'dat', 'hod') 
+    fdpk = os.path.join(dir_dat, 'dP02gd%s%s%s%s%s.dat' % 
+            (theta, _dmnu_str(theta, dmnu), _seed_str(seed), _rsd_str(rsd), _flag_str(flag))) 
+
+    if os.path.isfile(fdpk) and not overwrite and Nderiv is None: 
+        if not silent: print('--- reading %s ---' % fdpk) 
+        k, dpdt, dlogpdt = np.loadtxt(fdpk, skiprows=1, unpack=True, usecols=[0,1,2])
     else: 
-        fdpk = os.path.join(dir_dat, 'hod_dP02dtheta.%s%s%s.dat' % ('Mnu', _rsd_str(rsd), _flag_str(flag))) 
-        k, _ = np.loadtxt(fdpk, skiprows=1, unpack=True, usecols=[0,i_dpk]) 
-        dpdt = np.zeros(len(k))
-    if not returnks: return dpdt 
-    else: return k, dpdt 
+        if not silent: print('--- writing %s ---' % fdpk) 
+        quijote_thetas = {
+                'Mnu': [0.1, 0.2, 0.4], # +, ++, +++ 
+                'Ob': [0.048, 0.050],   # others are - + 
+                'Ob2': [0.047, 0.051],   # others are - + 
+                'Om': [0.3075, 0.3275],
+                'h': [0.6511, 0.6911],
+                'ns': [0.9424, 0.9824],
+                's8': [0.819, 0.849], 
+                'logMmin': [13.6, 13.7], 
+                'sigma_logM': [0.18, 0.22], 
+                'logM0': [13.8, 14.2],
+                'alpha': [0.9, 1.3], 
+                'logM1': [13.8, 14.2]}
+    
+        c_dbk = 0. 
+        if theta == 'Mnu': 
+            if not silent: print("  calculating dP/d%s using %s" % (theta, dmnu)) 
+            # derivative w.r.t. Mnu using 0, 0.1, 0.2, 0.4 eV
+            tts = ['fiducial_za', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
+            if dmnu == 'p': 
+                coeffs = [-1., 1., 0., 0.]  # derivative at 0.05eV
+                h = 0.1
+            elif dmnu == 'pp': 
+                coeffs = [-1., 0., 1., 0.]  # derivative at 0.1eV
+                h = 0.2
+            elif dmnu == 'ppp': 
+                coeffs = [-1., 0., 0., 1.]  # derivative at 0.2eV
+                h = 0.4
+            elif dmnu == 'fin0': 
+                coeffs = [-3., 4., -1., 0.] # finite difference coefficient
+                h = 0.2
+            elif dmnu == 'fin': 
+                coeffs = [-21., 32., -12., 1.] # finite difference coefficient
+                h = 1.2
+            elif dmnu == 'fin_2lpt': 
+                tts = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp'] # use ZA inital conditions
+                coeffs = [-21., 32., -12., 1.] # finite difference coefficient
+                h = 1.2
+            else: 
+                raise NotImplementedError
+        elif theta in ['b1', 'Asn']: 
+            # derivatives for nuisance parameters 
+            if not silent: print("  calculating dB/d%s" % theta) 
+            tts = ['fiducial'] 
+            coeffs = [0.] 
+            h = 1. 
+            quij = Obvs.quijhod_Pk('fiducial', z=z, flag=flag, rsd=rsd, silent=silent)
+            _p02ks = np.concatenate([quij['p0k'], quij['p2k']], axis=1)
+            if theta == 'b1': 
+                if not log: c_dpk = 2.*np.average(_p02ks, axis=0) 
+                else: c_dpk = 2.*np.ones(_p02ks.shape[1]) 
+            elif theta == 'Asn': 
+                if not log: c_dpk = np.ones(_p02ks.shape[1]) 
+                else: c_dpk = 1./np.average(_p02ks, axis=0) 
+        else: 
+            if not silent: print("  calculating dB/d%s" % theta) 
+            tts = [theta+'_m', theta+'_p'] 
+            coeffs = [-1., 1.]
+            h = quijote_thetas[theta][1] - quijote_thetas[theta][0]
+
+        for i_tt, tt, coeff in zip(range(len(tts)), tts, coeffs): 
+            _pk_seeds = []
+            for seed in seeds: 
+                quij = Obvs.quijhod_Pk(tt, z=z, seed=seed, flag=flag, rsd=rsd, silent=silent) # read Pk 
+                _pk_seeds.append(np.concatenate([quij['p0k'], quij['p2k']], axis=1)) # [P0, P2] 
+            _pk = np.concatenate(_pk_seeds, axis=0)
+
+             # limited the number of realizations for convergence test 
+            if Nderiv is not None and tt != 'fiducial':
+                if not silent: print('  only using %i of %i realizations' % (Nderiv, quij['p0k'].shape[0])) 
+                _pk = _pk[:Nderiv] 
+
+            _logpk = np.log(_pk) 
+            
+            if i_tt == 0: dpk, dlogpk = np.zeros(_pk.shape), np.zeros(_pk.shape) 
+
+            dpk += coeff * _pk 
+            dlogpk += coeff * _logpk 
+        
+        # k, k 
+        k = np.concatenate([quij['k'], quij['k']]) 
+        # calculate derivatives
+        dpdt    = np.average(dpk / h + c_dbk, axis=0) 
+        dlogpdt = np.average(dlogpk / h + c_dbk, axis=0) 
+
+        if Nderiv is None: 
+            # save to file for fast access later:
+            hdr = 'k, dP02/dtheta, dlogP02/dtheta'
+            # save to file 
+            np.savetxt(fdpk, np.vstack([k, dpdt, dlogpdt]).T, header=hdr, delimiter=',\t', fmt='%.5e %.5e %.5e')
+            
+    return k, dpdt, dlogpdt
 
 
-def dBk(theta, log=False, rsd='all', flag='reg', dmnu='fin', returnks=False, silent=True):
-    ''' d B(k)/d theta  
+def dBk(theta, seed='all', rsd='all', dmnu='fin', Nderiv=None, silent=True, overwrite=False):
+    ''' d Bg(k)/d theta. Derivative of the HOD bispectrum. 
 
     :param theta: 
         string that specifies the parameter to take the 
         derivative by. 
+
+    :param seed:
+        If seed == 'all', use all the HOD seeds, which as of 06/03/2020 is
+        seeds 0 to 5. For seed = 0, 1 there are 500 realizations. For seed =
+        2-4 there are 100 but more are being run. (default: 'all') 
+
+    :param rsd: 
+        RSD direction (0, 1, 2, or 'all'). If rsd == 'all', combines the
+        derivatives along all three RSD directions  
+
+    :param dmnu: 
+        finite different step choices for calculating derivative along Mnu.
+        fin = {fid_za, +, ++, +++}
+        p = {fid_za, p} 
+        (default: 'fin') 
+
+    :param Nderiv: 
+        reduced number of realizations for derivatives. This is used for
+        convergence tests only. (default: None) 
+
+    :param silent: 
+        If False, prints out info 
+
+    :param overwrite: 
+        If True, overwrites file stores in ${doc_dir}/dat/hod/
+
+    :return: 
+        i_k, j_k, l_k, db/dt, dlogb/dt
     '''
-    dir_dat = os.path.join(UT.doc_dir(), 'dat') 
-    fdbk = os.path.join(dir_dat, 'hod_dBdtheta.%s%s%s.dat' % (theta, _rsd_str(rsd), _flag_str(flag))) 
-    if not silent: print('--- reading %s ---' % fdbk) 
-    i_dbk = 3 
-    if theta == 'Mnu': 
-        index_dict = {'fin': 3, 'fin0': 5, 'p': 7, 'pp': 9, 'ppp': 11,  'fin_2lpt': 13}  
-        i_dbk = index_dict[dmnu] 
-    if log: i_dbk += 1 
+    # --- hardcoded settings --- 
+    if seed == 'all': seeds = range(4) 
+    else: seeds = [seed] 
+    flag = 'reg'
+    z = 0
+    # --- 
+    dir_dat = os.path.join(UT.doc_dir(), 'dat', 'hod') 
+    fdbk = os.path.join(dir_dat, 'dBgd%s%s%s%s%s.dat' % 
+            (theta, _dmnu_str(theta, dmnu), _seed_str(seed), _rsd_str(rsd), _flag_str(flag))) 
 
-    i_k, j_k, l_k, dbdt = np.loadtxt(fdbk, skiprows=1, unpack=True, usecols=[0,1,2,i_dbk]) 
-    if not returnks: return dbdt 
-    else: return i_k, j_k, l_k, dbdt 
+    if os.path.isfile(fdbk) and not overwrite and Nderiv is None: 
+        if not silent: print('--- reading %s ---' % fdbk) 
+        i_k, j_k, l_k, dbdt, dlogbdt = np.loadtxt(fdbk, skiprows=1, unpack=True, usecols=range(5)) 
+    else: 
+        if not silent: print('--- writing %s ---' % fdbk) 
+        quijote_thetas = {
+                'Mnu': [0.1, 0.2, 0.4], # +, ++, +++ 
+                'Ob': [0.048, 0.050],   # others are - + 
+                'Ob2': [0.047, 0.051],   # others are - + 
+                'Om': [0.3075, 0.3275],
+                'h': [0.6511, 0.6911],
+                'ns': [0.9424, 0.9824],
+                's8': [0.819, 0.849], 
+                'logMmin': [13.6, 13.7], 
+                'sigma_logM': [0.18, 0.22], 
+                'logM0': [13.8, 14.2],
+                'alpha': [0.9, 1.3], 
+                'logM1': [13.8, 14.2]}
+    
+        c_dbk = 0. 
+        if theta == 'Mnu': 
+            if not silent: print("  calculating dB/d%s using %s" % (theta, dmnu)) 
+            # derivative w.r.t. Mnu using 0, 0.1, 0.2, 0.4 eV
+            tts = ['fiducial_za', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
+            if dmnu == 'p': 
+                coeffs = [-1., 1., 0., 0.]  # derivative at 0.05eV
+                h = 0.1
+            elif dmnu == 'pp': 
+                coeffs = [-1., 0., 1., 0.]  # derivative at 0.1eV
+                h = 0.2
+            elif dmnu == 'ppp': 
+                coeffs = [-1., 0., 0., 1.]  # derivative at 0.2eV
+                h = 0.4
+            elif dmnu == 'fin0': 
+                coeffs = [-3., 4., -1., 0.] # finite difference coefficient
+                h = 0.2
+            elif dmnu == 'fin': 
+                coeffs = [-21., 32., -12., 1.] # finite difference coefficient
+                h = 1.2
+            elif dmnu == 'fin_2lpt': 
+                tts = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp'] # use ZA inital conditions
+                coeffs = [-21., 32., -12., 1.] # finite difference coefficient
+                h = 1.2
+            elif dmnu == '0.2eV_2LPTZA': # derivative @ 0.2 eV (not using 0.0eV which has 2LPT IC) 
+                coeffs = [0., -20., 15., 5.] 
+                h = 3. 
+            elif dmnu == '0.2eV_ZA': # derivative @ 0.2 eV (not using 0.0eV which has 2LPT IC) 
+                coeffs = [15., -80., 60., 5.] 
+                h = 6. 
+            else: 
+                raise NotImplementedError
+        elif theta in ['b1', 'Asn', 'Bsn']: 
+            # derivatives for nuisance parameters 
+            if not silent: print("  calculating dB/d%s" % theta) 
+            tts = ['fiducial'] 
+            coeffs = [0.] 
+            h = 1. 
+            quij = Obvs.quijhod_Bk('fiducial', z=z, flag=flag, rsd=rsd, silent=silent)
+            if theta == 'b1': 
+                if not log: c_dbk = 3.*np.average(quij['b123'], axis=0) 
+                else: c_dbk = 3.*np.ones(quij['b123'].shape[1])
+            elif theta == 'Asn': 
+                if not log: c_dbk = np.ones(quij['b123'].shape[1]) * 1.e8 
+                else: c_dbk = 1.e8/np.average(quij['b123'], axis=0) 
+            elif theta == 'Bsn': 
+                if not log: c_dbk = np.average(quij['p0k1'] + quij['p0k2'] + quij['p0k3'], axis=0)
+                else: c_dbk = np.average(quij['p0k1'] + quij['p0k2'] + quij['p0k3'], axis=0) / np.average(quij['b123'], axis=0)
+        else: 
+            if not silent: print("  calculating dB/d%s" % theta) 
+            tts = [theta+'_m', theta+'_p'] 
+            coeffs = [-1., 1.]
+            h = quijote_thetas[theta][1] - quijote_thetas[theta][0]
+
+        for i_tt, tt, coeff in zip(range(len(tts)), tts, coeffs): 
+            _bk_seeds = []
+            for seed in seeds: 
+                quij = Obvs.quijhod_Bk(tt, z=z, seed=seed, flag=flag, rsd=rsd, silent=silent)
+                _bk_seeds.append(quij['b123']) 
+            _bk = np.concatenate(_bk_seeds, axis=0)
+
+             # limited the number of realizations for convergence test 
+            if Nderiv is not None and tt != 'fiducial':
+                if not silent: print('  only using %i of %i realizations' % (Nderiv, quij['b123'].shape[0])) 
+                _bk = _bk[:Nderiv] 
+            
+            if i_tt == 0: dbk, dlogbk = np.zeros(_bk.shape), np.zeros(_bk.shape) 
+
+            _logbk = np.log(_bk) 
+
+            dbk += coeff * _bk 
+            dlogbk += coeff * _logbk 
+        
+        # k1, k2, k3
+        i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
+        # calculate derivatives
+        dbdt    = np.average(dbk / h + c_dbk, axis=0) 
+        dlogbdt = np.average(dlogbk / h + c_dbk, axis=0) 
+
+        if Nderiv is None: 
+            # save to file for fast access later:
+            hdr = 'k1, k2, k3, dB/dtheta, dlogB/dtheta'
+            # save to file 
+            np.savetxt(fdbk, np.vstack([i_k, j_k, l_k, dbdt, dlogbdt]).T, header=hdr, delimiter=',\t', fmt='%i %i %i %.5e %.5e')
+            
+    return i_k, j_k, l_k, dbdt, dlogbdt
 
 
-def dP02Bk(theta, log=False, rsd='all', flag='reg', dmnu='fin', fscale_pk=1., returnks=False, silent=True):
-    ''' dP0/dtt, dP2/dtt, dB/dtt
+def dP02Bk(theta, seed='all', rsd='all', dmnu='fin', fscale_pk=1., silent=True):
+    ''' combined derivative dP0/dtt, dP2/dtt, dB/dtt
     '''
     # dP0/dtheta, dP2/dtheta
-    dp = dP02k(theta, log=log, rsd=rsd, flag=flag, dmnu=dmnu, returnks=returnks, silent=silent) 
+    k, dp, dlogp = dP02k(theta, seed=seed, rsd=rsd, dmnu=dmnu, silent=silent) 
     # dB0/dtheta
-    db = dBk(theta, log=log, rsd=rsd, flag=flag, dmnu=dmnu, returnks=returnks, silent=silent) 
-
-    if returnks: 
-        _k, _dp = dp 
-        _ik, _jk, _lk, _db = db
-        return _k, _ik, _jk, _lk, np.concatenate([fscale_pk * _dp, _db]) 
-    else: 
-        return np.concatenate([fscale_pk * dp, db]) 
+    i_k, j_k, l_k, db, dlogb = dBk(theta, seed=seed, rsd=rsd, dmnu=dmnu, silent=silent) 
+    return k, i_k, j_k, l_k, np.concatenate([fscale_pk * dp, db]), np.concatenate([dlogp, dlogb])
 
 
-def plot_dP02B(kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True): 
+def plot_dP02B(kmax=0.5, seed='all', rsd='all', dmnu='fin', log=True): 
     ''' compare derivatives w.r.t. the different thetas
     '''
     # y range of P0, P2 plots 
@@ -320,22 +563,12 @@ def plot_dP02B(kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True):
             (None, 5e4), (-1e5, 5e5), (-1e5, 1.1e4), (-2e4, 5e3), (-5e4, 2e5),
             (-5e5, 1e5)]
 
-    if log: 
-        qhod_p = Obvs.quijhod_Pk('fiducial', flag=flag, rsd=rsd, silent=False) 
-        p0g, p2g  = np.average(qhod_p['p0k'], axis=0), np.average(qhod_p['p2k'], axis=0)
-
-        qhod_b = Obvs.quijhod_Bk('fiducial', flag=flag, rsd=rsd, silent=False) 
-        b0g = np.average(qhod_b['b123'], axis=0) 
-        pbg_fid = np.concatenate([p0g, p2g, b0g]) 
-
-
     fig = plt.figure(figsize=(30,3*len(thetas)))
     gs = mpl.gridspec.GridSpec(len(thetas), 2, figure=fig, width_ratios=[1,7], hspace=0.1, wspace=0.15) 
 
     for i, tt in enumerate(thetas): 
-        #_k, _ik, _jk, _lk, dpb = dP02Bk(tt, log=log, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True, silent=False)
-        _k, _ik, _jk, _lk, dpb = dP02Bk(tt, log=False, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True, silent=False)
-        if log: dpb /= pbg_fid
+        _k, _ik, _jk, _lk, dpb, dlogpb = dP02Bk(tt, seed=seed, rsd=rsd, dmnu=dmnu, silent=False)
+        if log: dpb = dlogpb 
         
         nk0 = int(len(_k)/2) 
         kp  = _k[:nk0]
@@ -389,7 +622,9 @@ def plot_dP02B(kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True):
             sub.set_ylabel(r'${\rm d} %s B_{g, 0}/{\rm d}\theta$' %
                 (['', '\log'][log]), fontsize=30) 
 
-    ffig = os.path.join(dir_doc, 'quijote_d%sP02Bdtheta%s%s.%s.png' % (['', 'log'][log], _rsd_str(rsd), _flag_str(flag), dmnu))
+    ffig = os.path.join(dir_doc, 
+            'quijote_d%sP02Bdtheta%s%s.%s.png' % 
+            (['', 'log'][log], _seed_str(seed), _rsd_str(rsd), dmnu))
     fig.savefig(ffig, bbox_inches='tight') 
     fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
     return None 
@@ -2346,6 +2581,15 @@ def _nuis_str(theta_nuis):
         if 'g2' in theta_nuis: nuis_str += 'g2'
     return nuis_str
 
+def _dmnu_str(theta, dmnu): 
+    if theta != 'Mnu': return ''
+    return '.%s' % dmnu
+
+def _seed_str(seed): 
+    # assign string based on seed kwarg 
+    if isinstance(seed, int): return '.seed%i' % seed
+    elif seed == 'all': return ''
+    else: raise NotImplementedError
 
 def _rsd_str(rsd): 
     # assign string based on rsd kwarg 
@@ -2381,6 +2625,8 @@ if __name__=="__main__":
         plot_p02bkCov(kmax=0.5, rsd=2, flag='reg')
     '''
     # derivatives 
+    plot_dP02B(kmax=0.5, seed=0, rsd='all', dmnu='fin', log=False)
+    plot_dP02B(kmax=0.5, seed='all', rsd='all', dmnu='fin', log=False)
     '''
         # compare derivatives w.r.t. the cosmology + HOD parameters 
         plot_dP02B(kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=False)
@@ -2434,7 +2680,6 @@ if __name__=="__main__":
                 params='lcdm')
     '''
     # forecasts 
-    forecast('bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
     '''
         P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
         P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
