@@ -282,7 +282,7 @@ def dP02k(theta, seed='all', rsd='all', dmnu='fin', Nderiv=None, silent=True, ov
         [k, dp02, dlogp02]
     '''
     # --- hardcoded settings --- 
-    if seed == 'all': seeds = range(4) 
+    if seed == 'all': seeds = range(5) 
     else: seeds = [seed] 
     flag = 'reg'
     z = 0 
@@ -362,6 +362,7 @@ def dP02k(theta, seed='all', rsd='all', dmnu='fin', Nderiv=None, silent=True, ov
                 quij = Obvs.quijhod_Pk(tt, z=z, seed=seed, flag=flag, rsd=rsd, silent=silent) # read Pk 
                 _pk_seeds.append(np.concatenate([quij['p0k'], quij['p2k']], axis=1)) # [P0, P2] 
             _pk = np.concatenate(_pk_seeds, axis=0)
+            print(tt, _pk.shape) 
 
              # limited the number of realizations for convergence test 
             if Nderiv is not None and tt != 'fiducial':
@@ -426,7 +427,7 @@ def dBk(theta, seed='all', rsd='all', dmnu='fin', Nderiv=None, silent=True, over
         i_k, j_k, l_k, db/dt, dlogb/dt
     '''
     # --- hardcoded settings --- 
-    if seed == 'all': seeds = range(4) 
+    if seed == 'all': seeds = range(5) 
     else: seeds = [seed] 
     flag = 'reg'
     z = 0
@@ -630,7 +631,7 @@ def plot_dP02B(kmax=0.5, seed='all', rsd='all', dmnu='fin', log=True):
     return None 
 
 
-def plot_dP02B_Mnu_degen(kmax=0.5, rsd='all', flag='reg', dmnu='fin'): 
+def plot_dP02B_Mnu_degen(kmax=0.5, seed='all', rsd='all', dmnu='fin'): 
     ''' compare derivatives that appear to be degenerate with the deriv. w.r.t. Mnu 
     '''
     fig = plt.figure(figsize=(30,8))
@@ -647,7 +648,7 @@ def plot_dP02B_Mnu_degen(kmax=0.5, rsd='all', flag='reg', dmnu='fin'):
     fbks = [1., 1., 1.]
 
     for i, tt in enumerate(['Mnu', 'logMmin', 'alpha']): 
-        _k, _ik, _jk, _lk, dpb = dP02Bk(tt, log=False, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True, silent=False)
+        _k, _ik, _jk, _lk, dpb, _ = dP02Bk(tt, seed=seed, rsd=rsd, dmnu=dmnu, silent=False)
         
         nk0 = int(len(_k)/2) 
         kp  = _k[:nk0]
@@ -700,12 +701,12 @@ def plot_dP02B_Mnu_degen(kmax=0.5, rsd='all', flag='reg', dmnu='fin'):
     sub2.legend(handletextpad=0.1, loc='upper right', fontsize=20)
 
     ffig = os.path.join(dir_hod, 'figs', 
-            'quijote_dP02Bdtheta_Mnu_degen%s%s.%s.png' % (_rsd_str(rsd), _flag_str(flag), dmnu))
+            'quijote_dP02Bdtheta_Mnu_degen%s%s.%s.png' % (_seed_str(seed), _rsd_str(rsd), dmnu))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
 
-def plot_dP02B_Mnu(kmax=0.5, rsd='all', flag='reg'):
+def plot_dP02B_Mnu(kmax=0.5, seed='all', rsd='all'):
     ''' compare the derivative w.r.t. Mnu for different methods 
     '''
     fig = plt.figure(figsize=(30,4))
@@ -715,7 +716,7 @@ def plot_dP02B_Mnu(kmax=0.5, rsd='all', flag='reg'):
     sub2 = plt.subplot(gs[2]) 
     
     for i, dmnu in enumerate(['fin', 'p']):#, 'pp', 'fin_2lpt']): 
-        _k, _ik, _jk, _lk, dpb = dP02Bk('Mnu', log=False, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True, silent=False)
+        _k, _ik, _jk, _lk, dpb, _ = dP02Bk('Mnu', seed=seed, rsd=rsd, dmnu=dmnu, silent=False)
         
         nk0 = int(len(_k)/2) 
         kp  = _k[:nk0]
@@ -749,7 +750,8 @@ def plot_dP02B_Mnu(kmax=0.5, rsd='all', flag='reg'):
     sub2.set_ylabel(r'${\rm d} B_0/{\rm d}\theta$', fontsize=25) 
     sub2.legend(handletextpad=0.1, loc='upper right', fontsize=20, ncol=5)
 
-    ffig = os.path.join(dir_hod, 'figs', 'quijote_dP02BdMnu%s%s.png' % (_rsd_str(rsd), _flag_str(flag)))
+    ffig = os.path.join(dir_hod, 'figs', 'quijote_dP02BdMnu%s%s.png' %
+            (_seed_str(seed), _rsd_str(rsd)))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
@@ -786,14 +788,16 @@ def dP02Bh(theta, log=False, rsd='all', flag='reg', dmnu='fin', fscale_pk=1., re
         return np.concatenate([fscale_pk * _dp, _db]) 
 
 
-def plot_dPBg_dPBh(theta, rsd='all', flag='reg', dmnu='fin', log=False): 
+def plot_dPBg_dPBh(theta, seed='all', rsd='all', dmnu='fin', log=False): 
     ''' compare derivatives w.r.t. the different thetas
     '''
     # y range of log dP02,B plots 
     logplims = [(-10., 10.), (-2, 15), (-3., 1.), (-4., 0.), (-2., 2.), (-0.5, 0.5)] 
     logblims = [(-13., 0.), (-2., 24.), (-5., -0.5), (-5., -0.5), (-5., 2.), (-0.5, 0.7)] 
 
-    k, ik, jk, lk, dpbg = dP02Bk(theta, log=log, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True, silent=False)
+    k, ik, jk, lk, _dpbg, _dlogpbg= dP02Bk(theta, seed=seed, rsd=rsd, dmnu=dmnu, silent=False)
+    if log: dpbg = _dlogpbg
+    else: dpbg = _dpbg
     #k, ik, jk, lk, dpbg = dP02Bk(theta, log=False, rsd=rsd, flag=flag, dmnu=dmnu, returnks=True, silent=False)
     #if log: 
     #    qhod_p = Obvs.quijhod_Pk('fiducial', flag=flag, rsd=rsd, silent=False) 
@@ -804,7 +808,7 @@ def plot_dPBg_dPBh(theta, rsd='all', flag='reg', dmnu='fin', log=False):
     #    pbg_fid = np.concatenate([p0g, p2g, b0g]) 
     #    dpbg /= pbg_fid
 
-    dpbh = dP02Bh(theta, log=log, rsd=rsd, flag=flag, dmnu=dmnu, returnks=False, silent=False)
+    dpbh = dP02Bh(theta, log=log, rsd=rsd, flag='reg', dmnu=dmnu, silent=False)
     k0 = k[:int(len(k)/2)]
     k2 = k[int(len(k)/2):]
     dp0g = dpbg[:int(len(k)/2)]
@@ -858,7 +862,8 @@ def plot_dPBg_dPBh(theta, rsd='all', flag='reg', dmnu='fin', log=False):
             transform=sub2.transAxes, fontsize=25, bbox=dict(facecolor='white', alpha=0.75, edgecolor='None'))
     
     ffig = os.path.join(dir_hod, 'figs', 
-            'd%sPBg_d%sPBh.%s%s%s.png' % (['', 'log'][log], ['', 'log'][log], theta, _rsd_str(rsd), _flag_str(flag)))
+            'd%sPBg_d%sPBh.%s%s%s.png' % (['', 'log'][log], ['', 'log'][log],
+                theta, _seed_str(seed), _rsd_str(rsd)))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
@@ -949,23 +954,23 @@ def nbar():
     return None 
 
 
-def plot_PBg(rsd='all', flag='reg'): 
+def plot_PBg(rsd='all'): 
     ''' plot Pg0, Pg2, Bg0 with Ph0, Ph2, Bh0 included for reference. 
     '''
     # read in P0g, P2g, and Bg
-    qhod_p = Obvs.quijhod_Pk('fiducial', flag=flag, rsd=rsd, silent=False) 
+    qhod_p = Obvs.quijhod_Pk('fiducial', seed=0, rsd=rsd, flag='reg', silent=False) 
     k, p0g, p2g  = qhod_p['k'], np.average(qhod_p['p0k'], axis=0), np.average(qhod_p['p2k'], axis=0)
     print('N_galaxies = %i' % np.average(qhod_p['Ngalaxies']))
 
-    qhod_b = Obvs.quijhod_Bk('fiducial', flag=flag, rsd=rsd, silent=False) 
+    qhod_b = Obvs.quijhod_Bk('fiducial', seed=0, rsd=rsd, flag='reg', silent=False) 
     i_k, j_k, l_k, b0g = qhod_b['k1'], qhod_b['k2'], qhod_b['k3'], np.average(qhod_b['b123'], axis=0) 
 
     # read in P0h, P2h, and Bh
-    quij_p = Obvs.quijotePk('fiducial', rsd=rsd, flag=flag, silent=False) 
+    quij_p = Obvs.quijotePk('fiducial', rsd=rsd, flag='reg', silent=False) 
     p0h, p2h = np.average(quij_p['p0k'], axis=0), np.average(quij_p['p2k'], axis=0)
     print('N_halos = %i' % np.average(quij_p['Nhalos']))
 
-    quij_b = Obvs.quijoteBk('fiducial', flag=flag, rsd=rsd, silent=False) 
+    quij_b = Obvs.quijoteBk('fiducial', rsd=rsd, flag='reg', silent=False) 
     b0h = np.average(quij_b['b123'], axis=0) 
 
     pklim = (k < 0.5) 
@@ -999,22 +1004,22 @@ def plot_PBg(rsd='all', flag='reg'):
     sub1.set_yscale('log') 
     sub1.set_ylim(1e7, 5e10)
     
-    ffig = os.path.join(dir_doc, 'PBg%s%s.png' % (_rsd_str(rsd), _flag_str(flag)))
+    ffig = os.path.join(dir_doc, 'PBg%s.png' % (_rsd_str(rsd)))
     fig.savefig(ffig, bbox_inches='tight') 
     fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex version 
     return None 
 
 
-def plot_bias(rsd='all', flag='reg'): 
+def plot_bias(rsd='all'): 
     '''plot bias by comparing the ratio of the galaxy and halo power spectrum
     monopole (P0g, P0h) to the matter power spectrum (Pm) 
     '''
     from emanu import lineartheory as LT 
     # read in P0g
-    qhod_p = Obvs.quijhod_Pk('fiducial', flag=flag, rsd=rsd, silent=False) 
+    qhod_p = Obvs.quijhod_Pk('fiducial', seed=0, rsd=rsd, silent=False) 
     k, p0g = qhod_p['k'], np.average(qhod_p['p0k'], axis=0)
     # read in P0h
-    quij_p = Obvs.quijotePk('fiducial', rsd=rsd, flag=flag, silent=False) 
+    quij_p = Obvs.quijotePk('fiducial', rsd=rsd, flag='reg', silent=False) 
     p0h = np.average(quij_p['p0k'], axis=0)
     # read in Pm 
     plin = LT._Pm_Mnu(0., k) 
@@ -1036,7 +1041,7 @@ def plot_bias(rsd='all', flag='reg'):
     sub.set_ylim(1.5, 3.5)
     sub.legend(loc='upper left', fontsize=25) 
 
-    ffig = os.path.join(dir_doc, 'galaxy_bias%s%s.png' % (_rsd_str(rsd), _flag_str(flag)))
+    ffig = os.path.join(dir_doc, 'galaxy_bias%s.png' % (_rsd_str(rsd)))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
@@ -1044,7 +1049,6 @@ def plot_bias(rsd='all', flag='reg'):
 def _PBg_rsd_comparison(flag='reg'): 
     ''' compare Pg0, Pg2, Bg0 for different RSD 
     '''
-
     for theta in ['Mnu_p', 'Mnu_pp', 'Mnu_ppp', 'Om_m', 'Om_p', 'Ob2_m',
             'Ob2_p', 'h_m', 'h_p', 'ns_m', 'ns_p', 's8_m', 's8_p', 'alpha_m',
             'alpha_p', 'logM0_m', 'logM0_p', 'logM1_m', 'logM1_p', 'logMmin_m',
@@ -1093,9 +1097,10 @@ def _PBg_rsd_comparison(flag='reg'):
     return None 
 
 
-def plot_PBg_PBh(theta, rsd='all', flag='reg'): 
+def plot_PBg_PBh(theta, rsd='all'): 
     ''' comparison between the galaxy power/bispectrum to the halo power/bispectrum
     '''
+    seed = 0 
     if theta in ['fiducial', 'fiducial_za']: 
         _thetas = [theta] 
     elif theta == 'Mnu': 
@@ -1108,17 +1113,17 @@ def plot_PBg_PBh(theta, rsd='all', flag='reg'):
 
     for tt in _thetas: 
         # read in P0g, P2g, and Bg
-        qhod_p = Obvs.quijhod_Pk(tt, flag=flag, rsd=rsd, silent=False) 
+        qhod_p = Obvs.quijhod_Pk(tt, seed=seed, rsd=rsd, silent=False) 
         k, p0g, p2g  = qhod_p['k'], np.average(qhod_p['p0k'], axis=0), np.average(qhod_p['p2k'], axis=0)
 
-        qhod_b = Obvs.quijhod_Bk(tt, flag=flag, rsd=rsd, silent=False) 
+        qhod_b = Obvs.quijhod_Bk(tt, seed=seed, rsd=rsd, silent=False) 
         i_k, j_k, l_k, b0g = qhod_b['k1'], qhod_b['k2'], qhod_b['k3'], np.average(qhod_b['b123'], axis=0) 
 
         # read in P0h, P2h, and Bh
-        quij_p = Obvs.quijotePk(tt, rsd=rsd, flag=flag, silent=False) 
+        quij_p = Obvs.quijotePk(tt, rsd=rsd, flag='reg', silent=False) 
         p0h, p2h = np.average(quij_p['p0k'], axis=0), np.average(quij_p['p2k'], axis=0)
 
-        quij_b = Obvs.quijoteBk(tt, flag=flag, rsd=rsd, silent=False) 
+        quij_b = Obvs.quijoteBk(tt, rsd=rsd, flag='reg', silent=False) 
         b0h = np.average(quij_b['b123'], axis=0) 
 
         p0gs.append(p0g)
@@ -1165,7 +1170,7 @@ def plot_PBg_PBh(theta, rsd='all', flag='reg'):
     sub2.set_ylabel('$B(k_1, k_2, k_3)$', fontsize=20) 
     sub2.set_yscale('log') 
     
-    ffig = os.path.join(dir_hod, 'PBg_PBh.%s%s%s.png' % (theta, _rsd_str(rsd), _flag_str(flag)))
+    ffig = os.path.join(dir_hod, 'PBg_PBh.%s%s%s.png' % (theta, _seed_str(seed), _rsd_str(rsd)))
     fig.savefig(ffig, bbox_inches='tight') 
     if theta == 'fiducial':  return None 
 
@@ -1204,36 +1209,36 @@ def plot_PBg_PBh(theta, rsd='all', flag='reg'):
     else: sub2.set_yscale('symlog', linthreshy=1e6) 
     
     ffig = os.path.join(dir_hod, 'figs', 
-            'dPBg_PBh.%s%s%s.png' % (theta, _rsd_str(rsd), _flag_str(flag)))
+            'dPBg_PBh.%s%s%s.png' % (theta, _seed_str(seed), _rsd_str(rsd)))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
 
-def _plot_PBg_PBh_SN(rsd='all', flag='reg'): 
+def _plot_PBg_PBh_SN(rsd='all'): 
     ''' comparison between the Pg, Bg, Pg_sn, Bg_sn and Ph, Bh, Ph_sn, Bh_sn
     '''
     # read in P0g, P2g, and Bg
-    qhod_p = Obvs.quijhod_Pk('fiducial', flag=flag, rsd=rsd, silent=False) 
+    qhod_p = Obvs.quijhod_Pk('fiducial', seed=0, rsd=rsd, flag='reg', silent=False) 
     k, p0g, p2g = qhod_p['k'], np.average(qhod_p['p0k'], axis=0), np.average(qhod_p['p2k'], axis=0)
     pg_uncorr = np.average(qhod_p['p0k'] + qhod_p['p_sn'][:,np.newaxis], axis=0)
     pg_sn = np.average(qhod_p['p_sn'], axis=0)
     
     print('N_galaxies = %i' % np.average(qhod_p['Ngalaxies']))
 
-    qhod_b = Obvs.quijhod_Bk('fiducial', flag=flag, rsd=rsd, silent=False) 
+    qhod_b = Obvs.quijhod_Bk('fiducial', seed=0, rsd=rsd, flag='reg', silent=False) 
     i_k, j_k, l_k, b0g = qhod_b['k1'], qhod_b['k2'], qhod_b['k3'], np.average(qhod_b['b123'], axis=0) 
     bg_uncorr = np.average(qhod_b['b123'] + qhod_b['b_sn'], axis=0) 
     bg_sn = np.average(qhod_b['b_sn'], axis=0) 
 
     # read in P0h, P2h, and Bh
-    quij_p = Obvs.quijotePk('fiducial', rsd=rsd, flag=flag, silent=False) 
+    quij_p = Obvs.quijotePk('fiducial', rsd=rsd, flag='reg', silent=False) 
     p0h, p2h = np.average(quij_p['p0k'], axis=0), np.average(quij_p['p2k'], axis=0)
     ph_uncorr = np.average(quij_p['p0k'] + quij_p['p_sn'][:,np.newaxis], axis=0) 
     ph_sn = np.average(quij_p['p_sn'], axis=0) 
     
     print('N_halos = %i' % np.average(quij_p['Nhalos']))
 
-    quij_b = Obvs.quijoteBk('fiducial', flag=flag, rsd=rsd, silent=False) 
+    quij_b = Obvs.quijoteBk('fiducial', rsd=rsd, flag='reg', silent=False) 
     b0h = np.average(quij_b['b123'], axis=0) 
     bh_uncorr = np.average(quij_b['b123'] + quij_b['b_sn'], axis=0) 
     bh_sn = np.average(quij_b['b_sn'], axis=0) 
@@ -1317,8 +1322,9 @@ def _plot_PBg_PBh_SN(rsd='all', flag='reg'):
     return None 
 
 # --- forecasts --- 
-def FisherMatrix(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin',
-        params='default', theta_nuis=None, cross_covariance=True, Cgauss=False): 
+def FisherMatrix(obs, kmax=0.5, seed='all', rsd='all', dmnu='fin',
+        params='default', theta_nuis=None, cross_covariance=True, Cgauss=False,
+        silent=True): 
     ''' calculate fisher matrix for parameters ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu'] 
     and specified nuisance parameters
     
@@ -1380,12 +1386,14 @@ def FisherMatrix(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin',
     dobs_dt = [] 
     for par in _thetas: 
         if obs == 'p02k': 
-            dobs_dti = dP02k(par, rsd=rsd, flag=flag, dmnu=dmnu)
+            _, dobs_dti, _ = dP02k(par, seed=seed, rsd=rsd, dmnu=dmnu,
+                    silent=silent)
         elif obs == 'bk': 
             # rsd and flag kwargs are passed to the derivatives
-            dobs_dti = dBk(par, rsd=rsd, flag=flag, dmnu=dmnu)
+            _, _, _, dobs_dti, _ = dBk(par, seed=seed, rsd=rsd, dmnu=dmnu, silent=silent)
         elif obs == 'p02bk': 
-            dobs_dti = dP02Bk(par, rsd=rsd, flag=flag, dmnu=dmnu, fscale_pk=fscale_pk) 
+            _, _, _, _, dobs_dti, _ = dP02Bk(par, seed=seed, rsd=rsd,
+                    dmnu=dmnu, fscale_pk=fscale_pk, silent=silent) 
         dobs_dt.append(dobs_dti[klim])
             
     Fij = Forecast.Fij(dobs_dt, C_inv) 
@@ -1516,7 +1524,8 @@ def forecast(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin',
     return None 
 
 
-def P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False):
+def P02B_Forecast(kmax=0.5, seed='all', rsd='all', dmnu='fin', theta_nuis=None,
+        planck=False, silent=True):
     ''' fisher forecast comparison for P0+P2, B, and P0+P2+B for quijote observables where we 
     marginalize over theta_nuis parameters. 
     
@@ -1546,9 +1555,12 @@ def P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, 
         if 'b2' in theta_nuis: pk_theta_nuis.remove('b2') 
         if 'g2' in theta_nuis: pk_theta_nuis.remove('g2') 
 
-    pkFij   = FisherMatrix('p02k', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=pk_theta_nuis)  
-    bkFij   = FisherMatrix('bk', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=bk_theta_nuis)  
-    pbkFij  = FisherMatrix('p02bk', kmax=kmax, rsd=rsd,  flag=flag, dmnu=dmnu, theta_nuis=theta_nuis)  
+    pkFij   = FisherMatrix('p02k', kmax=kmax, seed=seed, rsd=rsd, dmnu=dmnu,
+            theta_nuis=pk_theta_nuis, silent=silent)  
+    bkFij   = FisherMatrix('bk', kmax=kmax, seed=seed, rsd=rsd, dmnu=dmnu,
+            theta_nuis=bk_theta_nuis, silent=silent)  
+    pbkFij  = FisherMatrix('p02bk', kmax=kmax, seed=seed, rsd=rsd, dmnu=dmnu,
+            theta_nuis=theta_nuis, silent=silent)
     cond = np.linalg.cond(pbkFij)
     if cond > 1e16: print('Fij is ill-conditioned %.5e' % cond)
     
@@ -1658,13 +1670,13 @@ def P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, 
 
     ffig = os.path.join(dir_doc, 
             'Fisher.p02bk%s.dmnu_%s.kmax%.2f%s%s%s.png' % 
-            (nuis_str, dmnu, kmax, _rsd_str(rsd), _flag_str(flag), planck_str))
+            (nuis_str, dmnu, kmax, _seed_str(seed), _rsd_str(rsd), planck_str))
     fig.savefig(ffig, bbox_inches='tight') 
     fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex version 
     return None 
 
 
-def P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None):
+def P02B_Forecast_kmax(seed='all', rsd='all', dmnu='fin', theta_nuis=None):
     ''' fisher forecast for quijote P0+P2 and B where theta_nuis are added as free parameters 
     as a function of kmax.
     
@@ -1672,11 +1684,6 @@ def P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None):
         rsd kwarg that specifies rsd set up for B(k). 
         If rsd == True, include 3 RSD directions. 
         If rsd in [0,1,2] include one of the directions
-    :param flag: (default: None) 
-        kwarg specifying the flag for B(k). 
-        If `flag is None`, include paired-fixed and regular N-body simulation. 
-        If `flag == 'ncv'` only include paired-fixed. 
-        If `flag == 'reg'` only include regular N-body
     :param theta_nuis: (default: None) 
         list of nuisance parameters to include in the forecast. 
     :param dmnu: (default: 'fin') 
@@ -1700,8 +1707,8 @@ def P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None):
     # read in fisher matrix (Fij)
     sig_pk, sig_pbk, sig_pk_planck, sig_pbk_planck = [], [], [], []
     for i_k, kmax in enumerate(kmaxs): 
-        pkFij   = FisherMatrix('p02k', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, theta_nuis=pk_theta_nuis)  
-        pbkFij  = FisherMatrix('p02bk', kmax=kmax, rsd=rsd,  flag=flag, dmnu=dmnu, theta_nuis=theta_nuis)  
+        pkFij   = FisherMatrix('p02k', kmax=kmax, seed=seed, rsd=rsd, dmnu=dmnu, theta_nuis=pk_theta_nuis)  
+        pbkFij  = FisherMatrix('p02bk', kmax=kmax, seed=seed, rsd=rsd, dmnu=dmnu, theta_nuis=theta_nuis)  
         
         pkFij_planck = pkFij.copy() 
         pbkFij_planck = pbkFij.copy() 
@@ -1784,7 +1791,7 @@ def P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None):
     fig.subplots_adjust(wspace=0.2, hspace=0.15) 
 
     ffig = os.path.join(dir_doc, 
-            'Fisher_kmax.p02bk%s.dmnu_%s%s%s.png' % (_nuis_str(bk_theta_nuis), dmnu, _rsd_str(rsd), _flag_str(flag)))
+            'Fisher_kmax.p02bk%s.dmnu_%s%s%s.png' % (_nuis_str(bk_theta_nuis), dmnu, _seed_str(seed), _rsd_str(rsd)))
     fig.savefig(ffig, bbox_inches='tight') 
     fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex 
     return None
@@ -2625,23 +2632,21 @@ if __name__=="__main__":
         plot_p02bkCov(kmax=0.5, rsd=2, flag='reg')
     '''
     # derivatives 
-    plot_dP02B(kmax=0.5, seed=0, rsd='all', dmnu='fin', log=False)
-    plot_dP02B(kmax=0.5, seed='all', rsd='all', dmnu='fin', log=False)
     '''
         # compare derivatives w.r.t. the cosmology + HOD parameters 
         plot_dP02B(kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=False)
         # compare derivatives for a subset of parameters to look into 
         # dgenerates with deriv. w.r.t. Mnu
-        plot_dP02B_Mnu_degen(kmax=0.5, rsd='all', flag='reg', dmnu='fin')
+        plot_dP02B_Mnu_degen(kmax=0.5, seed='all', rsd='all', dmnu='fin')
         # deriv. w.r.t. Mnu for different methods 
-        plot_dP02B_Mnu(kmax=0.5, rsd='all', flag='reg')
+        plot_dP02B_Mnu(kmax=0.5, seed='all', rsd='all')
     '''
     # comparisons between galaxy and halo P and B 
     '''
-        plot_PBg(rsd='all', flag='reg')
-        _plot_PBg_PBh_SN(rsd='all', flag='reg')
+        plot_PBg(rsd='all')
+        _plot_PBg_PBh_SN(rsd='all')
         for theta in ['fiducial', 'Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']: 
-            plot_PBg_PBh(theta, rsd='all', flag='reg')
+            plot_PBg_PBh(theta, rsd='all')
         for theta in ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']: 
             plot_dPBg_dPBh(theta, rsd='all', flag='reg', dmnu='fin', log=False)
             plot_dPBg_dPBh(theta, rsd='all', flag='reg', dmnu='fin', log=True)
@@ -2681,8 +2686,8 @@ if __name__=="__main__":
     '''
     # forecasts 
     '''
-        P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=False)
-        P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=None, planck=True)
+        P02B_Forecast(kmax=0.5, seed='all', rsd='all', dmnu='fin', theta_nuis=None, planck=False)
+        P02B_Forecast(kmax=0.5, seed='all', rsd='all', dmnu='fin', theta_nuis=None, planck=True)
         P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None)
         P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None)
         for theta_nuis in [None, ['Asn', 'Bsn']]:
