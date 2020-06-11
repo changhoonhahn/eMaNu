@@ -1367,7 +1367,7 @@ def FisherMatrix(obs, kmax=0.5, seed='all', rsd='all', dmnu='fin',
         Cov = _Cov[:,klim][klim,:]
     else: 
         raise NotImplementedError
-
+    #print('%iD data vector' % Cov.shape[0])
     ndata = np.sum(klim) 
     f_hartlap = float(nmock - ndata - 2)/float(nmock - 1) 
     C_inv = f_hartlap * np.linalg.inv(Cov) # invert the covariance 
@@ -1693,7 +1693,7 @@ def P02B_Forecast_kmax(seed='all', rsd='all', dmnu='fin', theta_nuis=None):
     :param planck: (default: False)
         If True add Planck prior 
     '''
-    kmaxs = kf * 3 * np.arange(3, 28) 
+    kmaxs = kf * 3 * np.arange(1, 28) 
 
     pk_theta_nuis = copy(theta_nuis)
     bk_theta_nuis = copy(theta_nuis)
@@ -1727,7 +1727,7 @@ def P02B_Forecast_kmax(seed='all', rsd='all', dmnu='fin', theta_nuis=None):
         #if np.linalg.cond(bkFij) > 1e16: 
         #    print('B Fij ill-conditioned; cond # = %.2e' % np.linalg.cond(bkFij)) 
         if np.linalg.cond(pbkFij) > 1e16: 
-            print('  P02+B Fij ill-conditioned; cond # = %.2e' % np.linalg.cond(bkFij)) 
+            print('  P02+B Fij ill-conditioned; cond # = %.2e' % np.linalg.cond(pbkFij)) 
 
         print('  pk: %s' % ', '.join(['%.2e' % fii for fii in sig_pk[-1]])) 
         print('  pbk: %s' % ', '.join(['%.2e' % fii for fii in sig_pbk[-1]])) 
@@ -1740,9 +1740,9 @@ def P02B_Forecast_kmax(seed='all', rsd='all', dmnu='fin', theta_nuis=None):
     sig_pbk_planck= np.array(sig_pbk_planck)
      
     cond_pk = (kmaxs > 6. * kf)
-    cond_pbk = (kmaxs > 12. * kf)
-    print('PK kmax > %f' % (5. * kf)) 
-    print('PBK kmax > %f' %  (12. * kf))
+    cond_pbk = (kmaxs > 3. * kf)
+    print('PK kmax > %f' % (6. * kf)) 
+    print('PBK kmax > %f' %  (3. * kf))
 
     # write out to table
     kmax_preset = np.zeros(len(kmaxs)).astype(bool) 
@@ -2688,8 +2688,8 @@ if __name__=="__main__":
     '''
         P02B_Forecast(kmax=0.5, seed='all', rsd='all', dmnu='fin', theta_nuis=None, planck=False)
         P02B_Forecast(kmax=0.5, seed='all', rsd='all', dmnu='fin', theta_nuis=None, planck=True)
-        P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None)
-        P02B_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None)
+        P02B_Forecast_kmax(seed='all', rsd='all', dmnu='fin', theta_nuis=None)
+        P02B_Forecast_kmax(seed='all', rsd='all', dmnu='fin', theta_nuis=None)
         for theta_nuis in [None, ['Asn', 'Bsn']]:
             # P0,P2 only 
             forecast('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin', theta_nuis=theta_nuis, planck=False)
