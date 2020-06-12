@@ -117,7 +117,7 @@ def hadesBk_s8(sig8, nzbin=4, rsd=True):
     return _bks
 
 
-def quijhod_Bk(theta, z=0, seed=0, rsd='all', flag=None, silent=True): 
+def quijhod_Bk(theta, z=0, seed=0, rsd='all', flag='reg', silent=True): 
     ''' read in real/redshift-space bispectrum for specified model (theta) of the 
     quijote HOD (quijhod) catalogs. 
     
@@ -179,7 +179,7 @@ def quijhod_Bk(theta, z=0, seed=0, rsd='all', flag=None, silent=True):
     return _bks
 
 
-def quijhod_Pk(theta, z=0, seed=0, rsd='all', flag=None, silent=True): 
+def quijhod_Pk(theta, z=0, seed=0, rsd='all', flag='reg', silent=True): 
     ''' read in real/redshift-space powerspectrum monopole (for RSD quadru- and hexadeca-poles) 
     for specified model (theta) of the quijote hod (quijhod) simulations. 
     
@@ -208,6 +208,9 @@ def quijhod_Pk(theta, z=0, seed=0, rsd='all', flag=None, silent=True):
     
     assert flag in [None, 'ncv', 'reg'], "flag=%s unspecified" % flag
     assert rsd in [0, 1, 2, 'all', 'real'] 
+
+    if theta == 'fiducial_za':
+        theta = 'fiducial_ZA'
     
     # get files to read-in 
     if 'machine' in os.environ and os.environ['machine'] == 'mbp': 
