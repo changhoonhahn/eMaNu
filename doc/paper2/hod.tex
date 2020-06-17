@@ -110,13 +110,33 @@ would require selecting based on observable galaxy properties that correlate
 more strong with $M_h$ than luminosity or $M_*$. \todo{Alpaslan et al. in prep. find
 that $L_{\rm sat}$ is more correlated to $M_h$ than luminosity or $M_*$; however, 
 it has yet to be used for galaxy sample selection.} Regardless, in this work
-we are interested in quantifying the information content of the galaxy bispectrum 
-and not analyzing an observed galaxy sample. We therefore opt for a more 
-conservative set of HOD parameters with respect to $M_{\rm lim}$. 
+we focus on quantifying the information content of the galaxy bispectrum 
+and not on analyzing an observed galaxy sample. We therefore opt for a more 
+conservative set of HOD parameters with respect to $M_{\rm lim}$. For our
+fiducial halo occupation at the fiducial cosmology, the galaxy catalog has 
+$\bar{n}_g \sim 1.63\times 10^{-4}~h^3{\rm Gpc}^{-3}$ and linear bias of 
+$b_g \sim 2.55$.
 
-\todo{bias $\sim 2.55$ and $\bar{n}_g \sim 1.63\times 10^{-4}~h^3{\rm Gpc}^{-3}$}
-
-\todo{paragraph on where to access the galaxy catalogs} 
+We construct galaxy catalogs using $22,000$ $N$-body simulations of the \quij
+suite: $15,000$ at the fiducial cosmology and $500$ at the 14 other cosmologies
+listed in Table 1 of \cite{hahn2019}. We use the fiducial HOD parameters for
+these catalogs. In addition, we construct galaxy catalogs from $500$ $N$-body
+simulations at the fiducial cosmology using 10 additional sets of HOD
+parameters. We use these catalogs to estimate the derivatives of our observables
+with respect to the 5 HOD parameters --- a pair per parameter. For each pair we
+vary one HOD paramter above and below the fiducial value by step sizes: 
+\beq
+\{\Delta M_{\rm min}, \Delta \sigma_{\log M}, \Delta \log M_0, \Delta \alpha,
+\Delta \log M_1 \} = \{0.05, 0.2, 0.2, 0.2, 0.2\}.
+\eeq
+We generate one set of
+HOD realizations for the galaxy catalogs used to estimate the covariance matrices
+(fiducial cosmology and HOD) and apply redshift-space distortions along the
+z-axis. We generate 5 sets of HOD realizations for the galaxy catalogs used to
+estimate the derivatives and use apply redshift-space distortions along all
+3 directions. {\em In total, we use 195,000 galaxy catalogs in our analysis.}
+These galaxy catalogs are publicly available at \todo{where to access the
+galaxy catalogs}.
 
 
 \begin{figure}

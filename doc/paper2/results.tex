@@ -132,20 +132,38 @@ these surveys, we would expect tighter constraints from $\Pgl$ and $\Pgl+\Bg$
 expect $\Pgl$ and $\Pgl+\Bg$ to contribute more constraining power and that the
 improvement from $\Bg$ would also be larger. 
 
-discussions
+We derive, for the first time, the total information cotent of the redshift-space 
+galaxy power spectrum and bispectrum. Our simulation based approach, allows us
+to go beyond previous perturbation theory approaches and accurately quantify the 
+constraining power in the nonlinear regime. They, however, rely on the
+stability and convergence of our covariance matrix and numerical derivatives.  
+For our constraints we use $195000$ galaxy catalogs (Section~\ref{sec:hod}): 
+$15,000$ for the covariance matrices and $180,000$ for the derivatives with 
+respect to 11 parameters. To ensure that our results are robust, we conduct the
+same set of convergence tests as \cite{hahn2019}. 
 
-first things that could be wrong with the results: 
-\begin{itemize}
-    \item convergence: we conducted the same set of convergence tests as the halo paper and
-        found \ch{some quantifying numbers} \ch{appendix or is it too
-        repetive?}
-    \item derivative w.r.t. $\smnu$ is sensitive to the choice of step size.
-        However, we use enough realizations so the results don't change
-        significantly. \ch{actually check this with the multiple HOD seeds} 
-        \ch{appendix?}
-\end{itemize}
+\ch{fill this in once we have the convergence test}. 
+First, we test whether our results have sufficiently converged by deriving our 
+constraints using different numbers of galaxy catalogs to estimate the covariance 
+matrix and derivatives: $N_{\rm cov}$ and $N_{\rm deriv}$. For $N_{\rm cov}$,
+we find $< XXXX\%$ variation $\sigma_\theta$ for $N_{\rm cov} > 12000$.
+For $N_{\rm deriv}$, 
+we find $< XXXX\%$ variation $\sigma_\theta$ for $N_{\rm cov} > 12000$.
+vary by $< 10\%$, we conclude that the conergence of the covariance matrix or
+deriviatves do not significantly impact our forecast. 
 
-interesting findings 
+We evaluate the $\Pgl$ and $\Bg$ derivatives with respect to $\smnu$ using
+simulations at the $\{\theta_{\rm ZA}, \smnu^+, \smnu^{++}, \smnu^{+++}\}$
+cosmologies. To test the stability of the $\smnu$ derivatives, we derive our
+constraints using different sets of cosmologies: $\{\theta_{\rm ZA}, \smnu^+\}$ 
+and $\{\theta_{\rm ZA}, \smnu^+\}$. 
+\ch{check this one the multiple HOD seeds finish} 
+
+\ch{other things that could be wrong with the results and why thye're not} 
+Usual caveat of Fisher Forecasts. 
+
+
+\ch{interesting findings} 
 \begin{itemize}
     \item signal-to-noise is lower for the galaxy power and bispectrums than
         the halo power and bispectra --- fingers of god. \ch{figure?}
@@ -166,7 +184,7 @@ comparison to the literature.
     \item a discussion on the impact of off diagonal terms of the covariance matrix. 
 \end{itemize} 
 
-what's missing in the analysis: all the graints of salt
+\ch{what's missing in the analysis: all the graints of salt/ future works}
 \begin{itemize}
     \item how do the unrealistic hod parameters we use map onto real galaxy
         samples. We tried our best to get the SDSS-like sample. The main
