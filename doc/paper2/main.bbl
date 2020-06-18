@@ -10,9 +10,9 @@ Beutler, F., Seo, H.-J., Saito, S., {et~al.} 2017,
   \href{http://dx.doi.org/10.1093/mnras/stw3298}{\JournalTitle{Monthly Notices
   of the Royal Astronomical Society}, 466, 2242}
 
-\bibitem[{Brandbyge {et~al.}(2008)Brandbyge, Hannestad, Haugb{\o}lle, \&
+\bibitem[{Brandbyge {et~al.}(2008)Brandbyge, Hannestad, Haugb\o~lle, \&
   Thomsen}]{brandbyge2008}
-Brandbyge, J., Hannestad, S., Haugb{\o}lle, T., \& Thomsen, B. 2008,
+Brandbyge, J., Hannestad, S., Haugb\o~lle, T., \& Thomsen, B. 2008,
   \href{http://dx.doi.org/10.1088/1475-7516/2008/08/020}{\JournalTitle{Journal
   of Cosmology and Astro-Particle Physics}, 08, 020}
 
@@ -127,6 +127,12 @@ Viel, M., Haehnelt, M.~G., \& Springel, V. 2010,
 Wechsler, R.~H., Zentner, A.~R., Bullock, J.~S., Kravtsov, A.~V., \& Allgood,
   B. 2006, \href{http://dx.doi.org/10.1086/507120}{\JournalTitle{The
   Astrophysical Journal}, 652, 71}
+
+\bibitem[{Wolz {et~al.}(2012)Wolz, Kilbinger, Weller, \&
+  Giannantonio}]{wolz2012}
+Wolz, L., Kilbinger, M., Weller, J., \& Giannantonio, T. 2012,
+  \href{http://dx.doi.org/10.1088/1475-7516/2012/09/009}{\JournalTitle{Journal
+  of Cosmology and Astroparticle Physics}, 2012, 009}
 
 \bibitem[{Yankelevich \& Porciani(2019)}]{yankelevich2019}
 Yankelevich, V., \& Porciani, C. 2019,
