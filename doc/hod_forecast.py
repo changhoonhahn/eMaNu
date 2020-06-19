@@ -2562,6 +2562,8 @@ def _signal_to_noise():
     #sub.plot(cb_b_kmax, cb_b_sn, c='k', ls='--') 
     sub.plot(kmaxs, SN_Pg, c='C0', label='$P_g$') 
     sub.plot(kmaxs, SN_Ph, c='C0', ls=':', label='$P_h$') 
+    sub.plot([0.2, 0.2], [0.5, 3e2]) 
+    sub.plot([0.5, 0.5], [0.5, 3e2]) 
     #sub.plot(cb_p_kmax, cb_p_sn, c='C0', ls='--', label='Chan and Blot 2017') 
     sub.legend(loc='lower right', fontsize=15) 
     sub.set_xlabel(r'$k_{\rm max}$ [$h$/Mpc]', fontsize=20) 

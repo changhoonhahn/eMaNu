@@ -7,15 +7,16 @@
     parameters $\smnu$, $\Omega_m$, $\Omega_b$, $h$, $n_s$, and $\sig$ as well 
     as HOD and nuisance parameters.} 
 \begin{center} 
-    \begin{tabular}{ccccc} \toprule
-            & $P_\ell$ & $B_0$ & $P_\ell$ + $B_0$ \\[3pt]
+    \begin{tabular}{c|ccc|ccc} \toprule
+        & & $\kmax=0.2$ & & & $\kmax=0.5$ & \\
+        & $P_\ell$ & $B_0$ & $P_\ell + B_0$ & $P_\ell$ & $B_0$ & $P_\ell + B_0$ \\[3pt]
 \hline 
 $\smnu$     & & & \\
 $\Om$       & & & \\
 $\Ob$       & & & \\
 $h$         & & & \\
 $n_s$       & & & \\
-$\sig$      & & & \\\hline
+$\sig$      & & & \\[3pt] \hline
 $M_{\rm min}$       & & & \\
 $\sigma_{\log M}$   & & & \\ 
 $\log M_0$          & & & \\
@@ -27,13 +28,6 @@ $\log M_1$          & & & \\ [3pt]
 \end{table}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%\begin{figure}
-%    \begin{center}
-%        \includegraphics[width=\textwidth]{figs/quijote_dP02Bdtheta_reg_fin.pdf}
-%        \caption{}
-%        \label{fig:db}
-%    \end{center}
-%\end{figure}
 \begin{figure}
     \begin{center}
         \includegraphics[width=\textwidth]{figs/Fisher_p02bk_dmnu_fin_kmax0_50.pdf}
@@ -67,7 +61,7 @@ $\log M_1$          & & & \\ [3pt]
         $\Pgl + \Bg$ improve with higher $k_{\rm max}$. {\em Throughout 
         $0.2 < k_{\rm max} < 0.5$, including the bispectrum improves 
         $\{\Om, \Ob, h, n_s, \sig, \smnu\}$ by \ch{X, Y \%}.} When we include 
-        {\em Planck} priors (dotted), the improvement from $\Bg$ is even more
+        \planck priors (dotted), the improvement from $\Bg$ is even more
         evident. The constraining power of $\Pgl$ complete
         saturates for $\kmax \gtrsim 0.12\hmpc$. Adding $\Bg$ not only 
         improves constraints, but the constraints continue to improve for
@@ -89,10 +83,12 @@ constraints marginalize over the \cite{zheng2007} HOD parameters %$\{M_{\rm min}
 (bottom panels) and extends to $k_{\rm max} = 0.5\hmpc$. The contours mark the $68\%$ and
 $95\%$ confidence intervals. With the redshift-space $\Pgl$
 alone, we derive the following $1\sigma$ constraints for $\{\Om, \Ob, h, n_s,
-\sig, \smnu\}$: \ch{numbers}.
-With the redshift-space $\Bg$ alone, we get: \ch{numbers}.
+\sig, \smnu\}$: 
+\ch{0.03443, 0.01219, 0.14069, 0.16552, 0.07701, 0.58119}
+With the redshift-space $\Bg$ alone, we get: 
+\ch{0.01422, 0.00371, 0.03409, 0.03543, 0.02494, 0.10599}.
 {\em The galaxy bispectrum substantially improves the constraints
-on all cosmological parameters over the power spectrum.}
+on all cosmological parameters over the power spectrum.} 
 
 With $\Pgl$ and $\Bg$, we derive even better constraints by breaking a number
 of parameter degeneracies. Among the cosmological parameters, the $\Om-\sig$ 
@@ -100,10 +96,11 @@ degeneracy is broken and leads to significant improvements in both $\Om$ and
 $\sig$ constraints. Meanwhile, for the HOD parameters, degeneracies with 
 $\log M_0$, $\alpha$, and $\log M_1$ are substantially reduced. 
 Combining $\Pgl$ and $\Bg$, we get the following $1\sigma$ constraints for 
- $\Om$, $\Ob$, $h$, $n_s$, $\sig$, and $\smnu$: \ch{numbers numbers}. 
-{\em By combining $\Pgl$ and $\Bg$, we improve $\Om$, $\Ob$, $h$,
-$n_s$, and $\sig$ constraints by factors of \ch{1.9, 2.6, 3.1, 3.6, and 2.6}
-and $\smnu$ constraint by a factor of \ch{number}.}
+ $\Om$, $\Ob$, $h$, $n_s$, $\sig$, and $\smnu$: 
+ \ch{0.01033, 0.00336, 0.03150, 0.03361, 0.01641, and 0.10299}
+{\em With $\Pgl$ and $\Bg$ combined, we improve $\Om$, $\Ob$, $h$,
+$n_s$, and $\sig$ constraints by factors of \ch{3.3, 3.6, 4.5, 4.9, and 4.7}
+and $\smnu$ constraint by a factor of 5.6.}
 
 In Figure~\ref{fig:kmax_forecast}, we present the marginalized $1\sigma$
 constraints, $\sigma_\theta(\kmax)$, of the cosmological parameters $\Om$,
@@ -117,27 +114,51 @@ range}. For $\kmax \ge 0.2\hmpc$, the $\Bg$ consistently improves
 constraints by \ch{numbers}.
 
 We also present $\sigma_\theta(\kmax)$ for $\Pgl$ (blue dashed) and $\Pgl + \Bg$ 
-(orange dashed) {\em with priors from Planck}. Once we include Planck priors,
+(orange dashed) {\em with priors from \planck}. Once we include \planck priors,
 $\Pgl$ constraints do not improve for $\kmax \gtrsim 0.12\hmpc$. However, the 
 constraining power of $\Pgl + \Bg$ continues to increase for $\kmax > 0.15\hmpc$. 
 At $\kmax = 0.2$ and $0.5\hmpc$, the $\Pgl + \Bg$ improves  
 $\Om$, $\Ob$, $h$, $n_s$, $\sig$ and $\smnu$ constraint by \ch{X, Y \%}. 
-Even with Planck priors, the galaxy bispectrum significantly improves cosmological 
+Even with \planck priors, the galaxy bispectrum significantly improves cosmological 
 constraints. In fact, we emphasize that the constraints in Figure~\ref{fig:kmax_forecast} 
 are for a $1~({\rm Gpc}/h)^3$ box. Hence, they {\em underestimate} the 
 constraining power contribution from galaxy clustering that we expect from upcoming
 galaxy redshift surveys, which will probe a much larger volume (\emph{e.g.} DESI, Euclid). 
 With more constraining power coming from galaxy clustering, improvements from
-including $\Bg$ to $\Pgl$ and planck would likely be larger. 
+including $\Bg$ to $\Pgl$ and \planck will be larger. 
 
 % comparison to literature 
+% ------------------------
+% comparison to halo forecast
+% SN kmax=0.20: Pg:92.984343, Bg:24.182641, Ph:121.561879, Bh:34.068850
+% SN kmax=0.51: Pg:140.263416, Bg:30.561088, Ph:143.901659, Bh:75.042306
+In the previous paper of the series, \cite{hahn2020} presents the full
+information content of the redshift-space halo bispectrum, $\Bh$. For $\Bh$ to
+$\kmax=0.5\hmpc$, \cite{hahn2020} find $1\sigma$ constraints of 0.012, 0.004,
+0.04, 0.036, 0.014, and 0.057 for $\Om$, $\Ob$, $h$, $n_s$, $\sig$ and $\smnu$. 
+In comparison, we find that $\Bg$ produces comparable constraints for $\Ob$, 
+$h$, and $n_s$. On the other hand, $\Bg$ has less constraining power than 
+$\Bh$ for $\Om$, $\sig$, and $\smnu$. When we compare the signal-to-noise
+ratios (SNR) of $\Bg$ and $\Bh$, estimated from the covariance
+matrix~\citep[\eg][]{sefusatti2005,sefusatti2006,chan2017}, we find lower SNR
+for $\Bg$, consistent with the constraints. We also find that the increase in
+SNR with $\kmax$ is lessened for $\Bg$. This demonstrates that marginalizing
+over HOD parameters reduces some of the constraining power of $\Bg$.
+Fingers-of-god (FoG), also contributes to this reduction. 
+Nevertheless, $\Bg$ significantly improves parameters constraints over $\Pgl$.
+In fact, marginalizing over HOD parameters and FoG reduces the constraining
+power of the power spectrum more so than the bispectrum. Therefore,  
+The improvement in parameter constraints from $\Bg$ over $\Pgl$ is larger than
+the improvement of $\Bh$ over $\Phl$.
 
-%Compare to halo paper 
-signal-to-noise is lower for the galaxy power and bispectrums than
-the halo power and bispectra --- fingers of god. \ch{figure?}
+%comparison to the literature.
+%a number of previous works have quantified the infor- mation content of the bispectrum (Scoccimarro et al. 2004; Sefusatti et al. 2006; Sefusatti & Komatsu 2007; Song et al. 2015; Tellarini et al. 2016; Yamauchi et al. 2017; Karagiannis et al. 2018; Yankele- vich & Porciani 2019; Chudaykin & Ivanov 2019; Coulton et al. 2019; Reischke et al. 2019)
+A number of previous works have quantified the information content of the
+bispectrum: \cite{scoccimarro2004, reischke2019}.
+We, however, focus our comparison to \cite{sefusatti2006}, \cite{yankelevich2019}, and
+\cite{chudaykin2019}, which provide bispectrum forecasts for full sets of
+cosmological parameters.
 
-
-comparison to the literature.
 \begin{itemize}
     \item Compare to PT papers with bias models. 
     \item a discussion on the impact of off diagonal terms of the covariance matrix. 
@@ -152,7 +173,7 @@ stability and convergence of our covariance matrix and numerical derivatives.
 For our constraints we use $195000$ galaxy catalogs (Section~\ref{sec:hod}): 
 $15,000$ for the covariance matrices and $180,000$ for the derivatives with 
 respect to 11 parameters. To ensure that our results are robust, we conduct the
-same set of convergence tests as \cite{hahn2019}. 
+same set of convergence tests as \cite{hahn2020}. 
 
 First, we test whether our results have sufficiently converged by deriving our 
 constraints using different numbers of galaxy catalogs to estimate the covariance 
@@ -185,19 +206,6 @@ approach, we will use a robust method to sample the posterior.
 \ch{anything else that could be wrong that we've checked?} 
 
 
-\ch{interesting findings} 
-\begin{itemize}
-    \item re-emphasize the impact of bispectrum in breaking HOD parameter
-        degeneracies. 
-    \item Most noteably, $\Om$ and $\sig$ degeneracies are broken by
-        $\Pgl + \Bg$, which improves $\Om - \sig$, $\Om - \smnu$,
-        $\sig-\smnu$ that we care about. 
-    \item HOD parameter degeneracies are broken. Some of them drastically.
-        \ch{what are the impliciations of this?} 
-    \item \ch{do we want H0 forecast and discussion on H0 tension}.
-\end{itemize}
-
-
 \ch{what's missing in the analysis: all the graints of salt/ future works}
 \begin{itemize}
     \item how do the unrealistic hod parameters we use map onto real galaxy
@@ -209,14 +217,32 @@ approach, we will use a robust method to sample the posterior.
         assembly bias. Overview the impact of assembly bias in previous galaxy
         clustering results and discuss how it may analogously apply to our
         constraints.
+    \item along this line, we do not consider baryonic effects. However recent
+        papers that have looked into this find the impact only matters at very
+        high k.  
     \item including some extra nuisance parameters doesn't do anything for
         cosmological constraints. We tried b1, Asn, Bsn. \ch{try b2, gamma2} 
     \item alcock pacinzsky effect
-    \item baryonic effects are not considered and some papers have looked at
-        this recently. 
     \item no geometry obviously. repeat of how realistic geometry lowers the
         signal to noise. 
 \end{itemize}
+
+\ch{restatement and discusssion of key findings} 
+The improvements of $\Bg$ come from breaking parameter degeneracies. 
+Most noteably, $\Om$ and $\sig$ degeneracies are broken by
+$\Pgl + \Bg$, which improves $\Om - \sig$, $\Om - \smnu$, $\sig-\smnu$ that we care about. 
+
+A key part of the improvement from $\Bg$ comes from the degeneracies that are
+broken among HOD parameters. 
+Furthermore, including $\Bg$ allows us to break a number of degeneracies among
+HOD parameters. This is interesting because there are many questions regarding
+HOD parameters that are still up in the air. For instance, the impact and
+importance of assembly bias, which can impact cosmological analyses. Moreover,
+tighter constraints on the halo occupation in general allows us to better 
+understand the galaxy-halo connection, which will improve our understanding of
+galaxy formation and evolution. While we consider a relatively simplistic halo
+occupation model, our results clearly demonstrate the advantages of
+higher-order statistic bispectrum over the standard two-point statistics. 
 
 what's next in the paper series 
 \begin{itemize}
