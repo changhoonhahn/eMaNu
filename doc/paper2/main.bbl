@@ -21,6 +21,13 @@ Chudaykin, A., \& Ivanov, M.~M. 2019, \JournalTitle{arXiv:1907.06666 [astro-ph,
   physics:hep-ph]}, \href{http://arxiv.org/abs/1907.06666}{{\sffamily
   arXiv:1907.06666 [astro-ph, physics:hep-ph]}}
 
+\bibitem[{Coulton {et~al.}(2019)Coulton, Liu, Madhavacheril, B{\"o}hm, \&
+  Spergel}]{coulton2019}
+Coulton, W.~R., Liu, J., Madhavacheril, M.~S., B{\"o}hm, V., \& Spergel, D.~N.
+  2019,
+  \href{http://dx.doi.org/10.1088/1475-7516/2019/05/043}{\JournalTitle{Journal
+  of Cosmology and Astro-Particle Physics}, 2019, 043}
+
 \bibitem[{Davis {et~al.}(1985)Davis, Efstathiou, Frenk, \& White}]{davis1985}
 Davis, M., Efstathiou, G., Frenk, C.~S., \& White, S. D.~M. 1985,
   \href{http://dx.doi.org/10.1086/163168}{\JournalTitle{The Astrophysical
@@ -43,6 +50,12 @@ Harker, G., Cole, S., Helly, J., Frenk, C., \& Jenkins, A. 2006,
   \href{http://dx.doi.org/10.1111/j.1365-2966.2006.10022.x}{\JournalTitle{Monthly
   Notices of the Royal Astronomical Society}, 367, 1039}
 
+\bibitem[{Karagiannis {et~al.}(2018)Karagiannis, Lazanu, Liguori, Raccanelli,
+  Bartolo, \& Verde}]{karagiannis2018}
+Karagiannis, D., Lazanu, A., Liguori, M., {et~al.} 2018,
+  \href{http://dx.doi.org/10.1093/mnras/sty1029}{\JournalTitle{Monthly Notices
+  of the Royal Astronomical Society}, 478, 1341}
+
 \bibitem[{Leauthaud {et~al.}(2012)Leauthaud, Tinker, Bundy, Behroozi, Massey,
   Rhodes, George, Kneib, Benson, Wechsler, Busha, Capak, Cort{\^e}s, Ilbert,
   Koekemoer, Le~F{\`e}vre, Lilly, McCracken, Salvato, Schrabback, Scoville,
@@ -63,6 +76,13 @@ Navarro, J.~F., Frenk, C.~S., \& White, S. D.~M. 1997,
   \href{http://dx.doi.org/10.1086/304888}{\JournalTitle{The Astrophysical
   Journal}, 490, 493}
 
+\bibitem[{Reischke {et~al.}(2019)Reischke, Desjacques, \&
+  Zaroubi}]{reischke2019}
+Reischke, R., Desjacques, V., \& Zaroubi, S. 2019,
+  \JournalTitle{arXiv:1909.03761 [astro-ph]},
+  \href{http://arxiv.org/abs/1909.03761}{{\sffamily arXiv:1909.03761
+  [astro-ph]}}
+
 \bibitem[{{Rodr{\'i}guez-Torres} {et~al.}(2016){Rodr{\'i}guez-Torres}, Chuang,
   Prada, Guo, Klypin, Behroozi, Hahn, Comparat, Yepes, {Montero-Dorta},
   Brownstein, Maraston, McBride, Tinker, Gottl{\"o}ber, Favole, Shu, Kitaura,
@@ -79,12 +99,23 @@ Navarro, J.~F., Frenk, C.~S., \& White, S. D.~M. 1997,
   \href{http://dx.doi.org/10.1093/mnras/stx454}{\JournalTitle{Monthly Notices
   of the Royal Astronomical Society}, 468, 728}
 
+\bibitem[{Scoccimarro {et~al.}(2004)Scoccimarro, Sefusatti, \&
+  Zaldarriaga}]{scoccimarro2004}
+Scoccimarro, R., Sefusatti, E., \& Zaldarriaga, M. 2004,
+  \href{http://dx.doi.org/10.1103/PhysRevD.69.103513}{\JournalTitle{Physical
+  Review D}, 69, 103513}
+
 \bibitem[{Sefusatti {et~al.}(2006)Sefusatti, Crocce, Pueblas, \&
   Scoccimarro}]{sefusatti2006}
 Sefusatti, E., Crocce, M., Pueblas, S., \& Scoccimarro, R. 2006,
   \href{http://dx.doi.org/10.1103/PhysRevD.74.023522}{\JournalTitle{Physical
   Review D}, 74}, \href{http://arxiv.org/abs/astro-ph/0604505}{{\sffamily
   arXiv:astro-ph/0604505}}
+
+\bibitem[{Sefusatti \& Komatsu(2007)}]{sefusatti2007}
+Sefusatti, E., \& Komatsu, E. 2007,
+  \href{http://dx.doi.org/10.1103/PhysRevD.76.083004}{\JournalTitle{Physical
+  Review D}, 76, 083004}
 
 \bibitem[{Sheth \& Tormen(2004)}]{sheth2004}
 Sheth, R.~K., \& Tormen, G. 2004,
@@ -97,10 +128,21 @@ Sinha, M., Berlind, A.~A., McBride, C.~K., {et~al.} 2018,
   \href{http://dx.doi.org/10.1093/mnras/sty967}{\JournalTitle{Monthly Notices
   of the Royal Astronomical Society}, 478, 1042}
 
+\bibitem[{Song {et~al.}(2015)Song, Taruya, \& Oka}]{song2015}
+Song, Y.-S., Taruya, A., \& Oka, A. 2015,
+  \href{http://dx.doi.org/10.1088/1475-7516/2015/08/007}{\JournalTitle{Journal
+  of Cosmology and Astro-Particle Physics}, 2015, 007}
+
 \bibitem[{Springel(2005)}]{springel2005}
 Springel, V. 2005,
   \href{http://dx.doi.org/10.1111/j.1365-2966.2005.09655.x}{\JournalTitle{Monthly
   Notices of the Royal Astronomical Society}, 364, 1105}
+
+\bibitem[{Tellarini {et~al.}(2016)Tellarini, Ross, Tasinato, \&
+  Wands}]{tellarini2016}
+Tellarini, M., Ross, A.~J., Tasinato, G., \& Wands, D. 2016,
+  \href{http://dx.doi.org/10.1088/1475-7516/2016/06/014}{\JournalTitle{Journal
+  of Cosmology and Astro-Particle Physics}, 2016, 014}
 
 \bibitem[{Tinker {et~al.}(2013)Tinker, Leauthaud, Bundy, George, Behroozi,
   Massey, Rhodes, \& Wechsler}]{tinker2013}
@@ -139,6 +181,12 @@ Wechsler, R.~H., Zentner, A.~R., Bullock, J.~S., Kravtsov, A.~V., \& Allgood,
 Wolz, L., Kilbinger, M., Weller, J., \& Giannantonio, T. 2012,
   \href{http://dx.doi.org/10.1088/1475-7516/2012/09/009}{\JournalTitle{Journal
   of Cosmology and Astroparticle Physics}, 2012, 009}
+
+\bibitem[{Yamauchi {et~al.}(2017)Yamauchi, Yokoyama, \&
+  Takahashi}]{yamauchi2017a}
+Yamauchi, D., Yokoyama, S., \& Takahashi, K. 2017,
+  \href{http://dx.doi.org/10.1103/PhysRevD.95.063530}{\JournalTitle{Physical
+  Review D}, 95, 063530}
 
 \bibitem[{Yankelevich \& Porciani(2019)}]{yankelevich2019}
 Yankelevich, V., \& Porciani, C. 2019,

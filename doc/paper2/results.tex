@@ -109,16 +109,22 @@ $\Ob$, $h$, $n_s$, $\sig$, and $\smnu$ as a function of $\kmax$ for $\Pgl$
 marginalized over the \cite{zheng2007} HOD parameters (Eq.~\ref{eq:hod_fid}). 
 For both $\Pgl$ and $\Pgl + \Bg$, parameter constraints improve at higher
 $\kmax$. More importantly, {\em the galaxy bispectrum significantly 
-improves constraints on all cosmological parameters throughout our $\kmax$
-range}. For $\kmax \ge 0.2\hmpc$, the $\Bg$ consistently improves 
-constraints by \ch{numbers}.
+improves constraints on all cosmological parameters throughout the $\kmax$
+range and not only at high $\kmax$}. Even for $\kmax\sim 0.2\hmpc$, including 
+$\Bg$ improves $\Om$, $\Ob$, $h$, $n_s$, $\sig$ and $\smnu$ constraints by 
+factors of 
+\ch{2.6, 2.4, 2.7, 3.2, 4.1, and 3.6}.
 
 We also present $\sigma_\theta(\kmax)$ for $\Pgl$ (blue dashed) and $\Pgl + \Bg$ 
 (orange dashed) {\em with priors from \planck}. Once we include \planck priors,
 $\Pgl$ constraints do not improve for $\kmax \gtrsim 0.12\hmpc$. However, the 
 constraining power of $\Pgl + \Bg$ continues to increase for $\kmax > 0.15\hmpc$. 
-At $\kmax = 0.2$ and $0.5\hmpc$, the $\Pgl + \Bg$ improves  
-$\Om$, $\Ob$, $h$, $n_s$, $\sig$ and $\smnu$ constraint by \ch{X, Y \%}. 
+At $\kmax=0.2\hmpc$, $\Bg$ improves the $\Pgl$ + \planck priors constraints on  
+$\Om$, $\Ob$, $h$, $n_s$, $\sig$ and $\smnu$ constraint by factors of
+\ch{1.5, 1.4, 1.4, 1.1, 1.3, and $1.4\times$}.
+At $\kmax = 0.5\hmpc$, $\Bg$ improves the $\Pgl$ + \planck priors constraints on  
+$\Om$, $\Ob$, $h$, $n_s$, $\sig$ and $\smnu$ constraint by factors of 
+\ch{2.1, 2.1, 2.0, 1.2, 2.2, and $2.2\times$} 
 Even with \planck priors, the galaxy bispectrum significantly improves cosmological 
 constraints. In fact, we emphasize that the constraints in Figure~\ref{fig:kmax_forecast} 
 are for a $1~({\rm Gpc}/h)^3$ box. Hence, they {\em underestimate} the 
@@ -138,26 +144,43 @@ $\kmax=0.5\hmpc$, \cite{hahn2020} find $1\sigma$ constraints of 0.012, 0.004,
 0.04, 0.036, 0.014, and 0.057 for $\Om$, $\Ob$, $h$, $n_s$, $\sig$ and $\smnu$. 
 In comparison, we find that $\Bg$ produces comparable constraints for $\Ob$, 
 $h$, and $n_s$. On the other hand, $\Bg$ has less constraining power than 
-$\Bh$ for $\Om$, $\sig$, and $\smnu$. When we compare the signal-to-noise
-ratios (SNR) of $\Bg$ and $\Bh$, estimated from the covariance
-matrix~\citep[\eg][]{sefusatti2005,sefusatti2006,chan2017}, we find lower SNR
-for $\Bg$, consistent with the constraints. We also find that the increase in
-SNR with $\kmax$ is lessened for $\Bg$. This demonstrates that marginalizing
-over HOD parameters reduces some of the constraining power of $\Bg$.
-Fingers-of-god (FoG), also contributes to this reduction. 
+$\Bh$ for $\Om$, $\sig$, and $\smnu$. This is the same for $\kmax=0.2\hmpc$. 
+When we compare the signal-to-noise ratios (SNR) of $\Bg$ and $\Bh$, estimated 
+from the covariance matrix~\citep[\eg][]{sefusatti2005,sefusatti2006,chan2017}, 
+we find lower SNR for $\Bg$, consistent with the constraints. We also find that 
+the increase in SNR with $\kmax$ is lessened for $\Bg$. This demonstrates that 
+marginalizing over HOD parameters reduces some of the constraining power of 
+$\Bg$.  Fingers-of-god (FoG), also contributes to this reduction. 
+\ch{elaborate on how FoG}.
 Nevertheless, $\Bg$ significantly improves parameters constraints over $\Pgl$.
 In fact, marginalizing over HOD parameters and FoG reduces the constraining
-power of the power spectrum more so than the bispectrum. Therefore,  
-The improvement in parameter constraints from $\Bg$ over $\Pgl$ is larger than
-the improvement of $\Bh$ over $\Phl$.
+power of the power spectrum more so than the bispectrum. Therefore, we find 
+larger improvements in the parameter constraints from $\Bg$ over $\Pgl$ than
+from $\Bh$ over $\Phl$.
 
 %comparison to the literature.
 %a number of previous works have quantified the infor- mation content of the bispectrum (Scoccimarro et al. 2004; Sefusatti et al. 2006; Sefusatti & Komatsu 2007; Song et al. 2015; Tellarini et al. 2016; Yamauchi et al. 2017; Karagiannis et al. 2018; Yankele- vich & Porciani 2019; Chudaykin & Ivanov 2019; Coulton et al. 2019; Reischke et al. 2019)
 A number of previous works have quantified the information content of the
-bispectrum: \cite{scoccimarro2004, reischke2019}.
-We, however, focus our comparison to \cite{sefusatti2006}, \cite{yankelevich2019}, and
-\cite{chudaykin2019}, which provide bispectrum forecasts for full sets of
+bispectrum:~\citep[\eg][]{scoccimarro2004, sefusatti2006, sefusatti2007,
+song2015, tellarini2016, yamauchi2017a, karagiannis2018, yankelevich2019,
+chudaykin2019, coulton2019, reischke2019}. 
+We, however, focus our comparison to \cite{sefusatti2006}, \cite{yankelevich2019}, 
+and \cite{chudaykin2019}, which provide bispectrum forecasts for full sets of
 cosmological parameters.
+\cite{sefusatti2006} present \lcdm forecasts for a joint likelihood analysis of
+$\Bg$ with $\Pg$ and WMAP. For $\kmax = 0.2\hmpc$, they find that including
+$\Bg$ improves constraints on $\Om$, $\Ob$, $h$, $n_s$, and $\sig$ by 1.6, 1.2,
+1.5, 1.4, and 1.5 times from the $\Pg$ and WMAP constraints. In comparison, for 
+$\kmax = 0.2\hmpc$ and with \planck priors, we find $\Bg$ improves constraints
+by  1.5, 1.4, 1.4, 1.1, and $1.3\times$, which is in agreement with
+\cite{sefusatti2006}. We note, however, that there are
+some significant differences in our analyses. First, \cite{sefusatti2006} uses 
+the WMAP likelihood while we use priors from \planck. Furthermore, 
+in our simulation-based approach, we marginalizes over the HOD parameters. On
+the other hand, \cite{sefusatti2006} use a perturbation theory approach and 
+marginalize over the linear and quadratic bias terms ($b_1, b_2$). 
+Nevertheless, the improvement \cite{sefusatti2006} find in parameter constraints 
+including $\Bg$ is in good agreement with our results. 
 
 \begin{itemize}
     \item Compare to PT papers with bias models. 
