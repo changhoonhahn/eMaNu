@@ -159,7 +159,6 @@ larger improvements in the parameter constraints from $\Bg$ over $\Pgl$ than
 from $\Bh$ over $\Phl$.
 
 %comparison to the literature.
-%a number of previous works have quantified the infor- mation content of the bispectrum (Scoccimarro et al. 2004; Sefusatti et al. 2006; Sefusatti & Komatsu 2007; Song et al. 2015; Tellarini et al. 2016; Yamauchi et al. 2017; Karagiannis et al. 2018; Yankele- vich & Porciani 2019; Chudaykin & Ivanov 2019; Coulton et al. 2019; Reischke et al. 2019)
 A number of previous works have quantified the information content of the
 bispectrum:~\citep[\eg][]{scoccimarro2004, sefusatti2006, sefusatti2007,
 song2015, tellarini2016, yamauchi2017a, karagiannis2018, yankelevich2019,
@@ -172,7 +171,7 @@ $\Bg$ with $\Pg$ and WMAP. For $\kmax = 0.2\hmpc$, they find that including
 $\Bg$ improves constraints on $\Om$, $\Ob$, $h$, $n_s$, and $\sig$ by 1.6, 1.2,
 1.5, 1.4, and 1.5 times from the $\Pg$ and WMAP constraints. In comparison, for 
 $\kmax = 0.2\hmpc$ and with \planck priors, we find $\Bg$ improves constraints
-by  1.5, 1.4, 1.4, 1.1, and $1.3\times$, which is in agreement with
+by  1.5, 1.4, 1.4, 1.1, and $1.3\times$, which is in good agreement with
 \cite{sefusatti2006}. We note, however, that there are
 some significant differences in our analyses. First, \cite{sefusatti2006} uses 
 the WMAP likelihood while we use priors from \planck. Furthermore, 
@@ -182,8 +181,66 @@ marginalize over the linear and quadratic bias terms ($b_1, b_2$).
 Nevertheless, the improvement \cite{sefusatti2006} find in parameter constraints 
 including $\Bg$ is in good agreement with our results. 
 
+%comparison to the Yankelevic 
+Next, \cite{yankelevich2019} present \lcdm, $w$CDM and $w_0w_a$CDM Fisher
+forecasts for a Euclid-like survey\cite{laureijs2011} over $0.65 < z < 2.05$.
+Focusing only on their \lcdm forecasts, they find that for $\kmax = 0.15\hmpc$, 
+$\Pg+\Bg$ produces constraints on $\Omega_{\rm cdm}$, $\Ob$, $A_s$, $h$, $n_s$ 
+that are ${\sim}1.3\times$ tighter than $\Pg$ alone. With \planck priors, they 
+find parameter constraints improve by a factor of ${\sim}1.1$. In contrast, we 
+find even at $\kmax=0.15\hmpc$ significantly larger improvement in the parameter 
+constraints from including $\Bg$. However, we similarly find that the improvement 
+descreases once we include \planck priors (Figure~\ref{fig:kmax_forecast}). 
+
+Although \cite{yankelevich2019} find significantly less improvement in
+parameter constraints from $\Bg$, we emphasize that \cite{yankelevich2019}
+present forecasts for a significantly different galaxy sample --- \ie the
+Euclid survey over $0.65 < z < 2.05$. For instance, their $z = 0.7$ redshift
+bin has $\bar{n}_g = 2.76 \times 10^{-3}~h^3{\rm Gpc}^{-3}$ and linear bias of
+$b_g = 1.18$. Meanwhile our galaxy sample is at $z=0$ with $\bar{n}_g \sim 1.63\times
+10^{-4}~h^3{\rm Gpc}^{-3}$ and linear bias of $b_g \sim 2.55$
+(Section~\ref{sec:hod}). Furthermore, while we use the HOD framework, they use
+a bias expansion with linear, non-linear, and tidal bias ($b_1$, $b_2$, and
+$b_{s^2}$). They also marginalize over 56 nuisance parameters since they
+jointly analyze $14$ $z$ bins, each with $4$ nuisance parameters.  Lastly,
+unlike our simulation-based approach, \cite{yankelevich2019} use perturbation
+theory models and, therefore, limit their forecast to $\kmax = 0.15\hmpc$ due
+to theoretical uncertainties. Nevertheless, when they estimate the constraining
+power beyond $\kmax > 0.15\hmpc$ using Figure of Merit they find that the
+constraining power of $\Bg$ relative to $\Pg$ increases for higher $\kmax$
+consistent with our results. 
+
+%comparison to the Chudaykin 
+Finally, \cite{chudaykin2019} present $\smnu$ + \lcdm forecasts for the power
+spectrum and bispectrum of a Euclid-like survey over $0.5 < z < 2.1$. For
+$\omega_{\rm cdm}$, $\omega_b$, $h$, $n_s$, $A_s$, and $\smnu$ they find
+${\sim}1.2, 1.5, 1.4, 1.3$, and $1.1\times$ tighter constraints from $\Pgl$ and
+$\Bg$ than from $\Pgl$ alone. For $\smnu$, they find a factor of 1.4 improvement, 
+from 0.038 eV to 0.028 eV. With \planck priors, 
+
+The improvement from including $\Bg$ Overall,
+\cite{chudaykin2019} find more modest improvements from including $\Bg$ than
+we find in Figures~\ref{fig:forecast} and~\ref{fig:kmax_forecast}. 
+
+However, we again note significant differences between our anlayses. Like 
+\cite{yankelevich2019}, \cite{chudaykin2019} present a forecast for a Euclid survey and therefore is a forecast for a significantly different
+galaxy sample than ours: their $z = 0.6$ redshift bin, for instance, has 
+$\bar{n}_g = 3.83 \times 10^{-3}~h^3{\rm Gpc}^{-3}$ and linear bias of
+$b_g = 1.14$. 
+
+
+% differences
+%- PT model with theoretical errors so it's not obvious what kmax we're getting to with P vs B. 
+%Because they use the tree-level perturbation theory model for B0, theoretical errors for B0 quickly dominate at k 􏱘 0.1 h/Mpc, where the one- and two-loop contribute significantly (e.g. Lazanu & Liguori 2018). Hence, their forecasts do not include the constraining power on nonlinear scales.
+%- they include Alcock-Paczynski (AP) effect for $P_\ell$, which significantly improve the Pl parameter constraints (e.g. tightens Mν constraints by \sim30\%) but not for $\Bg$. 
+
+%Finally, Chudaykin & Ivanov (2019) present power spectrum and bispectrum forecasts for ωcdm, ωb, h, ns, As, ns, and Mν of a Euclid-like survey in 8 non-overlapping redshift bins over 0.5 < z < 2.1. They use a one-loop perturbation theory model for the redshift-space power spectrum multipoles (l = 0, 2, 4) and a tree-level bispectrum monopole model. Also, rather than imposing a kmax cutoff to restrict their forecasts to scales where their perturbation theory model can be trusted, they use a theoretical error covariance model approach from Baldauf et al. (2016).They find ∼1.4, 1.5, 1.2, 1.5, and 1.3 times tighter constraints from Pl and B0 than from Pl alone. For Mν, they find a factor of 1.4 improvement, from 0.038 eV to 0.028 eV. Overall, Chudaykin & Ivanov (2019) find more modest improvements from including B0 than the improvements we find in our kmax = 0.5 h/Mpc B0 constraints over the Pl constraints.
+
+%Among the differences from our forecast, most notably, Chudaykin & Ivanov (2019) marginalize over 64 parameters of their bias model (4 bias and 4 counterterm normalization parameters at each redshift bin). They also include the Alcock-Paczynski (AP) effect for Pl, which significantly improve the Pl parameter constraints (e.g. tightens Mν constraints by ∼ 30%). They however, do not include AP effects in B0. Furthermore, Chudaykin & Ivanov (2019) use theoretical error covariance to quantify the uncertainty of their perturbation theory models. Because they use the tree-level perturbation theory model for B0, theoretical errors for B0 quickly dominate at k 􏱘 0.1 h/Mpc, where the one- and two-loop contribute significantly (e.g. Lazanu & Liguori 2018). Hence, their forecasts do not include the constraining power on nonlinear scales. Also different from our analysis, Chudaykin & Ivanov (2019) use an Markov-Chain Monte-Carlo (MCMC) approach, which derives more accurate parameter constraints than our Fisher approach. They, however, neglect non-Gaussian contributions to both the Pl and B0 covariance matrices and do not include the covariance between Pl and B0 for their joint constraints. While their theoretical error covariance, which couples different k-modes, may partly take this into account, we find that neglecting the covariance between Pl and B0 overestimates constraints, tighter by ∼20% for kmax = 0.2 h/Mpc. Nonetheless, Chudaykin & Ivanov (2019) and our results both find significant improves in cosmological parameter constraints from including B0. In fact, taking the theoretical errors into account, the improvements from B0 they find are loosely consistent with our results at kmax ∼ 0.2 h/Mpc.
+
+
+%Various differences between our forecast and previous work prevent more thorough comparisons. However, crucial aspects of our simulation based approach distinguish our forecasts from other works. We present the first bispectrum forecasts for a full set of cosmological parameters using bispectrum measured entirely from N-body simulations. By using the simulations, we go beyond perturbation the- ory models and accurately model the redshift-space bispectrum to the nonlinear regime. Furthermore, by exploiting the immense number of simulations, we accurately estimate the full high-dimensional covariance matrix of the bispectrum. With these advantages, we present the first forecast of cosmo- logical parameters from the bispectrum down to nonlinear scales and demonstrate the constraining power of the bispectrum for Mν. Below, we underline a few caveats of our forecasts.
 \begin{itemize}
-    \item Compare to PT papers with bias models. 
     \item a discussion on the impact of off diagonal terms of the covariance matrix. 
 \end{itemize} 
 
@@ -248,6 +305,11 @@ approach, we will use a robust method to sample the posterior.
     \item alcock pacinzsky effect
     \item no geometry obviously. repeat of how realistic geometry lowers the
         signal to noise. 
+    \item we take broad triangle bins, \cite{yankelevich2019} finds higher
+        constraining power for narrower bins. $\Delta k = 3 k_f$ has
+        ${\sim}10\%$ less constrainig power according to their FoM estimate.  
+    \item beyond the monopole \cite{yankelevich2019} 50\% more information
+        beyond monopole 
 \end{itemize}
 
 \ch{restatement and discusssion of key findings} 
