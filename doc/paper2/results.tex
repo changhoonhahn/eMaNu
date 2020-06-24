@@ -216,45 +216,61 @@ spectrum and bispectrum of a Euclid-like survey over $0.5 < z < 2.1$. For
 $\omega_{\rm cdm}$, $\omega_b$, $h$, $n_s$, $A_s$, and $\smnu$ they find
 ${\sim}1.2, 1.5, 1.4, 1.3$, and $1.1\times$ tighter constraints from $\Pgl$ and
 $\Bg$ than from $\Pgl$ alone. For $\smnu$, they find a factor of 1.4 improvement, 
-from 0.038 eV to 0.028 eV. With \planck priors, 
+from 0.038 eV to 0.028 eV. With \planck, they get ${\sim}2, 1.1, 2.3, 1.5$,
+$1.1$, and $1.3\times$ tighter constraints for $\omega_{\rm cdm}$, $\omega_b$,
+$h$, $n_s$, $A_s$, and $\smnu$ from including $\Bg$. Overall, \cite{chudaykin2019} 
+find significant improvements from including $\Bg$ --- consistent with our
+results. However, they find more modest improvements than we find in 
+Figures~\ref{fig:forecast} and~\ref{fig:kmax_forecast}. 
 
-The improvement from including $\Bg$ Overall,
-\cite{chudaykin2019} find more modest improvements from including $\Bg$ than
-we find in Figures~\ref{fig:forecast} and~\ref{fig:kmax_forecast}. 
+Again, there are significant differences between our anlayses. First, like
+\cite{yankelevich2019}, \cite{chudaykin2019} present forecasts for a
+Euclid-like survey, which is significantly different than our galaxy sample.
+Their $z = 0.6$ redshift bin, for instance, has $\bar{n}_g = 3.83 \times 10^{-3}~h^3{\rm
+Gpc}^{-3}$ and linear bias of $b_g = 1.14$. Next, they include the
+Alcock-Paczynski (AP) effect for $\Pgl$ but not for $\Bg$. They find that
+including the AP effect significantly improves $\Pgl$ constraints (e.g.
+tightens $\smnu$ constraints by ${\sim}30\%$); this reduces the improvement
+they report from including $\Bg$. 
 
-However, we again note significant differences between our anlayses. Like 
-\cite{yankelevich2019}, \cite{chudaykin2019} present a forecast for a Euclid survey and therefore is a forecast for a significantly different
-galaxy sample than ours: their $z = 0.6$ redshift bin, for instance, has 
-$\bar{n}_g = 3.83 \times 10^{-3}~h^3{\rm Gpc}^{-3}$ and linear bias of
-$b_g = 1.14$. 
-
-
-% differences
-%- PT model with theoretical errors so it's not obvious what kmax we're getting to with P vs B. 
-%Because they use the tree-level perturbation theory model for B0, theoretical errors for B0 quickly dominate at k 􏱘 0.1 h/Mpc, where the one- and two-loop contribute significantly (e.g. Lazanu & Liguori 2018). Hence, their forecasts do not include the constraining power on nonlinear scales.
-%- they include Alcock-Paczynski (AP) effect for $P_\ell$, which significantly improve the Pl parameter constraints (e.g. tightens Mν constraints by \sim30\%) but not for $\Bg$. 
-
-%Finally, Chudaykin & Ivanov (2019) present power spectrum and bispectrum forecasts for ωcdm, ωb, h, ns, As, ns, and Mν of a Euclid-like survey in 8 non-overlapping redshift bins over 0.5 < z < 2.1. They use a one-loop perturbation theory model for the redshift-space power spectrum multipoles (l = 0, 2, 4) and a tree-level bispectrum monopole model. Also, rather than imposing a kmax cutoff to restrict their forecasts to scales where their perturbation theory model can be trusted, they use a theoretical error covariance model approach from Baldauf et al. (2016).They find ∼1.4, 1.5, 1.2, 1.5, and 1.3 times tighter constraints from Pl and B0 than from Pl alone. For Mν, they find a factor of 1.4 improvement, from 0.038 eV to 0.028 eV. Overall, Chudaykin & Ivanov (2019) find more modest improvements from including B0 than the improvements we find in our kmax = 0.5 h/Mpc B0 constraints over the Pl constraints.
-
-%Among the differences from our forecast, most notably, Chudaykin & Ivanov (2019) marginalize over 64 parameters of their bias model (4 bias and 4 counterterm normalization parameters at each redshift bin). They also include the Alcock-Paczynski (AP) effect for Pl, which significantly improve the Pl parameter constraints (e.g. tightens Mν constraints by ∼ 30%). They however, do not include AP effects in B0. Furthermore, Chudaykin & Ivanov (2019) use theoretical error covariance to quantify the uncertainty of their perturbation theory models. Because they use the tree-level perturbation theory model for B0, theoretical errors for B0 quickly dominate at k 􏱘 0.1 h/Mpc, where the one- and two-loop contribute significantly (e.g. Lazanu & Liguori 2018). Hence, their forecasts do not include the constraining power on nonlinear scales. Also different from our analysis, Chudaykin & Ivanov (2019) use an Markov-Chain Monte-Carlo (MCMC) approach, which derives more accurate parameter constraints than our Fisher approach. They, however, neglect non-Gaussian contributions to both the Pl and B0 covariance matrices and do not include the covariance between Pl and B0 for their joint constraints. While their theoretical error covariance, which couples different k-modes, may partly take this into account, we find that neglecting the covariance between Pl and B0 overestimates constraints, tighter by ∼20% for kmax = 0.2 h/Mpc. Nonetheless, Chudaykin & Ivanov (2019) and our results both find significant improves in cosmological parameter constraints from including B0. In fact, taking the theoretical errors into account, the improvements from B0 they find are loosely consistent with our results at kmax ∼ 0.2 h/Mpc.
-
+Another difference between our analyses is that although \cite{chudaykin2019} use 
+a more accurate Markov-Chain Monte-Carlo (MCMC) approach to derive parameter
+constraints, they neglect the non-Gaussian contributions to both $\Pgl$ and
+$\Bg$ covariance matrices and also do not include the covariance between $\Pgl$
+and $\Bg$ for the joint constraints. We find that neglecting the covariance
+between $\Pgl$ and $\Bg$ overestimates constraints by \ch{XXXX} for our
+$\kmax=0.2\hmpc$ constraints. Lastly, \cite{chudaykin2019} use a one-loop 
+and tree-level perturbation theory to model $\Pgl$ and $\Bg$, respectively.
+Rather than imposing a $\kmax$ cutoff to restrict their forecasts to scales
+where their perturbation theory models can be trusted, they use a theoretical
+error covariance model approach from \cite{baldauf2016}. With a tree-level
+$\Bg$ model, theoretical errors quickly dominate at $\kmax \gtrsim 0.1\hmpc$,
+where one- and two-loop contribute significantly~\citep[\eg][]{lazanu2018}. 
+So effectively, their forecasts do not include the constraining power on
+those scales. In fact, if we restrict our forecast to $\kmax = 0.25\hmpc$ 
+for $\Pgl$ and $\kmax = 0.1\hmpc$ for $\Bg$, our $\Om$, $\Ob$, $h$, $n_s$, 
+$\sig$, and $\smnu$ constraints improve by 1.3, 1.2, 1.2, 1.4, 2.0, and 
+$1.7\times$ from including $\Bg$, roughly consistent with \cite{chudaykin2019}. 
 
 %Various differences between our forecast and previous work prevent more thorough comparisons. However, crucial aspects of our simulation based approach distinguish our forecasts from other works. We present the first bispectrum forecasts for a full set of cosmological parameters using bispectrum measured entirely from N-body simulations. By using the simulations, we go beyond perturbation the- ory models and accurately model the redshift-space bispectrum to the nonlinear regime. Furthermore, by exploiting the immense number of simulations, we accurately estimate the full high-dimensional covariance matrix of the bispectrum. With these advantages, we present the first forecast of cosmo- logical parameters from the bispectrum down to nonlinear scales and demonstrate the constraining power of the bispectrum for Mν. Below, we underline a few caveats of our forecasts.
-\begin{itemize}
-    \item a discussion on the impact of off diagonal terms of the covariance matrix. 
-\end{itemize} 
 
 % caveats paragraph 
-We derive, for the first time, the total information cotent of the redshift-space 
-galaxy power spectrum and bispectrum. Our simulation based approach, allows us
-to go beyond previous perturbation theory approaches and accurately quantify the 
-constraining power in the nonlinear regime. They, however, rely on the
-stability and convergence of our covariance matrix and numerical derivatives.  
+Among the various differences between our forecast and previous works, we
+emphasize that we use a simulationed-based approach. This, combined with the 
+immense number of simulations, is what allows us to go beyond previous
+perturbation theory approaches and accurately quantify the constraining power
+in the nonlinear regime. Furthermore, this allows us to derive, for the first
+time, the total information content of the redshift-space galaxy power spectrum
+and bispectrum down to nonlinear scales and demonstrate the constraining power
+of the galaxy bispectrum for $\smnu$. 
+
+A simulation-based approach, however, has a few caveats, which we discuss
+below. First, our forecasts rely on the stability and convergence of the
+covariance matrix and numerical derivatives. 
 For our constraints we use $195000$ galaxy catalogs (Section~\ref{sec:hod}): 
 $15,000$ for the covariance matrices and $180,000$ for the derivatives with 
 respect to 11 parameters. To ensure that our results are robust, we conduct the
 same set of convergence tests as \cite{hahn2020}. 
-
 First, we test whether our results have sufficiently converged by deriving our 
 constraints using different numbers of galaxy catalogs to estimate the covariance 
 matrix and derivatives: $N_{\rm cov}$ and $N_{\rm deriv}$. For $N_{\rm cov}$,
@@ -265,12 +281,28 @@ vary by $< 10\%$, we conclude that the conergence of the covariance matrix or
 deriviatves do not significantly impact our forecast. 
 \ch{fill this in once we have the convergence test}. 
 
+% derivative w.r.t. Mnu
 We evaluate the $\Pgl$ and $\Bg$ derivatives with respect to $\smnu$ using
 simulations at the $\{\theta_{\rm ZA}, \smnu^+, \smnu^{++}, \smnu^{+++}\}$
 cosmologies. To test the stability of the $\smnu$ derivatives, we compare
 parameter constraints derived using two different sets of cosmologies: 
 $\{\theta_{\rm ZA}, \smnu^+\}$ and $\{\theta_{\rm ZA}, \smnu^+\}$. 
 \ch{check this once the multiple HOD seeds finish} 
+
+% derivative w.r.t. sigma_log M 
+Furthermore, as we note in Section~\ref{sec:hod},
+our fiducial HOD paramter values are chosen based on the \cite{zheng2007} fits
+to the SDSS $M_r < -21.5$  and $-22$ samples. However, due to the halo mass
+limit of {\sc Quijote}, we use a tighter $\sigma_{\log M}$ scatter. This
+means that our HOD galaxy catalogs have a different selection function than 
+samples based on commonly used $M_r$ or $M_*$ cuts (\eg SDSS or BOSS). To test
+the impact of this difference, \ch{in Appendix~\ref{sec:sig}, we compare 
+${\partial \Pgl}/{\partial \sigma_{\log M}}$ and 
+${\partial \Bg}/{\partial \sigma_{\log M}}$ at $\sigma_{\log M} = 0.2$ (our
+fiducial value) to the derivates evaluated at $\sigma_{\log M} = $, estimated 
+using higher resolution \quij simulations. Something more after we do the
+comparison}.
+\ch{do we find a lot of degeneracies that are broken with sigmalogM?}
 
 % usual Fisher Forecast caveat  
 Besides their convergence and stability, our forecasts are derived from Fisher
@@ -283,34 +315,81 @@ $\Pgl$. Hence, we do not explore beyond the Fisher forecast. In a later paper of
 the series, when we analyze the SDSS-III BOSS data using a simulation-based 
 approach, we will use a robust method to sample the posterior.  
 
-\ch{anything else that could be wrong that we've checked?} 
+% limiations of current work and future works
+Besides the caveats above, a number of extra steps and complications remain
+between this work and a full galaxy bispectrum analysis using a simulationed
+based approach. For instance, we use the basic \cite{zheng2007} HOD model,
+which does not include assembly bias. \cite{zentner2016} and \cite{vakili2019}
+find little evidence for assembly bias in the galaxy clustering
+of the SDSS $M_r < -21.5$  and $-21$ samples. \cite{beltz-mohrmann2020} 
+also found that the basic HOD is sufficent to reproduce several galaxy
+clustering statistics (\eg projected 2PCF, 2PCF, group multiplicity function)
+of high luminosity galaxies in the Illustris and EAGLE hydrodynamic
+simulations. While the basic HOD is likely sufficient for the forecast we
+present, many works have demonstrated that assembly bias impacts galaxy
+clustering for lower luminsoity/mass samples both using
+observations~\citep{pujol2014, hearin2016, pujol2017, zentner2019, vakili2019}
+and hydrodynamic simulations~\citep{chaves-montero2016, beltz-mohrmann2020}. 
+\ch{include \cite{obuljen2019, obuljen2020}}.
+ 
+In addition to assembly bias, central and satellite velocity biases can also
+impact galaxy clustering~\citep{guo2015a,guo2015}. Central galaxies, in both
+observations and simulations, are not at rest in the centers of the host 
+halos~\citep[\eg][]{berlind2003, yoshikawa2003; vandenbosch2005, skibba2011}. 
+% Berlind et al. 2003; Yoshikawa, Jing & Bo ̈rner 2003; van den Bosch et al. 2005; Skibba et al. 2011; Li et al. 2012)
+Similarly, satellite galaxies in simulations do not have the same velocities as
+the underlying dark matter~\citep[\eg][]{diemand2004, gao2004, gill2004, lau2010, munari2013,
+wu2013}. 
+%, Moore & Stadel 2004; Gao et al. 2004; Gill et al. 2004; Lau, Nagai & Kravtsov 2010; Munari et al. 2013; Wu & Huterer 2013; Wu et al. 2013).
+This velocity bias for centrals reduces the Kaiser effect; while for
+satellites, it reduces the FoG effect. For the high luminosity ($M_r < -21$
+and $<-21.5$) SDSS samples, \cite{guo2015} find little satellite velocity bias.
+While they find some central velocity bias, their constraints are based on 
+galaxy clustering on very small scales (${\sim}0.1-25h^{-1}{\rm Mpc}$). 
+More recently, \cite{beltz-mohramnn2020} found that removing central and
+satellite velocity biases for the Illustris and EAGLE simulations had 
+little impact on various clustering measurements of their high luminosity
+sample. Although assembly bias and velocity bias do not likely impact the
+forecasts we present, for lower luminosity/mass galaxy samples and for higher
+precision measurements of observations they must be included. Therefore, when
+we analyze observations with a simulation-based approach later in the series,
+we will use a decorated HOD framework~\citep[such as \eg][\ch{others}]{vakili2019,
+zhai2019} that includes both assembly bias and velocity biases.
 
+% Baryonic effects? 
+Our analysis also does not include baryonic effects. Although they have been 
+typically neglected in galaxy clustering analyses, baryonic effects, such as
+feedback from active galactic nuclei (AGN), can impact the matter distribution
+at cosmological distances~\citep[\eg][]{white2004, zhan2004, jing2006,
+rudd2008, harnois-deraps2015}. %(White 2004; Zhan & Knox 2004; Jing et al. 2006; Rudd et al. 2008; van Daalen et al. 2011)
+For AGN feedback in particular, various works have an impact on the matter 
+power spectrum~\citep[\eg][]{vandaalen2011, vogelsberger2014, hellwing2016, peters2018,
+springel2018, chisari2018, vandaalen2020}. % also Vogelsberger et al. 2014a, Hellwing et al. 2016, Peters
+% et al. 2018, Springel et al. 2018, Chisari et al. 2018, vandaalen2020)
+Although there is no consensus on the magnitude of the effect, ultimately, a 
+more effective AGN feedback increases the impact on the matter 
+clustering~\citep{barreira2019}. In state-of-the-art hydrodynamical simulations 
+(TNG, EAGLE, and BAHAMAS), \cite{foreman2019} find $\lesssim 1\%$ impact on 
+the matter power spectrum at $k \lesssim 0.5\hmpc$. For the matter bispectrum, 
+\cite{foreman2019} find that the effect of baryons is peaked at $k=3\hmpc$ and, 
+similarly, a $\lesssim1\%$ effect at $k \lesssim 0.5\hmpc$. Despite the growing
+evidence of baryon impacting the matter clustering, the effect is mainly seen
+on scales smaller than what is probed by galaxy clustering analyses with
+spectroscopic redshift surveys. We, therefore, do not include baryonic effects
+in our forecasts and do not consider it further in the series. 
 
-\ch{what's missing in the analysis: all the graints of salt/ future works}
-\begin{itemize}
-    \item how do the unrealistic hod parameters we use map onto real galaxy
-        samples. We tried our best to get the SDSS-like sample. The main
-        ``unrealistic'' parameter choice is $\sigma_{\log M}$ --- use the
-        high resolution simulations to compare the derivative w.r.t sigma logM
-        and make some statements regarding this. \ch{appendix?}
-    \item we use a simplistic HOD model which doesn't take into account
-        assembly bias. Overview the impact of assembly bias in previous galaxy
-        clustering results and discuss how it may analogously apply to our
-        constraints.
-    \item along this line, we do not consider baryonic effects. However recent
-        papers that have looked into this find the impact only matters at very
-        high k.  
-    \item including some extra nuisance parameters doesn't do anything for
-        cosmological constraints. We tried b1, Asn, Bsn. \ch{try b2, gamma2} 
-    \item alcock pacinzsky effect
-    \item no geometry obviously. repeat of how realistic geometry lowers the
+alcock pacinzsky effect
+
+beyond the monopole \cite{yankelevich2019} 50\% more information beyond monopole 
+
+we take broad triangle bins, \cite{yankelevich2019} finds higher
+constraining power for narrower bins. $\Delta k = 3 k_f$ has
+${\sim}10\%$ less constrainig power according to their FoM estimate.
+the need for data compression 
+
+no geometry obviously. repeat of how realistic geometry lowers the
         signal to noise. 
-    \item we take broad triangle bins, \cite{yankelevich2019} finds higher
-        constraining power for narrower bins. $\Delta k = 3 k_f$ has
-        ${\sim}10\%$ less constrainig power according to their FoM estimate.  
-    \item beyond the monopole \cite{yankelevich2019} 50\% more information
-        beyond monopole 
-\end{itemize}
+%Our forecasts are derived using the power spectrum and bispectrum in periodic boxes. We do not consider a realistic geometry or radial selection function of actual observations from galaxy surveys. A realistic selection function will smooth out the triangle configuration dependence and consequently degrade the constraining power of the bispectrum. In Sefusatti & Scoccimarro (2005), for instance, they find that the signal-to-noise of the bispectrum is significantly reduced once survey geometry is included in their forecast. We also do not account for super-sample covariance (e.g. Hamilton et al. 2006; Sefusatti et al. 2006; Takada & Hu 2013; Li et al. 2018), which may also degrade constraints. Survey geometry and super-sample covariance, however, also degrades the signal-to-noise of their power spectrum forecasts. Hence, with the substantial improvement in the Mν constraints of the bispectrum, even with survey geometry we expect the bispectrum will significantly improve Mν constraints over the power spectrum.
 
 \ch{restatement and discusssion of key findings} 
 The improvements of $\Bg$ come from breaking parameter degeneracies. 

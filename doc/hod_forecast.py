@@ -2042,6 +2042,75 @@ def _PgPh_Forecast_kmax():
     return None 
 
 
+def _FisherMatrix_diffkmax(obs, pkmax=0.2, bkmax=0.1, seed='all', rsd='all', dmnu='fin',
+        params='default', theta_nuis=None, cross_covariance=True, Cgauss=False,
+        silent=True): 
+    ''' calculate fisher matrix for parameters ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu'] 
+    and specified nuisance parameters
+    
+    :param obs: 
+        observable ('p02k', 'bk', 'p02bk') 
+    :param kmax: (default: 0.5) 
+        kmax of the analysis 
+    :param rsd: (default: True) 
+        rsd kwarg that specifies rsd set up for B(k) deriv.. 
+        If rsd == 'all', include 3 RSD directions. 
+        If rsd in [0,1,2] include one of the directions
+    :param flag: (default: None) 
+        kwarg specifying the flag for B(k). 
+        If `flag is None`, include paired-fixed and regular N-body simulation. 
+        If `flag == 'ncv'` only include paired-fixed. 
+        If `flag == 'reg'` only include regular N-body
+    :param dmnu: (default: 'fin') 
+        derivative finite differences setup
+    :param theta_nuis: (default: None) 
+        list of nuisance parameters to include in the forecast. 
+    '''
+    # calculate covariance matrix (with shotnoise; this is the correct one) 
+    # *** rsd and flag kwargs are ignored for the covariace matirx ***
+    if obs == 'p02bk': 
+        ks, _Cov, nmock = p02bkCov(rsd=2, flag='reg')
+        k, i_k, j_k, l_k = ks 
+
+        pklim = (k <= pkmax) 
+        bklim = ((i_k*kf <= bkmax) & (j_k*kf <= bkmax) & (l_k*kf <= bkmax)) # k limit 
+        klim = np.concatenate([pklim, bklim]) 
+        Cov = _Cov[:,klim][klim,:]
+    else: 
+        raise NotImplementedError
+    #print('%iD data vector' % Cov.shape[0])
+    ndata = np.sum(klim) 
+    f_hartlap = float(nmock - ndata - 2)/float(nmock - 1) 
+    C_inv = f_hartlap * np.linalg.inv(Cov) # invert the covariance 
+    
+    if params == 'default': # default set of parameters 
+        _thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1'] 
+    elif params == 'lcdm': 
+        _thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1'] 
+    elif params == 'halo':  # same parameters as halo case
+        _thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu', 'logMmin'] 
+    else: 
+        raise NotImplementedError
+    if theta_nuis is not None: _thetas += theta_nuis 
+    
+    # calculate the derivatives along all the thetas 
+    dobs_dt = [] 
+    for par in _thetas: 
+        if obs == 'p02k': 
+            _, dobs_dti, _ = dP02k(par, seed=seed, rsd=rsd, dmnu=dmnu,
+                    silent=silent)
+        elif obs == 'bk': 
+            # rsd and flag kwargs are passed to the derivatives
+            _, _, _, dobs_dti, _ = dBk(par, seed=seed, rsd=rsd, dmnu=dmnu, silent=silent)
+        elif obs == 'p02bk': 
+            _, _, _, _, dobs_dti, _ = dP02Bk(par, seed=seed, rsd=rsd,
+                    dmnu=dmnu, fscale_pk=fscale_pk, silent=silent) 
+        dobs_dt.append(dobs_dti[klim])
+            
+    Fij = Forecast.Fij(dobs_dt, C_inv) 
+    return Fij 
+
+
 def _P02B_Forecast_diffkmax(pkmax=0.2, bkmax=0.1, seed='all', rsd='all', dmnu='fin', theta_nuis=None,
         planck=False, silent=True):
     ''' fisher forecast comparison for P0+P2, B, and P0+P2+B where we set
@@ -2078,31 +2147,33 @@ def _P02B_Forecast_diffkmax(pkmax=0.2, bkmax=0.1, seed='all', rsd='all', dmnu='f
             theta_nuis=pk_theta_nuis, silent=silent)  
     bkFij   = FisherMatrix('bk', kmax=bkmax, seed=seed, rsd=rsd, dmnu=dmnu,
             theta_nuis=bk_theta_nuis, silent=silent)  
-    #pbkFij  = FisherMatrix('p02bk', kmax=kmax, seed=seed, rsd=rsd, dmnu=dmnu,
-    #        theta_nuis=theta_nuis, silent=silent)
-    #cond = np.linalg.cond(pbkFij)
-    #if cond > 1e16: print('Fij is ill-conditioned %.5e' % cond)
+    pbkFij  = _FisherMatrix_diffkmax('p02bk', pkmax=pkmax, bkmax=bkmax,
+            seed=seed, rsd=rsd, dmnu=dmnu, theta_nuis=theta_nuis, silent=silent)
+    cond = np.linalg.cond(pbkFij)
+    if cond > 1e16: print('Fij is ill-conditioned %.5e' % cond)
     
-    #if planck: # add planck prior 
-    #    _Fij_planck = np.load(os.path.join(UT.dat_dir(), 'Planck_2018_s8.npy')) # read in planck prior fisher (order is Om, Ob, h, ns, s8 and Mnu) 
-    #    print('Planck Fii', np.diag(_Fij_planck)) 
-    #    pkFij[:6,:6] += _Fij_planck
-    #    bkFij[:6,:6] += _Fij_planck
-    #    pbkFij[:6,:6] += _Fij_planck
+    if planck: # add planck prior 
+        _Fij_planck = np.load(os.path.join(UT.dat_dir(), 'Planck_2018_s8.npy')) # read in planck prior fisher (order is Om, Ob, h, ns, s8 and Mnu) 
+        print('Planck Fii', np.diag(_Fij_planck)) 
+        pkFij[:6,:6] += _Fij_planck
+        bkFij[:6,:6] += _Fij_planck
+        pbkFij[:6,:6] += _Fij_planck
     pkFinv  = np.linalg.inv(pkFij) 
     bkFinv  = np.linalg.inv(bkFij) 
-    #pbkFinv = np.linalg.inv(pbkFij) 
+    pbkFinv = np.linalg.inv(pbkFij) 
 
     i_Mnu = thetas.index('Mnu')
+    print('P kmax = %.1f' % pkmax)
+    print('B kmax = %.1f' % bkmax)
     print('--- thetas ---')
     print('P sigmas %s' % ', '.join(['%.5f' % sii for sii in np.sqrt(np.diag(pkFinv))]))
     print('B sigmas %s' % ', '.join(['%.5f' % sii for sii in np.sqrt(np.diag(bkFinv))]))
-    #print('P+B sigmas %s' % ', '.join(['%.5f' % sii for sii in np.sqrt(np.diag(pbkFinv))]))
-    #if theta_nuis is not None and 'Bsn' in theta_nuis: 
-    #    pass 
-    #else: 
-    #    print('improve. over P %s' % ', '.join(['%.1f' % sii for sii in np.sqrt(np.diag(pkFinv)/np.diag(pbkFinv))]))
-    #print('improve. over B %s' % ', '.join(['%.1f' % sii for sii in np.sqrt(np.diag(bkFinv)/np.diag(pbkFinv))]))
+    print('P+B sigmas %s' % ', '.join(['%.5f' % sii for sii in np.sqrt(np.diag(pbkFinv))]))
+    if theta_nuis is not None and 'Bsn' in theta_nuis: 
+        pass 
+    else: 
+        print('improve. over P %s' % ', '.join(['%.1f' % sii for sii in np.sqrt(np.diag(pkFinv)/np.diag(pbkFinv))]))
+    print('improve. over B %s' % ', '.join(['%.1f' % sii for sii in np.sqrt(np.diag(bkFinv)/np.diag(pbkFinv))]))
     raise ValueError
         
     ntheta = len(thetas) 
@@ -2835,7 +2906,7 @@ if __name__=="__main__":
                 params='lcdm')
     '''
     # forecasts 
-    _P02B_Forecast_diffkmax(pkmax=0.2, bkmax=0.1, seed='all', rsd='all', dmnu='fin', theta_nuis=None, planck=False)
+    _P02B_Forecast_diffkmax(pkmax=0.25, bkmax=0.1, seed='all', rsd='all', dmnu='fin', theta_nuis=None, planck=False)
     '''
         P02B_Forecast(kmax=0.5, seed='all', rsd='all', dmnu='fin', theta_nuis=None, planck=False)
         P02B_Forecast(kmax=0.5, seed='all', rsd='all', dmnu='fin', theta_nuis=None, planck=True)
