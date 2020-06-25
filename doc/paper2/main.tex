@@ -66,8 +66,8 @@
 \newcommand{\eitem}{\end{itemize}}
 \newcommand{\beq}{\begin{equation}}
 \newcommand{\eeq}{\end{equation}}
-\newcommand{\eg}{\emph{e.g.}}
-\newcommand{\ie}{\emph{i.e.}}
+\newcommand{\eg}{\emph{e.g.}~}
+\newcommand{\ie}{\emph{i.e.}~}
 
 %% collaborating
 \newcommand{\todo}[1]{\marginpar{\color{red}TODO}{\color{red}#1}}
@@ -92,6 +92,37 @@
 \author{...}
 
 \begin{abstract}
+    Massive neutrinos suppress the growth of structure below their
+    free-streaming scale and leave an imprint on large-scale structure, which
+    can be measured to constrain their total mass, $\smnu$. While $\smnu$
+    measurements from standard two-point clustering statistics are limited by
+    degeneracies with other cosmological parameters, \cite{hahn2020}
+    demonstrated that the halo bispectrum, the next higher-order statistic,
+    can break these degeneracies and dramatically improve constraints on
+    $\smnu$ and other cosmological parameters. 
+    % Their forecast, however, did not include a complete galaxy bias model
+    % which must be included to infer cosmological parameters from galaxy
+    % surveys in pracitce.  
+    In practice, however, galaxy bias must be included to infer cosmological 
+    parameters from galaxy surveys. The halo occupation distribution (HOD)
+    framework, provides an effective galaxy bias framework particularly well 
+    suited for a simulation-based approach. Using $195,000$ mock galaxy catalogs 
+    constructed from the \quij suite of $N$-body simulations, we incorporate 
+    an HOD model and measure Fisher matrix forecast of 
+    $\{\Om$, $\Ob$, $h$, $n_s$, $\sig$, $\smnu\}$. % to determine the potential of the {\em galaxy} bispectrum for constraining $\smnu$ and other cosmological parameters, 
+    With our forecasts, we quantify for the first time, the total information 
+    content of the redshift-space {\em galaxy} bispectrum down to nonlinear 
+    scales. For $\kmax=0.5\hmpc$, with the galaxy bispectrum, even after 
+    marginalizing HOD parameters, constraints on $\Om$, $\Ob$, $h$, $n_s$, $\sig$ improve by 
+    \ch{3.3, 3.6, 4.5, 4.9, and 4.7} from power spectrum constraints. For
+    $\smnu$, we derive $5.6\times$ tighter constraints with the bispectrum.
+    Including priors from \planck, the bispectrum improves cosmological 
+    constraints by \ch{$\gtrsim 2\times$}. While effects such as survey geometry 
+    will likely impact the results in reality, these constraints are derived for 
+    a substantially smaller volume than upcoming surveys ($(1~h^{-1}{\rm Gpc})^3$ box). 
+    Therefore, we safely conclude that including the galaxy bispectrum will 
+    significantly improve cosmological constraints, especially $\smnu$, for 
+    upcoming galaxy surveys.
 \end{abstract}
 
 \keywords{
@@ -105,11 +136,14 @@ cosmology: theory
 % --- intro ---
 \input{intro.tex}
 
-% --- hades+quijote ---
+% --- quijote ---
 \input{sims.tex}
 
-% --- bispectrum ---
+% --- hod ---
 \input{hod.tex} 
+
+% --- methods ---
+\input{methods.tex}
 
 % --- results ---
 \input{results.tex}
