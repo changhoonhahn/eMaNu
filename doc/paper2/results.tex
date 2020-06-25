@@ -133,6 +133,12 @@ galaxy redshift surveys, which will probe a much larger volume (\emph{e.g.} DESI
 With more constraining power coming from galaxy clustering, improvements from
 including $\Bg$ to $\Pgl$ and \planck will be larger. 
 
+%The improvements of $\Bg$ come from breaking parameter degeneracies. 
+%Most noteably, $\Om$ and $\sig$ degeneracies are broken by
+%$\Pgl + \Bg$, which improves $\Om - \sig$, $\Om - \smnu$, $\sig-\smnu$ that we care about. 
+
+
+
 % comparison to literature 
 % ------------------------
 % comparison to halo forecast
@@ -282,27 +288,30 @@ deriviatves do not significantly impact our forecast.
 \ch{fill this in once we have the convergence test}. 
 
 % derivative w.r.t. Mnu
-We evaluate the $\Pgl$ and $\Bg$ derivatives with respect to $\smnu$ using
-simulations at the $\{\theta_{\rm ZA}, \smnu^+, \smnu^{++}, \smnu^{+++}\}$
-cosmologies. To test the stability of the $\smnu$ derivatives, we compare
-parameter constraints derived using two different sets of cosmologies: 
-$\{\theta_{\rm ZA}, \smnu^+\}$ and $\{\theta_{\rm ZA}, \smnu^+\}$. 
-\ch{check this once the multiple HOD seeds finish} 
+Besides the convergence of the numerical derivatives, the $\smnu$ derivatives
+can be evaluated using different sets of cosmologies. In our anlaysis, we
+evaluate ${\partial \Pgl}/{\partial \smnu}$ and ${\partial \Bg}/{\partial
+\smnu}$ using simulations at the $\{\theta_{\rm ZA}, \smnu^+, \smnu^{++},
+\smnu^{+++}\}$ cosmologies. They can, however, also be estimated using 
+two other sets of cosmologies: (i) $\{\theta_{\rm ZA}, \smnu^+\}$ and (ii)
+$\{\theta_{\rm ZA}, \smnu^+, \smnu^{++}\}$. If we used (i) estimates for 
+${\partial \Pgl}/{\partial \smnu}$ and ${\partial \Bg}/{\partial \smnu}$, 
+compared to our forecasts, we get \ch{XXXXX}. For (ii), we get \ch{XXXX}. 
+\ch{check this once the multiple HOD seeds finish.} 
 
 % derivative w.r.t. sigma_log M 
-Furthermore, as we note in Section~\ref{sec:hod},
-our fiducial HOD paramter values are chosen based on the \cite{zheng2007} fits
-to the SDSS $M_r < -21.5$  and $-22$ samples. However, due to the halo mass
-limit of {\sc Quijote}, we use a tighter $\sigma_{\log M}$ scatter. This
-means that our HOD galaxy catalogs have a different selection function than 
-samples based on commonly used $M_r$ or $M_*$ cuts (\eg SDSS or BOSS). To test
-the impact of this difference, \ch{in Appendix~\ref{sec:sig}, we compare 
+For our fiducial HOD paramters other than $\sigma_{\log M}$, we chose values 
+based on \cite{zheng2007} fits to the SDSS $M_r < -21.5$  and $-22$ samples
+(Section~\ref{sec:hod}). For $\sigma_{\log M}$, due to the halo mass limit of
+{\sc Quijote}, we chose a tighter scatter of 0.2 dex. As a result, our HOD galaxy 
+catalogs have a different selection function than observed samples, which are
+yptically based on $M_r$ or $M_*$ cuts (\eg SDSS or BOSS). To test the impact
+of the fiducial $\sigma_{\log M}$ choice, \ch{in Appendix~\ref{sec:sig}, we compare 
 ${\partial \Pgl}/{\partial \sigma_{\log M}}$ and 
-${\partial \Bg}/{\partial \sigma_{\log M}}$ at $\sigma_{\log M} = 0.2$ (our
-fiducial value) to the derivates evaluated at $\sigma_{\log M} = $, estimated 
-using higher resolution \quij simulations. Something more after we do the
-comparison}.
-\ch{do we find a lot of degeneracies that are broken with sigmalogM?}
+${\partial \Bg}/{\partial \sigma_{\log M}}$ at $\sigma_{\log M} = 0.2$ dex to
+the derivates evaluated at $\sigma_{\log M} = $, estimated using higher
+resolution \quij simulations. Fill in after we do the comparison.}
+\ch{what can we say about the sigma8-sigmalogM degeneracy?}
 
 % usual Fisher Forecast caveat  
 Besides their convergence and stability, our forecasts are derived from Fisher
@@ -328,22 +337,20 @@ of high luminosity galaxies in the Illustris and EAGLE hydrodynamic
 simulations. While the basic HOD is likely sufficient for the forecast we
 present, many works have demonstrated that assembly bias impacts galaxy
 clustering for lower luminsoity/mass samples both using
-observations~\citep{pujol2014, hearin2016, pujol2017, zentner2019, vakili2019}
+observations~\citep{pujol2014, hearin2016, pujol2017, zentner2019, vakili2019, obuljen2020}
 and hydrodynamic simulations~\citep{chaves-montero2016, beltz-mohrmann2020}. 
-\ch{include \cite{obuljen2019, obuljen2020}}.
  
 In addition to assembly bias, central and satellite velocity biases can also
 impact galaxy clustering~\citep{guo2015a,guo2015}. Central galaxies, in both
 observations and simulations, are not at rest in the centers of the host 
-halos~\citep[\eg][]{berlind2003, yoshikawa2003; vandenbosch2005, skibba2011}. 
+halos~\citep[\eg][]{berlind2003, yoshikawa2003, vandenbosch2005, skibba2011}. 
 % Berlind et al. 2003; Yoshikawa, Jing & Bo ̈rner 2003; van den Bosch et al. 2005; Skibba et al. 2011; Li et al. 2012)
 Similarly, satellite galaxies in simulations do not have the same velocities as
 the underlying dark matter~\citep[\eg][]{diemand2004, gao2004, gill2004, lau2010, munari2013,
 wu2013}. 
 %, Moore & Stadel 2004; Gao et al. 2004; Gill et al. 2004; Lau, Nagai & Kravtsov 2010; Munari et al. 2013; Wu & Huterer 2013; Wu et al. 2013).
-This velocity bias for centrals reduces the Kaiser effect; while for
-satellites, it reduces the FoG effect. For the high luminosity ($M_r < -21$
-and $<-21.5$) SDSS samples, \cite{guo2015} find little satellite velocity bias.
+This velocity bias in centrals reduces the Kaiser effect; while in 
+satellites, it reduces the FoG effect. For the high luminosity SDSS samples, \cite{guo2015} find little satellite velocity bias.
 While they find some central velocity bias, their constraints are based on 
 galaxy clustering on very small scales (${\sim}0.1-25h^{-1}{\rm Mpc}$). 
 More recently, \cite{beltz-mohramnn2020} found that removing central and
@@ -351,10 +358,14 @@ satellite velocity biases for the Illustris and EAGLE simulations had
 little impact on various clustering measurements of their high luminosity
 sample. Although assembly bias and velocity bias do not likely impact the
 forecasts we present, for lower luminosity/mass galaxy samples and for higher
-precision measurements of observations they must be included. Therefore, when
-we analyze observations with a simulation-based approach later in the series,
+precision measurements of observations they must be included. The
+improvements we see in HOD parameter constraints from $\Bg$ in
+Figure~\ref{fig:forecast} suggest that $\Bg$ also has the potential to better
+constrain the assembly bias parameters and improve our understanding of the 
+galaxy-halo connection. Therefore, when we analyze observations with a
+simulation-based approach later in the series,
 we will use a decorated HOD framework~\citep[such as \eg][\ch{others}]{vakili2019,
-zhai2019} that includes both assembly bias and velocity biases.
+zhai2019} that includes both assembly bias and velocity biases. 
 
 % Baryonic effects? 
 Our analysis also does not include baryonic effects. Although they have been 
@@ -378,41 +389,53 @@ on scales smaller than what is probed by galaxy clustering analyses with
 spectroscopic redshift surveys. We, therefore, do not include baryonic effects
 in our forecasts and do not consider it further in the series. 
 
-alcock pacinzsky effect
+% other things we want to take into account
+%alcock pacinzsky effect
+In our forecasts, we use $\Bg$ with triange defined in $k_1,k_2,k_3$ bins of
+width $\Delta k = 3 k_f = 0.01885\hmpc$ (Section~\ref{sec:methods}).
+\cite{gagrani2017} find that for the growth rate parameter bispectrum
+multipoles beyond the monopole have significant constraining power.  
+\cite{yankelevich2019}, with figure-of-merit (FoM) estimates, also find
+significant information content beyond the monopole. Furthermore, 
+\cite{yankelevich2019} also find that coarser binning of the triangle
+configurations reduces the information content of the bispectrum. Binning by
+$\Delta k = 3 k_f$ has ${\sim}10\%$ less constraining power than binning by
+$\Delta k = k_f$. Including higher order multipoles and increase the binning 
+are both straightforward to implement; however, they both increase the 
+dimensionality of the data vector. $\Bg$ alone binned by $\Delta k = 3 k_f$
+already has 1898 dimensions. Hence, including multipoles and increasing the
+binning is not feasible for a full bispectrum analysis without the use of data
+compression~\citep[\eg][]{byun2017, gualdi2018, gualdi2019a, gualdi2019}. 
+For future papers in the series, we will include bispectrum multipoles and
+finer binning in conjunction with data compression. 
 
-beyond the monopole \cite{yankelevich2019} 50\% more information beyond monopole 
-
-we take broad triangle bins, \cite{yankelevich2019} finds higher
-constraining power for narrower bins. $\Delta k = 3 k_f$ has
-${\sim}10\%$ less constrainig power according to their FoM estimate.
-the need for data compression 
-
-no geometry obviously. repeat of how realistic geometry lowers the
-        signal to noise. 
-%Our forecasts are derived using the power spectrum and bispectrum in periodic boxes. We do not consider a realistic geometry or radial selection function of actual observations from galaxy surveys. A realistic selection function will smooth out the triangle configuration dependence and consequently degrade the constraining power of the bispectrum. In Sefusatti & Scoccimarro (2005), for instance, they find that the signal-to-noise of the bispectrum is significantly reduced once survey geometry is included in their forecast. We also do not account for super-sample covariance (e.g. Hamilton et al. 2006; Sefusatti et al. 2006; Takada & Hu 2013; Li et al. 2018), which may also degrade constraints. Survey geometry and super-sample covariance, however, also degrades the signal-to-noise of their power spectrum forecasts. Hence, with the substantial improvement in the Mν constraints of the bispectrum, even with survey geometry we expect the bispectrum will significantly improve Mν constraints over the power spectrum.
+Lastly, our forecasts are derived using periodic boxes and do not consider a
+realistic geometry or radial selection function of galaxy surveys. A realistic 
+selection function will smooth the triangle configuration dependence and degrade 
+the constraining power of the bispectrum~\citep{sefusatti2005}. We also do not
+account for super-sample covariance, which may also impact our
+constraints~\citep{hamilton2006, sefusatti2006, takada2013, li2018, wadekar2019}. 
+Since these effects also affect the power spectrum, we expect to find
+substantial improvements in cosmological parameter constraints from including
+the bispectrum, especially for $\smnu$. 
 
 \ch{restatement and discusssion of key findings} 
-The improvements of $\Bg$ come from breaking parameter degeneracies. 
-Most noteably, $\Om$ and $\sig$ degeneracies are broken by
-$\Pgl + \Bg$, which improves $\Om - \sig$, $\Om - \smnu$, $\sig-\smnu$ that we care about. 
 
-A key part of the improvement from $\Bg$ comes from the degeneracies that are
-broken among HOD parameters. 
-Furthermore, including $\Bg$ allows us to break a number of degeneracies among
-HOD parameters. This is interesting because there are many questions regarding
-HOD parameters that are still up in the air. For instance, the impact and
-importance of assembly bias, which can impact cosmological analyses. Moreover,
-tighter constraints on the halo occupation in general allows us to better 
-understand the galaxy-halo connection, which will improve our understanding of
-galaxy formation and evolution. While we consider a relatively simplistic halo
-occupation model, our results clearly demonstrate the advantages of
-higher-order statistic bispectrum over the standard two-point statistics. 
+In the following papers of this series, 
+\ch{outline the overall forward modeling apparoach that will culminate in
+demonstrating it works for a boss reanalysis}
 
-what's next in the paper series 
-\begin{itemize}
-    \item data compression 
-    \item outline the overall forward modeling approach that will culminate in
-        an analysis of BOSS. 
-    \item paragraph outline the obvious extensions to DESI and PFS with rough
-        numbers 
-\end{itemize}
+Afterwards, we will apply it to future surveys. 
+\ch{rough numbers of DESI, PFS, and Euclid} 
+
+%A key part of the improvement from $\Bg$ comes from the degeneracies that are
+%broken among HOD parameters. 
+%Furthermore, including $\Bg$ allows us to break a number of degeneracies among
+%HOD parameters. This is interesting because there are many questions regarding
+%HOD parameters that are still up in the air. For instance, the impact and
+%importance of assembly bias, which can impact cosmological analyses. Moreover,
+%tighter constraints on the halo occupation in general allows us to better 
+%understand the galaxy-halo connection, which will improve our understanding of
+%galaxy formation and evolution. While we consider a relatively simplistic halo
+%occupation model, our results clearly demonstrate the advantages of
+%higher-order statistic bispectrum over the standard two-point statistics. 

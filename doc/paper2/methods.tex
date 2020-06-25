@@ -1,0 +1,95 @@
+\section{Bispectrum and Cosmological Parameter Forecasts} \label{sec:methods}
+We measure the bispectrum and parameter forecasts using the same methods as
+\cite{hahn2020}. For further details, we therefore refer readers to \cite{hahn2020}. 
+
+To measure $\Bg$, we use a Fast Fourier Transform (FFT) based estimator similar to
+the ones described in \cite{sefusatti2005}, \cite{scoccimarro2015}, and
+\cite{sefusatti2016}. Galaxy positions are first interpolated onto a grid,
+$\delta(\bfi{x})$, using a fourth-order interpolation scheme, which has advantageous
+anti-aliasing properties that allow unbiased measurements up to the Nyquist
+frequency~\citep{hockney1981, sefusatti2016}. After Fourier transforming 
+$\delta(\bfi{x})$ to get $\delta(\bfi{k})$, we measure the bispectrum monopole:  
+\beq \label{eq:bk} 
+\Bg(k_1, k_2, k_3) = \frac{1}{V_B} \int\limits_{k_1}{\rm d}^3q_1
+\int\limits_{k_2}{\rm d}^3q_2 \int\limits_{k_3}{\rm d}^3q_3~\delta_{\rm
+D}({\bfi q_{123}})~\delta({\bfi q_1})~\delta({\bfi q_2})~\delta({\bfi q_3}) -
+B^{\rm SN}_0.
+\eeq
+$\delta_D$ is the Dirac delta function, $V_B$ is the normalization factor
+proportional to the number of triplets that can be found in the $k_1, k_2, k_3$
+triangle bin, and $B^{\rm SN}_0$ is the correction term for the Poisson shot
+noise. Throughout the paper, we use $\delta(\bfi{x})$ grids with $N_{\rm grid}
+= 360$ and triangle configurations defined by $k_1, k_2, k_3$ bins of width
+$\Delta k = 3 k_f = 0.01885\hmpc$, where $k_f = 2\pi/(1000~h^{-1}{\rm Mpc})$. 
+
+In Figure~\ref{fig:bgh}, we present the redshift-space galaxy power spectrum multipoles 
+($\Pgl$; left) and bispectrum ($\Bg$; right) of the galaxy catalog at the fiducial
+cosmology, constructed using the fiducial HOD parameters (blue). The $\Pgl$ and 
+$\Bg$ are averaged over 15,000 $N$-body realizations. In the left panel, we
+plot both the power spectrum monopole ($\ell = 0$; solid) and quadrupole 
+($\ell = 2$; dashed). In the right panel, we plot $\Bg$ for all 1898 triangle
+configurations with $k_1, k_2, k_3 \ge k_{\rm max} = 0.5\hmpc$. The configurations 
+are ordered by looping through $k_3$ in the inner most loop and $k_1$ in the outer
+most loop satisfying $k_1 \le k_2 \le k3$. For comparison, we include the
+redshift-space halo power spectrum and bispectrum at the fiducial cosmology 
+from \cite{hahn2020} (black). 
+
+\begin{figure}
+\begin{center}
+    \includegraphics[width=\textwidth]{figs/PBg_reg.pdf} 
+    \caption{The redshift-space galaxy power spectrum multipoles ($\Pgl$; left)
+    and bispectrum monopole ($\Bg$; right) of the galaxy catalog at the
+    fidicual cosmology, constructed using the fiducial HOD parameters (blue).
+    The $\Pgl$ and $\Bg$ are averaged over 15,000 $N$-body realizations and
+    measured using the same FFT-based estimator as \cite{hahn2020}. In the 
+    left panel, we plot both the $\Pgl$ monopole ($\ell = 0$; solid) and quadrupole 
+    ($\ell = 2$; dashed). In the right panel, we plot $\Bg$ for all 1898 triangle
+    configurations with $k_1, k_2, k_3 \ge k_{\rm max} = 0.5\hmpc$. The
+    configurations are ordered by looping through $k_3$ in the inner most loop
+    and $k_1$ in the outer most loop satisfying $k_1 \le k_2 \le k3$.
+    We include for comparison the \cite{hahn2020} halo $\Phl$ and $\Bh$ at the 
+    fiducial cosmology (black). We note that the fiducial galaxy catalog has 
+    $\bar{n}_g \sim 1.63\times 10^{-4}~h^3{\rm Gpc}^{-3}$ and linear bias of 
+    $b_g \sim 2.55$.
+    }
+\label{fig:bgh}
+\end{center}
+\end{figure}
+
+To estimate the constraining power of $\Bg$, we use Fisher information
+matrices, which have been ubiquitously used in
+cosmology~\citep[\emph{e.g.}][]{jungman1996,tegmark1997,dodelson2003,heavens2009,verde2010}: 
+\beq 
+F_{ij} = - \bigg \langle \frac{\partial^2 \mathrm{ln} \mathcal{L}}{\partial \theta_i \partial \theta_j} \bigg \rangle,
+\eeq
+As in \cite{hahn2020}, we assume that the $\Bg$ lieklihood is Gaussian and
+neglect the covariance derivative term~\citep{carron2013} and estimate the
+Fisher matrix as 
+\beq \label{eq:fisher}
+F_{ij} = \frac{1}{2}~\mathrm{Tr} \Bigg[\bfi{C}^{-1}
+\left(\parti{\Bg}\partj{\Bg}^T + \parti{\Bg}^T \partj{\Bg} \right)\Bigg].
+\eeq
+We derive the covariance matrix, $\bfi{C}$, using the $15,000$ galaxy catalogs
+at the fiducial cosmology. The derivatives along the cosmological and HOD
+parameters, $\partial \Bg/\partial \theta_i$, are estimated using finite
+difference. For all parameters besides $\smnu$, we estimate 
+\beq 
+\frac{\partial \Bg}{\partial \theta_i} \approx \frac{\Bg(\theta_i^{+})-\Bg(\theta_i^{-})}{\theta_i^+ - \theta_i^-}, 
+\eeq
+where $\Bg(\theta_i^{+})$ and $\Bg(\theta_i^{-})$ are the average bispectrum of the 
+$7,500$ realizations at $\theta_i^{+}$ and $\theta_i^{-}$, the HOD +
+cosmological parameter values above and below the fiducial parameters.  
+For $\smnu$, where the fiducial value is 0.0 eV, we use the galaxy catalogs 
+at $\smnu^+$, $\smnu^{++}$, $\smnu^{+++}=0.1, 0.2, 0.4$ eV (Table~\ref{tab:sims}) 
+to estimate 
+\beq \label{eq:dbkdmnu} 
+\frac{\partial \Bg}{\partial \smnu} \approx \frac{-21 \Bg(\theta_{\rm fid}^{\rm ZA}) + 
+32 \Bg(\smnu^{+}) - 12 \Bg(\smnu^{++}) + \Bg(\smnu^{+++})}{1.2}, 
+\eeq
+which provides a $\mathcal{O}(\delta \smnu^2)$ order approximation. 
+Since the simulations at $\smnu^+$, $\smnu^{++}$, and $\smnu^{+++}$ are generated 
+from Zel'dovich initial conditions, we use simulations at the fiducial cosmology 
+also generated from Zel'dovich initial conditions ($\theta_{\rm fid}^{\rm ZA}$). 
+We emphasize that by using galaxy catalogs constructed from $N$-body simulations,
+we are able to accurately extend our analysis beyond the limitations of 
+analytic methods (\eg perturbation theory) down to the nonlinear regime.
