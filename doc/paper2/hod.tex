@@ -67,22 +67,19 @@ halo while position and velocity of the satellite galaxies are sampled from a
 The halo occupation in the \cite{zheng2007} model depends soley on $M_h$. 
 Simulations, however, find evidence that secondary halo properties such as
 concentration or formation history correlate with spatial distribution of
-halos --- a phenomenon referred to as ``halo assembly bias''~\citep{sheth2004, gao2005, harker2006, wechsler2006}.
-%Numerical simulations have shown that properties such as halo formation time, environment, concentration, triaxial- ity, spin, and velocity anisotropy play a role in determining the clustering of halos (Gao & White 2007; Wechsler et al. 2006; Dalal et al. 2008; Wang et al. 2009; Lacerna et al. 2014; Wechsler et al. 2006; Faltenbacher & White 2010; Lacerna & Padilla 2012)
-% (Gao et al. 2005; Wechsler et al. 2006; Croton et al. 2007; Padilla et al. 2018; Salcedo et al. 2018; Xu & Zheng 2018; Zehavi et al. 2018; Contreras et al. 2019).
-%\cite{hadzhiyska2020}
+halos --- a phenomenon referred to as ``halo assembly bias''~\citep[\eg~][]{sheth2004,
+gao2005, harker2006, wechsler2006, dalal2008, wang2009a, lacerna2014,
+contreras2020, hadzhiyska2020}.
 A model that only depends on $M_h$, does not account for this halo assembly 
 bias and may not sufficient describe the connection between galaxies and 
 halos. Moreover, if unaccounted for in the HOD model, and thus not marginalized 
 over, halo assembly bias may impact the cosmological parameter constraints. 
-\cite{zentner2016} and \cite{vakili2019} recently examined evidence for 
-assembly bias in the observed clustering measurements of the Sloan Digital 
-Sky Survey (SDSS) DR 7 main galaxy sample. 
-\todo{short description of the papers and how they compare with a model with assembly bias}. 
-However, they find little evidence for assembly bias in the galaxy clustering
-of the SDSS $M_r < -21.5$  and $-21$ samples. Therefore, in this work we use 
-the standard \cite{zheng2007} HOD model and assume it is sufficient for modeling 
-the galaxy--halo connection. 
+However, for the high luminosity samples in SDSS ($M_r < -21.5$  and $<-21$), 
+\cite{zentner2016} and \cite{vakili2019} find little evidence for assembly bias 
+in the galaxy clustering. \cite{beltz-mohrmann2020} also find that a basi HOD 
+is sufficent to reproduce galaxy clustering of high luminosity galaxies in
+hydrodynamic simulations. Therefore, in this work we use the standard 
+\cite{zheng2007} HOD model to model the galaxy--halo connection. 
 
 For the fiducial parameter values of the HOD model we used values motivated by 
 best-fit HOD parameters from the literature, namely the \cite{zheng2007} 
@@ -110,9 +107,9 @@ mass/luminosity. Our fiducial halo occupation, with its lower $\sigma_{\log M}$,
 results in a galaxy sample with a tighter scatter than the samples selected based 
 on $M_r$ or $M_*$ cuts, \emph{e.g.} used in SDSS and BOSS. Hence, such a sample
 would require selecting based on observable galaxy properties that correlate 
-more strong with $M_h$ than luminosity or $M_*$. \todo{Alpaslan et al. in prep. find
-that $L_{\rm sat}$ is more correlated to $M_h$ than luminosity or $M_*$; however, 
-it has yet to be used for galaxy sample selection.} Regardless, in this work
+more strong with $M_h$ than luminosity or $M_*$. While there is some evdience
+that such observables are availabe~\citep[\eg $L_{\rm sat}$; ][]{alpaslan2019},
+they have not been adopted for selecting galaxy samples. Regardless, in this work
 we focus on quantifying the information content of the galaxy bispectrum 
 and not on analyzing an observed galaxy sample. We therefore opt for a more 
 conservative set of HOD parameters with respect to $M_{\rm lim}$. For our

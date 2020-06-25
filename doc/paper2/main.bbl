@@ -2,6 +2,10 @@
 \providecommand\natexlab[1]{#1}
 \providecommand\JournalTitle[1]{#1}
 
+\bibitem[{Alpaslan \& Tinker(2019)}]{alpaslan2019}
+Alpaslan, M., \& Tinker, J.~L. 2019, \JournalTitle{arXiv e-prints}, 1911,
+  arXiv:1911.04509
+
 \bibitem[{Barreira {et~al.}(2019)Barreira, Nelson, Pillepich, Springel,
   Schmidt, Pakmor, Hernquist, \& Vogelsberger}]{barreira2019}
 Barreira, A., Nelson, D., Pillepich, A., {et~al.} 2019,
@@ -50,12 +54,24 @@ Chudaykin, A., \& Ivanov, M.~M. 2019, \JournalTitle{arXiv:1907.06666 [astro-ph,
   physics:hep-ph]}, \href{http://arxiv.org/abs/1907.06666}{{\sffamily
   arXiv:1907.06666 [astro-ph, physics:hep-ph]}}
 
+\bibitem[{Contreras {et~al.}(2020)Contreras, Angulo, \&
+  Zennaro}]{contreras2020}
+Contreras, S., Angulo, R., \& Zennaro, M. 2020, \JournalTitle{arXiv e-prints},
+  2005, arXiv:2005.03672
+
 \bibitem[{Coulton {et~al.}(2019)Coulton, Liu, Madhavacheril, B{\"o}hm, \&
   Spergel}]{coulton2019}
 Coulton, W.~R., Liu, J., Madhavacheril, M.~S., B{\"o}hm, V., \& Spergel, D.~N.
   2019,
   \href{http://dx.doi.org/10.1088/1475-7516/2019/05/043}{\JournalTitle{Journal
   of Cosmology and Astro-Particle Physics}, 2019, 043}
+
+\bibitem[{Dalal {et~al.}(2008)Dalal, Dor{\'e}, Huterer, \&
+  Shirokov}]{dalal2008}
+Dalal, N., Dor{\'e}, O., Huterer, D., \& Shirokov, A. 2008,
+  \href{http://dx.doi.org/10.1103/PhysRevD.77.123514}{\JournalTitle{Physical
+  Review D}, 77}, \href{http://arxiv.org/abs/0710.4560}{{\sffamily
+  arXiv:0710.4560}}
 
 \bibitem[{Davis {et~al.}(1985)Davis, Efstathiou, Frenk, \& White}]{davis1985}
 Davis, M., Efstathiou, G., Frenk, C.~S., \& White, S. D.~M. 1985,
@@ -111,6 +127,12 @@ Guo, H., Zheng, Z., Zehavi, I., {et~al.} 2015{\natexlab{a}},
   \href{http://dx.doi.org/10.1093/mnras/stu2120}{\JournalTitle{Monthly Notices
   of the Royal Astronomical Society}, 446, 578}
 
+\bibitem[{Hadzhiyska {et~al.}(2020)Hadzhiyska, Bose, Eisenstein, Hernquist, \&
+  Spergel}]{hadzhiyska2020}
+Hadzhiyska, B., Bose, S., Eisenstein, D., Hernquist, L., \& Spergel, D.~N.
+  2020, \href{http://dx.doi.org/10.1093/mnras/staa623}{\JournalTitle{Monthly
+  Notices of the Royal Astronomical Society}, 493, 5506}
+
 \bibitem[{Hahn {et~al.}(2020)Hahn, {Villaescusa-Navarro}, Castorina, \&
   Scoccimarro}]{hahn2020}
 Hahn, C., {Villaescusa-Navarro}, F., Castorina, E., \& Scoccimarro, R. 2020,
@@ -154,6 +176,11 @@ Jungman, G., Kamionkowski, M., Kosowsky, A., \& Spergel, D.~N. 1996,
 Karagiannis, D., Lazanu, A., Liguori, M., {et~al.} 2018,
   \href{http://dx.doi.org/10.1093/mnras/sty1029}{\JournalTitle{Monthly Notices
   of the Royal Astronomical Society}, 478, 1341}
+
+\bibitem[{Lacerna {et~al.}(2014)Lacerna, Padilla, \& Stasyszyn}]{lacerna2014}
+Lacerna, I., Padilla, N., \& Stasyszyn, F. 2014,
+  \href{http://dx.doi.org/10.1093/mnras/stu1318}{\JournalTitle{Monthly Notices
+  of the Royal Astronomical Society}, 443, 3107}
 
 \bibitem[{Lazanu \& Liguori(2018)}]{lazanu2018}
 Lazanu, A., \& Liguori, M. 2018,
@@ -207,6 +234,12 @@ Reischke, R., Desjacques, V., \& Zaroubi, S. 2019,
 {Rodr{\'i}guez-Torres}, S.~A., Comparat, J., Prada, F., {et~al.} 2017,
   \href{http://dx.doi.org/10.1093/mnras/stx454}{\JournalTitle{Monthly Notices
   of the Royal Astronomical Society}, 468, 728}
+
+\bibitem[{Scoccimarro(2015)}]{scoccimarro2015}
+Scoccimarro, R. 2015,
+  \href{http://dx.doi.org/10.1103/PhysRevD.92.083532}{\JournalTitle{Physical
+  Review D}, 92}, \href{http://arxiv.org/abs/1506.02729}{{\sffamily
+  arXiv:1506.02729}}
 
 \bibitem[{Scoccimarro {et~al.}(2004)Scoccimarro, Sefusatti, \&
   Zaldarriaga}]{scoccimarro2004}
@@ -315,6 +348,11 @@ Viel, M., Haehnelt, M.~G., \& Springel, V. 2010,
 \bibitem[{Wadekar \& Scoccimarro(2019)}]{wadekar2019}
 Wadekar, D., \& Scoccimarro, R. 2019, \JournalTitle{arXiv e-prints}, 1910,
   arXiv:1910.02914
+
+\bibitem[{Wang {et~al.}(2009)Wang, Mo, \& Jing}]{wang2009a}
+Wang, H., Mo, H.~J., \& Jing, Y.~P. 2009,
+  \href{http://dx.doi.org/10.1111/j.1365-2966.2009.14884.x}{\JournalTitle{Monthly
+  Notices of the Royal Astronomical Society}, 396, 2249}
 
 \bibitem[{Wechsler {et~al.}(2006)Wechsler, Zentner, Bullock, Kravtsov, \&
   Allgood}]{wechsler2006}
