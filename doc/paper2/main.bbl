@@ -18,6 +18,17 @@ Barreira, A., Nelson, D., Pillepich, A., {et~al.} 2019,
   \href{http://dx.doi.org/10.1093/mnras/stz3442}{\JournalTitle{Monthly Notices
   of the Royal Astronomical Society}, 491, 5771}
 
+\bibitem[{Benson {et~al.}(2000)Benson, Cole, Frenk, Baugh, \&
+  Lacey}]{benson2000}
+Benson, A.~J., Cole, S., Frenk, C.~S., Baugh, C.~M., \& Lacey, C.~G. 2000,
+  \href{http://dx.doi.org/10.1046/j.1365-8711.2000.03101.x}{\JournalTitle{Monthly
+  Notices of the Royal Astronomical Society}, 311, 793}
+
+\bibitem[{Berlind \& Weinberg(2002)}]{berlind2002}
+Berlind, A.~A., \& Weinberg, D.~H. 2002,
+  \href{http://dx.doi.org/10.1086/341469}{\JournalTitle{The Astrophysical
+  Journal}, 575, 587}
+
 \bibitem[{Beutler {et~al.}(2017)Beutler, Seo, Saito, Chuang, Cuesta,
   Eisenstein, {Gil-Mar{\'i}n}, Grieb, Hand, Kitaura, Modi, Nichol, Olmstead,
   Percival, Prada, S{\'a}nchez, {Rodriguez-Torres}, Ross, Ross, Schneider,
@@ -26,9 +37,9 @@ Beutler, F., Seo, H.-J., Saito, S., {et~al.} 2017,
   \href{http://dx.doi.org/10.1093/mnras/stw3298}{\JournalTitle{Monthly Notices
   of the Royal Astronomical Society}, 466, 2242}
 
-\bibitem[{Brandbyge {et~al.}(2008)Brandbyge, Hannestad, Haugb\o~lle, \&
+\bibitem[{Brandbyge {et~al.}(2008)Brandbyge, Hannestad, Haugb{\o}lle, \&
   Thomsen}]{brandbyge2008}
-Brandbyge, J., Hannestad, S., Haugb\o~lle, T., \& Thomsen, B. 2008,
+Brandbyge, J., Hannestad, S., Haugb{\o}lle, T., \& Thomsen, B. 2008,
   \href{http://dx.doi.org/10.1088/1475-7516/2008/08/020}{\JournalTitle{Journal
   of Cosmology and Astro-Particle Physics}, 08, 020}
 
@@ -54,10 +65,21 @@ Chudaykin, A., \& Ivanov, M.~M. 2019, \JournalTitle{arXiv:1907.06666 [astro-ph,
   physics:hep-ph]}, \href{http://arxiv.org/abs/1907.06666}{{\sffamily
   arXiv:1907.06666 [astro-ph, physics:hep-ph]}}
 
+\bibitem[{Conroy {et~al.}(2007)Conroy, Prada, Newman, Croton, Coil, Conselice,
+  Cooper, Davis, Faber, Gerke, Guhathakurta, Klypin, Koo, \& Yan}]{conroy2007}
+Conroy, C., Prada, F., Newman, J.~A., {et~al.} 2007,
+  \href{http://dx.doi.org/10.1086/509632}{\JournalTitle{The Astrophysical
+  Journal}, 654, 153}
+
 \bibitem[{Contreras {et~al.}(2020)Contreras, Angulo, \&
   Zennaro}]{contreras2020}
 Contreras, S., Angulo, R., \& Zennaro, M. 2020, \JournalTitle{arXiv e-prints},
   2005, arXiv:2005.03672
+
+\bibitem[{Cooray \& Sheth(2002)}]{cooray2002}
+Cooray, A., \& Sheth, R. 2002,
+  \href{http://dx.doi.org/10.1016/S0370-1573(02)00276-4}{\JournalTitle{Physics
+  Reports}, 372, 1}
 
 \bibitem[{Coulton {et~al.}(2019)Coulton, Liu, Madhavacheril, B{\"o}hm, \&
   Spergel}]{coulton2019}
@@ -133,6 +155,11 @@ Hadzhiyska, B., Bose, S., Eisenstein, D., Hernquist, L., \& Spergel, D.~N.
   2020, \href{http://dx.doi.org/10.1093/mnras/staa623}{\JournalTitle{Monthly
   Notices of the Royal Astronomical Society}, 493, 5506}
 
+\bibitem[{Hahn {et~al.}(2019)Hahn, Tinker, \& Wetzel}]{hahn2019a}
+Hahn, C., Tinker, J.~L., \& Wetzel, A. 2019, \JournalTitle{arXiv:1910.01644
+  [astro-ph]}, \href{http://arxiv.org/abs/1910.01644}{{\sffamily
+  arXiv:1910.01644 [astro-ph]}}
+
 \bibitem[{Hahn {et~al.}(2020)Hahn, {Villaescusa-Navarro}, Castorina, \&
   Scoccimarro}]{hahn2020}
 Hahn, C., {Villaescusa-Navarro}, F., Castorina, E., \& Scoccimarro, R. 2020,
@@ -182,6 +209,13 @@ Lacerna, I., Padilla, N., \& Stasyszyn, F. 2014,
   \href{http://dx.doi.org/10.1093/mnras/stu1318}{\JournalTitle{Monthly Notices
   of the Royal Astronomical Society}, 443, 3107}
 
+\bibitem[{Lange {et~al.}(2019)Lange, van~den Bosch, Zentner, Wang, Hearin, \&
+  Guo}]{lange2019}
+Lange, J.~U., van~den Bosch, F.~C., Zentner, A.~R., {et~al.} 2019,
+  \JournalTitle{arXiv:1909.03107 [astro-ph]},
+  \href{http://arxiv.org/abs/1909.03107}{{\sffamily arXiv:1909.03107
+  [astro-ph]}}
+
 \bibitem[{Lazanu \& Liguori(2018)}]{lazanu2018}
 Lazanu, A., \& Liguori, M. 2018,
   \href{http://dx.doi.org/10.1088/1475-7516/2018/04/055}{\JournalTitle{Journal
@@ -200,6 +234,13 @@ Li, Y., Schmittfull, M., \& Seljak, U. 2018,
   \href{http://dx.doi.org/10.1088/1475-7516/2018/02/022}{\JournalTitle{Journal
   of Cosmology and Astro-Particle Physics}, 2018, 022}
 
+\bibitem[{Mandelbaum {et~al.}(2006)Mandelbaum, Seljak, Kauffmann, Hirata, \&
+  Brinkmann}]{mandelbaum2006a}
+Mandelbaum, R., Seljak, U., Kauffmann, G., Hirata, C.~M., \& Brinkmann, J.
+  2006,
+  \href{http://dx.doi.org/10.1111/j.1365-2966.2006.10156.x}{\JournalTitle{Monthly
+  Notices of the Royal Astronomical Society}, 368, 715}
+
 \bibitem[{McClintock {et~al.}(2018)McClintock, Rozo, Becker, DeRose, Mao,
   McLaughlin, Tinker, Wechsler, \& Zhai}]{mcclintock2018}
 McClintock, T., Rozo, E., Becker, M.~R., {et~al.} 2018,
@@ -207,10 +248,21 @@ McClintock, T., Rozo, E., Becker, M.~R., {et~al.} 2018,
   \href{http://arxiv.org/abs/1804.05866}{{\sffamily arXiv:1804.05866
   [astro-ph]}}
 
+\bibitem[{More {et~al.}(2011)More, {van den Bosch}, Cacciato, Skibba, Mo, \&
+  Yang}]{more2011}
+More, S., {van den Bosch}, F.~C., Cacciato, M., {et~al.} 2011,
+  \href{http://dx.doi.org/10.1111/j.1365-2966.2010.17436.x}{\JournalTitle{Monthly
+  Notices of the Royal Astronomical Society}, 410, 210}
+
 \bibitem[{Navarro {et~al.}(1997)Navarro, Frenk, \& White}]{navarro1997}
 Navarro, J.~F., Frenk, C.~S., \& White, S. D.~M. 1997,
   \href{http://dx.doi.org/10.1086/304888}{\JournalTitle{The Astrophysical
   Journal}, 490, 493}
+
+\bibitem[{Peacock \& Smith(2000)}]{peacock2000}
+Peacock, J.~A., \& Smith, R.~E. 2000,
+  \href{http://dx.doi.org/10.1046/j.1365-8711.2000.03779.x}{\JournalTitle{Monthly
+  Notices of the Royal Astronomical Society}, 318, 1144}
 
 \bibitem[{Reischke {et~al.}(2019)Reischke, Desjacques, \&
   Zaroubi}]{reischke2019}
@@ -275,12 +327,6 @@ Sefusatti, E., \& Scoccimarro, R. 2005,
 Sheth, R.~K., \& Tormen, G. 2004,
   \href{http://dx.doi.org/10.1111/j.1365-2966.2004.07733.x}{\JournalTitle{Monthly
   Notices of the Royal Astronomical Society}, 350, 1385}
-
-\bibitem[{Sinha {et~al.}(2018)Sinha, Berlind, McBride, Scoccimarro, Piscionere,
-  \& Wibking}]{sinha2018}
-Sinha, M., Berlind, A.~A., McBride, C.~K., {et~al.} 2018,
-  \href{http://dx.doi.org/10.1093/mnras/sty967}{\JournalTitle{Monthly Notices
-  of the Royal Astronomical Society}, 478, 1042}
 
 \bibitem[{Song {et~al.}(2015)Song, Taruya, \& Oka}]{song2015}
 Song, Y.-S., Taruya, A., \& Oka, A. 2015,
@@ -406,5 +452,10 @@ Zheng, Z., Coil, A.~L., \& Zehavi, I. 2007,
 Zheng, Z., Berlind, A.~A., Weinberg, D.~H., {et~al.} 2005,
   \href{http://dx.doi.org/10.1086/466510}{\JournalTitle{The Astrophysical
   Journal}, 633, 791}
+
+\bibitem[{Zu \& Mandelbaum(2015)}]{zu2015}
+Zu, Y., \& Mandelbaum, R. 2015,
+  \href{http://dx.doi.org/10.1093/mnras/stv2062}{\JournalTitle{Monthly Notices
+  of the Royal Astronomical Society}, 454, 1161}
 
 \end{thebibliography}
