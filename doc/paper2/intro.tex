@@ -1,97 +1,101 @@
 \section{Introduction} \label{sec:intro}
+Over two decades ago, neutrino oscillation experiments discovered the lower
+bound on the sum of neutrino masses ($\smnu \gtrsim 0.06$ eV) and confirmed
+physics beyond the Standard Model~\citep{fukuda1998, forero2014, gonzalez-garcia2016}. 
+Since then, experiments have sought to more precisely measure $\smnu$ in order
+to distinguish between the `normal' and `inverted' neutrino mass hierarchy
+scenarios and further reveal the physics of neutrinos. Upcoming laboratory 
+experiments (\eg~double beta decay and tritium beta decay), however, will not
+be sufficient to distinguish between the mass hierarchies~\citep{bonn2011, drexlin2013}.
+Fortunately, complementary and more precise constraints on $\smnu$ can be
+placed by measuring the effect of neutrinos on the expansion history and growth
+of cosmic structure. 
 
-\todo{Neutrino mass background} (condensed version of paper 1)
-The discovery of the lower bound on the sum of neutrino masses 
-($\smnu \gtrsim 0.06$ eV), provides conclusive evidence of 
-physics beyond the Standard Model of particle physics~\citep{forero2014, gonzalez-garcia2016}. 
-A more precise measurement of $\smnu$ has the potential to distinguish 
-between the `normal' and `inverted' neutrino mass hierarchy scenarios 
-and further reveal the physics of neutrinos. However, neutrino 
-oscillation experiments, which are insensitive to $\smnu$, and other 
-upcoming laboratory experiments (\emph{e.g.} double beta decay and 
-tritium beta decay) are not sufficient to distinguish between the mass 
-hierarches~\citep{bonn2011, drexlin2013}. Through the cosmic neutrino 
-background, neutrinos affect the expansion history and the growth of 
-cosmic structure. Measuring these effects provides complementary and 
-potentially more precise measurements of $\smnu$. 
-
-Neutrinos, in the early Universe, are relativistic and contribute to the 
-energy density of radiation. Later as they become non-relativistic, 
+In the early Universe, neutrinos are relativistic and contribute to the 
+energy density of radiation. Later, as they become non-relativistic, 
 they contribute to the energy density of matter. This transition affects 
-the expansion history of the Universe and leaves imprints observable in 
-the cosmic microwave background (CMB) anisotropy spectrum~\citep{lesgourgues2012, lesgourgues2014}. 
-Massive neutrinos also impact the growth of structure. On large scales, 
-neutrino perturbations are indistinguishable from perturbations of cold 
-dark matter (CDM). However, on scales smaller than their free-streaming 
-scale, neutrinos do not contribute to the clustering and thereby reduce 
-the amplitude of the total matter power spectrum. In addition, they also reduce the growth 
+the expansion history of the Universe and leaves imprints on the cosmic
+microwave background (CMB) anisotropy spectrum~\citep{lesgourgues2012,
+lesgourgues2014}. Massive neutrinos also impact the growth of structure. 
+While neutrino perturbations are indistinguishable from cold dark matter (CDM)
+perturbations on large scales, on scales smaller than their free-streaming
+scale, neutrinos do not contribute to the clustering and reduce the 
+amplitude of the total matter power spectrum. They also reduce the growth 
 rate of CDM perturbations at late times. This combined suppression of 
 the small-scale matter power spectrum leaves measurable imprints 
-on the CMB as well as large-scale structure. For more on details the effect
-of neutrinos in cosmological observables, we refer readers to 
-\cite{lesgourgues2012,lesgourgues2014} and~\cite{gerbino2018}. 
+on the CMB as well as large-scale structure~\citep[for further details see][]{lesgourgues2012, lesgourgues2014, gerbino2018}. 
 
-
-\todo{transition to why LSS neutrino mass measurement is important} (condensed version of paper 1) 
+%\todo{transition to why LSS neutrino mass measurement is important} (condensed version of paper 1) 
 The tightest cosmological constraints on $\smnu$ currently come from 
-combining CMB data with other cosmological probes. Temperature and large 
-angle polarization data from the {\em Planck} satellite places an upper 
-bound of $\smnu < 0.54$ eV with 95\% confidence level~\citep{planckcollaboration2018}. 
-Adding the Baryon Acoustic Oscillation (BAO) to the {\em Planck} 
-likelihood breaks geometrical degeneracies (among $\smnu$, $h$, $\Om$) 
-and significantly tightens the upper bound to $\smnu < 0.16$ eV. CMB 
-lensing further tightens the bound to $\smnu < 0.13$ eV, though 
-not as significantly. Future improvements will likely continue to come from combining CMB data 
-on large scales with clustering/lensing data on small scales and low 
-redshifts, where the suppression of power by neutrinos is strongest~\citep{brinckmann2019}. 
-CMB experiments, however, measure the combined quantity $A_s e^{-2\tau}$, 
-where $\tau$ is the optical depth of reionization. Hence, improvements in 
-neutrino mass constraints obtained from comparing the power spectrum 
-on small and large scales will heavily rely on a better determination of
-$\tau$~\citep{allison2015, liu2016, archidiacono2017}. The best constraints on $\tau$ 
-currently come from {\em Planck} --- $\tau = 0.054\pm0.007$. However, most
-upcoming ground-based CMB experiments ({\em e.g.} CMB-S4) will not observe 
-scales larger than $\ell < 30$, and therefore will not directly constrain 
-$\tau$~\citep{abazajian2016}. While the upcoming CLASS experiment aims to 
-improve $\tau$ constraints~\citep{watts2018}, proposed future space-based 
-experiments such as LiteBIRD\footnote{http://litebird.jp/eng/} and 
+combining CMB temperature and large angle polarization data from the 
+\planck satellite with Baryon Acoustic Oscillation and CMB lensing: 
+$\smnu < 0.13$ eV~\citep{planckcollaboration2018}. Future improvements
+will likely continue to come from combining CMB data on large scales 
+with clustering/lensing data on small scales and low redshifts, where 
+the suppression of power by neutrinos is strongest~\citep{brinckmann2019}. 
+But they will heavily rely on a better determination of $\tau$, the optical
+depth of reionization since CMB experiments measure the combined quantity $A_s
+e^{-2\tau}$~\citep{allison2015, liu2016, archidiacono2017}.
+Most upcoming CMB experiments, however, are ground-based (\eg~CMB-S4) and 
+will not directly constrain $\tau$~\citep{abazajian2016}. Meanwhile, proposed
+future space-based experiments such as
+LiteBIRD\footnote{http://litebird.jp/eng/} and 
 LiteCOrE\footnote{http://www.core-mission.org/}, which have the greatest 
 potential to precisely measure $\tau$, have yet to be confirmed. 
-CMB data, however, is not the only way to improve $\smnu$ constraints. The 
-imprint of neutrinos on 3D clustering of galaxies can be measured to constrain 
-$\smnu$ and with the sheer cosmic volumes mapped, upcoming surveys such 
-as DESI\footnote{https://www.desi.lbl.gov/}, PFS\footnote{https://pfs.ipmu.jp/}, 
+
+Despite the limited progress we can expect on constraining $\tau$ in the
+near future, measuring the imprint of $\smnu$ on the 3D clustering of galaxies
+provides a promising avenue for improving $\smnu$ constraints. With the
+unprecedented cosmic volumes they will probe, upcoming galaxy surveys 
+such as DESI\footnote{https://www.desi.lbl.gov/}, PFS\footnote{https://pfs.ipmu.jp/}, 
 EUCLID\footnote{http://sci.esa.int/euclid/}, and WFIRST\footnote{https://wfirst.gsfc.nasa.gov/} 
-will be able tightly constrain 
-$\smnu$~\citep{audren2013, font-ribera2014, petracca2016, sartoris2016, boyle2018}.
+have the potential to tightly constrain $\smnu$~\citep{audren2013, font-ribera2014, petracca2016, sartoris2016, boyle2018}.
+Constraining $\smnu$ from 3D galaxy clustering, however, faces two limiting
+challenges: (1) accurate theoretical modeling beyond linear scales, for bias tracers, and
+in redshift-space and (2) parameter degeneracies that limit the constraining
+power of standard two-point clustering analyses. 
 
-\todo{why the bispectrum: condensed version of paper1}
-A major limitation of using 3D clustering is obtaining accurate theoretical 
-predictions beyond linear scales, for bias tracers, and in redshift space. 
-Simulations have made huge strides in accurately and efficiently modeling 
+Regarding the former, simulations have made huge strides in accurately modeling 
 nonlinear structure formation with massive neutrinos~\citep[\emph{e.g.}][]{brandbyge2008, 
-villaescusa-navarro2013, castorina2015, adamek2017, emberson2017, villaescusa-navarro2018}. 
-In conjunction, new simulation based `emulation' models that exploit the 
-accuracy of $N$-body simulations while minimizing the computing budget 
-have been applied to analyze small-scale galaxy clustering with remarkable 
-success~\citep[\emph{e.g.}][]{heitmann2009, kwan2015, euclidcollaboration2018, mcclintock2018, zhai2018, wibking2019}. 
-Developments on these fronts have the potential to unlock the information 
-content in nonlinear clustering to constrain $\smnu$. 
+villaescusa-navarro2013, castorina2015, adamek2017, emberson2017, banerjee2018, 
+villaescusa-navarro2018, villaescusa-navarro2019}. Moreover, new simulation-based
+approaches, such as `emulation', enable us to tractably exploit the accuracy of 
+$N$-body simulations in analyzing galaxy clustering. A nubmer of recent works have
+applied these simulation-based approaches to analyze small-scale galaxy
+clustering with remarkable success~\citep[\eg][]{heitmann2009, kwan2015,
+euclidcollaboration2018, lange2019, zhai2019, wibking2019}. These developments 
+present the opportunity to unlock the information content in nonlinear
+clustering to constrain $\smnu$. 
+\ch{uros would remark that there isn't much constraining power on small scales
+once you marginalize over galaxy bias. edit this to handle that} 
 
-Various works have examined the impact of neutrino masses on nonlinear clustering 
-of matter in 
-real-space~\citep[\emph{e.g.}][]{brandbyge2008, saito2008, wong2008, saito2009, viel2010, agarwal2011, bird2012, castorina2015, banerjee2016} 
-and in redshift-space~\citep{marulli2011, castorina2015, upadhye2016}. Most recently, 
-using a suite of more than 1000 simulations, \cite{villaescusa-navarro2018} 
-examined the impact of $\smnu$ on the redshift-space matter and halo power 
-spectrum to find that the imprint of $\smnu$ and $\sig$ on the power spectrum are 
-degenerate and differ by $< 1\%$ (see also Figure~\ref{fig:plk}). The strong $\smnu$ -- $\sig$ degeneracy
-poses a serious limitation on constraining $\smnu$ with the power spectrum. 
-However, information in the nonlinear regime cascades from the power spectrum 
-to higher-order statistics --- \emph{e.g.} the bispectrum. 
-In fact, the 
-bispectrum has a comparable signal-to-noise ratio to the power spectrum
-on nonlinear scales~\citep{sefusatti2005, chan2017}. \todo{summary of paper 1 results} 
+Among the various works that have examined the impact of $\smnu$ on nonlinear 
+clustering~\citep[\eg][]{brandbyge2008, saito2008, wong2008, saito2009,
+viel2010, agarwal2011, marulli2011, bird2012, castorina2015, banerjee2016,
+upadhye2016}, \cite{villaescusa-navarro2018} recently used a suite of more than 1000
+$N$-body simulations to examine the redshift-space matter and halo power spectrum. 
+They found that the imprint of $\smnu$ and $\sig$ on the redshift-space halo power
+spectrum are degenerate and differ by $< 1\%$ and, thus, the $\smnu$ -- $\sig$ 
+degeneracy poses a serious limitation on constraining $\smnu$ with the power spectrum. 
+Information in the nonlinear regime, however, cascades from the power spectrum to 
+higher-order statistics --- \eg~the bispectrum. In fact, studies have long
+demonstrated the potential of the bispectrum for improving cosmological parameter 
+constraints~\citep{sefusatti2005, sefusattti2006, chan2017, yankelevich2019}. 
+\cite{chudaykin2019}, in particular, included $\smnu$ in their forecast and
+found that the bispectrum significantly improves constraints on $\smnu$.
+However, their perturbation theory based forecast does not include the
+constraining power on nonlinear scales. 
+
+In the previous paper of this series~\citep{hahn2020}, we used 22,000 $N$-body
+simulations of the \quij suite to quantify the total information content and
+constraining power of the redshift-space halo bispectrum down to nonlinear scales. 
+For $k_{\rm max}{=}0.5~\mpc$, we found that the bispectrum produces $\Om$,
+$\Ob$, $h$, $n_s$, and $\sig$ constraints 1.9, 2.6, 3.1, 3.6, and 2.6 times
+tighter than the power spectrum. For $\smnu$, the bispectrum improves
+constraints by 5 times over the power spectrum. In the \cite{hahn2020}
+forecasts, we include 
+% we marginalized over some nuisance parameters and found that results stuck
+% but we didn't include a complete galaxy bias model. Therefore, in this work we include 
 
 
 paragraph on others including galaxy bias for $\smnu$ constraints, but they're all in the 
@@ -99,13 +103,12 @@ perturbation theory framework so none extend to nonlinear scales. In this paper 
 bias in a simulation-based approach with emulation and LFI in mind. We use HODs, which are 
 (a sentence on hods) 
 
-Furthermore, although $\smnu$ 
-is not included in their analyses, \cite{sefusatti2006} and \cite{yankelevich2019} 
-have shown that including the bispectrum significantly improves constraints on 
-cosmological parameters.
-Including $\smnu$, \cite{chudaykin2019} find that the bispectrum significantly 
-improves constraints for $\smnu$. Their forecasts, however, do not include the 
-constraining power on nonlinear scales (Section~\ref{sec:forecasts}). 
-No work to date has quantified the total information content and constraining 
-power of the full redshift-space bispectrum down to nonlinear scales --- especially for $\smnu$. 
-
+In Section~\ref{sec:hades}, we describe the two $N$-body simulation suites, HADES and Quijote, 
+and the halo catalogs constructed from them. We then describe in Section~\ref{sec:bk}, 
+how we measure the bispectrum of these simulations. 
+Afterwards, we use the redshift-space halo bispectra to demonstrate the distinct imprint of 
+$\smnu$ on the bispectrum, which allows it to break the degeneracy between 
+$\smnu$ and $\sig$, in Section~\ref{sec:mnusig}. Finally, in Section~\ref{sec:forecasts} 
+we present the full information content of the halo bispectrum with a Fisher forecast 
+of cosmological parameters and demonstrate how the bispectrum significantly improves 
+the constraints on the cosmological parameters: $\Om$, $\Ob$, $h$, $n_s$, $\sig$, and {\em especially} $\smnu$. 
