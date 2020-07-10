@@ -15,11 +15,11 @@ In the early Universe, neutrinos are relativistic and contribute to the
 energy density of radiation. Later, as they become non-relativistic, 
 they contribute to the energy density of matter. This transition affects 
 the expansion history of the Universe and leaves imprints on the cosmic
-microwave background (CMB) anisotropy spectrum~\citep{lesgourgues2012,
-lesgourgues2014}. Massive neutrinos also impact the growth of structure. 
+microwave background~\citep[CMB][]{lesgourgues2012, lesgourgues2014}. 
+Massive neutrinos also impact the growth of structure. 
 While neutrino perturbations are indistinguishable from cold dark matter (CDM)
-perturbations on large scales, on scales smaller than their free-streaming
-scale, neutrinos do not contribute to the clustering and reduce the 
+perturbations on large scales, but below their free-streaming scale, neutrinos 
+do not contribute to the clustering and reduce the 
 amplitude of the total matter power spectrum. They also reduce the growth 
 rate of CDM perturbations at late times. This combined suppression of 
 the small-scale matter power spectrum leaves measurable imprints 
@@ -36,16 +36,15 @@ the suppression of power by neutrinos is strongest~\citep{brinckmann2019}.
 But they will heavily rely on a better determination of $\tau$, the optical
 depth of reionization since CMB experiments measure the combined quantity $A_s
 e^{-2\tau}$~\citep{allison2015, liu2016, archidiacono2017}.
-Most upcoming CMB experiments, however, are ground-based (\eg~CMB-S4) and 
+Major upcoming CMB experiments, however, are ground-based (\eg~CMB-S4) and 
 will not directly constrain $\tau$~\citep{abazajian2016}. Meanwhile, proposed
 future space-based experiments such as
 LiteBIRD\footnote{http://litebird.jp/eng/} and 
 LiteCOrE\footnote{http://www.core-mission.org/}, which have the greatest 
 potential to precisely measure $\tau$, have yet to be confirmed. 
 
-Despite the limited progress we can expect on constraining $\tau$ in the
-near future, measuring the imprint of $\smnu$ on the 3D clustering of galaxies
-provides a promising avenue for improving $\smnu$ constraints. With the
+Despite the $\tau$ bottleneck in the near future, measuring the $\smnu$ imprint 
+on the 3D clustering of galaxies provides a promising avenue for improving $\smnu$ constraints. With the
 unprecedented cosmic volumes they will probe, upcoming galaxy surveys 
 such as DESI\footnote{https://www.desi.lbl.gov/}, PFS\footnote{https://pfs.ipmu.jp/}, 
 EUCLID\footnote{http://sci.esa.int/euclid/}, and WFIRST\footnote{https://wfirst.gsfc.nasa.gov/} 
@@ -55,13 +54,13 @@ challenges: (1) accurate theoretical modeling beyond linear scales, for bias
 tracers in redshift-space and (2) parameter degeneracies that limit the
 constraining power of standard two-point clustering analyses. 
 
-Regarding the former, simulations have made huge strides in accurately modeling 
+For the former, simulations have made huge strides in accurately modeling 
 nonlinear structure formation with massive neutrinos~\citep[\eg][]{brandbyge2008, 
 villaescusa-navarro2013, castorina2015, adamek2017, emberson2017, banerjee2018, 
 villaescusa-navarro2018, villaescusa-navarro2019}. Moreover, new simulation-based
-approaches, such as `emulation', enable us to tractably exploit the accuracy of 
+approaches to modeling such as `emulation' enable us to tractably exploit the accuracy of 
 $N$-body simulations and analyze galaxy clustering on nonlinear scales beyond
-traditional perturbation theory methods. A nubmer of recent works have applied
+traditional perturbation theory methods. Recent works have applied
 these simulation-based approaches to analyze small-scale galaxy clustering with
 remarkable success~\citep[\eg][]{heitmann2009, kwan2015, euclidcollaboration2018, lange2019, zhai2019, wibking2019}. 
 These developments present the opportunity to significantly improve $\smnu$
@@ -70,19 +69,20 @@ the impact of massive neutrinos is strongest~\citep[\eg][]{brandbyge2008,
 saito2008, wong2008, saito2009, viel2010, agarwal2011, marulli2011, bird2012,
 castorina2015, banerjee2016, upadhye2016}.
 
-\cite{villaescusa-navarro2018} recently used more than 1000 $N$-body simulations from
-the {\sc Hades} suite to examine the redshift-space matter and halo power spectrum. 
-They found that the imprint of $\smnu$ and $\sig$ on the redshift-space halo power
-spectrum are degenerate and differ by $< 1\%$. This $\smnu$ -- $\sig$ degeneracy poses 
-a serious limitation on constraining $\smnu$ with the power spectrum. However,
-information in the nonlinear regime cascades from the power spectrum to
-higher-order statistics --- \eg~the bispectrum. More importantly, these
-higher-order statistics help break the $\smnu$--$\sig$
-degeneracy~\citep{hahn2020}. A number of studies have already demonstrated the potential of the bispectrum for improving cosmological
-parameter constraints~\citep{sefusatti2005, sefusatti2006, chan2017, yankelevich2019}. 
+\cite{villaescusa-navarro2018} recently used more than 1000 $N$-body
+simulations from the {\sc Hades} suite to examine the redshift-space matter and
+halo power spectrum.  They found that the imprint of $\smnu$ and $\sig$ on the
+redshift-space halo power spectrum are degenerate and differ by $< 1\%$. This
+$\smnu$ -- $\sig$ degeneracy poses a serious limitation on constraining $\smnu$
+with the power spectrum. However, information in the nonlinear regime cascades
+from the power spectrum to higher-order statistics such as the bispectrum. More
+importantly, these higher-order statistics help break the $\smnu$--$\sig$ 
+degeneracy~\citep{hahn2020}. Previous studies have already demonstrated the
+potential of the bispectrum for improving cosmological parameter
+constraints~\citep{sefusatti2005, sefusatti2006, chan2017, yankelevich2019}.
 \cite{chudaykin2019}, in particular, included $\smnu$ in their forecast and
 found that the bispectrum significantly improves constraints on $\smnu$.
-However, their perturbation theory based forecast does not include the
+However, none of these perturbation theory based forecast include the
 constraining power on nonlinear scales. 
 
 In \cite{hahn2020}, the previous paper of this series, we used 22,000 $N$-body
@@ -90,38 +90,39 @@ simulations from the \quij suite to quantify the total information content and
 constraining power of the redshift-space halo bispectrum down to nonlinear scales. 
 For $k_{\rm max}{=}0.5~\mpc$, we found that the bispectrum produces $\Om$,
 $\Ob$, $h$, $n_s$, and $\sig$ constraints 1.9, 2.6, 3.1, 3.6, and 2.6 times
-tighter than the power spectrum. For $\smnu$, the bispectrum improves
-constraints by 5 times over the power spectrum. While the forecasts marginalized 
-over linear bias and halo mass limit parameters, and found that the
-improvements of the bispectrum are not impacted when quadratic and nonlocal
-bias parameters also included, the \cite{hahn2020} forecast focus on the halo
-bispectrum. Constraints on $\smnu$ will ultimately be derived from the distribution 
-of galaxies and, thus, a more realistic and complete galaxy bias model must be
-incorporated to forecast $\smnu$ and other cosmological parameter constraints 
-for the galaxy bispectrum.
+tighter than the power spectrum. For $\smnu$, the bispectrum improved 
+constraints by 5 times over the power spectrum. In this forecast, we marginalized 
+over linear bias and halo mass limit parameters; we also found that the
+improvements on the constraints from the bispectrum are not impacted when we
+include quadratic and nonlocal bias parameters. Nevertheless, \cite{hahn2020}
+focused on the halo bispectrum while actual constraints on $\smnu$ will be 
+derived from the distribution of galaxies. Thus, a more realistic and complete 
+galaxy bias model must be included.
 
-In this work, we quantify the total information content and constraining power
+In this work, we present the total information content and constraining power
 of the {\em redshift-space galaxy bispectrum} down to $k_{\rm max}= 0.5~\hmpc$. For our galaxy
 bias model, we use the halo occupation distribution (HOD) framework, which provides a
 statistical prescription for populating dark matter halos with central and satellite
-galaxies and has been remarkably successful in reproducing the observed galaxy
+galaxies. The HOD model has been successful in reproducing the observed galaxy
 clustering~\citep[\emph{e.g.}][]{zheng2005, leauthaud2012, tinker2013, zentner2016, vakili2019}. 
-Moreover, the HOD is the primary framework used in simulation-based clustering
+It is also the primary framework used in simulation-based clustering
 analyses~\citep[\eg][]{mcclintock2018, zhai2019, lange2019, wibking2019}. 
-We use Fisher forecasts calculated using $195,000$ galaxy mock catalogs derived
-from $N$-body simulations and present the constraining power of the galaxy
-bispectrum on $\smnu$ and other cosmological parameters after marginalizing 
-over the HOD parameters. This work is the second paper in a series that aims 
-to demonstrate the potential for simulation-based galaxy bispectrum analyses 
-in constraining $\smnu$. Later in the series, we will also present methods to
-tackle challenges that come with analyzing the full galaxy bispectrum, such 
-as data compression to reduce the dimensionality of the bispectrum. The series 
-will culminate in fully simulation-based $\Pgl$ and $\Bg$ reanalysis of SDSS-III BOSS. 
+We first construct 195,000 galaxy mock catalogs from the \quij $N$-body
+simulations then use them to calculate Fisher matrix forecasts. Afterwards, we
+present the constraining power of the galaxy bispectrum on $\smnu$ and other 
+cosmological parameters after marginalizing over the HOD parameters. This work
+is the second paper in a series that aims to demonstrate the potential for
+simulation-based galaxy bispectrum analyses in constraining $\smnu$. Later in
+the series, we will also present methods to tackle challenges that come with
+analyzing the full galaxy bispectrum, such as data compression to reduce its
+dimensionality. The series will culminate in fully simulation-based $\Pgl$ and
+$\Bg$ reanalysis of SDSS-III BOSS. 
 
 In Sections~\ref{sec:sims} and~\ref{sec:hod}, we describe the \quij $N$-body simulation 
-suites the HOD framework we use to construct galaxy mock catalogs from them. We then 
-describe in Section~\ref{sec:methods}, how we measure the bispectrum of these
-simulations and calculate the Fisher forecasts of cosmological parameters. Finally, in
-Section~\ref{sec:results}, we present the full information content of the
-galaxy bispectrum and demonstrate how the bispectrum significantly improves 
-the constraints on the cosmological parameters: $\Om$, $\Ob$, $h$, $n_s$, $\sig$, and {\em especially} $\smnu$. 
+suites and the HOD framework we use to construct galaxy mock catalogs from them. We then 
+describe in Section~\ref{sec:methods}, how we measure the bispectrum and
+calculate the Fisher forecasts of the cosmological parameters from the galaxy
+mocks. Finally, in Section~\ref{sec:results}, we present the full information
+content of the galaxy bispectrum and demonstrate how it significantly improves
+the constraints on the cosmological parameters: $\Om$, $\Ob$, $h$, $n_s$,
+$\sig$, and {\em especially} $\smnu$. 
