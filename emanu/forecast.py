@@ -112,7 +112,7 @@ def quijhod_dPkdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0, N
     return quij['k'], dpk / h + c_dpk 
 
 
-def quijhod_dP02kdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0, Nderiv=None, average=True, silent=True):
+def quijhod_dP02kdtheta(theta, log=False, rsd='all', seed=0, flag=None, dmnu='fin', z=0, Nderiv=None, average=True, silent=True):
     ''' calculate the derivative d [P0(k), P2(k)] /d theta using the paired and fixed quijote simulations
     run on perturbed theta 
 
@@ -166,7 +166,7 @@ def quijhod_dP02kdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0,
         tts = ['fiducial'] 
         coeffs = [0.] 
         h = 1. 
-        quij = Obvs.quijhod_Pk('fiducial', z=z, flag=flag, rsd=rsd, silent=silent)
+        quij = Obvs.quijhod_Pk('fiducial', z=z, flag=flag, rsd=rsd, seed=0, silent=silent)
         _p02ks = np.concatenate([quij['p0k'], quij['p2k']], axis=1)
         if not log: c_dpk = 2.*np.average(_p02ks, axis=0) 
         else: c_dpk = 2.*np.ones(_p02ks.shape[1]) 
@@ -176,7 +176,7 @@ def quijhod_dP02kdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0,
         tts = ['fiducial'] 
         coeffs = [0.] 
         h = 1. 
-        quij = Obvs.quijhod_Pk('fiducial', z=z, flag=flag, rsd=rsd, silent=silent)
+        quij = Obvs.quijhod_Pk('fiducial', z=z, flag=flag, rsd=rsd, seed=0, silent=silent)
         _p02ks = np.concatenate([quij['p0k'], quij['p2k']], axis=1)
         if not log: c_dpk = np.ones(_p02ks.shape[1]) 
         else: c_dpk = 1./np.average(_p02ks, axis=0) 
@@ -187,7 +187,7 @@ def quijhod_dP02kdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0,
         h = quijote_thetas[theta][1] - quijote_thetas[theta][0]
 
     for i_tt, tt, coeff in zip(range(len(tts)), tts, coeffs): 
-        quij = Obvs.quijhod_Pk(tt, z=z, flag=flag, rsd=rsd, silent=silent) # read Pk 
+        quij = Obvs.quijhod_Pk(tt, z=z, flag=flag, rsd=rsd, seed=seed, silent=silent) # read Pk 
     
         p02ks = np.concatenate([quij['p0k'], quij['p2k']], axis=1) # [P0, P2] 
         if Nderiv is not None: 
@@ -209,6 +209,7 @@ def quijhod_dP02kdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0,
             else: 
                 _pk = p02ks 
                 if theta == 'Mnu' and dmnu == 'fin_2lpt' and not average: 
+                    # this derivative should *not* be used for any actual purposes
                     if rsd == 'all': 
                         _pk = p02ks[:1500,:]
                     else: 
@@ -222,7 +223,7 @@ def quijhod_dP02kdtheta(theta, log=False, rsd='all', flag=None, dmnu='fin', z=0,
     return np.concatenate([quij['k'], quij['k']]) , dpk / h + c_dpk 
 
 
-def quijhod_dBkdtheta(theta, log=False, rsd='all', flag=None, z=0, dmnu='fin', Nderiv=None, average=True, silent=True):
+def quijhod_dBkdtheta(theta, log=False, rsd='all', seed=0, flag=None, z=0, dmnu='fin', Nderiv=None, average=True, silent=True):
     ''' calculate d B(k)/d theta using quijote simulations run on perturbed theta 
 
     :param theta: 
@@ -302,7 +303,7 @@ def quijhod_dBkdtheta(theta, log=False, rsd='all', flag=None, z=0, dmnu='fin', N
         tts = ['fiducial'] 
         coeffs = [0.] 
         h = 1. 
-        quij = Obvs.quijhod_Bk('fiducial', z=z, flag=flag, rsd=rsd, silent=silent)
+        quij = Obvs.quijhod_Bk('fiducial', z=z, flag=flag, rsd=rsd, seed=0, silent=silent)
         if not log: c_dbk = 3.*np.average(quij['b123'], axis=0) 
         else: c_dbk = 3.*np.ones(quij['b123'].shape[1])
     elif theta == 'Asn' : 
@@ -312,7 +313,7 @@ def quijhod_dBkdtheta(theta, log=False, rsd='all', flag=None, z=0, dmnu='fin', N
         coeffs = [0.] 
         h = 1. 
 
-        quij = Obvs.quijhod_Bk('fiducial', z=z, flag=flag, rsd=rsd, silent=silent)
+        quij = Obvs.quijhod_Bk('fiducial', z=z, flag=flag, rsd=rsd, seed=0, silent=silent)
         if not log: c_dbk = np.ones(quij['b123'].shape[1]) * 1.e8 
         else: c_dbk = 1.e8/np.average(quij['b123'], axis=0) 
     elif theta == 'Bsn': 
@@ -322,7 +323,7 @@ def quijhod_dBkdtheta(theta, log=False, rsd='all', flag=None, z=0, dmnu='fin', N
         coeffs = [0.] 
         h = 1. 
 
-        quij = Obvs.quijhod_Bk('fiducial', z=z, flag=flag, rsd=rsd, silent=silent)
+        quij = Obvs.quijhod_Bk('fiducial', z=z, flag=flag, rsd=rsd, seed=0, silent=silent)
         if not log: c_dbk = np.average(quij['p0k1'] + quij['p0k2'] + quij['p0k3'], axis=0)
         else: c_dbk = np.average(quij['p0k1'] + quij['p0k2'] + quij['p0k3'], axis=0) / np.average(quij['b123'], axis=0)
     else: 
@@ -332,7 +333,7 @@ def quijhod_dBkdtheta(theta, log=False, rsd='all', flag=None, z=0, dmnu='fin', N
         h = quijote_thetas[theta][1] - quijote_thetas[theta][0]
 
     for i_tt, tt, coeff in zip(range(len(tts)), tts, coeffs): 
-        quij = Obvs.quijhod_Bk(tt, z=z, flag=flag, rsd=rsd, silent=silent)
+        quij = Obvs.quijhod_Bk(tt, z=z, flag=flag, rsd=rsd, seed=seed, silent=silent)
 
         if Nderiv is not None: 
             if (flag == 'reg') and (tt == 'fiducial'):
@@ -353,6 +354,7 @@ def quijhod_dBkdtheta(theta, log=False, rsd='all', flag=None, z=0, dmnu='fin', N
             else: 
                 _bk = quij['b123']
                 if theta == 'Mnu' and dmnu == 'fin_2lpt' and not average: 
+                    # this derivative should never actually be used
                     if rsd == 'all': 
                         _bk = quij['b123'][:1500,:]
                     else: 

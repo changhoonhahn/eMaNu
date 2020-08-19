@@ -146,25 +146,32 @@ def quijhod_Bk(theta, z=0, seed=0, rsd='all', flag='reg', silent=True):
     
     assert flag in [None, 'ncv', 'reg'], "flag=%s unspecified" % flag
     assert rsd in [0, 1, 2, 'all', 'real'] 
+
+    if isinstance(seed, int): seeds = [seed] 
+    else: seeds = seed
+    
+    if theta == 'fiducial_za': theta = 'fiducial_ZA'
     
     # get files to read-in 
     if 'machine' in os.environ and os.environ['machine'] == 'mbp': 
         quij_dir = os.path.join(UT.dat_dir(), 'Galaxies')
-        if rsd == 'all': # include all 3 rsd directions
-            fbks = ['quijhod_B_%s.%s.seed%i.rsd%i.hdf5' % (theta, flag, seed, irsd) for irsd in [0, 1, 2]] 
-        elif rsd in [0, 1, 2]: # include a single rsd direction 
-            fbks = ['quijhod_B_%s.%s.seed%i.rsd%i.hdf5' % (theta, flag, seed, rsd)]
-        elif rsd == 'real': # real-space 
-            fbks = ['quijhod_B_%s.%s.seed%i.real.hdf5' % (theta, flag, seed)]
+    elif 'machine' in os.environ and os.environ['machine'] == 'tiger': 
+        quij_dir = '/projects/QUIJOTE/Galaxies/' 
     else: 
         quij_dir = os.path.join(UT.dat_dir(), 'bispectrum', 'quijote_hod', zdir) 
-        if rsd == 'all': # include all 3 rsd directions
-            fbks = ['quijhod_%s.%s.seed%i.rsd%i.hdf5' % (theta, flag, seed, irsd) for irsd in [0, 1, 2]] 
-        elif rsd in [0, 1, 2]: # include a single rsd direction 
-            fbks = ['quijhod_%s.%s.seed%i.rsd%i.hdf5' % (theta, flag, seed, rsd)]
-        elif rsd == 'real': # real-space 
-            fbks = ['quijhod_%s.%s.seed%i.real.hdf5' % (theta, flag, seed)]
     
+    fbks = [] 
+    for _seed in seeds: 
+        if rsd == 'all': # include all 3 rsd directions
+            _rsds = ['.rsd%i' % irsd for irsd in [0, 1, 2]]
+        elif rsd in [0, 1, 2]: # include a single rsd direction 
+            _rsds = ['.rsd%i' % rsd]
+        elif rsd == 'real': # real-space 
+            _rsds = ['.real']
+    
+        for _rsd in _rsds: 
+            fbks.append('quijhod_B_%s.%s.seed%i%s.hdf5' % (theta, flag, _seed, _rsd))
+        
     # combine the files  
     if not silent: print(fbks) 
     _bks = {}
@@ -209,26 +216,31 @@ def quijhod_Pk(theta, z=0, seed=0, rsd='all', flag='reg', silent=True):
     assert flag in [None, 'ncv', 'reg'], "flag=%s unspecified" % flag
     assert rsd in [0, 1, 2, 'all', 'real'] 
 
+    if isinstance(seed, int): seeds = [seed] 
+    else: seeds = seed
+    
     if theta == 'fiducial_za':
         theta = 'fiducial_ZA'
     
     # get files to read-in 
     if 'machine' in os.environ and os.environ['machine'] == 'mbp': 
         quij_dir = os.path.join(UT.dat_dir(), 'Galaxies') 
-        if rsd == 'all': # include all 3 rsd directions
-            fpks = ['quijhod_P_%s.%s.seed%i.rsd%i.hdf5' % (theta, flag, seed, irsd) for irsd in [0, 1, 2]] 
-        elif rsd in [0, 1, 2]: # include a single rsd direction 
-            fpks = ['quijhod_P_%s.%s.seed%i.rsd%i.hdf5' % (theta, flag, seed, rsd)]
-        elif rsd == 'real': # real-space 
-            fpks = ['quijhod_P_%s.%s.seed%i.real.hdf5' % (theta, flag, seed)]
+    elif 'machine' in os.environ and os.environ['machine'] == 'tiger': 
+        quij_dir = '/projects/QUIJOTE/Galaxies/' 
     else: 
         quij_dir = os.path.join(UT.dat_dir(), 'powerspectrum', 'quijote_hod', zdir) 
+
+    fpks = [] 
+    for _seed in seeds: 
         if rsd == 'all': # include all 3 rsd directions
-            fpks = ['quijhod_%s.%s.seed%i.rsd%i.hdf5' % (theta, flag, seed, irsd) for irsd in [0, 1, 2]] 
+            _rsds = ['.rsd%i' % irsd for irsd in [0, 1, 2]]
         elif rsd in [0, 1, 2]: # include a single rsd direction 
-            fpks = ['quijhod_%s.%s.seed%i.rsd%i.hdf5' % (theta, flag, seed, rsd)]
+            _rsds = ['.rsd%i' % rsd]
         elif rsd == 'real': # real-space 
-            fpks = ['quijhod_%s.%s.seed%i.real.hdf5' % (theta, flag, seed)]
+            _rsds = ['.real']
+    
+        for _rsd in _rsds: 
+            fpks.append('quijhod_P_%s.%s.seed%i%s.hdf5' % (theta, flag, _seed, _rsd))
         
     # combine the files  
     if not silent: print(fpks) 

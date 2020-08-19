@@ -270,6 +270,8 @@ def quijoteP_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None, seed=0):
     elif subdir == 'fiducial_ZA' and flag == 'reg': nmocks=500
     elif subdir == 'fiducial_ZA' and flag == 'ncv': nmocks=250
     else: nmocks = 500 
+
+    #if seed != 0: nmocks = 100 
     
     # compile files 
     fpks = [] 
@@ -294,7 +296,7 @@ def quijoteP_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None, seed=0):
     # load in all the files 
     for i, fpk in enumerate(fpks):
         if rsd != 'real': 
-            print(fpk)
+            #print(fpk)
             pkdat =  np.loadtxt(os.path.join(dir_quij, fpk), skiprows=1, unpack=True, usecols=range(4)) 
             k = pkdat[0]
             _p0k = pkdat[1]
@@ -401,7 +403,7 @@ def quijoteB_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None, seed=0):
     elif subdir == 'fiducial_ZA' and flag == 'ncv': nmocks=250
     else: 
         nmocks = 500 
-    if seed == 1: nmocks = 100 
+    #if seed != 0: nmocks = 100 
 
     fbks = [] 
     if flag == 'reg': # regular Nbody 
@@ -503,7 +505,8 @@ if __name__=="__main__":
     #thetas_hod = ['fiducial']
     for sub in thetas_hod: 
         for rsd in [0, 1, 2]:#, 'real']: 
-            quijoteP_hod_hdf5(sub, machine='tiger', rsd=rsd, flag='reg', seed=1)
-            #quijoteP_hod_hdf5(sub, machine='tiger', rsd=rsd, flag='ncv')
-            quijoteB_hod_hdf5(sub, machine='tiger', rsd=rsd, flag='reg', seed=1)
-            #quijoteB_hod_hdf5(sub, machine='tiger', rsd=rsd, flag='ncv')
+            for seed in [1, 2, 3, 4]: 
+                quijoteP_hod_hdf5(sub, machine='tiger', rsd=rsd, flag='reg', seed=seed)
+                #quijoteP_hod_hdf5(sub, machine='tiger', rsd=rsd, flag='ncv')
+                #quijoteB_hod_hdf5(sub, machine='tiger', rsd=rsd, flag='reg', seed=seed)
+                #quijoteB_hod_hdf5(sub, machine='tiger', rsd=rsd, flag='ncv')
