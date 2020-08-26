@@ -7,30 +7,45 @@
     parameters $\smnu$, $\Omega_m$, $\Omega_b$, $h$, $n_s$, and $\sig$ as well 
     as HOD and nuisance parameters.} 
 \begin{center} 
-    \begin{tabular}{c|ccc|ccc} \toprule
-        & & $\kmax=0.2$ & & & $\kmax=0.5$ & \\
-        & $P_\ell$ & $B_0$ & $P_\ell + B_0$ & $P_\ell$ & $B_0$ & $P_\ell + B_0$ \\[3pt]
-\hline 
-$\smnu$     & & & \\
-$\Om$       & & & \\
-$\Ob$       & & & \\
-$h$         & & & \\
-$n_s$       & & & \\
-$\sig$      & & & \\[3pt] \hline
-$M_{\rm min}$       & & & \\
-$\sigma_{\log M}$   & & & \\ 
-$\log M_0$          & & & \\
-$\alpha$            & & & \\ 
-$\log M_1$          & & & \\ [3pt]
-\hline            
+    \begin{tabular}{c|ccc|ccc} \hline
+        & \multicolumn{3}{c}{$\kmax=0.2~\hmpc$} & \multicolumn{3}{c}{$\kmax=0.5~\hmpc$} \\ %& & $\kmax=0.2$ & & & $\kmax=0.5$ & \\
+        & $P_\ell$ & $B_0$ & $P_\ell + B_0$ & $P_\ell$ & $B_0$ & $P_\ell + B_0$ \\[3pt] \hline 
+$M_\nu$     &  0.795 (0.132) & 0.313 (0.123) & 0.282 (0.098) & 0.334 (0.112) & 0.073 (0.055) & 0.071 (0.048)  \\
+$\Omega_m$  &  0.061 (0.021) & 0.047 (0.021) & 0.030 (0.014) & 0.037 (0.017) & 0.018 (0.012) & 0.013 (0.008)  \\
+$\Omega_b$  &  0.027 (0.002) & 0.017 (0.002) & 0.013 (0.001) & 0.015 (0.002) & 0.006 (0.001) & 0.005 (0.001)  \\
+$h$         &  0.351 (0.014) & 0.204 (0.014) & 0.157 (0.010) & 0.178 (0.011) & 0.052 (0.008) & 0.047 (0.006)  \\
+$n_s$       &  0.427 (0.005) & 0.230 (0.005) & 0.165 (0.005) & 0.206 (0.005) & 0.053 (0.005) & 0.049 (0.004)  \\
+$\sigma_8$  &  0.209 (0.029) & 0.116 (0.027) & 0.053 (0.023) & 0.089 (0.025) & 0.034 (0.014) & 0.021 (0.012)  \\ [3pt] \hline
+$\log M_{\rm min}$ &  1.435 (1.061) & 0.499 (0.442) & 0.335 (0.210) & 0.457 (0.258) & 0.114 (0.100) & 0.089 (0.070)  \\
+$\sigma_{\log M}$ &  3.072 (2.390) & 1.090 (0.926) & 0.712 (0.506) & 0.963 (0.655) & 0.215 (0.204) & 0.174 (0.140)  \\
+$\log M_0$ &  2.257 (1.845) & 1.387 (1.341) & 0.431 (0.386) & 0.547 (0.361) & 0.261 (0.232) & 0.088 (0.079)  \\
+$\alpha$ &  0.749 (0.592) & 0.309 (0.294) & 0.170 (0.167) & 0.257 (0.180) & 0.082 (0.073) & 0.034 (0.033)  \\
+$\log M_1$ &  0.819 (0.691) & 0.434 (0.408) & 0.244 (0.149) & 0.193 (0.119) & 0.115 (0.113) & 0.071 (0.056)  \\
+        [3pt]
+\hline                                 
 \end{tabular} \label{tab:forecast}
 \end{center}
+{$^*$ constraints with \planck priors in parentheses}
 \end{table}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% kmax = 0.2 
+% P sigmas 0.06094, 0.02654, 0.35148, 0.42714, 0.20940, 0.79540, 1.43526, 3.07160, 2.25686, 0.74927, 0.81883
+% B sigmas 0.04670, 0.01718, 0.20409, 0.23048, 0.11592, 0.31323, 0.49926, 1.09044, 1.38728, 0.30865, 0.43437
+% P+B sigmas 0.03005, 0.01329, 0.15669, 0.16504, 0.05316, 0.28209, 0.33499, 0.71162, 0.43062, 0.16962, 0.24399
+% kmax = 0.5
+% P sigmas 0.03657, 0.01520, 0.17803, 0.20553, 0.08940, 0.33439, 0.45684, 0.96282, 0.54733, 0.25698, 0.19286
+% B sigmas 0.01837, 0.00552, 0.05250, 0.05292, 0.03419, 0.07251, 0.11429, 0.21538, 0.26110, 0.08198, 0.11527
+% P+B sigmas 0.01316, 0.00489, 0.04690, 0.04942, 0.02118, 0.07055, 0.08901, 0.17434, 0.08820, 0.03411, 0.07144
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% kmax = 0.2 with planck 
+% P sigmas 0.02064, 0.00210, 0.01398, 0.00524, 0.02926, 0.13204, 1.06089, 2.38989, 1.84519, 0.59186, 0.69080
+% B sigmas 0.02064, 0.00207, 0.01392, 0.00534, 0.02697, 0.12295, 0.44195, 0.92590, 1.34132, 0.29397, 0.40759
+% P+B sigmas 0.01439, 0.00147, 0.00987, 0.00478, 0.02269, 0.09754, 0.21031, 0.50593, 0.38573, 0.16727, 0.14908
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}
     \begin{center}
-        \includegraphics[width=\textwidth]{figs/Fisher_p02bk_dmnu_fin_kmax0_50.pdf}
+        \includegraphics[width=\textwidth]{figs/Fisher_p02bk_dmnu_fin_kmax0_50_seed0to4.pdf}
         \caption{Fisher matrix constraints for $\smnu$ and other cosmological
         parameters for the redshift-space galaxy $\Pgl$ (blue), $\Bg$
         (green), and combined $\Pgl$ and $\Bg$ (orange) for $k_{\rm max} =
@@ -40,9 +55,9 @@ $\log M_1$          & & & \\ [3pt]
         confidence intervals. The bispectrum substantially improves
         constraints on all of the cosmological parameters over the power
         spectrum. $\Om$, $\Ob$, $h$, $n_s$, and $\sig$ constraints improve by factors
-        of \ch{1.9, 2.6, 3.1, 3.6, and 2.6}, respectively. For $\smnu$, the
-        bispectrum improves $\sigma_{\smnu}$ from \ch{0.2968 to 0.0572 eV ---
-        over a factor of $\sim5$ improvement over the power spectrum}.
+        of 2.8, 3.1, 3.8, 4.2, and 4.2, respectively. For $\smnu$, the
+        bispectrum improves $\sigma_{\smnu}$ from 0.3344 to 0.0706 eV --- over
+        a factor of $\sim5$ improvement over the power spectrum.
         }
         \label{fig:forecast}
     \end{center}
@@ -50,7 +65,7 @@ $\log M_1$          & & & \\ [3pt]
 
 \begin{figure}
     \begin{center}
-        \includegraphics[width=\textwidth]{figs/Fisher_kmax_p02bk_dmnu_fin.pdf}
+        \includegraphics[width=\textwidth]{figs/Fisher_kmax_p02bk_dmnu_fin_seed0to4.pdf}
         \caption{Marginalized $1\sigma$ constraints, $\sigma_\theta$, of the
         cosmological parameters $\Om$, $\Ob$, $h$, $n_s$, $\sig$, and $\smnu$
         as a function of $k_{\rm max}$ for the redshift-space $\Pgl$ (blue)
@@ -60,13 +75,13 @@ $\log M_1$          & & & \\ [3pt]
         $k_{\rm max} > 0.1\hmpc$. Constraints from $\Pgl$ and
         $\Pgl + \Bg$ improve with higher $k_{\rm max}$. {\em Throughout 
         $0.2 < k_{\rm max} < 0.5$, including the bispectrum improves 
-        $\{\Om, \Ob, h, n_s, \sig, \smnu\}$ by \ch{X, Y \%}.} When we include 
+        $\{\Om, \Ob, h, n_s, \sig, \smnu\}$ constraints by factors of ${>}2$.} When we include 
         \planck priors (dotted), the improvement from $\Bg$ is even more
         evident. The constraining power of $\Pgl$ complete
         saturates for $\kmax \gtrsim 0.12\hmpc$. Adding $\Bg$ not only 
         improves constraints, but the constraints continue to improve for
         higher $k_{\rm max}$. At $k_{\rm max} = 0.2$ and $0.5\hmpc$, the $\Pgl
-        + \Bg$ improves the $\smnu$ constraint by \ch{X, Y \%} over $\Pgl$. 
+        + \Bg$ improves the $\smnu$ constraint by 1.4 and $2.3\times$ over $\Pgl$. 
         We emphasize that the constraints above are for $1~({\rm Gpc}/h)^3$ box
         and thus underestimate the constraining power of upcoming galaxy
         clustering surveys.
@@ -84,9 +99,9 @@ constraints marginalize over the \cite{zheng2007} HOD parameters %$\{M_{\rm min}
 $95\%$ confidence intervals. With the redshift-space $\Pgl$
 alone, we derive the following $1\sigma$ constraints for $\{\Om, \Ob, h, n_s,
 \sig, \smnu\}$: 
-\ch{0.03443, 0.01219, 0.14069, 0.16552, 0.07701, 0.58119}
+0.06094, 0.02654, 0.35148, 0.42714, 0.20940, 0.79540.
 With the redshift-space $\Bg$ alone, we get: 
-\ch{0.01422, 0.00371, 0.03409, 0.03543, 0.02494, 0.10599}.
+0.04670, 0.01718, 0.20409, 0.23048, 0.11592, 0.31323.
 {\em The galaxy bispectrum produces tighter constraints on all cosmological
 parameters over the power spectrum}.
 
@@ -99,10 +114,10 @@ $\sig$ constraints. Meanwhile, for the HOD parameters, degeneracies with
 $\log M_0$, $\alpha$, and $\log M_1$ are substantially reduced. 
 Combining $\Pgl$ and $\Bg$, we get the following $1\sigma$ constraints for 
  $\Om$, $\Ob$, $h$, $n_s$, $\sig$, and $\smnu$: 
- \ch{0.01033, 0.00336, 0.03150, 0.03361, 0.01641, and 0.10299}
+0.03005, 0.01329, 0.15669, 0.16504, 0.05316, and 0.28209.
 {\em With $\Pgl$ and $\Bg$ combined, we improve $\Om$, $\Ob$, $h$,
-$n_s$, and $\sig$ constraints by factors of \ch{3.3, 3.6, 4.5, 4.9, and 4.7}
-and $\smnu$ constraint by a factor of 5.6 over the $\Pg$ constraints}
+$n_s$, and $\sig$ constraints by factors of 2.8, 3.1, 3.8, 4.2, and 4.2
+and $\smnu$ constraint by a factor of 4.7 over the $\Pg$ constraints}
 
 In Figure~\ref{fig:kmax_forecast}, we present the marginalized $1\sigma$
 constraints, $\sigma_\theta(\kmax)$, of the cosmological parameters $\Om$,
@@ -114,7 +129,7 @@ we include higher $\kmax$. More importantly, {\em the galaxy bispectrum signific
 improves cosmological parameter constraints throughout $\kmax > 0.1\hmpc$
 and not only at high $\kmax$}. Even for $\kmax\sim 0.2\hmpc$, including 
 $\Bg$ improves $\Om$, $\Ob$, $h$, $n_s$, $\sig$ and $\smnu$ constraints by 
-factors of \ch{2.6, 2.4, 2.7, 3.2, 4.1, and 3.6}.
+factors of 2.0, 2.0, 2.2, 2.6, 3.9, and 2.8.
 
 In Figure~\ref{fig:kmax_forecast}, we also present $\sigma_\theta(\kmax)$ for
 $\Pgl$ (blue dashed) and $\Pgl + \Bg$ 
@@ -123,10 +138,10 @@ $\Pgl$ constraints do not significantly improve for $\kmax \gtrsim 0.12\hmpc$.
 On the other hand, the constraints from $\Pgl + \Bg$ continues to improve for $\kmax > 0.15\hmpc$. 
 At $\kmax=0.2\hmpc$, $\Bg$ improves the $\Pgl$ + \planck priors constraints on  
 $\Om$, $\Ob$, $h$, $n_s$, $\sig$ and $\smnu$ constraint by factors of
-\ch{1.5, 1.4, 1.4, 1.1, 1.3, and $1.4\times$}.
+1.4, 1.4, 1.4, 1.1, 1.3, and $1.4\times$.
 At $\kmax = 0.5\hmpc$, $\Bg$ improves the $\Pgl$ + \planck priors constraints on  
 $\Om$, $\Ob$, $h$, $n_s$, $\sig$ and $\smnu$ constraint by factors of 
-\ch{2.1, 2.1, 2.0, 1.2, 2.2, and $2.2\times$} 
+2.0, 2.1, 1.9, 1.2, 2.2, and $2.3\times$.
 Therefore, even with \planck priors, the galaxy bispectrum significantly improves cosmological 
 constraints. In fact, we emphasize that the constraints in Figure~\ref{fig:kmax_forecast} 
 are for a $1~({\rm Gpc}/h)^3$ box, a much smaller cosmic volume than upcoming
@@ -147,13 +162,14 @@ will be larger.
 % SN kmax=0.51: Pg:140.263416, Bg:30.561088, Ph:143.901659, Bh:75.042306
 In the previous paper of the series~\citep{hahn2020}, we presented the full
 information content of the redshift-space halo bispectrum, $\Bh$. For $\Bh$ to
-$\kmax=0.5\hmpc$, \cite{hahn2020} derived $1\sigma$ constraints of 0.012, 0.004,
-0.04, 0.036, 0.014, and 0.057 for $\Om$, $\Ob$, $h$, $n_s$, $\sig$ and $\smnu$. 
-In comparison, we find constraints of \ch{XXXXXXX} for $\Bg$ to
-$\kmax=0.5\hmpc$. $\Bg$ produces comparable constraints for $\Ob$, $h$, and
-$n_s$ but has less constraining power for $\Om$, $\sig$, and $\smnu$. This is
-the same for $\kmax=0.2\hmpc$. A comparison of the signal-to-noise ratios (SNR)
-of $\Bg$ and $\Bh$, estimated from the covariance
+$\kmax=0.5\hmpc$, \cite{hahn2020} derived $1\sigma$ constraints of 
+0.012, 0.004, 0.04, 0.036, 0.014, and 0.057 
+for $\Om$, $\Ob$, $h$, $n_s$, $\sig$ and $\smnu$. In comparison, we find constraints of 
+0.018, 0.006, 0.052, 0.053, 0.034, and 0.073 
+for $\Bg$ to $\kmax=0.5\hmpc$ (Table~\ref{tab:forecast}). 
+$\Bg$ produces overall broader constraints on the cosmolgoical parameters. This
+is the same for $\kmax=0.2\hmpc$. A comparison of the signal-to-noise ratios
+(SNR) of $\Bg$ and $\Bh$, estimated from the covariance
 matrix~\citep[\eg][]{sefusatti2005,sefusatti2006,chan2017}, also confirm the lower
 constraining power of $\Bg$. Furthermore, while both $\Bh$ and $\Bg$ SNRs increase 
 at higher $\kmax$, however the increase is lower for $\Bg$ than $\Bh$.
@@ -237,9 +253,9 @@ Another difference between our analyses is that although \cite{chudaykin2019} us
 a more accurate Markov-Chain Monte-Carlo (MCMC) approach to derive parameter
 constraints, they neglect the non-Gaussian contributions to both $\Pgl$ and
 $\Bg$ covariance matrices and also do not include the covariance between $\Pgl$
-and $\Bg$ for the joint constraints. We find that neglecting the covariance
-between $\Pgl$ and $\Bg$ overestimates constraints by \ch{XXXX} for our
-$\kmax=0.2\hmpc$ constraints. Lastly, \cite{chudaykin2019} use a one-loop 
+and $\Bg$ for the joint constraints. We find that neglecting the off-diagonal
+terms of the covariance overestimates $1\sigma$ $\smnu$ constraints by $25\%$ 
+for our $\kmax=0.2\hmpc$ constraints. Lastly, \cite{chudaykin2019} use a one-loop 
 and tree-level perturbation theory to model $\Pgl$ and $\Bg$, respectively.
 Rather than imposing a $\kmax$ cutoff to restrict their forecasts to scales
 where their perturbation theory models can be trusted, they use a theoretical
@@ -249,8 +265,8 @@ where one- and two-loop contribute significantly~\citep[\eg][]{lazanu2018}.
 So effectively, their forecasts do not include the constraining power on
 those scales. If we restrict our forecast to $\kmax = 0.25\hmpc$ 
 for $\Pgl$ and $\kmax = 0.1\hmpc$ for $\Bg$, our $\Om$, $\Ob$, $h$, $n_s$, 
-$\sig$, and $\smnu$ constraints improve by 1.3, 1.2, 1.2, 1.4, 2.0, and 
-$1.7\times$ from including $\Bg$, roughly consistent with \cite{chudaykin2019}. 
+$\sig$, and $\smnu$ constraints improve by 1.2, 1.2, 1.2, 1.4, 1.8, and
+$1.3\times$ from including $\Bg$, roughly consistent with \cite{chudaykin2019}. 
 
 %Various differences between our forecast and previous work prevent more thorough comparisons. However, crucial aspects of our simulation based approach distinguish our forecasts from other works. We present the first bispectrum forecasts for a full set of cosmological parameters using bispectrum measured entirely from N-body simulations. By using the simulations, we go beyond perturbation the- ory models and accurately model the redshift-space bispectrum to the nonlinear regime. Furthermore, by exploiting the immense number of simulations, we accurately estimate the full high-dimensional covariance matrix of the bispectrum. With these advantages, we present the first forecast of cosmo- logical parameters from the bispectrum down to nonlinear scales and demonstrate the constraining power of the bispectrum for Mν. Below, we underline a few caveats of our forecasts.
 
