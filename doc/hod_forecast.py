@@ -1606,9 +1606,9 @@ def P02B_Forecast(kmax=0.5, seed=range(5), rsd='all', dmnu='fin', theta_nuis=Non
     print("B Fii=%f, sigma_i = %f" % (bkFij[i_Mnu,i_Mnu], np.sqrt(bkFinv[i_Mnu,i_Mnu])))
     print("P+B Fii=%f, sigma_i = %f" % (pbkFij[i_Mnu,i_Mnu], np.sqrt(pbkFinv[i_Mnu,i_Mnu])))
     print('--- thetas ---')
-    print('P sigmas %s' % ', '.join(['%.5f' % sii for sii in np.sqrt(np.diag(pkFinv))]))
-    print('B sigmas %s' % ', '.join(['%.5f' % sii for sii in np.sqrt(np.diag(bkFinv))]))
-    print('P+B sigmas %s' % ', '.join(['%.5f' % sii for sii in np.sqrt(np.diag(pbkFinv))]))
+    print('P sigmas %s' % ', '.join(['%.3f' % sii for sii in np.sqrt(np.diag(pkFinv))]))
+    print('B sigmas %s' % ', '.join(['%.3f' % sii for sii in np.sqrt(np.diag(bkFinv))]))
+    print('P+B sigmas %s' % ', '.join(['%.3f' % sii for sii in np.sqrt(np.diag(pbkFinv))]))
     if theta_nuis is not None and 'Bsn' in theta_nuis: 
         pass 
     else: 
@@ -2241,6 +2241,31 @@ def _forecast_cross_covariance(kmax=0.5, seed=range(5), rsd='all', dmnu='fin'):
             ', '.join(['%.3f' % sii for sii in (onesig_ref/onesig_diag)[:6]]))
     return None 
 
+
+def _P02B_dmnu(kmax=0.5, seed=range(5), rsd='all', silent=True): 
+    '''
+    '''
+    # fisher matrices (Fij)
+    pbkFij_fin  = FisherMatrix('p02bk', kmax=kmax, seed=seed, rsd=rsd, dmnu='fin', theta_nuis=None, silent=silent)
+    pbkFij_p    = FisherMatrix('p02bk', kmax=kmax, seed=seed, rsd=rsd, dmnu='p', theta_nuis=None, silent=silent)
+    pbkFij_pp   = FisherMatrix('p02bk', kmax=kmax, seed=seed, rsd=rsd, dmnu='pp', theta_nuis=None, silent=silent)
+
+    pbkFinv_fin = np.linalg.inv(pbkFij_fin) 
+    pbkFinv_p   = np.linalg.inv(pbkFij_p) 
+    pbkFinv_pp  = np.linalg.inv(pbkFij_pp) 
+
+    print('P+B sigmas fin %s' % ', '.join(['%.3f' % sii for sii in
+        np.sqrt(np.diag(pbkFinv_fin))]))
+    print('P+B sigmas p   %s' % ', '.join(['%.3f' % sii for sii in
+        np.sqrt(np.diag(pbkFinv_p))]))
+    print('P+B sigmas pp  %s' % ', '.join(['%.3f' % sii for sii in
+        np.sqrt(np.diag(pbkFinv_pp))]))
+    print('(+)/(fin) %s' % ', '.join(['%.1f' % sii for sii in
+        np.sqrt(np.diag(pbkFinv_p)/np.diag(pbkFinv_fin))]))
+    print('(++)/(fin) %s' % ', '.join(['%.1f' % sii for sii in
+        np.sqrt(np.diag(pbkFinv_pp)/np.diag(pbkFinv_fin))]))
+    return None 
+        
 
 # --- convergence tests --- 
 def _converge_dobs(obs, theta, rsd='all', flag='reg', dmnu='fin', fscale_pk=1., Nderiv=None, silent=True):
@@ -2977,7 +3002,13 @@ if __name__=="__main__":
                 params='lcdm')
     '''
     # forecasts 
-    _P02B_Forecast_diffkmax(pkmax=0.25, bkmax=0.1, seed=range(5), rsd='all', dmnu='fin', theta_nuis=None, planck=False)
+    print('--- fin ---') 
+    P02B_Forecast(kmax=0.5, seed=range(5), rsd='all', dmnu='fin', theta_nuis=None, planck=False)
+    print('--- p ---') 
+    P02B_Forecast(kmax=0.5, seed=range(5), rsd='all', dmnu='p', theta_nuis=None, planck=False)
+    print('--- pp ---') 
+    P02B_Forecast(kmax=0.5, seed=range(5), rsd='all', dmnu='pp', theta_nuis=None, planck=False)
+    #_P02B_dmnu(kmax=0.5, seed=range(5), rsd='all', silent=True)
     '''
         P02B_Forecast(kmax=0.5, seed=range(5), rsd='all', dmnu='fin', theta_nuis=None, planck=False)
         P02B_Forecast(kmax=0.5, seed=range(5), rsd='all', dmnu='fin', theta_nuis=None, planck=True)
@@ -2989,13 +3020,14 @@ if __name__=="__main__":
             P02B_Forecast_kmax(rsd='all', seed=range(5), dmnu='fin', theta_nuis=None)
         _PgPh_Forecast_kmax() # comparison of Pg forecast to Ph 
         _P02B_P02Bh_Forecast_kmax(rsd='all', flag='reg', dmnu='fin', theta_nuis=None)
-        _P02B_Forecast_diffkmax(pkmax=0.2, bkmax=0.1, seed='all', rsd='all', dmnu='fin', theta_nuis=None, planck=False)
+        _P02B_Forecast_diffkmax(pkmax=0.25, bkmax=0.1, seed=range(5), rsd='all', dmnu='fin', theta_nuis=None, planck=False)
         _write_FisherMatrix(kmax=0.5, seed=range(5), rsd='all', dmnu='fin', theta_nuis=None, planck=False)
         _write_FisherMatrix(kmax=0.5, seed=range(5), rsd='all', dmnu='fin', theta_nuis=None, planck=True)
         _write_FisherMatrix(kmax=0.5, seed=range(5), rsd='all', dmnu='p', theta_nuis=None, planck=False)
         _write_FisherMatrix(kmax=0.5, seed=range(5), rsd='all', dmnu='p', theta_nuis=None, planck=True)
         _forecast_latex_table(seed=range(5), rsd='all', dmnu='fin')
         _forecast_cross_covariance(kmax=0.5, seed=range(5), rsd='all', flag='reg', dmnu='fin')
+        _P02B_dmnu(kmax=0.5, seed=range(5), rsd='all', dmnu='fin', silent=True)
     '''
     # etc
     '''
