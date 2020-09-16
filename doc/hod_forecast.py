@@ -287,111 +287,19 @@ def dP02k(theta, seed=range(5), rsd='all', dmnu='fin', Nderiv=None, silent=True,
     # --- 
     dir_dat = os.path.join(UT.doc_dir(), 'dat', 'hod') 
     fdpk = os.path.join(dir_dat, 
-            'hod_dP02dtheta.%s%s%s%s.dat' % (theta, _rsd_str(rsd), _seed_str(seed), _flag_str(flag))) 
+            'hod_dP02dtheta.%s%s%s%s%s.dat' % 
+            (theta, _rsd_str(rsd), _seed_str(seed), _flag_str(flag),
+                _Nderiv_str(Nderiv))) 
 
-    if os.path.isfile(fdpk) and not overwrite and Nderiv is None: 
-        if not silent: print('--- reading %s ---' % fdpk) 
-        icols = range(3) 
-        if theta == 'Mnu': 
-            idmnu = {'fin': 1, 'fin0': 3, 'p': 5, 'pp': 7, 'ppp': 9}[dmnu]
-            icols = [0, idmnu, idmnu+1]
+    assert os.path.isfile(fdpk)
 
-        k, dpdt, dlogpdt = np.loadtxt(fdpk, skiprows=1, unpack=True, usecols=icols)
-    else: 
-        if seed != 0: raise ValueError 
-        if not silent: print('--- writing %s ---' % fdpk) 
-        quijote_thetas = {
-                'Mnu': [0.1, 0.2, 0.4], # +, ++, +++ 
-                'Ob': [0.048, 0.050],   # others are - + 
-                'Ob2': [0.047, 0.051],   # others are - + 
-                'Om': [0.3075, 0.3275],
-                'h': [0.6511, 0.6911],
-                'ns': [0.9424, 0.9824],
-                's8': [0.819, 0.849], 
-                'logMmin': [13.6, 13.7], 
-                'sigma_logM': [0.18, 0.22], 
-                'logM0': [13.8, 14.2],
-                'alpha': [0.9, 1.3], 
-                'logM1': [13.8, 14.2]}
-    
-        c_dbk = 0. 
-        if theta == 'Mnu': 
-            if not silent: print("  calculating dP/d%s using %s" % (theta, dmnu)) 
-            # derivative w.r.t. Mnu using 0, 0.1, 0.2, 0.4 eV
-            tts = ['fiducial_za', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
-            if dmnu == 'p': 
-                coeffs = [-1., 1., 0., 0.]  # derivative at 0.05eV
-                h = 0.1
-            elif dmnu == 'pp': 
-                coeffs = [-1., 0., 1., 0.]  # derivative at 0.1eV
-                h = 0.2
-            elif dmnu == 'ppp': 
-                coeffs = [-1., 0., 0., 1.]  # derivative at 0.2eV
-                h = 0.4
-            elif dmnu == 'fin0': 
-                coeffs = [-3., 4., -1., 0.] # finite difference coefficient
-                h = 0.2
-            elif dmnu == 'fin': 
-                coeffs = [-21., 32., -12., 1.] # finite difference coefficient
-                h = 1.2
-            elif dmnu == 'fin_2lpt': 
-                tts = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp'] # use ZA inital conditions
-                coeffs = [-21., 32., -12., 1.] # finite difference coefficient
-                h = 1.2
-            else: 
-                raise NotImplementedError
-        elif theta in ['b1', 'Asn']: 
-            # derivatives for nuisance parameters 
-            if not silent: print("  calculating dB/d%s" % theta) 
-            tts = ['fiducial'] 
-            coeffs = [0.] 
-            h = 1. 
-            quij = Obvs.quijhod_Pk('fiducial', z=z, flag=flag, rsd=rsd, silent=silent)
-            _p02ks = np.concatenate([quij['p0k'], quij['p2k']], axis=1)
-            if theta == 'b1': 
-                if not log: c_dpk = 2.*np.average(_p02ks, axis=0) 
-                else: c_dpk = 2.*np.ones(_p02ks.shape[1]) 
-            elif theta == 'Asn': 
-                if not log: c_dpk = np.ones(_p02ks.shape[1]) 
-                else: c_dpk = 1./np.average(_p02ks, axis=0) 
-        else: 
-            if not silent: print("  calculating dB/d%s" % theta) 
-            tts = [theta+'_m', theta+'_p'] 
-            coeffs = [-1., 1.]
-            h = quijote_thetas[theta][1] - quijote_thetas[theta][0]
+    if not silent: print('--- reading %s ---' % fdpk) 
+    icols = range(3) 
+    if theta == 'Mnu': 
+        idmnu = {'fin': 1, 'fin0': 3, 'p': 5, 'pp': 7, 'ppp': 9}[dmnu]
+        icols = [0, idmnu, idmnu+1]
 
-        for i_tt, tt, coeff in zip(range(len(tts)), tts, coeffs): 
-            _pk_seeds = []
-            for seed in seeds: 
-                quij = Obvs.quijhod_Pk(tt, z=z, seed=seed, flag=flag, rsd=rsd, silent=silent) # read Pk 
-                _pk_seeds.append(np.concatenate([quij['p0k'], quij['p2k']], axis=1)) # [P0, P2] 
-            _pk = np.concatenate(_pk_seeds, axis=0)
-            print(tt, _pk.shape) 
-
-             # limited the number of realizations for convergence test 
-            if Nderiv is not None and tt != 'fiducial':
-                if not silent: print('  only using %i of %i realizations' % (Nderiv, quij['p0k'].shape[0])) 
-                _pk = _pk[:Nderiv] 
-
-            _logpk = np.log(_pk) 
-            
-            if i_tt == 0: dpk, dlogpk = np.zeros(_pk.shape), np.zeros(_pk.shape) 
-
-            dpk += coeff * _pk 
-            dlogpk += coeff * _logpk 
-        
-        # k, k 
-        k = np.concatenate([quij['k'], quij['k']]) 
-        # calculate derivatives
-        dpdt    = np.average(dpk / h + c_dbk, axis=0) 
-        dlogpdt = np.average(dlogpk / h + c_dbk, axis=0) 
-
-        if Nderiv is None: 
-            # save to file for fast access later:
-            hdr = 'k, dP02/dtheta, dlogP02/dtheta'
-            # save to file 
-            np.savetxt(fdpk, np.vstack([k, dpdt, dlogpdt]).T, header=hdr, delimiter=',\t', fmt='%.5e %.5e %.5e')
-            
+    k, dpdt, dlogpdt = np.loadtxt(fdpk, skiprows=1, unpack=True, usecols=icols)
     return k, dpdt, dlogpdt
 
 
@@ -436,129 +344,31 @@ def dBk(theta, seed=range(5), rsd='all', dmnu='fin', Nderiv=None, silent=True, o
     # --- 
     dir_dat = os.path.join(UT.doc_dir(), 'dat', 'hod') 
     fdbk = os.path.join(dir_dat, 
-            'hod_dBdtheta.%s%s%s%s.dat' % (theta, _rsd_str(rsd), _seed_str(seed), _flag_str(flag))) 
+            'hod_dBdtheta.%s%s%s%s%s.dat' % 
+            (theta, _rsd_str(rsd), _seed_str(seed), _flag_str(flag),
+                _Nderiv_str(Nderiv))) 
 
-    if os.path.isfile(fdbk) and not overwrite and Nderiv is None: 
-        if not silent: print('--- reading %s ---' % fdbk) 
-        icols = range(5) 
-        if theta == 'Mnu': 
-            idmnu = {'fin': 3, 'fin0': 5, 'p': 7, 'pp': 9, 'ppp': 11}[dmnu]
-            icols = [0, 1, 2, idmnu, idmnu+1]
+    assert os.path.isfile(fdbk)
 
-        i_k, j_k, l_k, dbdt, dlogbdt = np.loadtxt(fdbk, skiprows=1,
-                unpack=True, usecols=icols) 
-    else: 
-        if seed != 0: raise ValueError
-        if not silent: print('--- writing %s ---' % fdbk) 
-        quijote_thetas = {
-                'Mnu': [0.1, 0.2, 0.4], # +, ++, +++ 
-                'Ob': [0.048, 0.050],   # others are - + 
-                'Ob2': [0.047, 0.051],   # others are - + 
-                'Om': [0.3075, 0.3275],
-                'h': [0.6511, 0.6911],
-                'ns': [0.9424, 0.9824],
-                's8': [0.819, 0.849], 
-                'logMmin': [13.6, 13.7], 
-                'sigma_logM': [0.18, 0.22], 
-                'logM0': [13.8, 14.2],
-                'alpha': [0.9, 1.3], 
-                'logM1': [13.8, 14.2]}
-    
-        c_dbk = 0. 
-        if theta == 'Mnu': 
-            if not silent: print("  calculating dB/d%s using %s" % (theta, dmnu)) 
-            # derivative w.r.t. Mnu using 0, 0.1, 0.2, 0.4 eV
-            tts = ['fiducial_za', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
-            if dmnu == 'p': 
-                coeffs = [-1., 1., 0., 0.]  # derivative at 0.05eV
-                h = 0.1
-            elif dmnu == 'pp': 
-                coeffs = [-1., 0., 1., 0.]  # derivative at 0.1eV
-                h = 0.2
-            elif dmnu == 'ppp': 
-                coeffs = [-1., 0., 0., 1.]  # derivative at 0.2eV
-                h = 0.4
-            elif dmnu == 'fin0': 
-                coeffs = [-3., 4., -1., 0.] # finite difference coefficient
-                h = 0.2
-            elif dmnu == 'fin': 
-                coeffs = [-21., 32., -12., 1.] # finite difference coefficient
-                h = 1.2
-            elif dmnu == 'fin_2lpt': 
-                tts = ['fiducial', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp'] # use ZA inital conditions
-                coeffs = [-21., 32., -12., 1.] # finite difference coefficient
-                h = 1.2
-            elif dmnu == '0.2eV_2LPTZA': # derivative @ 0.2 eV (not using 0.0eV which has 2LPT IC) 
-                coeffs = [0., -20., 15., 5.] 
-                h = 3. 
-            elif dmnu == '0.2eV_ZA': # derivative @ 0.2 eV (not using 0.0eV which has 2LPT IC) 
-                coeffs = [15., -80., 60., 5.] 
-                h = 6. 
-            else: 
-                raise NotImplementedError
-        elif theta in ['b1', 'Asn', 'Bsn']: 
-            # derivatives for nuisance parameters 
-            if not silent: print("  calculating dB/d%s" % theta) 
-            tts = ['fiducial'] 
-            coeffs = [0.] 
-            h = 1. 
-            quij = Obvs.quijhod_Bk('fiducial', z=z, flag=flag, rsd=rsd, silent=silent)
-            if theta == 'b1': 
-                if not log: c_dbk = 3.*np.average(quij['b123'], axis=0) 
-                else: c_dbk = 3.*np.ones(quij['b123'].shape[1])
-            elif theta == 'Asn': 
-                if not log: c_dbk = np.ones(quij['b123'].shape[1]) * 1.e8 
-                else: c_dbk = 1.e8/np.average(quij['b123'], axis=0) 
-            elif theta == 'Bsn': 
-                if not log: c_dbk = np.average(quij['p0k1'] + quij['p0k2'] + quij['p0k3'], axis=0)
-                else: c_dbk = np.average(quij['p0k1'] + quij['p0k2'] + quij['p0k3'], axis=0) / np.average(quij['b123'], axis=0)
-        else: 
-            if not silent: print("  calculating dB/d%s" % theta) 
-            tts = [theta+'_m', theta+'_p'] 
-            coeffs = [-1., 1.]
-            h = quijote_thetas[theta][1] - quijote_thetas[theta][0]
+    if not silent: print('--- reading %s ---' % fdbk) 
+    icols = range(5) 
+    if theta == 'Mnu': 
+        idmnu = {'fin': 3, 'fin0': 5, 'p': 7, 'pp': 9, 'ppp': 11}[dmnu]
+        icols = [0, 1, 2, idmnu, idmnu+1]
 
-        for i_tt, tt, coeff in zip(range(len(tts)), tts, coeffs): 
-            _bk_seeds = []
-            for seed in seeds: 
-                quij = Obvs.quijhod_Bk(tt, z=z, seed=seed, flag=flag, rsd=rsd, silent=silent)
-                _bk_seeds.append(quij['b123']) 
-            _bk = np.concatenate(_bk_seeds, axis=0)
+    i_k, j_k, l_k, dbdt, dlogbdt = np.loadtxt(fdbk, skiprows=1,
+            unpack=True, usecols=icols) 
 
-             # limited the number of realizations for convergence test 
-            if Nderiv is not None and tt != 'fiducial':
-                if not silent: print('  only using %i of %i realizations' % (Nderiv, quij['b123'].shape[0])) 
-                _bk = _bk[:Nderiv] 
-            
-            if i_tt == 0: dbk, dlogbk = np.zeros(_bk.shape), np.zeros(_bk.shape) 
-
-            _logbk = np.log(_bk) 
-
-            dbk += coeff * _bk 
-            dlogbk += coeff * _logbk 
-        
-        # k1, k2, k3
-        i_k, j_k, l_k = quij['k1'], quij['k2'], quij['k3']
-        # calculate derivatives
-        dbdt    = np.average(dbk / h + c_dbk, axis=0) 
-        dlogbdt = np.average(dlogbk / h + c_dbk, axis=0) 
-
-        if Nderiv is None: 
-            # save to file for fast access later:
-            hdr = 'k1, k2, k3, dB/dtheta, dlogB/dtheta'
-            # save to file 
-            np.savetxt(fdbk, np.vstack([i_k, j_k, l_k, dbdt, dlogbdt]).T, header=hdr, delimiter=',\t', fmt='%i %i %i %.5e %.5e')
-            
     return i_k, j_k, l_k, dbdt, dlogbdt
 
 
-def dP02Bk(theta, seed=range(5), rsd='all', dmnu='fin', fscale_pk=1., silent=True):
+def dP02Bk(theta, seed=range(5), rsd='all', dmnu='fin', fscale_pk=1., Nderiv=None, silent=True):
     ''' combined derivative dP0/dtt, dP2/dtt, dB/dtt
     '''
     # dP0/dtheta, dP2/dtheta
-    k, dp, dlogp = dP02k(theta, seed=seed, rsd=rsd, dmnu=dmnu, silent=silent) 
+    k, dp, dlogp = dP02k(theta, seed=seed, rsd=rsd, dmnu=dmnu, Nderiv=Nderiv, silent=silent) 
     # dB0/dtheta
-    i_k, j_k, l_k, db, dlogb = dBk(theta, seed=seed, rsd=rsd, dmnu=dmnu, silent=silent) 
+    i_k, j_k, l_k, db, dlogb = dBk(theta, seed=seed, rsd=rsd, dmnu=dmnu, Nderiv=Nderiv, silent=silent) 
     return k, i_k, j_k, l_k, np.concatenate([fscale_pk * dp, db]), np.concatenate([dlogp, dlogb])
 
 
@@ -2268,29 +2078,7 @@ def _P02B_dmnu(kmax=0.5, seed=range(5), rsd='all', silent=True):
         
 
 # --- convergence tests --- 
-def _converge_dobs(obs, theta, rsd='all', flag='reg', dmnu='fin', fscale_pk=1., Nderiv=None, silent=True):
-    ''' dP0/dtt, dP2/dtt, dB/dtt
-    '''
-    if Nderiv is None: 
-        if obs == 'p02k': 
-            return dP02k(theta, rsd=rsd, flag=flag, dmnu=dmnu, silent=silent) 
-        elif obs == 'p02bk': 
-            return dP02Bk(theta, rsd=rsd, flag=flag, dmnu=dmnu, fscale_pk=fscale_pk, silent=silent) 
-
-    # dP0/dtheta, dP2/dtheta
-    _, dp = Forecast.quijhod_dP02kdtheta(theta, 
-            log=False, z=0, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=Nderiv, silent=silent)
-
-    if obs == 'p02k': 
-        return dp
-    else: 
-        # dB0/dtheta
-        _, _, _, db = Forecast.quijhod_dBkdtheta(theta, 
-                log=False, z=0, dmnu=dmnu, flag=flag, rsd=rsd, Nderiv=Nderiv, silent=silent)
-        return np.concatenate([fscale_pk * dp, db]) 
-
-
-def _converge_FisherMatrix(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin',
+def _converge_FisherMatrix(obs, kmax=0.5, seed=range(5), rsd='all', flag='reg', dmnu='fin',
         params='default', theta_nuis=None, Ncov=None, Nderiv=None): 
     ''' calculate fisher matrix for parameters ['Om', 'Ob', 'h', 'ns', 's8', 'Mnu'] 
     and specified nuisance parameters
@@ -2382,14 +2170,21 @@ def _converge_FisherMatrix(obs, kmax=0.5, rsd='all', flag='reg', dmnu='fin',
     # calculate the derivatives along all the thetas 
     dobs_dt = [] 
     for par in _thetas: 
-        dobs_dti = _converge_dobs(obs, par, rsd=rsd, flag=flag, dmnu=dmnu, fscale_pk=fscale_pk, Nderiv=Nderiv) 
+        if obs == 'p02k': 
+            _, dobs_dti, _ = dP02k(par, seed=seed, rsd=rsd, dmnu=dmnu, Nderiv=Nderiv, silent=silent)
+        elif obs == 'bk': 
+            # rsd and flag kwargs are passed to the derivatives
+            _, _, _, dobs_dti, _ = dBk(par, seed=seed, rsd=rsd, dmnu=dmnu, Nderiv=Nderiv, silent=silent)
+        elif obs == 'p02bk': 
+            _, _, _, _, dobs_dti, _ = dP02Bk(par, seed=seed, rsd=rsd,
+                    dmnu=dmnu, fscale_pk=fscale_pk, Nderiv=Nderiv, silent=silent) 
         dobs_dt.append(dobs_dti[klim])
             
     Fij = Forecast.Fij(dobs_dt, C_inv) 
     return Fij 
 
 
-def converge_Fij(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin',
+def converge_Fij(obs, kmax=0.5, seed=range(5), rsd='all', flag='reg', dmnu='fin',
         params='default', silent=True): 
     ''' convergence test of Fisher matrix elements  when we calculate the covariance 
     matrix or derivatives using different number of mocks. 
@@ -2416,8 +2211,16 @@ def converge_Fij(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin',
     # read in fisher matrix (Fij)
     Fijs = []
     for ncov in ncovs: 
-        Fijs.append(_converge_FisherMatrix(obs, kmax=kmax, rsd=rsd, flag=flag,
-            params=params, dmnu=dmnu, Ncov=ncov, Nderiv=None)) 
+        Fijs.append(
+                _converge_FisherMatrix(obs, 
+                    kmax=kmax, 
+                    seed=seed, 
+                    rsd=rsd, 
+                    flag=flag,
+                    params=params, 
+                    dmnu=dmnu,
+                    Ncov=ncov, 
+                    Nderiv=None)) 
     Fijs = np.array(Fijs) 
 
     fig = plt.figure(figsize=(12,15))
@@ -2439,13 +2242,22 @@ def converge_Fij(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin',
 
     print('--- Nderiv. test ---' ) 
     # convergence of derivatives 
-    if rsd == 'all': nderivs = [100, 200, 400, 600, 800, 1000, 1200, 1400, 1500]
-    else: nderivs = [100, 200, 300, 350, 400, 450, 475, 500]
+    assert rsd == 'all'
+    nderivs = [500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 7500]
+
     # read in fisher matrix (Fij)
     Fijs = []
     for nderiv in nderivs: 
-        Fijs.append(_converge_FisherMatrix(obs, kmax=kmax, rsd=rsd, flag=flag, 
-            params=params, dmnu=dmnu, Ncov=None, Nderiv=nderiv)) 
+        Fijs.append(
+                _converge_FisherMatrix(obs,
+                    kmax=kmax,
+                    seed=seed, 
+                    rsd=rsd, 
+                    flag=flag, 
+                    params=params,
+                    dmnu=dmnu,
+                    Ncov=None, 
+                    Nderiv=nderiv)) 
     Fijs = np.array(Fijs) 
     sub = fig.add_subplot(122)
     for _i, ij in enumerate(ij_pairs): 
@@ -2464,14 +2276,14 @@ def converge_Fij(obs, kmax=0.5, rsd=True, flag=None, dmnu='fin',
     sub.set_yticklabels(ij_pairs_str) 
     fig.subplots_adjust(wspace=0.4) 
 
-    ffig = os.path.join(dir_doc, 'converge.%sFij%s%s%s.dmnu_%s.kmax%.1f.png' %
-            (obs, _params_str(params), _rsd_str(rsd), _flag_str(flag), dmnu, kmax))
+    ffig = os.path.join(dir_doc, 'converge.%sFij%s%s%s%s.dmnu_%s.kmax%.1f.png' %
+            (obs, _params_str(params), _rsd_str(rsd), _seed_str(seed), _flag_str(flag), dmnu, kmax))
     fig.savefig(ffig, bbox_inches='tight') 
     fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex version 
     return None
 
 
-def converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin',
+def converge_P02B_Forecast(kmax=0.5, seed=range(5), rsd='all', flag='reg', dmnu='fin',
         params='default'):
     ''' convergence test of cosmological parameter constraints 
     '''
@@ -2489,8 +2301,15 @@ def converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin',
     # read in fisher matrix (Fij)
     Finvs, Fiis = [], [] 
     for ncov in ncovs: 
-        Fij = _converge_FisherMatrix('p02bk', kmax=kmax, rsd=rsd, flag=flag,
-                dmnu=dmnu, params=params, Ncov=ncov, Nderiv=None)
+        Fij = _converge_FisherMatrix('p02bk', 
+                seed=seed, 
+                kmax=kmax, 
+                rsd=rsd, 
+                flag=flag,
+                dmnu=dmnu, 
+                params=params, 
+                Ncov=ncov, 
+                Nderiv=None)
         Finvs.append(np.linalg.inv(Fij)) # invert fisher matrix 
         Fiis.append(np.diag(Fij)) 
     Finvs = np.array(Finvs) 
@@ -2516,15 +2335,21 @@ def converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin',
 
     print('--- Nderiv test ---' ) 
     # convergence of derivatives 
-    #if rsd == 'all': nderivs = [100, 200, 400, 600, 800, 1000, 1200, 1400, 1500]
-    #else: nderivs = [100, 200, 300, 350, 400, 450, 475, 500]
-    if rsd == 'all': nderivs = [100, 500, 1000, 1400, 1500]
-    else: nderivs = [100, 300, 450, 475, 500]
+    assert rsd == 'all'
+    nderivs = [500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 7500]
+    
     # read in fisher matrix (Fij)
     Finvs, Fiis = [], [] 
     for nderiv in nderivs: 
-        Fij = _converge_FisherMatrix('p02bk', kmax=kmax, rsd=rsd, flag=flag, dmnu=dmnu, 
-                params=params, Ncov=None, Nderiv=nderiv)
+        Fij = _converge_FisherMatrix('p02bk', 
+                seed=seed,
+                kmax=kmax, 
+                rsd=rsd, 
+                flag=flag,
+                dmnu=dmnu, 
+                params=params, 
+                Ncov=None, 
+                Nderiv=nderiv)
         Finvs.append(np.linalg.inv(Fij)) # invert fisher matrix 
         Fiis.append(Fij) 
     Finvs = np.array(Finvs) 
@@ -2547,14 +2372,14 @@ def converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin',
     fig.subplots_adjust(wspace=0.25) 
 
     ffig = os.path.join(dir_doc, 
-            'converge.p02bkFisher%s%s%s.dmnu_%s.kmax%.1f.png' %
-            (_params_str(params), _rsd_str(rsd), _flag_str(flag), dmnu, kmax))
+            'converge.p02bkFisher%s%s%s%s.dmnu_%s.kmax%.1f.png' %
+            (_params_str(params), _rsd_str(rsd), _seed_str(seed), _flag_str(flag), dmnu, kmax))
     fig.savefig(ffig, bbox_inches='tight') 
     fig.savefig(UT.fig_tex(ffig, pdf=True), bbox_inches='tight') # latex friednly
     return None
 
 
-def plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True): 
+def plot_converge_dP02B(theta, kmax=0.5, seed=range(5), rsd='all', flag='reg', dmnu='fin', log=True): 
     ''' compare derivatives w.r.t. the different thetas
     '''
     # y range of P0, P2 plots 
@@ -2579,7 +2404,8 @@ def plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=
 
     for nderiv, clr, lw in zip([500, 1000, 1500], ['C1', 'C0', 'k'], 
             [2, 1, 0.5]): 
-        dpb = _converge_dobs('p02bk', theta, rsd=rsd, flag=flag, dmnu=dmnu, Nderiv=nderiv)
+        _, _, _, _, dpb, _ = dP02Bk(theta, seed=seed, rsd=rsd, dmnu=dmnu,
+                fscale_pk=fscale_pk, Nderiv=nderiv, silent=False) 
         if log: dpb /= pbg_fid
         
         nk0 = int(len(k)/2) 
@@ -2627,7 +2453,8 @@ def plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=
     sub2.set_xlabel('triangles', fontsize=25) 
     #sub2.set_ylabel(r'${\rm d} %s B_0/{\rm d}\theta (N_{\rm deriv})$' % (['', '\log'][log]), fontsize=25) 
     ffig = os.path.join(dir_hod, 'figs', 
-            'converge.d%sP02Bd%s%s%s.%s.png' % (['', 'log'][log], theta, _rsd_str(rsd), _flag_str(flag), dmnu))
+            'converge.d%sP02Bd%s%s%s%s.%s.png' % (['', 'log'][log], theta,
+                _rsd_str(rsd), _seed_str(seed), _flag_str(flag), dmnu))
     fig.savefig(ffig, bbox_inches='tight') 
     return None 
 
@@ -2936,6 +2763,11 @@ def _flag_str(flag):
     return ['.%s' % flag, ''][flag is None]
 
 
+def _Nderiv_str(Nderiv): 
+    if Nderiv is None: return ''
+    else: return '.Nderiv%i' % Nderiv
+
+
 if __name__=="__main__": 
     # covariance matrices 
     '''
@@ -2972,23 +2804,31 @@ if __name__=="__main__":
         nbar()
     '''
     # convergence tests
+
+    for theta in ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']: 
+        plot_converge_dP02B(theta, kmax=0.5, seed=range(5), rsd='all', flag='reg', dmnu='fin', log=True)
+    for theta in ['logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1']:
+        plot_converge_dP02B(theta, kmax=0.5, seed=range(5), rsd='all', flag='reg', dmnu='fin', log=True)
+
+    converge_Fij('p02bk', kmax=0.5, seed=range(5), rsd='all', flag='reg', dmnu='fin', params='default', silent=True)
+    converge_P02B_Forecast(kmax=0.5, seed=range(5), rsd='all', flag='reg', dmnu='fin', params='default')
     '''
         # convergence of derivatives
         for theta in ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']: 
-            plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True)
+            plot_converge_dP02B(theta, kmax=0.5, seed=range(5), rsd='all', flag='reg', dmnu='fin', log=True)
         for theta in ['logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1']:
-            plot_converge_dP02B(theta, kmax=0.5, rsd='all', flag='reg', dmnu='fin', log=True)
+            plot_converge_dP02B(theta, kmax=0.5, seed=range(5), rsd='all', flag='reg', dmnu='fin', log=True)
 
         # convergence of Fisher matrix  
-        converge_Fij('p02k', kmax=0.5, rsd='all', flag='reg', dmnu='fin',
+        converge_Fij('p02k', kmax=0.5, seed=range(5), rsd='all', flag='reg', dmnu='fin',
                 params='default', silent=True)
-        converge_Fij('p02bk', kmax=0.5, rsd='all', flag='reg', dmnu='fin',
+        converge_Fij('p02bk', kmax=0.5, seed=range(5), rsd='all', flag='reg', dmnu='fin',
                 params='default', silent=True)
 
         # convergence of forecast 
-        _converge_P02_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin',
+        _converge_P02_Forecast(kmax=0.5, seed=range(5), rsd='all', flag='reg', dmnu='fin',
                 params='default')
-        converge_P02B_Forecast(kmax=0.5, rsd='all', flag='reg', dmnu='fin',
+        converge_P02B_Forecast(kmax=0.5, seed=range(5), rsd='all', flag='reg', dmnu='fin',
                 params='default')
 
         # LCDM convergence tests 
@@ -3002,13 +2842,6 @@ if __name__=="__main__":
                 params='lcdm')
     '''
     # forecasts 
-    print('--- fin ---') 
-    P02B_Forecast(kmax=0.5, seed=range(5), rsd='all', dmnu='fin', theta_nuis=None, planck=False)
-    print('--- p ---') 
-    P02B_Forecast(kmax=0.5, seed=range(5), rsd='all', dmnu='p', theta_nuis=None, planck=False)
-    print('--- pp ---') 
-    P02B_Forecast(kmax=0.5, seed=range(5), rsd='all', dmnu='pp', theta_nuis=None, planck=False)
-    #_P02B_dmnu(kmax=0.5, seed=range(5), rsd='all', silent=True)
     '''
         P02B_Forecast(kmax=0.5, seed=range(5), rsd='all', dmnu='fin', theta_nuis=None, planck=False)
         P02B_Forecast(kmax=0.5, seed=range(5), rsd='all', dmnu='fin', theta_nuis=None, planck=True)
