@@ -153,7 +153,7 @@ if __name__=="__main__":
     
     for theta in thetas: 
         for Nderiv in [500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 7500]: 
-            hod_dP02dtheta(
+            hod_dP02dtheta_Nderiv(
                     theta, 
                     Nderiv, 
                     z=0, 
@@ -161,7 +161,7 @@ if __name__=="__main__":
                     seed=range(5),
                     flag='reg', 
                     silent=False)
-            hod_dBdtheta(
+            hod_dBdtheta_Nderiv(
                     theta, 
                     Nderiv, 
                     z=0, 
