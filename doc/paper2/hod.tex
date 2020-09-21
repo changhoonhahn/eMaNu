@@ -23,7 +23,7 @@ We are interested in quantifying the information content of the galaxy bispectru
 For a perturbation theory approach, this involves incorporating an analytic bias model 
 for galaxies~\citep[\emph{e.g.}][]{sefusatti2006, yankelevich2019, chudaykin2019}.
 Perturbation theory approaches, however, break down on small scales and cannot
-exploit the constraining power from nonlinear regime. Instead, in our simulation-based 
+exploit the constraining power from the nonlinear regime. Instead, in our simulation-based 
 approach we use the halo occupation distribution (HOD) 
 framework~\citep[\emph{e.g.}][]{benson2000, peacock2000, seljak2000, berlind2002,
 cooray2002, zheng2005, leauthaud2012, tinker2013, zentner2016, vakili2019}.
@@ -34,7 +34,7 @@ successful in reproducing the observed galaxy clustering and, as a result, is th
 simulated galaxy mock catalogs in galaxy clustering analyses to estimate covariance 
 matrices and test systematic effects~\citep[\emph{e.g.}][]{rodriguez-torres2016, rodriguez-torres2017, beutler2017}. 
 More importantly, HOD is the primary framework used in simulation-based galaxy
-clustering analyses: \eg in emulation~\citep{mcclintock2018,
+clustering analyses: \eg~in emulation~\citep{mcclintock2018,
 zhai2019} or evidence modeling~\citep{lange2019}. Since the forecasts we
 present in this paper are aimed at quantifying the constraining power of the
 galaxy bispectrum for simulation-based analyses, the HOD model is particularly 
@@ -67,11 +67,12 @@ distribution, respectively. Central galaxies are placed at the center of the
 halo while position and velocity of the satellite galaxies are sampled from a 
 \cite{navarro1997} (NFW) profile. 
 
-For the fiducial parameters of our HOD model we use values based on the 
-best-fit HOD parameters for the SDSS $M_r < -21.5$  and $-22$ samples from \cite{zheng2007}: 
+For the fiducial parameters of our HOD model, we use the following values: 
 \beq \label{eq:hod_fid}
 \{M_{\rm min}, \sigma_{\log M}, \log M_0, \alpha, \log M_1 \} = \{13.65,~0.2,~14.,~1.1,~14.\}.
 \eeq
+These values are roughly based on the best-fit HOD parameters for the SDSS $M_r
+< -21.5$ and $-22$ samples from \cite{zheng2007}. 
 In Figure~\ref{fig:hod}, we present the halo occupation of our fiducial 
 HOD parameters (black). We include the best-fit halo occupations of 
 the SDSS $M_r < -21.5$ (blue)  and $-22$ (orange) samples from \cite{zheng2007}
@@ -114,7 +115,7 @@ over, halo assembly bias can impact the cosmological parameter constraints.
 However, for the high luminosity SDSS samples ($M_r < -21.5$  and $<-21$), 
 \cite{zentner2016} and \cite{vakili2019} find little evidence for assembly bias 
 in the galaxy clustering. Similarly, \cite{beltz-mohrmann2020} also find that
-the \cite{zheng2007} HOD model is sufficent to reproduce galaxy clustering of
+the \cite{zheng2007} HOD model is sufficient to reproduce galaxy clustering of
 luminous galaxies in hydrodynamic simulations. Since we base our HOD parameters
 on the high luminosity SDSS samples, we do not include assembly bias and use
 the \cite{zheng2007} model. 
