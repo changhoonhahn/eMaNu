@@ -277,19 +277,20 @@ perturbation theory approaches and accurately quantify the constraining power
 in the nonlinear regime. A simulation-based approach, however, has a few caveats. 
 First, our forecasts rely on the stability and convergence of the covariance 
 matrix and numerical derivatives. 
-For our constraints we use $195000$ galaxy catalogs (Section~\ref{sec:hod}): 
+For our constraints we use a total of $195000$ galaxy catalogs (Section~\ref{sec:hod}): 
 $15,000$ for the covariance matrices and $180,000$ for the derivatives with 
-respect to 11 parameters. To ensure the robustness of our results, we conduct the
-same set of convergence tests as \cite{hahn2020}. 
-First, we test whether our results have sufficiently converged by deriving our 
+respect to 11 parameters ($7,500$ at each parameter). To ensure the robustness
+of our results, we conduct the same set of convergence tests as
+\cite{hahn2020}. 
+First, we test whether our results have sufficiently converged by deriving the 
 constraints using different numbers of galaxy catalogs to estimate the covariance 
 matrix and derivatives: $N_{\rm cov}$ and $N_{\rm deriv}$. For $N_{\rm cov}$,
-we find $< XXXX\%$ variation $\sigma_\theta$ for $N_{\rm cov} > 12000$.
+we find $< 0.5\%$ variation $\sigma_\theta$ for $N_{\rm cov} > 12000$.
 For $N_{\rm deriv}$, 
-we find $< XXXX\%$ variation $\sigma_\theta$ for $N_{\rm cov} > 12000$.
-vary by $< 10\%$, we conclude that the conergence of the covariance matrix or
-deriviatves do not significantly impact our forecast. 
-\ch{fill this in once we have the convergence test}. 
+we find $< 10\%$ variation $\sigma_\theta$ for $N_{\rm cov} > 6000$.
+Since we have sufficient $N_{\rm cov}$ and $N_{\rm deriv}$, we conclude that 
+our constraints are not impacted by the convergence of the covariance matrix 
+or derivatives --- especially to the accuracy level of Fisher forecasting. 
 
 % derivative w.r.t. Mnu
 Besides the convergence of the numerical derivatives, the $\smnu$ derivatives
@@ -350,7 +351,7 @@ observations~\citep{pujol2014, hearin2016, pujol2017, zentner2019, vakili2019, o
 and hydrodynamic simulations~\citep{chaves-montero2016, beltz-mohrmann2020}. 
  
 Central and satellite velocity biases, which are not included in the
-\cite{zheng07} HOD can also impact galaxy clustering~\citep{guo2015a,guo2015}. 
+\cite{zheng2007} HOD can also impact galaxy clustering~\citep{guo2015a,guo2015}. 
 Central galaxies, both in observations and simulations, are not found to be 
 at rest in the centers of the host 
 halos~\citep[\eg][]{berlind2003, yoshikawa2003, vandenbosch2005, skibba2011}. 

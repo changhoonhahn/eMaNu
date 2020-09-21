@@ -291,7 +291,8 @@ def dP02k(theta, seed=range(5), rsd='all', dmnu='fin', Nderiv=None, silent=True,
             (theta, _rsd_str(rsd), _seed_str(seed), _flag_str(flag),
                 _Nderiv_str(Nderiv))) 
 
-    assert os.path.isfile(fdpk)
+    if not os.path.isfile(fdpk): raise ValueError('%s does not exist' %
+            os.path.basename(fdpk))
 
     if not silent: print('--- reading %s ---' % fdpk) 
     icols = range(3) 
@@ -2171,13 +2172,14 @@ def _converge_FisherMatrix(obs, kmax=0.5, seed=range(5), rsd='all', flag='reg', 
     dobs_dt = [] 
     for par in _thetas: 
         if obs == 'p02k': 
-            _, dobs_dti, _ = dP02k(par, seed=seed, rsd=rsd, dmnu=dmnu, Nderiv=Nderiv, silent=silent)
+            _, dobs_dti, _ = dP02k(par, seed=seed, rsd=rsd, dmnu=dmnu,
+                    Nderiv=Nderiv, silent=False)
         elif obs == 'bk': 
             # rsd and flag kwargs are passed to the derivatives
-            _, _, _, dobs_dti, _ = dBk(par, seed=seed, rsd=rsd, dmnu=dmnu, Nderiv=Nderiv, silent=silent)
+            _, _, _, dobs_dti, _ = dBk(par, seed=seed, rsd=rsd, dmnu=dmnu, Nderiv=Nderiv, silent=False)
         elif obs == 'p02bk': 
             _, _, _, _, dobs_dti, _ = dP02Bk(par, seed=seed, rsd=rsd,
-                    dmnu=dmnu, fscale_pk=fscale_pk, Nderiv=Nderiv, silent=silent) 
+                    dmnu=dmnu, fscale_pk=fscale_pk, Nderiv=Nderiv, silent=False) 
         dobs_dt.append(dobs_dti[klim])
             
     Fij = Forecast.Fij(dobs_dt, C_inv) 
@@ -2261,9 +2263,9 @@ def converge_Fij(obs, kmax=0.5, seed=range(5), rsd='all', flag='reg', dmnu='fin'
     Fijs = np.array(Fijs) 
     sub = fig.add_subplot(122)
     for _i, ij in enumerate(ij_pairs): 
-        sub.fill_between([100, 3000], [1.-_i*0.3-0.05, 1.-_i*0.3-0.05], [1.-_i*0.3+0.05, 1.-_i*0.3+0.05],
+        sub.fill_between([100, 8000], [1.-_i*0.3-0.05, 1.-_i*0.3-0.05], [1.-_i*0.3+0.05, 1.-_i*0.3+0.05],
                 color='k', linewidth=0, alpha=0.25) 
-        sub.plot([100., 3000.], [1.-_i*0.3, 1.-_i*0.3], c='k', ls='--', lw=1) 
+        sub.plot([100., 8000.], [1.-_i*0.3, 1.-_i*0.3], c='k', ls='--', lw=1) 
         _Fij = Fijs[:,ij[0],ij[1]]
         sub.plot(nderivs, _Fij/_Fij[-1] - _i*0.3)
         print('--- %s ---' % ij_pairs_str[_i]) 
@@ -2356,8 +2358,8 @@ def converge_P02B_Forecast(kmax=0.5, seed=range(5), rsd='all', flag='reg', dmnu=
     Fiis = np.array(Fiis) 
 
     sub = fig.add_subplot(122)
-    sub.plot([100., 3000.], [1., 1.], c='k', ls='--', lw=1) 
-    sub.plot([100., 3000.], [0.9, 0.9], c='k', ls=':', lw=1) 
+    sub.plot([100., 8000.], [1., 1.], c='k', ls='--', lw=1) 
+    sub.plot([100., 8000.], [0.9, 0.9], c='k', ls=':', lw=1) 
     for i in range(len(theta_cosmo)): 
         sig_theta = np.sqrt(Finvs[:,i,i]) 
         sigii_theta = 1./np.sqrt(Fiis[:,i,i]) 
@@ -2402,8 +2404,7 @@ def plot_converge_dP02B(theta, kmax=0.5, seed=range(5), rsd='all', flag='reg', d
     sub1 = plt.subplot(gs[1])
     sub2 = plt.subplot(gs[2])
 
-    for nderiv, clr, lw in zip([500, 1000, 1500], ['C1', 'C0', 'k'], 
-            [2, 1, 0.5]): 
+    for nderiv, clr, lw in zip([500, 3000, 7500], ['C1', 'C0', 'k'], [2, 1, 0.5]): 
         _, _, _, _, dpb, _ = dP02Bk(theta, seed=seed, rsd=rsd, dmnu=dmnu,
                 fscale_pk=fscale_pk, Nderiv=nderiv, silent=False) 
         if log: dpb /= pbg_fid
@@ -2804,13 +2805,6 @@ if __name__=="__main__":
         nbar()
     '''
     # convergence tests
-
-    for theta in ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']: 
-        plot_converge_dP02B(theta, kmax=0.5, seed=range(5), rsd='all', flag='reg', dmnu='fin', log=True)
-    for theta in ['logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1']:
-        plot_converge_dP02B(theta, kmax=0.5, seed=range(5), rsd='all', flag='reg', dmnu='fin', log=True)
-
-    converge_Fij('p02bk', kmax=0.5, seed=range(5), rsd='all', flag='reg', dmnu='fin', params='default', silent=True)
     converge_P02B_Forecast(kmax=0.5, seed=range(5), rsd='all', flag='reg', dmnu='fin', params='default')
     '''
         # convergence of derivatives
