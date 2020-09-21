@@ -42,12 +42,17 @@ for seed in seeds:
         if theta in ['logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'logM0_m', 
                 'logM0_p', 'alpha_m', 'alpha_p', 'logM1_m', 'logM1_p']: 
             folder = 'fiducial'
+        if theta in ['sigma_logM_m_HR', 'sigma_logM_p_HR']: 
+            folder = 'fiducial_HR'
 
         if isinstance(reals, str) and reals == 'all': 
             if theta == 'fiducial':            
                 reals = range(15000) 
             elif theta =='latin_hypercube':    
                 reals = range(2000) 
+            elif 'HR' in theta: 
+                # high resolution 
+                reals = range(100) 
             else:                           
                 reals = range(500) 
         
@@ -79,6 +84,11 @@ for seed in seeds:
             logM1 = 13.8
         elif theta == 'logM1_p': 
             logM1 = 14.2
+        # high resolution tests 
+        elif theta == 'sigma_logM_m_HR': 
+            sigma_logM = 0.53
+        elif theta == 'sigma_logM_p_HR': 
+            sigma_logM = 0.57
 
         for i in range(nodes): # loop over the different realizations
             i_first = step * i 
