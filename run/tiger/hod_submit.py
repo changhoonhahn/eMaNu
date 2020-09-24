@@ -3,11 +3,11 @@ import numpy as np
 import sys,os
 
 ################################## INPUT #############################################
-job        = 'P,B'
+job        = 'catalog,P,B'
 qos        = 'vshort'
 snapnum    = 4    #4(z=0), 3(z=0.5), 2(z=1), 1(z=2), 0(z=3)
-reals      = range(100,500)    # realization indices 'all' or list specifying indices
-seeds      = range(1,5) # HOD seed 
+reals      = 'all'    # realization indices 'all' or list specifying indices
+seeds      = range(5) # HOD seed 
 
 theta_cosmo = ['Om_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p', 'Om_m',  'Ob2_m', 'h_m', 'ns_m', 's8_m', 'Mnu_p', 'Mnu_pp', 'Mnu_ppp']
 #theta_hod = ['logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'logM0_m', 'logM0_p', 'alpha_m', 'alpha_p', 'logM1_m', 'logM1_p', 'fiducial', 'fiducial_ZA']
@@ -16,6 +16,7 @@ thetas =  theta_cosmo+theta_hod
 #thetas = ['testing'] 
 #thetas = ['logM0_m', 'logM0_p']
 #thetas = ['Om_m']
+thetas = ['sigma_logM_m_HR', 'sigma_logM_p_HR']
 ######################################################################################
 
 if qos == 'vvshort': #number of realizations each cpu will do
@@ -107,7 +108,7 @@ for seed in seeds:
                 "#SBATCH --export=ALL",
                 "#SBATCH --output=_%s_%i_%i.o" % (theta, seed, i),
                 "#SBATCH --mail-type=all",
-                "#SBATCH --mail-user=changhoonhahn@lbl.gov",
+                "#SBATCH --mail-user=changhoon.hahn@princeton.edu",
                 "", 
                 "module load anaconda3", 
                 "source activate emanu", 
