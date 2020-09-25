@@ -196,10 +196,10 @@ from $\Bh$ over $\Phl$}.
 Other previous works have also quantified the information content of the
 bispectrum:~\citep[\eg][]{scoccimarro2004, sefusatti2006, sefusatti2007,
 song2015, tellarini2016, yamauchi2017a, karagiannis2018, yankelevich2019,
-chudaykin2019, coulton2019, reischke2019}. 
-We focus our comparison to \cite{sefusatti2006}, \cite{yankelevich2019}, 
-and \cite{chudaykin2019}, which provide bispectrum forecasts for full sets of
-cosmological parameters.
+chudaykin2019, coulton2019, reischke2019, agarwal2020}. 
+We focus our comparison to \cite{sefusatti2006}, \cite{yankelevich2019},
+\cite{agarwal2020} and \cite{chudaykin2019}, which provide bispectrum forecasts for 
+full sets of cosmological parameters.
 \cite{sefusatti2006} present \lcdm~forecasts for a joint likelihood analysis of
 $\Bg$ with $\Pg$ and WMAP. For $\kmax = 0.2\hmpc$, they find that including
 $\Bg$ improves constraints on $\Om$, $\Ob$, $h$, $n_s$, and $\sig$ by 1.6, 1.2,
@@ -236,6 +236,27 @@ to theoretical uncertainties. Despite the differences, when they estimate the co
 power beyond $\kmax > 0.15\hmpc$ using Figure of Merit they find that the
 constraining power of $\Bg$ relative to $\Pg$ increases for higher $\kmax$
 consistent with our results. 
+
+% comparison to Agarwal+(2020) 
+Similar to \cite{yankelevich2019}, \cite{agarwal2020} presents \lcdm Fisher 
+forecasts for a Euclid-like survey. They parameterize their cosmology using 
+angular diameter distance $D_A$, Hubble parameter $H$, linear growth rate $f$,
+$\Omega_{\rm cdm}$, and the tilt, $n_s$, and running, $n_{\rm run}$ of the
+primordial power spectrum. They use effective field theory PT to model the
+1-loop galaxy power spectrum and tree-level galaxy bispectrum, which
+requires 22 parameters that include 5 galaxy bias parameters and 9 selection 
+parameters. For $P_g$ and $B_g$, they probe down to $k_{\rm max} = 0.35$ and
+$0.1\hmpc$, respecitvely, based on the limitations of their PT model. 
+Overall, \cite{agarwal2020} find significantly larger improvements in the
+cosmological parameter from including the bispectrum than
+\cite{yankelevich2019}. For fixed selection parameters, they find $>2\times$
+tighter cosmological parameter constraints from including $B_g$. Marginalizing
+over selection parameters, they find $>4\times$ tighter constraints. These 
+improvements are roughly consistent with our improvement from $\Bg$. As for the
+difference from the \cite{yankelevich2019} forecasts, they primarily attribute
+this to their  less conservative galaxy bias model and argue that using 56 
+nuisance parameters~\citep{yankelevich2019} is too conservative and ignores
+the expected redshift dependent continuity of the galaxy bias parameters. 
 
 %comparison to the Chudaykin 
 Finally, \cite{chudaykin2019} present $\smnu$ + \lcdm~forecasts for the power
@@ -430,12 +451,20 @@ incorporated in a galaxy bispectrum analysis.
 Lastly, our forecasts are derived using periodic boxes and do not consider a
 realistic geometry or radial selection function of galaxy surveys. A realistic 
 selection function will smooth the triangle configuration dependence and degrade 
-the constraining power of the bispectrum~\citep{sefusatti2005}. We also do not
-account for super-sample covariance, which may also impact our
-constraints~\citep{hamilton2006, sefusatti2006, takada2013, li2018, wadekar2019}. 
-Since these effects also affect the power spectrum, we still expect to find
-substantial improvements in cosmological parameter constraints from including
-the bispectrum, especially for $\smnu$. 
+the constraining power of the bispectrum~\citep{sefusatti2005}. Galaxy samples
+selected based on photometric properties can also be impacted by, for instance, 
+the alignment of galaxies to the large-scale tidal fields~\citep{hirata2009,
+krause2011, martens2018, obuljen2019}. If unaccounted, this effect can
+significantly bias the inferred cosmological parameters~\citep{agarwal2020}. 
+Such effects, however, further underscore the importance of the bispectrum.
+Marginalizing over them dramatically reduces the constraining power of the
+power spectrum alone and necesitates the bispectrum to break parameter
+degeneracies and tightly constrain cosmological parameters. Besides selection
+effects, we also do not account for super-sample covariance, which may also impact 
+our constraints~\citep{hamilton2006, sefusatti2006, takada2013, li2018,
+wadekar2019}. Since super-sample covariance affects the power spectrum as well, 
+we still expect to find substantial improvements in cosmological parameter 
+constraints from including the bispectrum, especially for $\smnu$. 
 
 In this paper, we present the total information content and constraining power
 of the galaxy bispectrum down to the nonlinear regime. Even after marginalizing
