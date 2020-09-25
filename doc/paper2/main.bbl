@@ -23,6 +23,13 @@ Adamek, J., Durrer, R., \& Kunz, M. 2017, \JournalTitle{arXiv:1707.06938
   [astro-ph, physics:gr-qc]}, \href{http://arxiv.org/abs/1707.06938}{{\sffamily
   arXiv:1707.06938 [astro-ph, physics:gr-qc]}}
 
+\bibitem[{Agarwal {et~al.}(2020)Agarwal, Desjacques, Jeong, \&
+  Schmidt}]{agarwal2020}
+Agarwal, N., Desjacques, V., Jeong, D., \& Schmidt, F. 2020,
+  \JournalTitle{arXiv:2007.04340 [astro-ph]},
+  \href{http://arxiv.org/abs/2007.04340}{{\sffamily arXiv:2007.04340
+  [astro-ph]}}
+
 \bibitem[{Agarwal \& Feldman(2011)}]{agarwal2011}
 Agarwal, S., \& Feldman, H.~A. 2011,
   \href{http://dx.doi.org/10.1111/j.1365-2966.2010.17546.x}{\JournalTitle{Monthly
@@ -384,6 +391,11 @@ Hellwing, W.~A., Schaller, M., Frenk, C.~S., {et~al.} 2016,
   \href{http://dx.doi.org/10.1093/mnrasl/slw081}{\JournalTitle{Monthly Notices
   of the Royal Astronomical Society}, 461, L11}
 
+\bibitem[{Hirata(2009)}]{hirata2009}
+Hirata, C.~M. 2009,
+  \href{http://dx.doi.org/10.1111/j.1365-2966.2009.15353.x}{\JournalTitle{Monthly
+  Notices of the Royal Astronomical Society}, 399, 1074}
+
 \bibitem[{Hockney \& Eastwood(1981)}]{hockney1981}
 Hockney, R.~W., \& Eastwood, J.~W. 1981, Computer {{Simulation Using
   Particles}}
@@ -404,6 +416,11 @@ Jungman, G., Kamionkowski, M., Kosowsky, A., \& Spergel, D.~N. 1996,
 Karagiannis, D., Lazanu, A., Liguori, M., {et~al.} 2018,
   \href{http://dx.doi.org/10.1093/mnras/sty1029}{\JournalTitle{Monthly Notices
   of the Royal Astronomical Society}, 478, 1341}
+
+\bibitem[{Krause \& Hirata(2011)}]{krause2011}
+Krause, E., \& Hirata, C.~M. 2011,
+  \href{http://dx.doi.org/10.1111/j.1365-2966.2010.17638.x}{\JournalTitle{Monthly
+  Notices of the Royal Astronomical Society}, 410, 2730}
 
 \bibitem[{Kwan {et~al.}(2015)Kwan, Heitmann, Habib, Padmanabhan, Finkel,
   Frontiere, \& Pope}]{kwan2015}
@@ -498,6 +515,11 @@ Mandelbaum, R., Seljak, U., Kauffmann, G., Hirata, C.~M., \& Brinkmann, J.
   \href{http://dx.doi.org/10.1111/j.1365-2966.2006.10156.x}{\JournalTitle{Monthly
   Notices of the Royal Astronomical Society}, 368, 715}
 
+\bibitem[{Martens {et~al.}(2018)Martens, Hirata, Ross, \& Fang}]{martens2018}
+Martens, D., Hirata, C.~M., Ross, A.~J., \& Fang, X. 2018,
+  \href{http://dx.doi.org/10.1093/mnras/sty1100}{\JournalTitle{Monthly Notices
+  of the Royal Astronomical Society}, 478, 711}
+
 \bibitem[{Marulli {et~al.}(2011)Marulli, Carbone, Viel, Moscardini, \&
   Cimatti}]{marulli2011}
 Marulli, F., Carbone, C., Viel, M., Moscardini, L., \& Cimatti, A. 2011,
@@ -527,6 +549,11 @@ Munari, E., Biviano, A., Borgani, S., Murante, G., \& Fabjan, D. 2013,
 Navarro, J.~F., Frenk, C.~S., \& White, S. D.~M. 1997,
   \href{http://dx.doi.org/10.1086/304888}{\JournalTitle{The Astrophysical
   Journal}, 490, 493}
+
+\bibitem[{Obuljen {et~al.}(2019)Obuljen, Dalal, \& Percival}]{obuljen2019}
+Obuljen, A., Dalal, N., \& Percival, W.~J. 2019,
+  \href{http://dx.doi.org/10.1088/1475-7516/2019/10/020}{\JournalTitle{Journal
+  of Cosmology and Astroparticle Physics}, 10, 020}
 
 \bibitem[{Obuljen {et~al.}(2020)Obuljen, Percival, \& Dalal}]{obuljen2020}
 Obuljen, A., Percival, W.~J., \& Dalal, N. 2020, \JournalTitle{arXiv e-prints},
