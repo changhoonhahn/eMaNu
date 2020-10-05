@@ -7,12 +7,13 @@ thetas = ['Om_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p', 'Om_m',  'Ob2_m', 'h_m', 'ns_m
         'alpha_m', 'logM0_m', 'logM1_m', 'logMmin_m', 'sigma_logM_m',
         'alpha_p', 'logM0_p', 'logM1_p', 'logMmin_p', 'sigma_logM_p', 
         'fiducial_ZA']# fiducial
+thetas = ['sigma_logM_m_HR', 'sigma_logM_p_HR']
 
-job        = 'catalog,P,B'
+job        = 'P,B'
 snapnum     = 4    #4(z=0), 3(z=0.5), 2(z=1), 1(z=2), 0(z=3)
-qos         = 'vshort' 
-reals       = range(100,500) # realizations 
-seeds       = range(1,5) # HOD seeds
+qos         = 'vvshort' 
+reals       = 'all' # realizations 
+seeds       = range(5) # HOD seeds
 ######################################################################################
 dir_quij = '/projects/QUIJOTE/Galaxies/'
 
@@ -38,7 +39,7 @@ for seed in seeds:
     for i_t, theta in enumerate(thetas): 
         
         folder = theta 
-        if theta in ['logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'logM0_m', 'logM0_p', 'alpha_m', 'alpha_p', 'logM1_m', 'logM1_p']: 
+        if theta in ['logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'logM0_m', 'logM0_p', 'alpha_m', 'alpha_p', 'logM1_m', 'logM1_p', 'sigma_logM_m_HR', 'sigma_logM_p_HR']: 
             folder = 'fiducial'
             _theta = {
                     'alpha_m': 'fiducial_alpha=0.9', 
@@ -49,8 +50,10 @@ for seed in seeds:
                     'logM1_p': 'fiducial_logM1=14.2',
                     'logMmin_m': 'fiducial_logMmin=13.60', 
                     'logMmin_p': 'fiducial_logMmin=13.70',
-                    'sigma_logM_m': 'fiducial_sigma_logM=0.18',
-                    'sigma_logM_p': 'fiducial_sigma_logM=0.22'
+                    'sigma_logM_m': 'fiducial_HR_sigma_logM=0.18',
+                    'sigma_logM_p': 'fiducial_HR_sigma_logM=0.22',
+                    'sigma_logM_m_HR': 'fiducial_HR_sigma_logM=0.53',
+                    'sigma_logM_p_HR': 'fiducial_HR_sigma_logM=0.57'
                     }[theta]
         else: 
             _theta = theta 
@@ -61,6 +64,9 @@ for seed in seeds:
                 reals = range(15000) 
             elif theta =='latin_hypercube':    
                 reals = range(2000) 
+            elif 'HR' in theta: 
+                # high resolution 
+                reals = range(100) 
             else:                           
                 reals = range(500) 
         
@@ -69,13 +75,35 @@ for seed in seeds:
         # check which are missing  
         missing = [] 
         for i in reals: 
-            fbk0 = os.path.join(dir_quij, _theta, str(i), 
-                    'Bk_RS0_GC_%i_z=0.txt' % seed)
-            fbk1 = os.path.join(dir_quij, _theta, str(i), 
-                    'Bk_RS1_GC_%i_z=0.txt' % seed)
-            fbk2 = os.path.join(dir_quij, _theta, str(i), 
-                    'Bk_RS2_GC_%i_z=0.txt' % seed)
-            if not np.all([os.path.isfile(fbk0), os.path.isfile(fbk1), os.path.isfile(fbk2)]):
+            files = [] 
+            if 'catalog' in job: 
+                fcat = os.path.join(dir_quij, _theta, str(i), 
+                        'GC_%i_z=0.hdf5' % seed)
+                files.append(fcat)
+
+            if 'P' in job: 
+                fpk0 = os.path.join(dir_quij, _theta, str(i), 
+                        'Pk_RS0_GC_%i_z=0.txt' % seed)
+                fpk1 = os.path.join(dir_quij, _theta, str(i), 
+                        'Pk_RS1_GC_%i_z=0.txt' % seed)
+                fpk2 = os.path.join(dir_quij, _theta, str(i), 
+                        'Pk_RS2_GC_%i_z=0.txt' % seed)
+                files.append(fpk0)
+                files.append(fpk1)
+                files.append(fpk2)
+    
+            if 'B' in job: 
+                fbk0 = os.path.join(dir_quij, _theta, str(i), 
+                        'Bk_RS0_GC_%i_z=0.txt' % seed)
+                fbk1 = os.path.join(dir_quij, _theta, str(i), 
+                        'Bk_RS1_GC_%i_z=0.txt' % seed)
+                fbk2 = os.path.join(dir_quij, _theta, str(i), 
+                        'Bk_RS2_GC_%i_z=0.txt' % seed)
+                files.append(fbk0)
+                files.append(fbk1)
+                files.append(fbk2)
+                
+            if not np.all([os.path.isfile(_f) for _f in files]):
                 missing.append(i)
         missing = np.sort(missing)
         n_missing = len(missing) 
@@ -84,7 +112,6 @@ for seed in seeds:
             continue 
         else: 
             print('%s seed %i missing %i B(k)s' % (theta, seed, n_missing))
-            #print(missing)
 
         nodes = int(np.ceil(n_missing/step)) 
 
@@ -113,6 +140,11 @@ for seed in seeds:
             logM1 = 13.8
         elif theta == 'logM1_p': 
             logM1 = 14.2
+        # high resolution tests 
+        elif theta == 'sigma_logM_m_HR': 
+            sigma_logM = 0.53
+        elif theta == 'sigma_logM_p_HR': 
+            sigma_logM = 0.57
         
         i0 = 0
         for i in range(nodes): # loop over the different realizations
