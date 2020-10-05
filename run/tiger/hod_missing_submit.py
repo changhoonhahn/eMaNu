@@ -9,7 +9,7 @@ thetas = ['Om_p', 'Ob2_p', 'h_p', 'ns_p', 's8_p', 'Om_m',  'Ob2_m', 'h_m', 'ns_m
         'fiducial_ZA']# fiducial
 thetas = ['sigma_logM_m_HR', 'sigma_logM_p_HR']
 
-job        = 'P,B'
+job        = 'catalog,P,B'
 snapnum     = 4    #4(z=0), 3(z=0.5), 2(z=1), 1(z=2), 0(z=3)
 qos         = 'vvshort' 
 reals       = 'all' # realizations 
@@ -39,7 +39,7 @@ for seed in seeds:
     for i_t, theta in enumerate(thetas): 
         
         folder = theta 
-        if theta in ['logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'logM0_m', 'logM0_p', 'alpha_m', 'alpha_p', 'logM1_m', 'logM1_p', 'sigma_logM_m_HR', 'sigma_logM_p_HR']: 
+        if theta in ['logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'logM0_m', 'logM0_p', 'alpha_m', 'alpha_p', 'logM1_m', 'logM1_p']: 
             folder = 'fiducial'
             _theta = {
                     'alpha_m': 'fiducial_alpha=0.9', 
@@ -51,10 +51,14 @@ for seed in seeds:
                     'logMmin_m': 'fiducial_logMmin=13.60', 
                     'logMmin_p': 'fiducial_logMmin=13.70',
                     'sigma_logM_m': 'fiducial_HR_sigma_logM=0.18',
-                    'sigma_logM_p': 'fiducial_HR_sigma_logM=0.22',
+                    'sigma_logM_p': 'fiducial_HR_sigma_logM=0.22'
+                    }[theta]
+        elif theta in ['sigma_logM_m_HR', 'sigma_logM_p_HR']: 
+            folder = 'fiducial_HR'
+            _theta = {
                     'sigma_logM_m_HR': 'fiducial_HR_sigma_logM=0.53',
                     'sigma_logM_p_HR': 'fiducial_HR_sigma_logM=0.57'
-                    }[theta]
+                    }[theta] 
         else: 
             _theta = theta 
 
@@ -112,7 +116,7 @@ for seed in seeds:
             continue 
         else: 
             print('%s seed %i missing %i B(k)s' % (theta, seed, n_missing))
-
+        continue
         nodes = int(np.ceil(n_missing/step)) 
 
         logMmin    = 13.65

@@ -186,7 +186,8 @@ def _flag_str(flag):
 
 if __name__=="__main__": 
     #thetas = ['Mnu', 'Om', 'Ob2', 'h', 'ns', 's8', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1'] 
-    thetas = ['Asn', 'Bsn']
+    #thetas = ['Asn', 'Bsn']
+    thetas = ['sigma_logM_HR']
     #thetas = ['b1']
     for theta in thetas: 
         for rsd in [0, 1, 2, 'all']: # 'real', 

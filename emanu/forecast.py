@@ -130,6 +130,7 @@ def quijhod_dP02kdtheta(theta, log=False, rsd='all', seed=0, flag=None, dmnu='fi
             's8': [0.819, 0.849], 
             'logMmin': [13.6, 13.7], 
             'sigma_logM': [0.18, 0.22], 
+            'sigma_logM_HR': [0.53, 0.57], 
             'logM0': [13.8, 14.2],
             'alpha': [0.9, 1.3], 
             'logM1': [13.8, 14.2]}
@@ -180,6 +181,11 @@ def quijhod_dP02kdtheta(theta, log=False, rsd='all', seed=0, flag=None, dmnu='fi
         _p02ks = np.concatenate([quij['p0k'], quij['p2k']], axis=1)
         if not log: c_dpk = np.ones(_p02ks.shape[1]) 
         else: c_dpk = 1./np.average(_p02ks, axis=0) 
+    elif theta == 'sigma_logM_HR': 
+        if not silent: print("--- calculating dP/d%s ---" % theta) 
+        tts = ['sigma_logM_m_HR', 'sigma_logM_p_HR']
+        coeffs = [-1., 1.] 
+        h = quijote_thetas[theta][1] - quijote_thetas[theta][0]
     else: 
         if not silent: print("--- calculating dP/d%s ---" % theta) 
         tts = [theta+'_m', theta+'_p'] 
@@ -261,6 +267,7 @@ def quijhod_dBkdtheta(theta, log=False, rsd='all', seed=0, flag=None, z=0, dmnu=
             's8': [0.819, 0.849], 
             'logMmin': [13.6, 13.7], 
             'sigma_logM': [0.18, 0.22], 
+            'sigma_logM_HR': [0.53, 0.55], 
             'logM0': [13.8, 14.2],
             'alpha': [0.9, 1.3], 
             'logM1': [13.8, 14.2]}
@@ -326,6 +333,11 @@ def quijhod_dBkdtheta(theta, log=False, rsd='all', seed=0, flag=None, z=0, dmnu=
         quij = Obvs.quijhod_Bk('fiducial', z=z, flag=flag, rsd=rsd, seed=0, silent=silent)
         if not log: c_dbk = np.average(quij['p0k1'] + quij['p0k2'] + quij['p0k3'], axis=0)
         else: c_dbk = np.average(quij['p0k1'] + quij['p0k2'] + quij['p0k3'], axis=0) / np.average(quij['b123'], axis=0)
+    elif theta == 'sigma_logM_HR': 
+        if not silent: print("--- calculating dB/d%s ---" % theta) 
+        tts = ['sigma_logM_m_HR', 'sigma_logM_p_HR']
+        coeffs = [-1., 1.] 
+        h = quijote_thetas[theta][1] - quijote_thetas[theta][0]
     else: 
         if not silent: print("--- calculating dB/d%s ---" % theta) 
         tts = [theta+'_m', theta+'_p'] 
