@@ -33,22 +33,22 @@ $\sigma_8^-$    & 0.0   & 0.3175 & 0.049 & 0.6711 & 0.9624 & \underline{0.819} &
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % brief summary of the Quijote suite. 
 \section{The Quijote Simulation Suite} \label{sec:sims}
-For our forecasts we use simulations from the \quij suite, a set of over 43,000 
+For our forecasts we use simulations from the \quij~suite, a set of over 43,000 
 $N$-body simulations that spans over 7000 cosmological models and contains, at a single 
 redshift, over 8.5 trillion particles~\citep{villaescusa-navarro2019}. 
-The \quij suite was designed to quantify the information content of cosmological 
-observables and train machine learning algorithms. The suite includes enough
+\quij~was designed to quantify the information content of cosmological 
+observables and train machine learning algorithms. It includes enough
 realizations to accurately estimate covariance matrices 
-of high-dimensional observables, such as the bispectrum, as well as the derivatives 
-of these observables with respect to cosmological parameters. For the derivatives, 
-the suite includes sets of simulations run at different cosmologies where only 
+of high-dimensional observables, such as the bispectrum, as well as their derivatives 
+with respect to cosmological parameters. For the derivatives, 
+\quij~includes sets of simulations run at different cosmologies where only 
 one parameter is varied from the fiducial cosmology:
 $\Om{=}0.3175$, $\Ob{=}0.049$, $h{=}0.6711$, $n_s{=}0.9624$, $\sig{=}0.834$, 
-and $\smnu{=}0.0$ eV. Along $\Om$, $\Ob$, $h$, $n_s$, and $\sig$, the fiducial 
+and $\smnu{=}0.0$ eV. Along each $\theta \in \{\Om, \Ob, h, n_s, \sig\}$, the fiducial 
 cosmology is adjusted by either a step above or below the fiducial value:
-$\{\Om^{+}, \Om^{-}, \Ob^{+}, \Ob^{-}, h^+, h^-, n_s^{+}, n_s^{-}, \sig^{+}, \sig^-\}$ . 
+$\theta^{+}$ and $\theta^{-}$. 
 Along $\smnu$, because $\smnu \ge 0.0$ eV and the derivative of certain observable 
-with respect to $\smnu$ is noisy, \quij includes sets of simulations for 
+with respect to $\smnu$ is noisy, \quij~includes sets of simulations for 
 $\{\smnu^{+}, \smnu^{++}, \smnu^{+++} \} = \{0.1, 0.2, 0.4~{\rm eV}\}$. See 
 Table~\ref{tab:sims} for a summary of the \quij simulations used in this work. 
 
@@ -66,10 +66,11 @@ with massive neutrinos are run using the ``particle method'', where neutrinos
 are described as a collisionless and pressureless fluid and therefore modeled 
 as particles, same as CDM~\citep{brandbyge2008,viel2010}. Halos are identified 
 using the Friends-of-Friends algorithm~\citep[FoF;][]{davis1985} with linking
-length $b=0.2$ on the CDM + baryon distribution. We impose a halo mass limit 
-of $M_{\rm lim} = 3.2\times 10^{13} h^{-1}M_\odot$. For the fiducial cosmology, 
-the halo catalogs have ${\sim}156,000$ halos ($\bar{n}_h \sim 1.56 \times 10^{-4}~h^3{\rm Gpc}^{-3}$) 
-with $\bar{n} P_0(k=0.1)\sim 3.23$.  We refer readers to~\cite{villaescusa-navarro2019}
-and~\cite{hahn2020} for further details on the \quij simulations. The
-\quij simulations are publicly available at
+length $b=0.2$ on the CDM+baryon distribution. 
+%We impose a halo mass limit of $M_{\rm lim} = 3.2\times 10^{13} h^{-1}M_\odot$. 
+%For the fiducial cosmology, the halo catalogs have ${\sim}156,000$ halos 
+%($\bar{n}_h \sim 1.56 \times 10^{-4}~h^3{\rm Gpc}^{-3}$) with $\bar{n} P_0(k=0.1)\sim 3.23$.  
+We refer readers to~\cite{villaescusa-navarro2019}
+and~\cite{hahn2020} for further details on \quij. The
+\quij~simulations are publicly available at
 \url{https://github.com/franciscovillaescusa/Quijote-simulations}.

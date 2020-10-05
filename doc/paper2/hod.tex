@@ -3,10 +3,10 @@
     \includegraphics[width=0.45\textwidth]{figs/hod_fid.pdf} 
     \caption{Our fiducial halo occupation (black) parameterized using the
     standard \cite{zheng2007} HOD model. The parameter values of our fiducial
-    HOD model (Eq.~\ref{eq:hod_fid}) are based on by the best-fit HOD
+    HOD model (Eq.~\ref{eq:hod_fid}) are roughly based on by the best-fit HOD
     parameters of the SDSS $M_r < -21.5$ and $< -22.$ samples from
-    \cite{zheng2007} modified to accommodate the $M_{\rm lim} = 3.2\times
-    10^{13} h^{-1}M_\odot$ halo mass limit of the \quij simulations (black
+    \cite{zheng2007}, modified to accommodate the $M_{\rm lim}{=}3.2{\times}
+    10^{13} h^{-1}M_\odot$ halo mass limit of the \quij~simulations (black
     dotted). We include the best-fit halo occupations of the SDSS  $M_r <
     -21.5$ (blue dashed) and $< -22.$ samples (orange dashed) from
     \cite{zheng2007} for reference. Since our HOD parameters are based on the
@@ -34,7 +34,7 @@ successful in reproducing the observed galaxy clustering and, as a result, is th
 simulated galaxy mock catalogs in galaxy clustering analyses to estimate covariance 
 matrices and test systematic effects~\citep[\emph{e.g.}][]{rodriguez-torres2016, rodriguez-torres2017, beutler2017}. 
 More importantly, HOD is the primary framework used in simulation-based galaxy
-clustering analyses: \eg~in emulation~\citep{mcclintock2018,
+clustering analyses: \eg~emulation~\citep{mcclintock2018,
 zhai2019} or evidence modeling~\citep{lange2019}. Since the forecasts we
 present in this paper are aimed at quantifying the constraining power of the
 galaxy bispectrum for simulation-based analyses, the HOD model is particularly 
@@ -69,24 +69,24 @@ halo while position and velocity of the satellite galaxies are sampled from a
 
 For the fiducial parameters of our HOD model, we use the following values: 
 \beq \label{eq:hod_fid}
-\{M_{\rm min}, \sigma_{\log M}, \log M_0, \alpha, \log M_1 \} = \{13.65,~0.2,~14.,~1.1,~14.\}.
+\{M_{\rm min}, \sigma_{\log M}, \log M_0, \alpha, \log M_1 \} = \{13.65,~0.2,~14.0,~1.1,~14.0\}.
 \eeq
 These values are roughly based on the best-fit HOD parameters for the SDSS $M_r
 < -21.5$ and $-22$ samples from \cite{zheng2007}. 
 In Figure~\ref{fig:hod}, we present the halo occupation of our fiducial 
 HOD parameters (black). We include the best-fit halo occupations of 
 the SDSS $M_r < -21.5$ (blue)  and $-22$ (orange) samples from \cite{zheng2007}
-for comparison. We also mark the halo mass limit, $M_{\rm lim}$, of the \quij 
-simulations (black dotted). At $M_h \sim 10^{13} M_\odot$, the best-fit halo 
-occupations of the SDSS samples extend below $M_{\rm lim}$ so halos below
-$M_{\rm lim}$ host galaxies. We therefore cannot use the exact best-fit HOD
+for comparison. We also mark the  $M_{\rm lim}{=}3.2\times10^{13} h^{-1}M_\odot$ 
+halo mass limit of the \quij~simulations (black dotted). At $M_h \sim 10^{13} M_\odot$, 
+the best-fit halo occupations of the SDSS samples extend below $M_{\rm lim}$. We 
+therefore cannot use the exact best-fit HOD
 parameter values from the literature and instead reduce $\sigma_{\log M}$ to 0.2 dex.
 %As we mention above, $\sigma_{\log M}$ reflects the scatter between stellar mass/luminosity and halo mass. 
 The high $\sigma_{\log M}$ in the $M_r < -21.5$ and $-22$ SDSS samples is
 caused by the turnover in the stellar-to-halo mass relation at high stellar
 masses~\citep{mandelbaum2006a, conroy2007, more2011, leauthaud2012, tinker2013,
 zu2015, hahn2019a}. Our fiducial halo occupation, with its lower $\sigma_{\log
-M}$, produces a galaxy sample with a tighter scatter between stellar
+M}$, reflects a galaxy sample with a tighter scatter between stellar
 mass/luminosity and $M_h$ than the SDSS samples.  %than the samples selected based on $M_r$ or $M_*$ cuts, which were used in SDSS and BOSS. To
 In practice, constructing such a sample would require selecting based on
 observable galaxy properties that correlate more strongly with $M_h$ than 
@@ -122,14 +122,14 @@ the \cite{zheng2007} model.
 
 
 All of the galaxy mock catalogs in this paper are constructed using the $22,000$ 
-$N$-body simulations of the \quij suite: $15,000$ at the fiducial cosmology and $500$ at the 14 other cosmologies
+$N$-body simulations of the \quij~suite: $15,000$ at the fiducial cosmology and $500$ at the 14 other cosmologies
 listed in Table~\ref{tab:sims}. First, we construct mocks for estimating the
-covariance matrices using the 15,000 \quij sims at the fiducial cosmology with
+covariance matrices using the 15,000 \quij~simulations at the fiducial cosmology with
 the fiducial HOD parameters. Next, we construct mocks for estimating the
-derivatives with respect to cosmological parameters using the 500 \quij sims at
-each of the 14 non-fiducial cosmologies. Finally, we construct mocks for
-estimating the derivatives with respect to the HOD parameters, using 500 \quij
-simulations at the fiducial cosmology with 10 sets of non-fiducial HOD
+derivatives with respect to cosmological parameters using the 500
+\quij~simulations at each of the 14 non-fiducial cosmologies. Finally, we construct mocks for
+estimating the derivatives with respect to the HOD parameters, using 500 
+\quij~simulations at the fiducial cosmology with 10 sets of non-fiducial HOD
 parameters --- a pair per parameter. Similar to the non-fiducial cosmologies in
 \quij, for each pair we vary one HOD paramter above and below the fiducial
 value by step sizes:
