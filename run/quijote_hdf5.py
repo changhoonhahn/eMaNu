@@ -252,7 +252,9 @@ def quijoteP_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None, seed=0):
             'logMmin_m': 'fiducial_logMmin=13.60',
             'logMmin_p': 'fiducial_logMmin=13.70',
             'sigma_logM_m': 'fiducial_sigma_logM=0.18',
-            'sigma_logM_p': 'fiducial_sigma_logM=0.22'}
+            'sigma_logM_p': 'fiducial_sigma_logM=0.22',
+            'sigma_logM_m_HR': 'fiducial_HR_sigma_logM=0.53',
+            'sigma_logM_p_HR': 'fiducial_HR_sigma_logM=0.57'}
     if subdir in subdir_dict.keys(): 
         _subdir = subdir_dict[subdir]
     else: 
@@ -269,6 +271,7 @@ def quijoteP_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None, seed=0):
     elif subdir == 'fiducial' and flag == 'ncv': nmocks = 250
     elif subdir == 'fiducial_ZA' and flag == 'reg': nmocks=500
     elif subdir == 'fiducial_ZA' and flag == 'ncv': nmocks=250
+    elif subdir in ['sigma_logM_m_HR', 'sigma_logM_p_HR']: nmocks=100 
     else: nmocks = 500 
 
     #if seed != 0: nmocks = 100 
@@ -384,7 +387,9 @@ def quijoteB_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None, seed=0):
             'logMmin_m':        'fiducial_logMmin=13.60',
             'logMmin_p':        'fiducial_logMmin=13.70',
             'sigma_logM_m':     'fiducial_sigma_logM=0.18',
-            'sigma_logM_p':     'fiducial_sigma_logM=0.22'}
+            'sigma_logM_p':     'fiducial_sigma_logM=0.22',
+            'sigma_logM_m_HR': 'fiducial_HR_sigma_logM=0.53',
+            'sigma_logM_p_HR': 'fiducial_HR_sigma_logM=0.57'}
     if subdir in subdir_dict.keys(): 
         _subdir = subdir_dict[subdir]
     else: 
@@ -401,6 +406,7 @@ def quijoteB_hod_hdf5(subdir, machine='mbp', rsd=0, flag=None, seed=0):
     elif subdir == 'fiducial' and flag == 'ncv': nmocks = 500
     elif subdir == 'fiducial_ZA' and flag == 'reg': nmocks=500
     elif subdir == 'fiducial_ZA' and flag == 'ncv': nmocks=250
+    elif subdir in ['sigma_logM_m_HR', 'sigma_logM_p_HR']: nmocks=100 
     else: 
         nmocks = 500 
     #if seed != 0: nmocks = 100 
@@ -503,10 +509,11 @@ if __name__=="__main__":
     #thetas_hod = ['alpha_m', 'alpha_p', 'logM0_m', 'logM0_p', 'logM1_m', 'logM1_p', 'logMmin_m', 'logMmin_p', 'sigma_logM_m', 'sigma_logM_p', 'fiducial']
     #thetas_hod = ['fiducial_ZA']
     #thetas_hod = ['fiducial']
+    thetas_hod = ['sigma_logM_m_HR', 'sigma_logM_p_HR']
     for sub in thetas_hod: 
         for rsd in [0, 1, 2]:#, 'real']: 
-            for seed in [1, 2, 3, 4]: 
+            for seed in range(5): 
                 quijoteP_hod_hdf5(sub, machine='tiger', rsd=rsd, flag='reg', seed=seed)
                 #quijoteP_hod_hdf5(sub, machine='tiger', rsd=rsd, flag='ncv')
-                #quijoteB_hod_hdf5(sub, machine='tiger', rsd=rsd, flag='reg', seed=seed)
+                quijoteB_hod_hdf5(sub, machine='tiger', rsd=rsd, flag='reg', seed=seed)
                 #quijoteB_hod_hdf5(sub, machine='tiger', rsd=rsd, flag='ncv')
