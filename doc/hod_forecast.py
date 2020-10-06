@@ -1211,6 +1211,8 @@ def FisherMatrix(obs, kmax=0.5, seed=range(5), rsd='all', dmnu='fin',
     
     if params == 'default': # default set of parameters 
         _thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1'] 
+    elif params == 'default_hr': # default set of parameters 
+        _thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu', 'logMmin', 'sigma_logM_HR', 'logM0', 'alpha', 'logM1'] 
     elif params == 'lcdm': 
         _thetas = ['Om', 'Ob2', 'h', 'ns', 's8', 'logMmin', 'sigma_logM', 'logM0', 'alpha', 'logM1'] 
     elif params == 'halo':  # same parameters as halo case
@@ -2630,6 +2632,110 @@ def _signal_to_noise():
     return None 
 
 
+def _P02B_sigmalogM(kmax):
+    ''' fisher forecast comparison for  P0+P2+B for quijote observables where we 
+    marginalize over theta_nuis parameters. 
+    
+    :param kmax: (default: 0.5) 
+        kmax of the analysis 
+    :param rsd: (default: True) 
+        specifies the rsd set up for the B(k) derivative. 
+        If rsd == 'all', include 3 RSD directions. 
+        If rsd in [0,1,2] include one of the directions
+    :param flag: (default: None) 
+        kwarg specifying the flag for B(k). 
+        If `flag is None`, include paired-fixed and regular N-body simulation. 
+        If `flag == 'ncv'` only include paired-fixed. 
+        If `flag == 'reg'` only include regular N-body
+    :param dmnu: (default: 'fin') 
+        derivative finite differences setup
+    :param theta_nuis: (default: None) 
+        list of nuisance parameters to include in the forecast. 
+    :param planck: (default: False)
+        If True add Planck prior 
+    '''
+    # fisher matrices (Fij)
+    pbkFij_fid = FisherMatrix('p02bk', kmax=kmax, seed=range(5), rsd='all',
+            dmnu='fin', params='default', silent=False)
+    pbkFij_hir = FisherMatrix('p02bk', kmax=kmax, seed=range(5), rsd='all',
+            dmnu='fin', params='default_hr', silent=False)
+
+    cond = np.linalg.cond(pbkFij_fid)
+    if cond > 1e16: print('Fij is ill-conditioned %.5e' % cond)
+    pbkFinv_fid = np.linalg.inv(pbkFij_fid) 
+    pbkFinv_hir = np.linalg.inv(pbkFij_hir) 
+
+    print('--- thetas ---')
+    print('P+B fid sigmas %s' % ', '.join(['%.4f' % sii for sii in
+        np.sqrt(np.diag(pbkFinv_fid))]))
+    print('P+B HR  sigmas %s' % ', '.join(['%.4f' % sii for sii in
+        np.sqrt(np.diag(pbkFinv_hir))]))
+        
+    ntheta = len(thetas) 
+    _thetas = copy(thetas) 
+    _theta_lbls = copy(theta_lbls) 
+    _theta_fid = theta_fid.copy() # fiducial thetas
+    #_theta_dlims = [0.0425, 0.016, 0.16, 0.15, 0.09, 0.25, 0.4, 0.75, 0.4, 0.2, 0.25]
+    _theta_dlims = [0.05, 0.02, 0.25, 0.3, 0.125, 0.45, 0.6, 1.25, 0.75, 0.375, 0.275]
+    
+    n_nuis = 0  
+
+    Finvs   = [pbkFinv_fid, pbkFinv_hir]
+    colors  = ['C0', 'C1']
+    sigmas  = [[2], [1, 2]]
+    alphas  = [[0.9], [1., 0.7]]
+
+    fig = plt.figure(figsize=(20, 20))
+    gs = mpl.gridspec.GridSpec(2, 1, figure=fig, height_ratios=[5,5+n_nuis], hspace=0.1) 
+    gs0 = mpl.gridspec.GridSpecFromSubplotSpec(5, ntheta+n_nuis-1, subplot_spec=gs[0])
+    gs1 = mpl.gridspec.GridSpecFromSubplotSpec(5+n_nuis, ntheta+n_nuis-1, subplot_spec=gs[1])
+    
+    for i in range(ntheta+n_nuis-1): 
+        for j in range(i+1, ntheta+n_nuis): 
+            theta_fid_i, theta_fid_j = _theta_fid[_thetas[i]], _theta_fid[_thetas[j]] # fiducial parameter 
+            
+            if j < 6: sub = plt.subplot(gs0[j-1,i]) # cosmo. params
+            else: sub = plt.subplot(gs1[j-6,i]) # the rest
+
+            for _i, Finv in enumerate(Finvs):
+                try:
+                    Finv_sub = np.array([[Finv[i,i], Finv[i,j]], [Finv[j,i], Finv[j,j]]]) # sub inverse fisher matrix 
+                except IndexError: 
+                    continue 
+                Forecast.plotEllipse(Finv_sub, sub, theta_fid_ij=[theta_fid_i, theta_fid_j], color=colors[_i], 
+                        sigmas=sigmas[_i], alphas=alphas[_i])
+
+            sub.set_xlim(theta_fid_i - _theta_dlims[i], theta_fid_i + _theta_dlims[i])
+            sub.set_ylim(theta_fid_j - _theta_dlims[j], theta_fid_j + _theta_dlims[j])
+            if i == 0:   
+                sub.set_ylabel(_theta_lbls[j], labelpad=5, fontsize=24) 
+                sub.get_yaxis().set_label_coords(-0.35,0.5)
+            else: 
+                sub.set_yticks([])
+                sub.set_yticklabels([])
+            
+            if j == ntheta+n_nuis-1: 
+                sub.set_xlabel(_theta_lbls[i], labelpad=7, fontsize=24) 
+            elif j == 5: 
+                sub.set_xlabel(_theta_lbls[i], fontsize=24) 
+            else: 
+                sub.set_xticks([])
+                sub.set_xticklabels([]) 
+
+    bkgd = fig.add_subplot(111, frameon=False)
+    bkgd.fill_between([],[],[], color=colors[0], label=r'fiducial ($\sigma_{\log M} = 0.2~{\rm dex}$)') 
+    bkgd.fill_between([],[],[], color=colors[1], label=r'high res. ($\sigma_{\log M} = 0.55~{\rm dex}$)')
+    bkgd.legend(loc='upper right', bbox_to_anchor=(0.875, 0.775), handletextpad=0.2, fontsize=25)
+    bkgd.text(0.85, 0.62, r'$k_{\rm max} = %.1f$; $z=0.$' % kmax, ha='right', va='bottom', 
+            transform=bkgd.transAxes, fontsize=25)
+    bkgd.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    fig.subplots_adjust(wspace=0.05, hspace=0.05) 
+    
+    ffig = os.path.join(dir_doc, '_Fisher.p02bk.sigmalogM.kmax%.2f.png' % kmax)
+    fig.savefig(ffig, bbox_inches='tight') 
+    return None 
+
+
 def _write_FisherMatrix(kmax=0.5, seed=range(5), rsd='all', dmnu='fin',
         theta_nuis=None, planck=False, silent=True): 
     ''' write out Fisher matrix for Ema 
@@ -2805,7 +2911,6 @@ if __name__=="__main__":
         nbar()
     '''
     # convergence tests
-    converge_P02B_Forecast(kmax=0.5, seed=range(5), rsd='all', flag='reg', dmnu='fin', params='default')
     '''
         # convergence of derivatives
         for theta in ['Om', 'Ob2', 'h', 'ns', 's8', 'Mnu']: 
@@ -2860,3 +2965,4 @@ if __name__=="__main__":
     '''
         _signal_to_noise()
     '''
+    _P02B_sigmalogM(0.5)
