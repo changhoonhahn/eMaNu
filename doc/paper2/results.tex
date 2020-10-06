@@ -339,16 +339,19 @@ is not impacted.
 % derivative w.r.t. sigma_log M 
 For our fiducial HOD, we chose parameter values based on \cite{zheng2007} 
 fits to the SDSS $M_r < -21.5$  and $-22$ samples, except for the tighter
-scatter $\sigma_{\log M} = 0.2$ dex, due to the halo mass limit of 
+scatter $\sigma_{\log M} = 0.2$ dex --- due to the halo mass limit of 
 \quij~(Section~\ref{sec:hod}). As a result, our HOD galaxy 
 catalogs have a different selection function than observed samples, typically
-selected based on $M_r$ or $M_*$ cuts (\eg~SDSS or BOSS). To test the impact
-of the fiducial $\sigma_{\log M}$ choice, \ch{in Appendix~\ref{sec:sig}, we compare 
-${\partial \Pgl}/{\partial \sigma_{\log M}}$ and 
-${\partial \Bg}/{\partial \sigma_{\log M}}$ at $\sigma_{\log M} = 0.2$ dex to
-the derivates evaluated at $\sigma_{\log M} = $, estimated using higher
-resolution \quij~simulations. Fill in after we do the comparison.}
-\ch{what can we say about the sigma8-sigmalogM degeneracy?}
+selected based on $M_r$ or $M_*$ cuts (\eg~SDSS or BOSS). To estimate the impact
+of our fiducial $\sigma_{\log M}$ choice, we repeat our forecasts but using 
+${\partial \Pgl}/{\partial \sigma_{\log M}}$ and ${\partial \Bg}/{\partial \sigma_{\log M}}$
+at $\sigma_{\log M} = 0.55$ dex. These derivatives are estimated using the
+higher resolution \quij~simulation, which have $8\times$ the mass resolution 
+but only 100 realizations~\citep{villaescusa-navarro2019}. The change in 
+${\partial \Pgl}/{\partial \sigma_{\log M}}$ and ${\partial
+\Bg}/{\partial \sigma_{\log M}}$ significantly impacts the HOD parameter
+constraints; however, it has a {\em negligible} effect on the cosmological
+parameter constraints. 
 
 % usual Fisher Forecast caveat  
 Besides convergence and stability, our forecasts are derived from Fisher
@@ -467,31 +470,6 @@ our constraints~\citep{hamilton2006, sefusatti2006, takada2013, li2018,
 wadekar2019}. Since super-sample covariance affects the power spectrum as well, 
 we still expect to find substantial improvements in cosmological parameter 
 constraints from including the bispectrum, especially for $\smnu$. 
-
-In this paper, we present the total information content and constraining power
-of the galaxy bispectrum down to the nonlinear regime. Even after marginalizing
-over galaxy bias, through the HOD parameters, including $\Bg$ substantial
-improves in cosmological parameter constraints --- especially $\smnu$.
-Combining $\Pgl$ and $\Bg$ breaks several key parameter degeneracies
-and further improves cosmological parameter constraints. We find significant
-improvements from $\Bg$ even at $\kmax \sim 0.2\hmpc$ and with \planck~priors. 
-Furthermore, the constraints we present is for a $1 ({\rm Gpc}/h)^3$
-box and $\bar{n}_g \sim 1.63\times 10^{-4}~h^3{\rm Gpc}^{-3}$ --- upcoming surveys
-will probe substantially larger cosmic volumes with higher number densities.
-We discuss a number of factors that will impact the constraining power of $\Bg$
-for actual galaxy clustering analyses, such as assembly bias, survey geometry,
-super-sample covariance, and etc. Many of these efects will also impact $\Pg$
-analyses. Moreover, our forecasts suggest that even if the constraining power 
-is reduced the galaxy bispectrum will significantly improve cosmology parameter 
-constraints.
-
-Now that we have demonstrated the constraining power of $\Bg$, in the following 
-paper of this series we will address a major practical challenge for a $\Bg$
-analysis --- its large dimensionality. We will present how data compression can
-be used to reduce the dimensionality and tractably estimate the covariance
-matrix in a $\Pgl$ and $\Bg$ analysis using a simulation-based approach. Afterwards, 
-the series will culminate in fully simulation-based $\Pgl$ and $\Bg$
-reanalysis of SDSS-III BOSS. 
 
 %A key part of the improvement from $\Bg$ comes from the degeneracies that are
 %broken among HOD parameters. 
