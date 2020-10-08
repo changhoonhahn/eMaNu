@@ -1,26 +1,102 @@
 \section{Summary} \label{sec:summary} 
+Tight constraints on the total mass of neutrinos, $\smnu$, can distinguish
+between the `normal' and `inverted' neutrino mass hierarchies and reveal
+particle physics beyond the Standard Model. The tightest constaints come from
+measuring the impact of $\smnu$ on the expansion history and the growth of
+cosmic structure in the Universe using cosmological observables, 
+combinations of CMB with other cosmological probes. While cosmological probes
+have the potential to measure $\smnu$ more precisely than laboratory
+experiments in the future, constraints from upcoming ground-based CMB
+experiments will be severely limited by the degeneracy between $\smnu$ and
+$\tau$, the optical depth of reionization. 
 
-Afterwards, we will apply it to future surveys. 
-\ch{rough numbers of DESI, PFS, and Euclid} 
 
-% what are the implications of our results? 
-%The constraints from our forecasts are derived for a $(1~h^{-1}{\rm Gpc})^3$ 
-%volume. These constraints roughly scale as $\propto1/\sqrt{V}$ with volume. 
-%Upcoming spectroscopic galaxy surveys will map out vastly larger cosmic
-%volumes: PFS $\sim 9~h^{-3}{\rm Gpc}^3$ and DESI $\sim 50~h^{-3}{\rm Gpc}^3$~\citep{takada2014, desicollaboration2016}. 
-%Euclid and WFIRST, space-based surveys, will expand these volumes to 
-%higher redshifts. A key science goal in these surveys will be constraining $\smnu$. 
-%Scaling our 0.0572 eV $\smnu$ constraint from the bispectrum to the survey 
-%volumes gives 0.0191 eV and 0.0081 eV $1\sigma$ constraints for PFS and DESI. 
-%Galaxy samples in these surveys will also have significantly higher 
-%number densities than the halos used in our forecast: \emph{e.g.} 
-%the DESI BGS at $z{\sim}0.3$, DESI LRG, and PFS at $z \sim 1.3$ 
-%will have ${\sim}20, 3$, and $5\times$ higher number densities, 
-%respectively. With such precision, we would detect $\smnu$ by $>3\sigma$ and 
-%distinguish between the normal and inverted neutrino mass hierarchy scenarios 
-%by $>2\sigma$ from the bispectrum alone. Such naive projections, however, 
-%should be taken with more than a grain of salt. Nevertheless, the substantial 
-%improvement we find in constraints with the bispectrum over the power spectrum, 
-%strongly advocate for analyzing future surveys with more than the power spectrum. 
-%Our results demonstrate the potential of the bispectrum to tightly constrain 
-%$\smnu$ with unprecedented precision.
+Meanwhile, measuring the $\smnu$ imprint on the 3D clustering of galaxies
+provides an auspicious and opportune avenue for improving $\smnu$ constraints. 
+In the coming years, upcoming surveys such as DESI, PFS, Euclid, and the
+Roman Space Telescope will probe unprecedented cosmic volumes with galaxy
+redshifts. Furthermore, progress in modeling nonlinear structure formation in 
+simulations with massive neutrinos combined new simulation-based approaches
+like `emulation', now enable us to tractably exploit the accuarcy of $N$-body
+simulations to analyze galaxy clustering. Together, these development present 
+the opporunity to go beyond traditional perturbation theory methods, unlock the
+information content in nonlinear clustering where the impact of $\smnu$ is
+strongest, and tightly constrain $\smnu$ and other cosmological parameters. 
+
+
+While parameter degenarcies (\eg~$\smnu$--$\sig8$ degeneracy) pose serious
+limitations on constraining $\smnu$ with traditional two-point clustering 
+statistics, in \cite{hahn2020}, the previous paper of the series, we
+demonstrated that the bispectrum, the next higher-order statistic, breaks
+these degeneracies and dramatically improves constraints. We also illustrated 
+the substantial constraining power of the bispectrum in nonlinear regimes.
+\cite{hahn2020}, however, focused on the redshift-space halo bispectrum while 
+constraints on $\smnu$ will come from galaxy distributions. %Therefore, in this paper, we extend the \cite{hahn2020} forecasts to include a realistic and complete galaxy bias model. 
+
+In this work, we extend the \cite{hahn2020} halo bispectrum forecasts to
+include a realistic and complete galaxy bias model. With our eyes set on
+simulation-based analyses, we use the halo occupation distribution (HOD) galaxy
+bias framework and construct 195,000 galaxy mock catalogs from the \quij 
+$N$-body simulations. Using these mocks, we present the total information
+content and constraining power of the {\em redshift-space galaxy bispectrum} 
+down to nonlinear regimes. More specifically, we find
+\begin{itemize}
+    \item $\Bg$ substantial improves in cosmological parameter constraints ---
+    especially $\smnu$ --- even after marginalizing over galaxy bias through
+    the HOD parameters. Combining $\Pgl$ and $\Bg$ further improves
+    cosmological parameter constraints by breaking several key parameter
+    degeneracies. For $\kmax{=}0.5\hmpc$, $\Bg$ improves constraints on 
+    $\Om$, $\Ob$, $h$, $n_s$, and $\sig$ by 2.8, 3.1, 3.8, 4.2, 4.2, and 
+    $4.7{\times}$ over power spectrum. For $\smnu$, we achieve $5.6\times$ 
+    tighter constraints with $\Bg$.
+    \item Even with priors from \planck, $\Bg$ significantly improves
+    cosmological constraints. For $\kmax{=}0.5\hmpc$, including $\Bg$ 
+    achieves 2.0, 2.1, 1.9, 1.2, 2.2, and $2.3\times$ tighter constraints on 
+    $\Om$, $\Ob$, $h$, $n_s$, $\sig$, and $\smnu$ than with $\Pgl$ and \planck. 
+    \item $\Bg$ has substantial constraining power on non-linear regime beyond
+    $\kmax > 0.2\hmpc$. This is particularly valuable when we include
+    \planck~priors since the constraining power of $\Pgl$ completely saturates for $\kmax \gtrsim
+    0.12\hmpc$; while with $\Bg$, constraints improve out to $\kmax=0.5\hmpc$. 
+    Even at mildly non-linear regimes ($\kmax\sim0.2\hmpc$), however, $\Bg$
+    substantially improves constraints on cosmological parameters. 
+\end{itemize}
+
+Overall, our results clearly demonstrate the significant advantages of the
+galaxy bispectrum for more precisely constraining cosmological parameters ---
+especially $\smnu$. There are, however, a few caveats in our forecast. 
+Fisher matrix forecasts assume that the posterior is approximately Gaussian and
+can overestimate the constraints for highly non-elliptical or asymmetric
+posteriors. We also do not consider realistic survey geometry, selection
+effects, or super-sample covariance. Lastly, we include galaxy bias through the
+standard \cite{zheng2007} HOD model. Although, this model is sufficient for 
+a high luminosity galaxy sample that our fiducial HOD produces, for galaxy
+samples of upcoming surveys additional effects such as assembly bias and
+velocity biases will need to included. While these effects will impact the
+constraining power of $\Bg$, they also impact the constraining power of
+$\Pg$. Hence, we nonetheless expect significant improvements from including 
+the galaxy bispectrum.
+
+There is, in fact, room for more optimism. All the constraints we present in
+this paper is for a $1 ({\rm Gpc}/h)^3$ box and for a galaxy sample with number
+density $\bar{n}_g \sim 1.63\times 10^{-4}~h^3{\rm Gpc}^{-3}$. Upcoming surveys
+will probe {\em vastly} larger cosmic volumes and with higher number densities.
+For instance, PFS will probe $\sim 9~h^{-3}{\rm Gpc}^3$ with ${\sim}5\times$ 
+$n_g$ at $z\sim1.3$~\citep{takada2014}; DESI will probe ${\sim}50~h^{-3}{\rm Gpc}^3$
+and its Bright Galaxy Surey and LRG sample will have ${\sim}20$ and $3\times$ 
+higher $n_g$, respectively~\citep{desicollaboration2016,ruiz-macias2020}. 
+Euclid and the Roman Space Telescope, space-based surveys, will expand these 
+volumes to higher redshifts. Constraints {\em roughly} scale as $\propto 1/\sqrt{V}$
+with volume and higher $\bar{n}_g$ samples will achieve higher signal-to-noise. 
+Based our results, this suggests that analyzing the galaxy bispectrum in 
+upcoming surveys has the potential to tightly constrain $\smnu$ with unprecedented 
+precision. 
+
+Now that we have demonstrated the total information content and constraining
+power of $\Bg$, in the following paper of this series we will address a major 
+practical challenge for a $\Bg$ analysis --- its 
+large dimensionality. We will present how data compression can be used to reduce 
+the dimensionality and tractably estimate the covariance matrix in a $\Pgl$ and
+$\Bg$ analysis using a simulation-based approach. Afterwards, we will conduct a 
+fully simulation-based $\Pgl$ and $\Bg$ reanalysis of SDSS-III BOSS. The series
+will ultimately culminate in extending this simulation-based $\Pgl$ and $\Bg$
+analysis to constrain $\smnu$ using the DESI survey. 
