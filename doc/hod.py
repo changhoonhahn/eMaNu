@@ -66,7 +66,7 @@ def HOD_fid():
     sub.plot(10**logMbin, Ngal_Mh(hod_fid, logMbin), c='k', label='fiducial')
     sub.plot([10**Mh_min, 10**Mh_min], [1e-3, 1e3], c='k', ls=':', lw=1)
     sub.text(4*10**12, 52, 
-            r'$M_{\rm lim} = %.2f \times 10^{13} M_\odot$' % (10**Mh_min/1e13), 
+            r'$M_{\rm lim} = %.2f \times 10^{13} h^{-1}M_\odot$' % (10**Mh_min/1e13), 
             ha='left', va='bottom', fontsize=15)
     #sub.legend(loc='upper left', fontsize=20)
     sub.set_xlabel('$M_h$ [$h^{-1}M_\odot$]', labelpad=10, fontsize=25)
