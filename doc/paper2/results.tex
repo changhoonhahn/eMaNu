@@ -3,13 +3,13 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{table}
     \caption{Marginalized Fisher parameter constraints from the redshift-space 
-    $P_\ell$, $B_0$, and $P_\ell$ + $B_0$. We list constraints for cosmological 
+    $\Pgl$, $\Bg$, and $\Pgl$ + $\Bg$. We list constraints for cosmological 
     parameters $\smnu$, $\Omega_m$, $\Omega_b$, $h$, $n_s$, and $\sig$ as well 
     as HOD and nuisance parameters.} 
 \begin{center} 
     \begin{tabular}{c|ccc|ccc} \hline
         & \multicolumn{3}{c}{$\kmax=0.2~\hmpc$} & \multicolumn{3}{c}{$\kmax=0.5~\hmpc$} \\ %& & $\kmax=0.2$ & & & $\kmax=0.5$ & \\
-        & $P_\ell$ & $B_0$ & $P_\ell + B_0$ & $P_\ell$ & $B_0$ & $P_\ell + B_0$ \\[3pt] \hline 
+        & $\Pgl$ & $\Bg$ & $\Pgl + \Bg$ & $\Pgl$ & $\Bg$ & $\Pgl + \Bg$ \\[3pt] \hline 
 $M_\nu$     &  0.795 (0.132) & 0.313 (0.123) & 0.282 (0.098) & 0.334 (0.112) & 0.073 (0.055) & 0.071 (0.048)  \\
 $\Omega_m$  &  0.061 (0.021) & 0.047 (0.021) & 0.030 (0.014) & 0.037 (0.017) & 0.018 (0.012) & 0.013 (0.008)  \\
 $\Omega_b$  &  0.027 (0.002) & 0.017 (0.002) & 0.013 (0.001) & 0.015 (0.002) & 0.006 (0.001) & 0.005 (0.001)  \\
@@ -50,7 +50,7 @@ $\log M_1$ &  0.819 (0.691) & 0.434 (0.408) & 0.244 (0.149) & 0.193 (0.119) & 0.
         parameters for the redshift-space galaxy $\Pgl$ (blue), $\Bg$
         (green), and combined $\Pgl$ and $\Bg$ (orange) for $k_{\rm max} =
         0.5\hmpc$, for a $1 ({\rm Gpc}/h)^3$ volume. Our forecasts marginalizes over the \cite{zheng2007}
-        HOD parameters: $M_{\rm min}, \sigma_{\log M}, \log M_0, \alpha$, 
+        HOD parameters: $\log M_{\rm min}, \sigma_{\log M}, \log M_0, \alpha$, 
         and $\log M_1$ (bottom panels). The contours mark the $68\%$ and $95\%$
         confidence intervals. The bispectrum substantially improves
         constraints on all of the cosmological parameters over the power
@@ -117,11 +117,11 @@ Combining $\Pgl$ and $\Bg$, we get the following $1\sigma$ constraints for
 0.013, 0.005, 0.047, 0.049, 0.021, and 0.071.
 {\em With $\Pgl$ and $\Bg$ combined, we improve $\Om$, $\Ob$, $h$,
 $n_s$, and $\sig$ constraints by factors of 2.8, 3.1, 3.8, 4.2, and 4.2;
-$\smnu$ constraint improve by a factor of 4.7 over the $\Pg$ constraints}
+$\smnu$ constraint improve by a factor of 4.7 over the $\Pgl$ constraints}
 
 In Figure~\ref{fig:kmax_forecast}, we present the marginalized $1\sigma$
 constraints of the cosmological parameters $\Om$, $\Ob$, $h$, $n_s$, $\sig$, 
-and $\smnu$ as a function of $\kmax$, $\sigma_\theta(\kmax)$,for $\Pgl$
+and $\smnu$ as a function of $\kmax$, $\sigma_\theta(\kmax)$, for $\Pgl$
 (blue) and the combined $\Pgl + \Bg$ (orange). Again, these constraints
 marginalize over the \cite{zheng2007} HOD parameters. For both $\Pgl$ and
 $\Pgl + \Bg$, parameter constraints expectedly improve as
@@ -174,7 +174,7 @@ $\kmax=0.5\hmpc$, \cite{hahn2020} derived $1\sigma$ constraints of
 0.012, 0.004, 0.04, 0.036, 0.014, and 0.057 
 for $\Om$, $\Ob$, $h$, $n_s$, $\sig$ and $\smnu$. 
 %In comparison, we find constraints of 0.018, 0.006, 0.052, 0.053, 0.034, and 0.073 for $\Bg$ to $\kmax=0.5\hmpc$ . 
-$\Bg$ produces overall broader constraints on the cosmolgoical parameters~(Table~\ref{tab:forecast}). This
+$\Bg$ produces overall broader constraints on the cosmological parameters~(Table~\ref{tab:forecast}). This
 is the same for $\kmax=0.2\hmpc$. A comparison of the signal-to-noise ratios
 (SNR) of $\Bg$ and $\Bh$, estimated from the covariance
 matrix~\citep[\eg][]{sefusatti2005,sefusatti2006,chan2017}, also confirm the lower
@@ -190,6 +190,7 @@ power of the power spectrum more than the bispectrum. Therefore, {\em we find
 larger improvements in the parameter constraints from $\Bg$ over $\Pgl$ than
 from $\Bh$ over $\Phl$}.
 
+\subsection{Comparison to Previous Works}
 %comparison to the literature.
 Other previous works have also quantified the information content of the
 bispectrum:~\citep[\eg][]{scoccimarro2004, sefusatti2006, sefusatti2007,
@@ -242,8 +243,8 @@ forecasts for a Euclid-like survey.
 They use effective field theory based PT to model the
 1-loop galaxy power spectrum and tree-level galaxy bispectrum, which
 requires 22 parameters that include 5 galaxy bias parameters and 9 selection 
-parameters. For $P_g$ and $B_g$, they probe down to $k_{\rm max} = 0.35$ and
-$0.1\hmpc$, respecitvely, based on the limitations of their PT model. 
+parameters. Based on the limitations of their PT model, they probe 
+$P_g$ down to $k_{\rm max} = 0.35$ and $B_g$ down to $k_{\rm max} 0.1\hmpc$. 
 For fixed selection parameters, which account for selection effects, they find $>2\times$
 tighter cosmological parameter constraints from including $B_g$. Marginalizing
 over selection parameters, they find $>4\times$ tighter constraints. These 
@@ -297,6 +298,7 @@ $1.3\times$ from including $\Bg$, roughly consistent with \cite{chudaykin2019}.
 
 %Various differences between our forecast and previous work prevent more thorough comparisons. However, crucial aspects of our simulation based approach distinguish our forecasts from other works. We present the first bispectrum forecasts for a full set of cosmological parameters using bispectrum measured entirely from N-body simulations. By using the simulations, we go beyond perturbation the- ory models and accurately model the redshift-space bispectrum to the nonlinear regime. Furthermore, by exploiting the immense number of simulations, we accurately estimate the full high-dimensional covariance matrix of the bispectrum. With these advantages, we present the first forecast of cosmo- logical parameters from the bispectrum down to nonlinear scales and demonstrate the constraining power of the bispectrum for Mν. Below, we underline a few caveats of our forecasts.
 
+\subsection{Forecast Caveats}
 % caveats paragraph 
 Among the various differences between our forecast and previous works, we
 emphasize that we use a simulationed-based approach. This allows us to go beyond previous

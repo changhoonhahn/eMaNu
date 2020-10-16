@@ -1,4 +1,4 @@
-\documentclass[12pt, letterpaper, preprint]{aastex62}
+\documentclass[12pt, letterpaper, preprint]{aastex63}
 \input{vc}
 %\usepackage[breaklinks,colorlinks, urlcolor=blue,citecolor=blue,linkcolor=blue]{hyperref}
 \usepackage{color}
@@ -9,6 +9,9 @@
 \usepackage[normalem]{ulem} % Added by MS for \sout -> not required for final version
 \usepackage{xspace}
 \usepackage{csvsimple} 
+
+\usepackage{graphicx}
+\usepackage{pgfkeys, pgfsys, pgfcalendar}
 
 % typesetting shih
 \linespread{1.08} % close to 10/13 spacing
@@ -46,10 +49,12 @@
 
 % specific to this project
 \newcommand{\quij}{{\sc Quijote}}
+\newcommand{\molino}{{\sc Molino}}
 \newcommand{\planck}{{\em Planck}}
 \newcommand{\kmax}{k_{\rm max}}
 \newcommand{\Pg}{P^g} 
-\newcommand{\Pgl}{P^g_{\ell}} 
+%\newcommand{\Pgl}{P^g_{\ell}} 
+\newcommand{\Pgl}{P^g_0{+}P^g_2} 
 \newcommand{\Bg}{B^g_0} 
 \newcommand{\Phl}{P^h_{\ell}} 
 \newcommand{\Bh}{B^h_0} 
@@ -74,7 +79,7 @@
 \definecolor{orange}{rgb}{1,0.5,0}
 \newcommand{\ch}[1]{{\color{orange}{\bf CH:} #1}}
 
-\begin{document}\sloppy\sloppypar\frenchspacing 
+\begin{document}   %\sloppy\sloppypar\frenchspacing 
 
 \title{Constraining $\smnu$ with the Bispectrum II: the Total Information Content of the Galaxy Bispectrum} 
 \date{\texttt{DRAFT~---~\githash~---~\gitdate~---~NOT READY FOR DISTRIBUTION}}
@@ -87,10 +92,9 @@
 \affil{Department of Astrophysical Sciences, Princeton University, Peyton Hall, Princeton NJ 08544, USA} 
 
 \author{Francisco Villaescusa-Navarro} 
-\affil{Center for Computational Astrophysics, Flatiron Institute, 162 5th Avenue, New York, NY 10010, USA} 
 \affil{Department of Astrophysical Sciences, Princeton University, Peyton Hall, Princeton NJ 08544, USA} 
-
-\author{...}
+\affil{Center for Computational Astrophysics, Flatiron Institute, 162 5th Avenue, New York, NY 10010, USA} 
+%\author{...}
 
 \begin{abstract}
     Massive neutrinos suppress the growth of structure on small scales %below their free-streaming scale 
@@ -104,20 +108,20 @@
     bispectrum}, $\Bg$. We construct $195,000$ mock galaxy catalogs from the
     \quij~$N$-body simulation suite using the halo occupation distribution (HOD) model,
     which provides an effective galaxy bias framework well-suited for simulation-based
-    approaches. Using these mocks, we present the Fisher matrix forecasts for 
+    approaches. Using these mocks, we present Fisher matrix forecasts for 
     $\{\Om$, $\Ob$, $h$, $n_s$, $\sig$, $\smnu\}$ and
     quantify, for the first time, the total information content of the $\Bg$
     down to nonlinear scales. For $\kmax{=}0.5\hmpc$, $\Bg$ improves constraints 
     on $\Om$, $\Ob$, $h$, $n_s$, and $\sig$ by 2.8, 3.1, 3.8, 4.2, 4.2, and $4.7{\times}$ 
     over power spectrum, after marginalizing over HOD parameters. For $\smnu$, 
     we achieve $5.6\times$ tighter constraints with $\Bg$. Even with priors from
-    \planck, $\Bg$ improves cosmological constraints by $\gtrsim 2\times$. 
+    \planck, $\Bg$ improves all of the cosmological constraints by $\gtrsim 2\times$. 
     While effects such as survey geometry and assembly bias will have an
     impact, these %  the constraining power for galaxy surveys
     constraints are derived for $(1~h^{-1}{\rm Gpc})^3$, a substantially
     smaller volume than upcoming surveys. Therefore, we conclude that including
     the galaxy bispectrum will significantly improve cosmological constraints
-    for upcoming galaxy surveys --- especially for $\smnu$.
+    for upcoming galaxy surveys --- especially for $\smnu$. \vspace{1cm}
 \end{abstract}
 
 \keywords{

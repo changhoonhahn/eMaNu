@@ -1,6 +1,6 @@
 \section{Bispectrum and Cosmological Parameter Forecasts} \label{sec:methods}
-We measure the bispectrum and calculate the parameter constraints using the same methods as
-\cite{hahn2020}. For further details, we  refer readers to \cite{hahn2020}. 
+We measure the galaxy bispectrum and calculate the parameter constraints using the 
+same methods as \cite{hahn2020}. For further details, we  refer readers to \cite{hahn2020}. 
 
 To measure $\Bg$, we use a Fast Fourier Transform (FFT) based estimator similar to
 the ones in \cite{sefusatti2005}, \cite{scoccimarro2015}, and
@@ -8,7 +8,7 @@ the ones in \cite{sefusatti2005}, \cite{scoccimarro2015}, and
 $\delta(\bfi{x})$, using a fourth-order interpolation scheme, which has advantageous
 anti-aliasing properties that allow unbiased measurements up to the Nyquist
 frequency~\citep{hockney1981, sefusatti2016}. After Fourier transforming 
-$\delta(\bfi{x})$ to get $\delta(\bfi{k})$, we measure the bispectrum monopole:  
+$\delta(\bfi{x})$ to get $\delta(\bfi{k})$, we measure the bispectrum monopole
 \beq \label{eq:bk} 
 \Bg(k_1, k_2, k_3) = \frac{1}{V_B} \int\limits_{k_1}{\rm d}^3q_1
 \int\limits_{k_2}{\rm d}^3q_2 \int\limits_{k_3}{\rm d}^3q_3~\delta_{\rm
@@ -74,7 +74,9 @@ difference. For all parameters other than $\smnu$, we estimate
 \frac{\partial \Bg}{\partial \theta_i} \approx \frac{\Bg(\theta_i^{+})-\Bg(\theta_i^{-})}{\theta_i^+ - \theta_i^-}, 
 \eeq
 where $\Bg(\theta_i^{+})$ and $\Bg(\theta_i^{-})$ are the average bispectrum of the 
-$7,500$ realizations at $\theta_i^{+}$ and $\theta_i^{-}$, the HOD or 
+$(500~{\rm simulations})\times(3~{\rm RSD~axes})\times(5~{\rm
+HOD~realizations}) = 7,500$
+realizations at $\theta_i^{+}$ and $\theta_i^{-}$, the HOD or 
 cosmological parameter values above and below the fiducial parameters.  
 For $\smnu$, where the fiducial value is 0.0 eV, we use the galaxy catalogs 
 at $\smnu^+$, $\smnu^{++}$, $\smnu^{+++}=0.1, 0.2, 0.4$ eV (Table~\ref{tab:sims}) 

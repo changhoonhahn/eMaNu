@@ -5,7 +5,7 @@
     standard \cite{zheng2007} HOD model. The parameter values of our fiducial
     HOD model (Eq.~\ref{eq:hod_fid}) are roughly based on by the best-fit HOD
     parameters of the SDSS $M_r < -21.5$ and $< -22.$ samples from
-    \cite{zheng2007}, modified to accommodate the $M_{\rm lim}{=}3.2{\times}
+    \cite{zheng2007}, modified to accommodate the $M_{\rm lim}{=}1.31{\times}
     10^{13} h^{-1}M_\odot$ halo mass limit of the \quij~simulations (black
     dotted). We include the best-fit halo occupations of the SDSS  $M_r <
     -21.5$ (blue dashed) and $< -22.$ samples (orange dashed) from
@@ -18,7 +18,7 @@
 \end{center}
 \end{figure}
 
-\section{Halo Occupation Distribution} \label{sec:hod}  
+\section{Halo Occupation Distribution: The Molino Mock Galaxy Catalogs} \label{sec:hod}  
 We are interested in quantifying the information content of the galaxy bispectrum. 
 For a perturbation theory approach, this involves incorporating an analytic bias model 
 for galaxies~\citep[\emph{e.g.}][]{sefusatti2006, yankelevich2019, chudaykin2019}.
@@ -64,12 +64,12 @@ is the halo mass cut-off for satellite occupation and $M_h = M_0 + M_1$ is
 the typical mass scale for halos to host one satellite galaxy. The numbers 
 of centrals and satellites for each halo are drawn from Bernoulli and Poisson 
 distribution, respectively. Central galaxies are placed at the center of the
-halo while position and velocity of the satellite galaxies are sampled from a 
+halo while the position and velocity of the satellite galaxies are sampled from a 
 \cite{navarro1997} (NFW) profile. 
 
 For the fiducial parameters of our HOD model, we use the following values: 
 \beq \label{eq:hod_fid}
-\{M_{\rm min}, \sigma_{\log M}, \log M_0, \alpha, \log M_1 \} = \{13.65,~0.2,~14.0,~1.1,~14.0\}.
+\{\log M_{\rm min}, \sigma_{\log M}, \log M_0, \alpha, \log M_1 \} = \{13.65,~0.2,~14.0,~1.1,~14.0\}.
 \eeq
 These values are roughly based on the best-fit HOD parameters for the SDSS $M_r
 < -21.5$ and $-22$ samples from \cite{zheng2007}. 
@@ -88,9 +88,9 @@ masses~\citep{mandelbaum2006a, conroy2007, more2011, leauthaud2012, tinker2013,
 zu2015, hahn2019a}. Our fiducial halo occupation, with its lower $\sigma_{\log
 M}$, reflects a galaxy sample with a tighter scatter between stellar
 mass/luminosity and $M_h$ than the SDSS samples.  %than the samples selected based on $M_r$ or $M_*$ cuts, which were used in SDSS and BOSS. To
-In practice, constructing such a sample would require selecting based on
-observable galaxy properties that correlate more strongly with $M_h$ than 
-luminosity or $M_*$. While there is evdience that such observables are 
+In practice, constructing such a sample would require selecting galaxies based on
+observable properties that correlate more strongly with $M_h$ than 
+luminosity or $M_*$. While there is evidence that such observables are 
 available~\citep[\eg~$L_{\rm sat}$; ][]{alpaslan2019}, they have not been
 adopted for selecting galaxy samples. Regardless, in this work
 our focus is on quantifying the information content of the galaxy bispectrum 
@@ -109,9 +109,9 @@ halos --- a phenomenon referred to as ``halo assembly bias''~\citep[\eg][]{sheth
 gao2005, harker2006, wechsler2006, dalal2008, wang2009a, lacerna2014,
 contreras2020, hadzhiyska2020}.
 A model that only depends on $M_h$, does not account for this halo assembly 
-bias and may not sufficiently describe the connection between galaxies and 
-halos. Moreover, if unaccounted for in the HOD model, and thus not marginalized 
-over, halo assembly bias can impact the cosmological parameter constraints. 
+bias and may not be sufficiently flexible in describing the connection between 
+galaxies and halos. Moreover, if unaccounted for in the HOD model, and thus 
+not marginalized over, halo assembly bias can impact the cosmological parameter constraints. 
 However, for the high luminosity SDSS samples ($M_r < -21.5$  and $<-21$), 
 \cite{zentner2016} and \cite{vakili2019} find little evidence for assembly bias 
 in the galaxy clustering. Similarly, \cite{beltz-mohrmann2020} also find that
@@ -121,9 +121,10 @@ on the high luminosity SDSS samples, we do not include assembly bias and use
 the \cite{zheng2007} model. 
 
 
-All of the galaxy mock catalogs in this paper are constructed using the $22,000$ 
-$N$-body simulations of the \quij~suite: $15,000$ at the fiducial cosmology and $500$ at the 14 other cosmologies
-listed in Table~\ref{tab:sims}. First, we construct mocks for estimating the
+The \molino~galaxy mock catalogs used in this paper are constructed using the
+$22,000$ $N$-body simulations of the \quij~suite: $15,000$ at the fiducial
+cosmology and $500$ at the 14 other cosmologies listed in Table~\ref{tab:sims}.
+First, we construct mocks for estimating the
 covariance matrices using the 15,000 \quij~simulations at the fiducial cosmology with
 the fiducial HOD parameters. Next, we construct mocks for estimating the
 derivatives with respect to cosmological parameters using the 500
@@ -134,11 +135,13 @@ parameters --- a pair per parameter. Similar to the non-fiducial cosmologies in
 \quij, for each pair we vary one HOD paramter above and below the fiducial
 value by step sizes:
 \beq
-\{\Delta M_{\rm min}, \Delta \sigma_{\log M}, \Delta \log M_0, \Delta \alpha,
+\{\Delta \log M_{\rm min}, \Delta \sigma_{\log M}, \Delta \log M_0, \Delta \alpha,
 \Delta \log M_1 \} = \{0.05, 0.2, 0.2, 0.2, 0.2\}.
 \eeq
+You can maybe say that derivatives are converged with this choice. Or that Fisher
+doesnt change if you vary these values
 For the covariance matrix mocks, we generate one set of HOD realizations and apply 
 RSD along the z-axis: 15,000 mocks. For the derivative mocks, we generate 5
-sets of HOD realizations and apply RSD along all 3 directions: 180,000 mocks.
-{\em In total, we construct and use 195,000 galaxy catalogs in our analysis}.
-All of the galaxy catalogs are publicly available at \todo{where to access the galaxy catalogs}.
+sets of HOD realizations with different random seeds: 60,000 mocks. {\em In
+total, we construct and use 75,000 galaxy catalogs in our analysis}.
+The \molino~galaxy catalogs are publicly available at \todo{where to access the galaxy catalogs}.
