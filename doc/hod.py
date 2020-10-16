@@ -42,10 +42,12 @@ def HOD_fid():
     ''' two panel plot of the fiducial HOD and its w_p 
     '''
     # read in halo catalogs 
-    dir_lr = os.path.join(dir_hades, '0.0eV/1') 
-    dir_hr = os.path.join(dir_hades, '0.0eV/1_hires') 
-    halos_lr = simData.hqHalos(dir_lr, 4)
-    halos_hr = simData.hqHalos(dir_hr, 4)  
+    dir_quij = os.path.join(UT.dat_dir(), 'halos/quijote/fiducial/0') 
+    #dir_lr = os.path.join(dir_quij, '0.0eV/1') 
+    #dir_hr = os.path.join(dir_hades, '0.0eV/1_hires') 
+    halos_lr = simData.hqHalos(dir_quij, None, 4, Om=0.3175, Ol=0.6825,
+            z=2.220446049250313e-16, h=0.6711, Hz=100) 
+    #halos_hr = simData.hqHalos(dir_hr, 4)  
     
     # halo mass limit of lower resolution Quijote  
     Mh_min = np.log10(np.array(halos_lr['Mass']).min()) 
@@ -67,7 +69,7 @@ def HOD_fid():
             r'$M_{\rm lim} = %.2f \times 10^{13} M_\odot$' % (10**Mh_min/1e13), 
             ha='left', va='bottom', fontsize=15)
     #sub.legend(loc='upper left', fontsize=20)
-    sub.set_xlabel('$M_h$', labelpad=10, fontsize=25)
+    sub.set_xlabel('$M_h$ [$h^{-1}M_\odot$]', labelpad=10, fontsize=25)
     sub.set_xscale('log')
     sub.set_xlim(2e12, 5e15)
     sub.set_ylabel(r'$\langle N_{\rm gal} \rangle$', fontsize=25)
@@ -164,7 +166,6 @@ def _plot_wp_model(theta, Mr=-21.5, low_sigma=False):
     hod = FM.hodGalaxies(halos, tt_dict)
     fmlim = float(np.sum(np.array(hod['halo_mvir']) < 10**Mh_min))/float(len(np.array(hod['halo_mvir'])))
     Nmlim = np.sum(np.array(hod['halo_mvir']) < 10**Mh_min)
-    print fmlim, Nmlim 
 
     fig = plt.figure(figsize=(10,5))
     sub = fig.add_subplot(121)
@@ -251,7 +252,6 @@ def _plot_wp_model_pm(theta, Mr=-21.5, low_sigma=False):
     hod = FM.hodGalaxies(halos, tt_dict)
     fmlim = float(np.sum(np.array(hod['halo_mvir']) < 10**Mh_min))/float(len(np.array(hod['halo_mvir'])))
     Nmlim = np.sum(np.array(hod['halo_mvir']) < 10**Mh_min)
-    print tt_fid
     print('fiducial, %.3f, %i' % (fmlim, Nmlim))
 
     _Mhbins = np.logspace(11, 15, 300)
