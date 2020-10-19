@@ -24,7 +24,7 @@ For a perturbation theory approach, this involves incorporating an analytic bias
 for galaxies~\citep[\emph{e.g.}][]{sefusatti2006, yankelevich2019, chudaykin2019}.
 Perturbation theory approaches, however, break down on small scales and cannot
 exploit the constraining power from the nonlinear regime. Instead, in our simulation-based 
-approach we use the halo occupation distribution (HOD) 
+approach, we use the halo occupation distribution (HOD) 
 framework~\citep[\emph{e.g.}][]{benson2000, peacock2000, seljak2000, berlind2002,
 cooray2002, zheng2005, leauthaud2012, tinker2013, zentner2016, vakili2019}.
 HOD models statistically populate galaxies in dark matter halos by specifying
@@ -78,14 +78,14 @@ HOD parameters (black). We include the best-fit halo occupations of
 the SDSS $M_r < -21.5$ (blue)  and $-22$ (orange) samples from \cite{zheng2007}
 for comparison. We also mark the  $M_{\rm lim}{=}3.2\times10^{13} h^{-1}M_\odot$ 
 halo mass limit of the \quij~simulations (black dotted). At $M_h \sim 10^{13} M_\odot$, 
-the best-fit halo occupations of the SDSS samples extend below $M_{\rm lim}$. We 
-therefore cannot use the exact best-fit HOD
+the best-fit halo occupations of the SDSS samples extend below $M_{\rm lim}$.
+We, therefore, cannot use the exact best-fit HOD
 parameter values from the literature and instead reduce $\sigma_{\log M}$ to 0.2 dex.
 %As we mention above, $\sigma_{\log M}$ reflects the scatter between stellar mass/luminosity and halo mass. 
 The high $\sigma_{\log M}$ in the $M_r < -21.5$ and $-22$ SDSS samples is
 caused by the turnover in the stellar-to-halo mass relation at high stellar
-masses~\citep{mandelbaum2006a, conroy2007, more2011, leauthaud2012, tinker2013,
-zu2015, hahn2019a}. Our fiducial halo occupation, with its lower $\sigma_{\log
+masses~\citep{mandelbaum2006, conroy2007, more2011, leauthaud2012, tinker2013,
+zu2015, hahn2019b}. Our fiducial halo occupation, with its lower $\sigma_{\log
 M}$, reflects a galaxy sample with a tighter scatter between stellar
 mass/luminosity and $M_h$ than the SDSS samples.  %than the samples selected based on $M_r$ or $M_*$ cuts, which were used in SDSS and BOSS. To
 In practice, constructing such a sample would require selecting galaxies based on
@@ -94,7 +94,7 @@ luminosity or $M_*$. While there is evidence that such observables are
 available~\citep[\eg~$L_{\rm sat}$; ][]{alpaslan2019}, they have not been
 adopted for selecting galaxy samples. Regardless, in this work
 our focus is on quantifying the information content of the galaxy bispectrum 
-and not on analyzing a specific observed galaxy sample. We therefore opt for 
+and not on analyzing a specific observed galaxy sample. We, therefore, opt for 
 a more conservative set of HOD parameters with respect to $M_{\rm lim}$, even
 if the resulting galaxy sample is less reflective of observations. For our
 fiducial halo occupation at the fiducial cosmology, the galaxy catalog has 
@@ -102,9 +102,9 @@ $\bar{n}_g \sim 1.63\times 10^{-4}~h^3~{\rm Gpc}^{-3}$ and linear bias of
 $b_g \sim 2.55$.
 %We confirm using \quij simulations with higher mass resolution ($1024^3$ CDM particles) that $M_{\rm lim}$ does not impact the observables or their derivatives in our analysis for our fiducial HOD parameters. 
 
-The halo occupation in the \cite{zheng2007} model depends soley on $M_h$. 
+The halo occupation in the \cite{zheng2007} model depends solely on $M_h$. 
 Simulations, however, find evidence that secondary halo properties such as
-concentration or formation history correlate with spatial distribution of
+concentration or formation history correlate with the spatial distribution of
 halos --- a phenomenon referred to as ``halo assembly bias''~\citep[\eg][]{sheth2004,
 gao2005, harker2006, wechsler2006, dalal2008, wang2009a, lacerna2014,
 contreras2020, hadzhiyska2020}.
@@ -132,14 +132,13 @@ derivatives with respect to cosmological parameters using the 500
 estimating the derivatives with respect to the HOD parameters, using 500 
 \quij~simulations at the fiducial cosmology with 10 sets of non-fiducial HOD
 parameters --- a pair per parameter. Similar to the non-fiducial cosmologies in
-\quij, for each pair we vary one HOD paramter above and below the fiducial
+\quij, for each pair we vary one HOD parameter above and below the fiducial
 value by step sizes:
 \beq
 \{\Delta \log M_{\rm min}, \Delta \sigma_{\log M}, \Delta \log M_0, \Delta \alpha,
 \Delta \log M_1 \} = \{0.05, 0.2, 0.2, 0.2, 0.2\}.
 \eeq
-You can maybe say that derivatives are converged with this choice. Or that Fisher
-doesnt change if you vary these values
+These step sizes were chosen so that the derivatives are converged.
 For the covariance matrix mocks, we generate one set of HOD realizations and apply 
 RSD along the z-axis: 15,000 mocks. For the derivative mocks, we generate 5
 sets of HOD realizations with different random seeds: 60,000 mocks. {\em In

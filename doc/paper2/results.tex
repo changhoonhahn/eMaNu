@@ -117,7 +117,7 @@ Combining $\Pgl$ and $\Bg$, we get the following $1\sigma$ constraints for
 0.013, 0.005, 0.047, 0.049, 0.021, and 0.071.
 {\em With $\Pgl$ and $\Bg$ combined, we improve $\Om$, $\Ob$, $h$,
 $n_s$, and $\sig$ constraints by factors of 2.8, 3.1, 3.8, 4.2, and 4.2;
-$\smnu$ constraint improve by a factor of 4.7 over the $\Pgl$ constraints}
+$\smnu$ constraint improves by a factor of 4.7 over the $\Pgl$ constraints}
 
 In Figure~\ref{fig:kmax_forecast}, we present the marginalized $1\sigma$
 constraints of the cosmological parameters $\Om$, $\Ob$, $h$, $n_s$, $\sig$, 
@@ -184,7 +184,7 @@ Marginalizing over HOD parameters reduces some of the constraining power of
 the bispectrum. Fingers-of-god (FoG), the elongation of satellite galaxies
 in redshift-space along the line-of-sight due to their virial velocities inside 
 halos, also contributes to this reduction. 
-Nevertheless, $\Bg$ significantly improves parameters constraints over $\Pgl$.
+Nevertheless, $\Bg$ significantly improves parameter constraints over $\Pgl$.
 In fact, marginalizing over HOD parameters and FoG reduces the constraining
 power of the power spectrum more than the bispectrum. Therefore, {\em we find 
 larger improvements in the parameter constraints from $\Bg$ over $\Pgl$ than
@@ -207,7 +207,7 @@ $\kmax = 0.2\hmpc$ and with \planck~priors, we find $\Bg$ improves constraints
 by  1.5, 1.4, 1.4, 1.1, and $1.3\times$, which is in good agreement. There are,
 however, some significant differences between our analyses. First, \cite{sefusatti2006} 
 uses the WMAP likelihood while we use priors from {\em Planck}. Furthermore, 
-in our simulation-based approach, we marginalizes over the HOD parameters
+in our simulation-based approach, we marginalize over the HOD parameters
 whereas \cite{sefusatti2006} marginalize over the linear and quadratic bias
 terms ($b_1, b_2$) in their perturbation theory approach. Nevertheless, our
 results are consistent with the improvement \cite{sefusatti2006} find in
@@ -237,7 +237,7 @@ constraining power of $\Bg$ relative to $\Pg$ increases for higher $\kmax$
 consistent with our results. 
 
 % comparison to Agarwal+(2020) 
-Similar to \cite{yankelevich2019}, \cite{agarwal2020} presents \lcdm~Fisher 
+Similar to \cite{yankelevich2019}, \cite{agarwal2020} present \lcdm~Fisher 
 forecasts for a Euclid-like survey. 
 %They parameterize their cosmology using angular diameter distance $D_A$, Hubble parameter $H$, linear growth rate $f$, $\Omega_{\rm cdm}$, and the tilt, $n_s$, and running, $n_{\rm run}$ of the primordial power spectrum. 
 They use effective field theory based PT to model the
@@ -267,7 +267,7 @@ $1.1$, and $1.3\times$ tighter constraints for $\omega_{\rm cdm}$, $\omega_b$,
 $h$, $n_s$, $A_s$, and $\smnu$ from including $\Bg$. Overall, \cite{chudaykin2019} 
 find significant improvements from including $\Bg$ --- consistent with our
 results. However, they find more modest improvements. 
-Again, there are significant differences between our anlayses. First, like
+Again, there are significant differences between our analyses. First, like
 \cite{yankelevich2019} and \cite{agarwal2020}, \cite{chudaykin2019} present forecasts for a
 Euclid-like survey, which is significantly different than our galaxy sample.
 Their $z = 0.6$ redshift bin, for instance, has $\bar{n}_g = 3.83 \times 10^{-3}~h^3{\rm
@@ -301,29 +301,29 @@ $1.3\times$ from including $\Bg$, roughly consistent with \cite{chudaykin2019}.
 \subsection{Forecast Caveats}
 % caveats paragraph 
 Among the various differences between our forecast and previous works, we
-emphasize that we use a simulationed-based approach. This allows us to go beyond previous
-perturbation theory approaches and accurately quantify the constraining power
+emphasize that we use a simulation-based approach. This allows us to go beyond previous
+perturbation theory models and accurately quantify the constraining power
 in the nonlinear regime. A simulation-based approach, however, has a few caveats. 
 First, our forecasts rely on the stability and convergence of the covariance 
 matrix and numerical derivatives. 
-For our constraints we use a total of $195,000$ galaxy catalogs (Section~\ref{sec:hod}): 
-$15,000$ for the covariance matrices and $180,000$ for the derivatives with 
+For our constraints, we use a total of $75,000$ galaxy catalogs (Section~\ref{sec:hod}): 
+$15,000$ for the covariance matrices and $60,000$ for the derivatives with 
 respect to 11 parameters ($7,500$ at each parameter). To ensure the robustness
 of our results, we conduct the same set of convergence tests as
 \cite{hahn2020}. 
 First, we test whether our results have sufficiently converged by deriving the 
 constraints using different numbers of galaxy catalogs to estimate the covariance 
 matrix and derivatives: $N_{\rm cov}$ and $N_{\rm deriv}$. For $N_{\rm cov}$,
-we find $< 0.5\%$ variation in $\sigma_\theta$ for $N_{\rm cov} > 12000$.
+we find $< 0.5\%$ variation in $\sigma_\theta$ for $N_{\rm cov} > 12,000$.
 For $N_{\rm deriv}$, 
-we find $< 10\%$ variation $\sigma_\theta$ for $N_{\rm cov} > 6000$.
+we find $< 10\%$ variation $\sigma_\theta$ for $N_{\rm cov} > 6,000$.
 Since we have sufficient $N_{\rm cov}$ and $N_{\rm deriv}$, we conclude that 
 our constraints are not impacted by the convergence of the covariance matrix 
 or derivatives --- especially to the accuracy level of Fisher forecasting. 
 
 % derivative w.r.t. Mnu
 Besides the convergence of the numerical derivatives, the $\smnu$ derivatives
-can be evaluated using different sets of cosmologies. In our anlaysis, we
+can be evaluated using different sets of cosmologies. In our analysis, we
 evaluate ${\partial \Pgl}/{\partial \smnu}$ and ${\partial \Bg}/{\partial
 \smnu}$ using simulations at the $\{\theta_{\rm ZA}, \smnu^+, \smnu^{++},
 \smnu^{+++}\}$ cosmologies. They can, however, also be estimated using 
@@ -360,7 +360,7 @@ Besides convergence and stability, our forecasts are derived from Fisher
 matrices. We, therefore, assume that the posterior is approximately Gaussian. 
 When posteriors are highly non-elliptical or asymmetric, Fisher forecasts 
 significantly underestimate the constraints~\citep{wolz2012}. However, in
-this paper we do not derive actual parameter constraints from observations, 
+this paper we do not derive actual parameter constraints from observations
 but focus on quantifying the information content and constraining power of 
 $\Bg$ relative to
 $\Pgl$. Hence, we do not explore beyond the Fisher forecast. When we analyze
@@ -383,7 +383,7 @@ fiducial HOD,
 %of high luminosity galaxies in the Illustris and EAGLE hydrodynamic
 %simulations. While the standard HOD is sufficient for our forecast, 
 many works have demonstrated that assembly bias impacts galaxy
-clustering for lower luminsoity/mass samples both using
+clustering for lower luminosity/mass samples both using
 observations~\citep{pujol2014, hearin2016, pujol2017, zentner2019, vakili2019, obuljen2020}
 and hydrodynamic simulations~\citep{chaves-montero2016, beltz-mohrmann2020}. 
  
@@ -400,7 +400,7 @@ galaxy clustering. However, for the high luminosity SDSS samples,
 \cite{guo2015} find little satellite velocity bias.
 %While they find some central velocity bias, their constraints are based on galaxy clustering on very small scales (${\sim}0.1-25h^{-1}{\rm Mpc}$). 
 In simulations, \cite{beltz-mohrmann2020} similarly find that removing central and
-satellite velocity biases in the Illustris and EAGLE simulations has
+satellite velocity biases in the Illustris-TNG and EAGLE simulations has
 little impact on various clustering measurements of high luminosity
 samples. Although assembly bias and velocity bias likely do not impact our 
 forecasts, they must be included for lower luminosity/mass galaxy samples 
@@ -437,7 +437,7 @@ in our forecasts and do not consider it further in the series.
 
 % other things we want to take into account
 %alcock pacinzsky effect
-In our forecasts, we use $\Bg$ with triange defined in $k_1,k_2,k_3$ bins of
+In our forecasts, we use $\Bg$ with triangles defined in $k_1,k_2,k_3$ bins of
 width $\Delta k = 3 k_f$ (Section~\ref{sec:methods}).
 \cite{gagrani2017} find that for the growth rate parameter bispectrum
 multipoles beyond the monopole have significant constraining power.  
@@ -451,7 +451,7 @@ are straightforward to implement, they both increase the dimensionality of the
 data vector. $\Bg$ alone binned by $\Delta k = 3 k_f$ already has 1898
 dimensions. Including the bispectrum multipoles and increasing the
 binning would not be feasible for a full bispectrum analysis without the use of data
-compression~\citep[\eg][]{byun2017, gualdi2018, gualdi2019a, gualdi2019}. 
+compression~\citep[\eg][]{byun2017, gualdi2018, gualdi2019a, gualdi2019b}. 
 Thus, in the next paper in the series, we present how data compression can be
 incorporated in a galaxy bispectrum analysis.
 
@@ -461,11 +461,11 @@ selection function will smooth the triangle configuration dependence and degrade
 the constraining power of the bispectrum~\citep{sefusatti2005}. Furthermore, galaxy 
 samples selected based on photometric properties can also be impacted by, for instance, 
 the alignment of galaxies to the large-scale tidal fields~\citep{hirata2009,
-krause2011, martens2018, obuljen2019}. If unaccounted, this effect can
+krause2011, martens2018, obuljen2019}. If unaccounted for, this effect can
 significantly bias the inferred cosmological parameters~\citep{agarwal2020}. 
 Such effects, however, further underscore the importance of the bispectrum.
 Marginalizing over them dramatically reduces the constraining power of the
-power spectrum alone and necesitates the bispectrum to break parameter
+power spectrum alone and necessitates the bispectrum to break parameter
 degeneracies to tightly constrain cosmological parameters. Besides selection
 effects, we also do not account for super-sample covariance, which may also impact 
 our constraints~\citep{hamilton2006, sefusatti2006, takada2013, li2018,
