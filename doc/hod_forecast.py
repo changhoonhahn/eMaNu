@@ -799,7 +799,7 @@ def plot_PBg(rsd='all'):
     pklim = (k < 0.5) 
     bklim = ((i_k*kf <= 0.5) & (j_k*kf <= 0.5) & (l_k*kf <= 0.5)) # k limit 
 
-    fig = plt.figure(figsize=(25,4))
+    fig = plt.figure(figsize=(25,5))
     gs = mpl.gridspec.GridSpec(1, 2, figure=fig, width_ratios=[1,5], wspace=0.15) 
     sub0 = plt.subplot(gs[0]) 
     sub1 = plt.subplot(gs[1]) 
@@ -825,7 +825,7 @@ def plot_PBg(rsd='all'):
     sub1.set_xlim(0, np.sum(bklim)) 
     sub1.set_ylabel('$B_{g, 0}(k_1, k_2, k_3)$', fontsize=25) 
     sub1.set_yscale('log') 
-    sub1.set_ylim(1e7, 5e10)
+    sub1.set_ylim(1e6, 5e10)
     
     ffig = os.path.join(dir_doc, 'PBg%s.png' % (_rsd_str(rsd)))
     fig.savefig(ffig, bbox_inches='tight') 
@@ -2898,6 +2898,7 @@ if __name__=="__main__":
         plot_dP02B_Mnu(kmax=0.5, seed=range(5), rsd='all')
     '''
     # comparisons between galaxy and halo P and B 
+    plot_PBg(rsd='all')
     '''
         plot_PBg(rsd='all')
         _plot_PBg_PBh_SN(rsd='all')
@@ -2965,4 +2966,4 @@ if __name__=="__main__":
     '''
         _signal_to_noise()
     '''
-    _P02B_sigmalogM(0.5)
+    #_P02B_sigmalogM(0.5)
