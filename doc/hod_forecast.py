@@ -2736,7 +2736,7 @@ def _P02B_sigmalogM(kmax):
     return None 
 
 
-def _write_FisherMatrix(kmax=0.5, seed=range(5), rsd='all', dmnu='fin',
+def _write_FisherMatrix(obs='p02bk', kmax=0.5, seed=range(5), rsd='all', dmnu='fin',
         theta_nuis=None, planck=False, silent=True): 
     ''' write out Fisher matrix for Ema 
     '''
@@ -2748,7 +2748,7 @@ def _write_FisherMatrix(kmax=0.5, seed=range(5), rsd='all', dmnu='fin',
         if 'b2' in theta_nuis: pk_theta_nuis.remove('b2') 
         if 'g2' in theta_nuis: pk_theta_nuis.remove('g2') 
 
-    pbkFij  = FisherMatrix('p02bk', kmax=kmax, seed=seed, rsd=rsd, dmnu=dmnu,
+    pbkFij  = FisherMatrix(obs, kmax=kmax, seed=seed, rsd=rsd, dmnu=dmnu,
             theta_nuis=theta_nuis, silent=silent)
     cond = np.linalg.cond(pbkFij)
     if cond > 1e16: raise ValueError('Fij is ill-conditioned %.5e' % cond)
@@ -2773,8 +2773,8 @@ def _write_FisherMatrix(kmax=0.5, seed=range(5), rsd='all', dmnu='fin',
     planck_str = ''
     if planck: planck_str = '.planck'
     fout = os.path.join(dir_doc, 
-            'FisherMatrix.p02bk%s.dmnu_%s.kmax%.2f%s%s%s.dat' % 
-            (nuis_str, dmnu, kmax, _seed_str(seed), _rsd_str(rsd), planck_str))
+            'FisherMatrix.%s%s.dmnu_%s.kmax%.2f%s%s%s.dat' % 
+            (obs, nuis_str, dmnu, kmax, _seed_str(seed), _rsd_str(rsd), planck_str))
 
     np.savetxt(fout, pbkFij, header=hdr) 
     return None 
@@ -2898,7 +2898,6 @@ if __name__=="__main__":
         plot_dP02B_Mnu(kmax=0.5, seed=range(5), rsd='all')
     '''
     # comparisons between galaxy and halo P and B 
-    plot_PBg(rsd='all')
     '''
         plot_PBg(rsd='all')
         _plot_PBg_PBh_SN(rsd='all')
