@@ -5,7 +5,8 @@
     \caption{Marginalized Fisher parameter constraints from the redshift-space 
     $\Pgl$, $\Bg$, and $\Pgl$ + $\Bg$. We list constraints for cosmological 
     parameters $\smnu$, $\Omega_m$, $\Omega_b$, $h$, $n_s$, and $\sig$ as well 
-    as HOD and nuisance parameters.} 
+    as HOD and nuisance parameters. These constraints are derived for
+    $(1~h^{-1}Gpc)^3$, a substantially smaller volume than upcoming surveys.} 
 \begin{center} 
     \begin{tabular}{c|ccc|ccc} \hline
         & \multicolumn{3}{c}{$\kmax=0.2~\hmpc$} & \multicolumn{3}{c}{$\kmax=0.5~\hmpc$} \\ %& & $\kmax=0.2$ & & & $\kmax=0.5$ & \\
@@ -71,7 +72,7 @@ $\log M_1$ &  0.819 (0.691) & 0.434 (0.408) & 0.244 (0.149) & 0.193 (0.119) & 0.
         as a function of $k_{\rm max}$ for the redshift-space $\Pgl$ (blue)
         and combined $\Pgl + \Bg$ (orange). Even after marginalizing over
         HOD parameters, the galaxy bispectrum {\em significantly} improves 
-        cosmological parameter constraints% above $k_{\rm max} > 0.1\hmpc$. 
+        cosmological parameter constraints. % above $k_{\rm max} > 0.1\hmpc$. 
         %Constraints from $\Pgl$ and $\Pgl + \Bg$ improve with higher $k_{\rm max}$. 
         {\em For $k_{\rm max} = 0.2$ and $0.5\hmpc$, including the bispectrum
         improves $\{\Om, \Ob, h, n_s, \sig, \smnu\}$ constraints by factors 
@@ -244,7 +245,7 @@ They use effective field theory based PT to model the
 1-loop galaxy power spectrum and tree-level galaxy bispectrum, which
 requires 22 parameters that include 5 galaxy bias parameters and 9 selection 
 parameters. Based on the limitations of their PT model, they probe 
-$P_g$ down to $k_{\rm max} = 0.35$ and $B_g$ down to $k_{\rm max} 0.1\hmpc$. 
+$P_g$ down to $k_{\rm max} = 0.35$ and $B_g$ down to $k_{\rm max}= 0.1\hmpc$. 
 For fixed selection parameters, which account for selection effects, they find $>2\times$
 tighter cosmological parameter constraints from including $B_g$. Marginalizing
 over selection parameters, they find $>4\times$ tighter constraints. These 
@@ -324,12 +325,12 @@ or derivatives --- especially to the accuracy level of Fisher forecasting.
 % derivative w.r.t. Mnu
 Besides the convergence of the numerical derivatives, the $\smnu$ derivatives
 can be evaluated using different sets of cosmologies. In our analysis, we
-evaluate ${\partial \Pgl}/{\partial \smnu}$ and ${\partial \Bg}/{\partial
+evaluate ${\partial (\Pgl)}/{\partial \smnu}$ and ${\partial \Bg}/{\partial
 \smnu}$ using simulations at the $\{\theta_{\rm ZA}, \smnu^+, \smnu^{++},
 \smnu^{+++}\}$ cosmologies. They can, however, also be estimated using 
 two other sets of cosmologies: (i) $\{\theta_{\rm ZA}, \smnu^+\}$ and (ii)
 $\{\theta_{\rm ZA}, \smnu^+, \smnu^{++}\}$. Replacing ${\partial
-\Pgl}/{\partial \smnu}$ and ${\partial \Bg}/{\partial \smnu}$ estimates of our
+(\Pgl)}/{\partial \smnu}$ and ${\partial \Bg}/{\partial \smnu}$ estimates of our
 forecast with derivatives estimated using (i) or (ii) does not impact 
 $\Om$, $\Ob$, $h$, $n_s$, and $\sig$ constraints. Although the different
 derivatives impact $\smnu$ constraints, they impact both $\Pgl$ and $\Bg$
@@ -346,11 +347,11 @@ scatter $\sigma_{\log M} = 0.2$ dex --- due to the halo mass limit of
 catalogs have a different selection function than observed samples, typically
 selected based on $M_r$ or $M_*$ cuts (\eg~SDSS or BOSS). To estimate the impact
 of our fiducial $\sigma_{\log M}$ choice, we repeat our forecasts but using 
-${\partial \Pgl}/{\partial \sigma_{\log M}}$ and ${\partial \Bg}/{\partial \sigma_{\log M}}$
+${\partial (\Pgl)}/{\partial \sigma_{\log M}}$ and ${\partial \Bg}/{\partial \sigma_{\log M}}$
 at $\sigma_{\log M} = 0.55$ dex. These derivatives are estimated using the
 higher resolution \quij~simulation, which have $8\times$ the mass resolution 
 but only 100 realizations~\citep{villaescusa-navarro2020a}. The change in 
-${\partial \Pgl}/{\partial \sigma_{\log M}}$ and ${\partial
+${\partial (\Pgl)}/{\partial \sigma_{\log M}}$ and ${\partial
 \Bg}/{\partial \sigma_{\log M}}$ significantly impacts the HOD parameter
 constraints; however, it has a {\em negligible} effect on the cosmological
 parameter constraints. 
