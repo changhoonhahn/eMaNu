@@ -356,7 +356,7 @@ def dBk(theta, seed=range(5), rsd='all', dmnu='fin', Nderiv=None, silent=True, o
     if theta == 'Mnu': 
         idmnu = {'fin': 3, 'fin0': 5, 'p': 7, 'pp': 9, 'ppp': 11}[dmnu]
         icols = [0, 1, 2, idmnu, idmnu+1]
-
+    
     i_k, j_k, l_k, dbdt, dlogbdt = np.loadtxt(fdbk, skiprows=1,
             unpack=True, usecols=icols) 
 
@@ -2003,8 +2003,8 @@ def _P02B_Forecast_diffkmax(pkmax=0.2, bkmax=0.1, seed='all', rsd='all', dmnu='f
     pbkFinv = np.linalg.inv(pbkFij) 
 
     i_Mnu = thetas.index('Mnu')
-    print('P kmax = %.1f' % pkmax)
-    print('B kmax = %.1f' % bkmax)
+    print('P kmax = %.2f' % pkmax)
+    print('B kmax = %.2f' % bkmax)
     print('--- thetas ---')
     print('P sigmas %s' % ', '.join(['%.5f' % sii for sii in np.sqrt(np.diag(pkFinv))]))
     print('B sigmas %s' % ', '.join(['%.5f' % sii for sii in np.sqrt(np.diag(bkFinv))]))
@@ -2012,7 +2012,7 @@ def _P02B_Forecast_diffkmax(pkmax=0.2, bkmax=0.1, seed='all', rsd='all', dmnu='f
     if theta_nuis is not None and 'Bsn' in theta_nuis: 
         pass 
     else: 
-        print('improve. over P %s' % ', '.join(['%.1f' % sii for sii in np.sqrt(np.diag(pkFinv)/np.diag(pbkFinv))]))
+        print('improve. over P %s' % ', '.join(['%.2f' % sii for sii in np.sqrt(np.diag(pkFinv)/np.diag(pbkFinv))]))
     print('improve. over B %s' % ', '.join(['%.1f' % sii for sii in np.sqrt(np.diag(bkFinv)/np.diag(pbkFinv))]))
     return None 
 
@@ -2941,6 +2941,7 @@ if __name__=="__main__":
                 params='lcdm')
     '''
     # forecasts 
+    _P02B_Forecast_diffkmax(pkmax=0.15, bkmax=0.05, seed=range(5), rsd='all', dmnu='fin', theta_nuis=None, planck=False)
     '''
         P02B_Forecast(kmax=0.5, seed=range(5), rsd='all', dmnu='fin', theta_nuis=None, planck=False)
         P02B_Forecast(kmax=0.5, seed=range(5), rsd='all', dmnu='fin', theta_nuis=None, planck=True)
