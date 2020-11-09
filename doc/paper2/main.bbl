@@ -463,6 +463,10 @@ Jungman, G., Kamionkowski, M., Kosowsky, A., \& Spergel, D.~N. 1996,
   \href{http://dx.doi.org/10.1103/PhysRevD.54.1332}{\JournalTitle{Physical
   Review D}, 54, 1332}
 
+\bibitem[{Kamalinejad \& Slepian(2020)}]{kamalinejad2020}
+Kamalinejad, F., \& Slepian, Z. 2020, \JournalTitle{arXiv e-prints}, 2011,
+  arXiv:2011.00899
+
 \bibitem[{Karagiannis {et~al.}(2018)Karagiannis, Lazanu, Liguori, Raccanelli,
   Bartolo, \& Verde}]{karagiannis2018}
 Karagiannis, D., Lazanu, A., Liguori, M., {et~al.} 2018,
@@ -723,6 +727,11 @@ Saito, S., Takada, M., \& Taruya, A. 2008,
   \href{http://dx.doi.org/10.1103/PhysRevD.80.083528}{\JournalTitle{Physical
   Review D}, 80, 083528}
 
+\bibitem[{Salcedo {et~al.}(2020)Salcedo, Zu, Zhang, Wang, Yang, Wu, Jing, Mo,
+  \& Weinberg}]{salcedo2020}
+Salcedo, A.~N., Zu, Y., Zhang, Y., {et~al.} 2020, \JournalTitle{arXiv
+  e-prints}, 2010, arXiv:2010.04176
+
 \bibitem[{Sartoris {et~al.}(2016)Sartoris, Biviano, Fedeli, Bartlett, Borgani,
   Costanzi, Giocoli, Moscardini, Weller, Ascaso, Bardelli, Maurogordato, \&
   Viana}]{sartoris2016}
@@ -908,6 +917,10 @@ Vogelsberger, M., Genel, S., Springel, V., {et~al.} 2014,
   \href{http://dx.doi.org/10.1093/mnras/stu1536}{\JournalTitle{Monthly Notices
   of the Royal Astronomical Society}, 444, 1518}
 
+\bibitem[{Wadekar {et~al.}(2020)Wadekar, Ivanov, \& Scoccimarro}]{wadekar2020}
+Wadekar, D., Ivanov, M.~M., \& Scoccimarro, R. 2020, \JournalTitle{arXiv
+  e-prints}, 2009, arXiv:2009.00622
+
 \bibitem[{Wadekar \& Scoccimarro(2019)}]{wadekar2019}
 Wadekar, D., \& Scoccimarro, R. 2019, \JournalTitle{arXiv e-prints}, 1910,
   arXiv:1910.02914
@@ -947,6 +960,15 @@ Wong, Y. Y.~Y. 2008,
 Wu, H.-Y., \& Huterer, D. 2013,
   \href{http://dx.doi.org/10.1093/mnras/stt1200}{\JournalTitle{Monthly Notices
   of the Royal Astronomical Society}, 434, 2556}
+
+\bibitem[{Xu {et~al.}(2020)Xu, Brewer, Rojas, Li, Osumi, Pradenas, Ali, Appel,
+  Bennett, Bustos, Chan, Chuss, Cleary, Couto, Dahal, Datta, Denis, D{\"u}nner,
+  Eimer, {Essinger-Hileman}, Gothe, Harrington, Iuliano, Karakla, Marriage,
+  Miller, N{\'u}{\~n}ez, Padilla, Parker, Petroff, Reeves, Rostem, Nunes~Valle,
+  Watts, Weiland, Wollack, \& {CLASS Collaboration}}]{xu2020}
+Xu, Z., Brewer, M.~K., Rojas, P.~F., {et~al.} 2020,
+  \href{http://dx.doi.org/10.3847/1538-4357/ab76c2}{\JournalTitle{The
+  Astrophysical Journal}, 891, 134}
 
 \bibitem[{Yamauchi {et~al.}(2017)Yamauchi, Yokoyama, \&
   Takahashi}]{yamauchi2017a}
