@@ -2898,6 +2898,7 @@ if __name__=="__main__":
         plot_dP02B_Mnu(kmax=0.5, seed=range(5), rsd='all')
     '''
     # comparisons between galaxy and halo P and B 
+    plot_PBg(rsd='all')
     '''
         plot_PBg(rsd='all')
         _plot_PBg_PBh_SN(rsd='all')
@@ -2941,7 +2942,6 @@ if __name__=="__main__":
                 params='lcdm')
     '''
     # forecasts 
-    _P02B_Forecast_diffkmax(pkmax=0.15, bkmax=0.05, seed=range(5), rsd='all', dmnu='fin', theta_nuis=None, planck=False)
     '''
         P02B_Forecast(kmax=0.5, seed=range(5), rsd='all', dmnu='fin', theta_nuis=None, planck=False)
         P02B_Forecast(kmax=0.5, seed=range(5), rsd='all', dmnu='fin', theta_nuis=None, planck=True)
