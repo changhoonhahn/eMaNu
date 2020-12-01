@@ -50,8 +50,8 @@ $\log M_1$ &  0.819 (0.691) & 0.434 (0.408) & 0.244 (0.149) & 0.193 (0.119) & 0.
         \includegraphics[width=\textwidth]{figs/Fisher_p02bk_dmnu_fin_kmax0_50_seed0to4.pdf}
         \caption{Fisher matrix constraints for $\smnu$ and other cosmological
         parameters for the redshift-space galaxy $\Pgl$ (blue), $\Bg$
-        (green), and combined $\Pgl$ and $\Bg$ (orange) for $k_{\rm max} =
-        0.5\hmpc$, for a $1 ({\rm Gpc}/h)^3$ volume. Our forecasts marginalizes over the \cite{zheng2007}
+        (green), and combined $\Pgl$ and $\Bg$ (orange) out to $k_{\rm max} =
+        0.5\hmpc$ for a $1 ({\rm Gpc}/h)^3$ volume. Our forecasts marginalizes over the \cite{zheng2007}
         HOD parameters: $\log M_{\rm min}, \sigma_{\log M}, \log M_0, \alpha$, 
         and $\log M_1$ (bottom panels). The contours mark the $68\%$ and $95\%$
         confidence intervals. The bispectrum substantially improves
@@ -97,13 +97,14 @@ We present the Fisher matrix constraints for $\smnu$ and other cosmological
 parameters from the redshift-space galaxy $\Pgl$ (blue), $\Bg$ (green), and 
 combined $\Pgl + \Bg$ (orange) in Figure~\ref{fig:forecast}. These
 constraints marginalize over the \cite{zheng2007} HOD parameters %$\{M_{\rm min}, \sigma_{\log M}, \log M_0, \alpha \log M_1 \}$ 
-(bottom panels) and extends to $k_{\rm max} = 0.5\hmpc$. The contours mark the $68\%$ and
-$95\%$ confidence intervals. With the redshift-space $\Pgl$
+(bottom panels), extend to $k_{\rm max} = 0.5\hmpc$, and are for a $1 ({\rm
+Gpc}/h)^3$ volume. The contours mark the $68\%$ and $95\%$ confidence
+intervals. With the redshift-space $\Pgl$
 alone, we derive the following $1\sigma$ constraints for $\{\Om, \Ob, h, n_s,
 \sig, \smnu\}$: 
 0.037, 0.015, 0.178, 0.206, 0.089, and 0.334 eV.
-With the redshift-space $\Bg$ alone, and for only a $1 ({\rm Gpc}/h)^3$ volume,
-we get: 0.018, 0.006, 0.052, 0.053, 0.034, and 0.073 eV.
+With the redshift-space $\Bg$ alone, we get: 
+0.018, 0.006, 0.052, 0.053, 0.034, and 0.073 eV.
 {\em The galaxy bispectrum achieves significantly tighter constraints on all
 cosmological parameters over the power spectrum}. 
 
@@ -128,7 +129,7 @@ and $\smnu$ as a function of $\kmax$, $\sigma_\theta(\kmax)$, for $\Pgl$
 marginalize over the \cite{zheng2007} HOD parameters. For both $\Pgl$ and
 $\Pgl + \Bg$, parameter constraints expectedly improve as
 we include smaller scales (higher $\kmax$). More importantly,
-Figure~\ref{fig:kmax_forecast} highlights that {\em the galaxy bispectrum
+Figure~\ref{fig:kmax_forecast} further highlights that {\em the galaxy bispectrum
 significantly improves cosmological parameter constraints}. Even for 
 $\kmax\sim 0.2\hmpc$, including 
 $\Bg$ improves $\Om$, $\Ob$, $h$, $n_s$, $\sig$ and $\smnu$ constraints by 
@@ -321,7 +322,7 @@ First, our forecasts rely on the stability and convergence of the covariance
 matrix and numerical derivatives. 
 For our constraints, we use a total of $75,000$ galaxy catalogs (Section~\ref{sec:hod}): 
 $15,000$ for the covariance matrices and $60,000$ for the derivatives with 
-respect to 11 parameters ($7,500$ at each parameter). To ensure the robustness
+respect to 11 parameters. To ensure the robustness
 of our results, we conduct the same set of convergence tests as
 \cite{hahn2020}. 
 First, we test whether our results have sufficiently converged by deriving the 
@@ -416,7 +417,7 @@ In simulations, \cite{beltz-mohrmann2020} similarly find that removing central a
 satellite velocity biases in the Illustris-TNG and EAGLE simulations has
 little impact on various clustering measurements of high luminosity
 samples. Although assembly bias and velocity bias likely do not impact our 
-forecasts, they must be included for lower luminosity/mass galaxy samples 
+forecasts, they will need to be included for lower luminosity/mass galaxy samples 
 and for higher precision measurements of observations. Therefore, when 
 we analyze BOSS with a simulation-based approach later in the series,
 we will use an extended HOD framework that includes both assembly bias and velocity
@@ -483,7 +484,7 @@ power spectrum alone and necessitates the bispectrum to break parameter
 degeneracies to tightly constrain cosmological parameters. Besides selection
 effects, we also do not account for super-sample covariance, which may also impact 
 our constraints~\citep{hamilton2006, sefusatti2006, takada2013, li2018,
-wadekar2019}. However, \cite{wadekar2020} recently found that super-sample
+wadekar2019}. \cite{wadekar2020}, however, recently found that super-sample
 covariance has a $\lesssim10\%$ impact on parameter constraints so we still expect 
 to find substantial improvements in cosmological parameter constraints from 
 including the bispectrum, especially for $\smnu$.  
