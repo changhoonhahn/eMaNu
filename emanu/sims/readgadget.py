@@ -135,7 +135,7 @@ def read_block(snapshot, block, ptype, verbose=False):
         else:
 
             # do a loop over the different files
-            for i in xrange(filenum):
+            for i in range(filenum):
                 
                 # find the name of the file to read
                 filename = '%s.%d.hdf5'%(snapshot,i)

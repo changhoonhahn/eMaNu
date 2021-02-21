@@ -1,6 +1,6 @@
 '''
 
-This script computes the real-space bispectrum for CDM + baryons. It takes as
+This script computes the real-space bispectrum for CDM + baryons + neutrinos. It takes as
 input the first and last number of the wanted realizations, the cosmology and the 
 snapnum
 
@@ -34,15 +34,11 @@ first, last, cosmo, snapnum = args.first, args.last, args.cosmo, args.snapnum
 def create_B(ireal):
     ''' read in snapshots and compute B
     '''
-    # read gadget snapshot 
-    ptype    = [1] #[1](CDM), [2](neutrinos) or [1,2](CDM+neutrinos)
-
-    # read positions, velocities and IDs of the particles
     fsnap = os.path.join('/projects/QUIJOTE/Snapshots', 
             cosmo, str(ireal), 'snapdir_%s' % str(snapnum).zfill(3), 
             'snap_%s' % str(snapnum).zfill(3))
-
-    fbk = os.path.join('/projects/QUIJOTE/Bk_cdmb', cosmo, 'Bk_%i_snap%i.txt' % (ireal, snapnum))
+    
+    fbk = os.path.join('/projects/QUIJOTE/Bk_cdmbnu', cosmo, 'Bk_%i_snap%i.txt' % (ireal, snapnum))
     if os.path.exists(fbk): 
         print('    %s ... already exists' % fbk) 
         return None  
@@ -50,11 +46,22 @@ def create_B(ireal):
         print('    %s ... calculating' % fbk) 
         pass 
 
-    xyz = RG.read_block(fsnap, "POS ", ptype)/1e3 #positions in Mpc/h
-    xyz = xyz.astype(np.float32).T
+    header = RG.header(fsnap) 
+    # CDM positions 
+    xyz_cdm = RG.read_block(fsnap, "POS ", [1])/1e3 #positions in Mpc/h
+    xyz_cdm = xyz_cdm.astype(np.float32).T
+    # neutirno positions 
+    xyz_nu = RG.read_block(fsnap, "POS ", [2])/1e3 
+    xyz_nu = xyz_nu.astype(np.float32).T
+    w_nu = header.massarr[2] / header.massarr[1] # relative weight of neutrino 
+
+    xyz_all = np.concatenate([xyz_cdm, xyz_nu], axis=1)
+    w_all = np.concatenate([np.ones(xyz_cdm.shape[1]), np.repeat(w_nu, xyz_nu.shape[1])])
+    w_all = w_all.astype(np.float32)
     
     # calculate bispectrum 
-    b123out = pySpec.Bk_periodic(xyz, 
+    b123out = pySpec.Bk_periodic(xyz_all, 
+            w=w_all, 
             Lbox=1000.0, #Mpc/h
             Ngrid=360, 
             step=3, 
@@ -76,8 +83,8 @@ def create_B(ireal):
     cnts = b123out['counts']
 
     # save results to file
-    hdr = ('CDM+B Bk for cosmology=%s, snapshot %i; k_f = 2pi/%.1f, Nparticles=%i'%\
-           (cosmo, snapnum, 1000., xyz.shape[0]))
+    hdr = ('CDM+B Bk for cosmology=%s, snapshot %i; k_f = 2pi/%.1f, N_cdm=%i, N_nu=%i'%\
+           (cosmo, snapnum, 1000., xyz_cdm.shape[1], xyz_cdm.shape[1]))
     print('--- creating %s ---' % os.path.basename(fbk)) 
     np.savetxt(fbk, np.array([i_k,j_k,l_k,p0k1,p0k2, p0k3, b123, q123, b_sn, cnts]).T, 
                fmt='%i %i %i %.5e %.5e %.5e %.5e %.5e %.5e %.5e', 
@@ -87,8 +94,8 @@ def create_B(ireal):
 #####################################################################################
 # create output folder if it does not exist
 if myrank==0:
-    if not os.path.exists(os.path.join('/projects/QUIJOTE/Bk_cdmb', cosmo)):  
-        os.system('mkdir %s' % os.path.join('/projects/QUIJOTE/Bk_cdmb',cosmo))
+    if not os.path.exists(os.path.join('/projects/QUIJOTE/Bk_cdmbnu', cosmo)):  
+        os.system('mkdir -p %s' % os.path.join('/projects/QUIJOTE/Bk_cdmbnu',cosmo))
 
 # get the realizations each cpu works on
 numbers = np.where(np.arange(args.first, args.last)%nprocs==myrank)[0]
